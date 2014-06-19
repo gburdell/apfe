@@ -27,8 +27,6 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
@@ -41,7 +39,9 @@ public class ConditionalLines extends Acceptor {
         //ConditionalLines <- ConditionalLine*
         Repetition r1 = new Repetition(new ConditionalLine(), Repetition.ERepeat.eZeroOrMore);
         boolean match = (null != (r1 = match(r1)));
-        m_text = (match) ? r1.toString() : "";
+        if (match) {
+            m_text = super.toString();
+        }
         return match;
     }
 
@@ -49,7 +49,6 @@ public class ConditionalLines extends Acceptor {
     public String toString() {
         return m_text;
     }
-
     private String m_text;
 
     @Override
@@ -66,7 +65,6 @@ public class ConditionalLines extends Acceptor {
     protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
         return stMemo.memoized(mark);
     }
-
     /**
      * Memoize for all instances of ConditionalLines.
      */

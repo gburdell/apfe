@@ -2,18 +2,18 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="5">
         <file>
-            <url>src/apfe/runtime/PrioritizedChoice.java</url>
-            <bookmark id="1">
-                <name/>
-                <line>102</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>src/apfe/dsl/vlogpp/Comment.java</url>
             <bookmark id="5">
                 <name/>
                 <line>125</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/apfe/runtime/PrioritizedChoice.java</url>
+            <bookmark id="1">
+                <name/>
+                <line>102</line>
                 <key/>
             </bookmark>
         </file>
@@ -38,14 +38,14 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/vlogpp.peg</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Main.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Acceptor.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharClass.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/NotChar3.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/MacroText.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/Grammar.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Acceptor.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/NotChar3.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/vlogpp.peg</file>
             <file>file:/home/gburdell/projects/apfe/test/apfe/dsl/vlogpp/GrammarTest.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharClass.java</file>
         </group>
     </open-files>
 </project-private>

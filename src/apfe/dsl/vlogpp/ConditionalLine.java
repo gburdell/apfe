@@ -41,7 +41,7 @@ public class ConditionalLine extends Acceptor {
         Sequence s1 = new Sequence(new Spacing(), new ConditionalLineContent(), new Spacing());
         boolean match = (null != (s1 = match(s1)));
         if (match) {
-            m_text = s1.toString();
+            m_text = super.toString();
         }
         return match;
     }

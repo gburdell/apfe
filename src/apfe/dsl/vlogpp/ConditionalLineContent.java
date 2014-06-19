@@ -52,7 +52,6 @@ public class ConditionalLineContent extends Acceptor {
          / !('`') AnyChar
          */
         PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
-
             @Override
             public Acceptor getChoice(int ix) {
                 Acceptor a = null;
@@ -83,17 +82,19 @@ public class ConditionalLineContent extends Acceptor {
                 }
                 return a;
             }
-        }
-        );
+        });
         boolean match = (null != (pc1 = match(pc1)));
         if (match) {
-            m_text = pc1.toString();
+            m_text = super.toString();
         }
         return match;
     }
-    
-    @Override public String toString() {return m_text;}
 
+    @Override
+    public String toString() {
+        return m_text;
+    }
+    
     private String m_text;
 
     @Override
@@ -110,7 +111,6 @@ public class ConditionalLineContent extends Acceptor {
     protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
         return stMemo.memoized(mark);
     }
-
     /**
      * Memoize for all instances of ConditionalLineContent.
      */

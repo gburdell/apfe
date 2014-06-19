@@ -74,7 +74,9 @@ public class TicConditional extends Acceptor {
                 new Identifier(), new ConditionalLines());
         Repetition r1 = new Repetition(s1, Repetition.ERepeat.eZeroOrMore);
         match &= (null != (r1 = match(r1)));
-        if (!match) {return false;}
+        if (!match) {
+            return false;
+        }
         if (0 < r1.sizeofAccepted()) {
             m_elseifs = r1;
         }
@@ -82,19 +84,29 @@ public class TicConditional extends Acceptor {
         r1 = new Repetition(new Sequence(new CharSeq("`else"),
                 new ConditionalLines()), Repetition.ERepeat.eOptional);
         match &= (null != (r1 = match(r1)));
-        if (!match) {return false;}
+        if (!match) {
+            return false;
+        }
         if (0 < r1.sizeofAccepted()) {
-            m_else = Util.extractEleAsString((Sequence)r1.getOnlyAccepted(), 1);
+            m_else = Util.extractEleAsString((Sequence) r1.getOnlyAccepted(), 1);
         }
         match &= (new CharSeq("`endif")).acceptTrue();
+        if (match) {
+            m_str = super.toString();
+        }
         return match;
     }
-
     private boolean m_ifdef;
     private String m_id;
     private String m_condLines;
     private Repetition m_elseifs;
     private String m_else;
+    private String m_str;
+
+    @Override
+    public String toString() {
+        return m_str;
+    }
 
     @Override
     public Acceptor create() {
@@ -110,7 +122,6 @@ public class TicConditional extends Acceptor {
     protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
         return stMemo.memoized(mark);
     }
-
     /**
      * Memoize for all instances of TicConditional.
      */
