@@ -1,0 +1,16 @@
+DEFN-1   %s: rule already defined.
+FILE-1   %s: could not write file.
+FILE-2   %s: could not read file.
+GEN-1    %s: generating file.
+LEXER-1  %s.
+LINK-1   %s: rule is not defined.
+LINK-2   %s: link status.
+LINK-3   %s: rule defined but not used.
+LR-1     %s: rule is direct left-recursive: path '%s'.
+LR-2     %s: rule is indirect left-recursive: path '%s'.
+PARSE-1  %s:%d: unexpected token '%s'.
+PARSE-2  %s:%d: syntax error at '%s'.
+PARSE-3  %s: unexpected char '%c'.
+PARSE-4  %s: parse failed.
+PARSE-5  %s:%s: found '%s', expected '%s'.
+STAT-1   Memoize hit rate: %d / %d (%.2f%%)

@@ -1,0 +1,10 @@
+# Left and right recursive
+
+Grammar <- Term
+Term <- Term '+' Term / Term '-' Term / Fact 
+Fact <- Fact '*' Fact / Fact '/' Fact / Ternary / Prim 
+
+Ternary <- Term '?' Term ':' Term
+
+Prim <- '(' Term ')' / Int 
+Int <- [0-9]+

@@ -1,0 +1,4 @@
+# Specify default property values for generate.
+
+#Output root directory for generate files
+outputDir: .

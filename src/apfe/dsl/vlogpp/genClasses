@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+set clss=`../../../../bin/generate vlogpp.peg | fgrep '<-' | awk '{print$1}' | egrep -v 'Grammar|(^[A-Z_]+$)'`
+set ref=Grammar.java
+foreach cls ($clss)
+	set to=${cls}.java
+	sed 's/Grammar/'${cls}'/' $ref >! $to
+end

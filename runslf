@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+if (! $?MEMOIZE) setenv MEMOIZE false
+
+exec java -ea -Xms6G \
+	-Dapfe.runtime.MemoizeSize=10 \
+	-Dapfe.runtime.EnableMemoize=${MEMOIZE} \
+	-cp ./dist/apfe.jar apfe.slf.Grammar ${*} 

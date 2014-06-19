@@ -1,0 +1,115 @@
+Grammar <- Contents EOF
+Spacing <- (Space / Comment)*
+Contents <- (Spacing Content Spacing)*
+Content <- TicInclude
+         / TicDefine
+         / TicConditional
+         / TicReserved
+         / TicMacroUsage
+         / AnyChar
+
+AnyChar <- !(Space / Comment / EOF) .   #Spacing accepts >0
+
+TicInclude <- "`include" Spacing ('"' FileName '"' / '<' FileName '>')
+FileName <- (!([">] / EOL / EOF) .)+
+TicDefine <- "`define" Spacing TextMacroName (MacroText)?
+
+#NOTE: LRM says no space between Identifier and '(' (if parameters)
+TextMacroName <- Identifier ('(' ListOfFormalArguments ')')?
+
+ListOfFormalArguments <- FormalArgument (Spacing ',' FormalArgument)*
+FormalArgument <- Spacing Identifier (Spacing '=' (DefaultText)? )?
+
+TicMacroUsage <- '`'Identifier (Spacing '(' ListOfActualArguments ')')?
+ListOfActualArguments <- ActualArgument (',' ActualArgument)*
+ActualArgument <- VString
+                / '(' !')' ActualArgument ')'
+                / '{' !'}' ActualArgument '}'
+                / '[' !']' ActualArgument ']'
+                / (Space / Comment)+ ActualArgument
+                / (NotChar4 . ActualArgument)? 
+NotChar4 <- !(',' / ')' / '}' / ']' / EOF)
+
+VString <- '"' (NotChar1 .)* '"'
+NotChar1 <- !('"' / EOF / EOL)
+
+#Very close to ActualArgument
+DefaultText <- VString
+              / '(' (!')' DefaultText) ')'
+              / '{' (!'}' DefaultText) '}'
+              / '[' (!']' DefaultText) ']'
+              / (Space / SL_COMMENT)+ DefaultText
+              / (NotChar4 . DefaultText)?
+
+# TODO: MacroText allows: (LRM 22.5.1 `define)
+# A mixture of `" and " is allowed in the macro text, 
+# however the use of " always starts a string literal and
+# must have a terminating ". Any characters embedded inside 
+# this string literal, including `", become part of
+# the string in the replaced macro text. 
+# Thus, if " is followed by `", the " starts a string literal 
+# whose last character is ` and is terminated by the " of `".
+#
+#A `\`" indicates that the expansion should include the escape sequence \"
+#A `` delimits lexical tokens without introducing white space
+MacroText <- MacroText2 EOL
+MacroText2 <- (("`\\`\"") / MacroText3)* ("\\" EOL MacroText2)?
+MacroText3 <- Spacing2+ / (NotChar3 .)
+NotChar3 <- !(EOF / EOL / "\\")
+Spacing2 <- (' ' / "\t" / Comment)
+
+TicConditional <- ("`ifdef" / "ifndef") Spacing Identifier ConditionalLines
+    ("`elsif" Spacing Identifier ConditionalLines)*
+    ("`else" ConditionalLines)?
+    "`endif"
+
+ConditionalLines <- ConditionalLine*
+ConditionalLine <- Spacing ConditionalLineContent Spacing
+ConditionalLineContent <- TicInclude
+         / TicDefine
+         / TicConditional
+         / TicReserved
+         / !("`elseif" / "`else" / "`endif") TicMacroUsage
+        ##
+        ## Dont want to catch a `elsif,`else,`endif with AnyChar    
+        ##
+         / !('`') AnyChar
+
+TicReserved <- ResetAll
+             / Undef
+             / UndefineAll
+             / TimeScale
+             / DefaultNetType
+             / CellDefine
+             / Pragma
+             / Line
+             / FileExpand
+             / LineExpand
+             / BeginKeywords
+             / EndKeywords
+
+BeginKeywords <- "`begin_keywords" Spacing STRING
+EndKeywords <- "`end_keywords"
+FileExpand <- "`__FILE__"
+LineExpand <- "`__LINE__"
+ResetAll <- "`resetall"
+Undef <- "`undef" Spacing Identifier
+UndefineAll <- "`undefineall"
+TimeScale <- "`timescale" Spacing TimeValue Spacing '/' Spacing TimeValue
+TimeValue <- [0-9]+ Spacing ("s" / "ms" / "us" / "ns" / "ps" / "fs")
+DefaultNetType <- "`default_nettype" Spacing
+    ("wire" / "tri0" / "tri1" / "wand" / "triand" / "wor" / "trior" / "trireg" / "uwire" / "none" / "tri")
+CellDefine <- "`celldefine" /  "`endcelldefine"
+Pragma <- "`pragma" #just let it pass for now
+Line <- "`line" Spacing [0-9]+ Spacing STRING Spacing [0-2] 
+
+Identifier <- [A-Za-z_] [A-Za-z_0-9]*
+Comment <- SL_COMMENT / ML_COMMENT
+SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
+ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
+
+Space <- ' ' / "\t" / EOL
+
+//These are special (predefined)
+//EOL: EndOfLine <- "\r\n" / "\n" / "\r"
+//EOF: EndOfFile <- !.
