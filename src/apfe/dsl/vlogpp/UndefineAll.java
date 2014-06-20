@@ -25,9 +25,8 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
@@ -37,11 +36,19 @@ public class UndefineAll extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //UndefineAll <- "`undefineall"
+        boolean match = (new CharSeq("`undefineall")).acceptTrue();
+        if (match) {
+            m_text = super.toString();
+        }
+        return match;
     }
+    private String m_text;
 
-    private Contents m_contents;
-
+    @Override
+    public String toString() {
+        return m_text;
+    }
     @Override
     public Acceptor create() {
         return new UndefineAll();

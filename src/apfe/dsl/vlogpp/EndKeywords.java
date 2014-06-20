@@ -25,9 +25,8 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
@@ -37,10 +36,19 @@ public class EndKeywords extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //EndKeywords <- "`end_keywords"
+        boolean match = (new CharSeq("`end_keywords")).acceptTrue();
+        if (match) {
+            m_text = super.toString();
+        }
+        return match;
     }
+    private String m_text;
 
-    private Contents m_contents;
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {
@@ -56,7 +64,6 @@ public class EndKeywords extends Acceptor {
     protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
         return stMemo.memoized(mark);
     }
-
     /**
      * Memoize for all instances of EndKeywords.
      */

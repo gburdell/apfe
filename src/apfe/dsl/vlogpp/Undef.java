@@ -25,6 +25,7 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -35,13 +36,25 @@ import apfe.runtime.Util;
  */
 public class Undef extends Acceptor {
 
-    @Override
+   @Override
     protected boolean accepti() {
-        return false;
+        //Undef <- "`undef" Spacing Identifier
+       Sequence s1 = new Sequence(new CharSeq("`undef"), new Spacing(), 
+               new Identifier());
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_ident = Util.extractEleAsString(s1, 2);
+            m_text = super.toString();
+        }
+        return match;
     }
+    private String m_text;
+    private String m_ident;
 
-    private Contents m_contents;
-
+    @Override
+    public String toString() {
+        return m_text;
+    }
     @Override
     public Acceptor create() {
         return new Undef();

@@ -25,6 +25,7 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -35,13 +36,21 @@ import apfe.runtime.Util;
  */
 public class ResetAll extends Acceptor {
 
-    @Override
+   @Override
     protected boolean accepti() {
-        return false;
+        //ResetAll <- "`resetall"
+        boolean match = (new CharSeq("`resetall")).acceptTrue();
+        if (match) {
+            m_text = super.toString();
+        }
+        return match;
     }
+    private String m_text;
 
-    private Contents m_contents;
-
+    @Override
+    public String toString() {
+        return m_text;
+    }
     @Override
     public Acceptor create() {
         return new ResetAll();

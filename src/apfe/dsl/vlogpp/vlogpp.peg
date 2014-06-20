@@ -88,7 +88,7 @@ TicReserved <- ResetAll
              / BeginKeywords
              / EndKeywords
 
-BeginKeywords <- "`begin_keywords" Spacing STRING
+BeginKeywords <- "`begin_keywords" Spacing VString
 EndKeywords <- "`end_keywords"
 FileExpand <- "`__FILE__"
 LineExpand <- "`__LINE__"
