@@ -24,14 +24,10 @@
 package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
 import apfe.runtime.CharClass;
 import apfe.runtime.EndOfFile;
-import apfe.runtime.Memoize;
 import apfe.runtime.NotPredicate;
 import apfe.runtime.PrioritizedChoice;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
@@ -48,8 +44,6 @@ public class NotChar4 extends Acceptor {
         boolean match = (null != (np1 = match(np1)));
         return match;
     }
-
-    private Contents m_contents;
 
     @Override
     public Acceptor create() {

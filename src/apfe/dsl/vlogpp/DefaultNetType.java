@@ -25,7 +25,9 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
+import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
@@ -37,10 +39,31 @@ public class DefaultNetType extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //DefaultNetType <- "`default_nettype" Spacing
+        //  ("wire" / "tri0" / "tri1" / "wand" / "triand" / "wor" / "trior" 
+        //  / "trireg" / "uwire" / "none" / "tri")
+        PrioritizedChoice p1 = new PrioritizedChoice(new CharSeq("wire"),
+                new CharSeq("tri0"), new CharSeq("tri1"),
+                new CharSeq("wand"), new CharSeq("triand"),
+                new CharSeq("wor"), new CharSeq("trior"), new CharSeq("trireg"),
+                new CharSeq("uwire"), new CharSeq("none"), new CharSeq("tri"));
+        Sequence s1 = new Sequence(new CharSeq("`default_nettype"),
+                new Spacing(), p1);
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_type = Util.extractEleAsString(s1, 2);
+            m_text = super.toString();
+        }
+        return match;
     }
 
-    private Contents m_contents;
+    private String m_type;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

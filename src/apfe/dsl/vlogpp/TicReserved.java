@@ -99,7 +99,7 @@ public class TicReserved extends Acceptor {
         if (match) {
             m_text = super.toString();
         }
-        return false;
+        return match;
     }
     private PrioritizedChoice m_contents;
     private String m_text;

@@ -38,14 +38,14 @@ import static org.junit.Assert.*;
  * @author gburdell
  */
 public class GrammarTest {
-
+    static String stFname = "/home/gburdell/projects/apfe/test/apfe/dsl/vlogpp/t1.vh";
     /**
      * Test of accepti method, of class Grammar.
      */
     @Test
     public void testAccepti() {
         try {
-            final String fn = "/home/gburdell/projects/apfe/test/apfe/dsl/vlogpp/t1.vh";
+            final String fn = stFname;
             System.out.println("accepti");
             InputStream fins = new InputStream(fn);
             CharBuffer cbuf = fins.newCharBuffer();

@@ -1,0 +1,3 @@
+#!/bin/csh -f
+
+exec java -ea -cp ../../../../dist/apfe.jar apfe.dsl.vlogpp.Grammar ${*}

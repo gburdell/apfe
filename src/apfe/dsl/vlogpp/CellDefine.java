@@ -25,9 +25,9 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
+import apfe.runtime.PrioritizedChoice;
 
 /**
  *
@@ -37,10 +37,24 @@ public class CellDefine extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //CellDefine <- "`celldefine" /  "`endcelldefine"
+        PrioritizedChoice p1 = new PrioritizedChoice(new CharSeq("`celldefine"),
+                new CharSeq("`endcelldefine"));
+        boolean match = (null != (p1 = match(p1)));
+        if (match) {
+            m_isBegin = (0 == p1.whichAccepted());
+            m_text = super.toString();
+        }
+        return match;
     }
 
-    private Contents m_contents;
+    private boolean m_isBegin;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

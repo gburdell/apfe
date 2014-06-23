@@ -38,14 +38,11 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Main.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/MacroText.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/TicDefine.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/Grammar.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Acceptor.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/NotChar3.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/vlogpp.peg</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/NotChar4.java</file>
             <file>file:/home/gburdell/projects/apfe/test/apfe/dsl/vlogpp/GrammarTest.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharClass.java</file>
         </group>
     </open-files>
 </project-private>

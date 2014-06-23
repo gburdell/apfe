@@ -25,6 +25,7 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -37,10 +38,26 @@ public class TimeScale extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //TimeScale <- "`timescale" Spacing TimeValue Spacing '/' Spacing TimeValue
+        Sequence s1 = new Sequence(new CharSeq("`timescale"), new Spacing(),
+                new TimeValue(), new Spacing(), new CharSeq('/'), new Spacing(),
+                new TimeValue());
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_vals = new TimeValue[]{Util.extractEle(s1, 2),
+                Util.extractEle(s1, 6)};
+            m_text = super.toString();
+        }
+        return match;
     }
 
-    private Contents m_contents;
+    private TimeValue m_vals[];
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

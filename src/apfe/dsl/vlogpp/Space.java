@@ -25,7 +25,10 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharClass;
+import apfe.runtime.EndOfLine;
 import apfe.runtime.Memoize;
+import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
@@ -37,10 +40,22 @@ public class Space extends Acceptor {
 
     @Override
     protected boolean accepti() {
+        //Space <- ' ' / "\t" / EOL
+        PrioritizedChoice p1 = new PrioritizedChoice(new CharClass(CharClass.matchOneOf(" \t")),
+                new EndOfLine());
+        boolean match = p1.acceptTrue();
+        if (match) {
+            m_text = super.toString();
+        }
         return false;
     }
 
-    private Contents m_contents;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

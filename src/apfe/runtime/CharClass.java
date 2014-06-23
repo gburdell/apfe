@@ -23,8 +23,6 @@
  */
 package apfe.runtime;
 
-import apfe.peg.Char;
-
 /**
  * @author gburdell
  */

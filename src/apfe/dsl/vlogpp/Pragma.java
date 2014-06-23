@@ -25,9 +25,8 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
@@ -37,10 +36,20 @@ public class Pragma extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //Pragma <- "`pragma" #just let it pass for now
+        boolean match = (new CharSeq("`pragma")).acceptTrue();
+        if (match) {
+            m_text = super.toString();
+        }
+        return match;
     }
 
-    private Contents m_contents;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

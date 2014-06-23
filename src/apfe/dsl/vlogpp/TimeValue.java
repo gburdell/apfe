@@ -25,7 +25,12 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharClass;
+import apfe.runtime.CharSeq;
+import apfe.runtime.ICharClass;
 import apfe.runtime.Memoize;
+import apfe.runtime.PrioritizedChoice;
+import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
@@ -37,10 +42,30 @@ public class TimeValue extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //TimeValue <- [0-9]+ Spacing ("s" / "ms" / "us" / "ns" / "ps" / "fs")
+        CharClass c1 = new CharClass(ICharClass.IS_DIGIT);
+        Repetition r1 = new Repetition(c1, Repetition.ERepeat.eOneOrMore);
+        PrioritizedChoice p1 = new PrioritizedChoice(new CharSeq("s"),
+                new CharSeq("ms"), new CharSeq("us"), new CharSeq("ns"), new CharSeq("ps"),
+                new CharSeq("fs"));
+        Sequence s1 = new Sequence(r1, new Spacing(), p1);
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_num = Integer.parseInt(Util.extractEleAsString(s1, 0));
+            m_units = Util.extractEleAsString(s1, 2);
+            m_text = super.toString();
+        }
+        return match;
     }
 
-    private Contents m_contents;
+    private int m_num;
+    private String m_units;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

@@ -26,9 +26,14 @@ package apfe.dsl.vlogpp;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.EndOfFile;
+import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
+import apfe.runtime.ParseError;
 import apfe.runtime.Sequence;
+import apfe.runtime.State;
 import apfe.runtime.Util;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -67,4 +72,27 @@ public class Grammar extends Acceptor {
      * Memoize for all instances of Grammar.
      */
     private static Memoize stMemo = new Memoize();
+    
+    public static void main(String argv[]) {
+        try {
+            final String fn = argv[0];
+            System.out.println("accepti");
+            InputStream fins = new InputStream(fn);
+            CharBuffer cbuf = fins.newCharBuffer();
+            State st = State.create(cbuf);
+            Grammar gram = new Grammar();
+            Acceptor acc = gram.accept();
+            if (null != acc) {
+                String ss = acc.toString();
+                System.out.println("returns:\n========\n"+ss);
+            }
+            boolean result = (null != acc) && st.isEOF();
+            if (!result) {
+                ParseError.printTopMessage();
+            }
+            assert(result);
+        } catch (Exception ex) {
+            Logger.getLogger(Grammar.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

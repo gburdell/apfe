@@ -25,7 +25,11 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharClass;
+import apfe.runtime.CharSeq;
+import apfe.runtime.ICharClass;
 import apfe.runtime.Memoize;
+import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
@@ -37,10 +41,24 @@ public class Line extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        return false;
+        //Line <- "`line" Spacing [0-9]+ Spacing VString Spacing [0-2]
+        CharClass c1 = new CharClass(ICharClass.IS_DIGIT);
+        Repetition r1 = new Repetition(c1, Repetition.ERepeat.eOneOrMore);
+        Sequence s1 = new Sequence(new CharSeq("`line"), new Spacing(), r1,
+                new Spacing(), new VString(), new Spacing(), 
+                new CharClass(CharClass.matchOneOf("012")));
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_fname = Util.extractEleAsString(s1, 4);
+            m_lnum = Integer.parseInt(Util.extractEleAsString(s1, 2));
+            m_type = Integer.parseInt(Util.extractEleAsString(s1, 6));
+            m_text = super.toString();
+        }
+        return match;
     }
 
-    private Contents m_contents;
+    private String m_text, m_fname;
+    private int m_lnum, m_type;
 
     @Override
     public Acceptor create() {
