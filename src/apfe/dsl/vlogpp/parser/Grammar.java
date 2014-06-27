@@ -21,32 +21,61 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.dsl.vlogpp;
+package apfe.dsl.vlogpp.parser;
 
-import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.EndOfFile;
 import apfe.runtime.InputStream;
+import apfe.runtime.Memoize;
 import apfe.runtime.ParseError;
+import apfe.runtime.Sequence;
 import apfe.runtime.State;
+import apfe.runtime.Util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author gburdell
  */
-public class GrammarTest {
-    static String stFname = "/home/gburdell/projects/apfe/test/apfe/dsl/vlogpp/t1.vh";
+public class Grammar extends Acceptor {
+
+    @Override
+    protected boolean accepti() {
+        Sequence s1 = new Sequence(new Contents(), new EndOfFile());
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_contents = Util.extractEle(s1, 0);
+        }
+        return match;
+    }
+
+    private Contents m_contents;
+
+    @Override
+    public Acceptor create() {
+        return new Grammar();
+    }
+
+    @Override
+    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
+        stMemo.add(mark, this, endMark);
+    }
+
+    @Override
+    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
+        return stMemo.memoized(mark);
+    }
+
     /**
-     * Test of accepti method, of class Grammar.
+     * Memoize for all instances of Grammar.
      */
-    @Test
-    public void testAccepti() {
+    private static Memoize stMemo = new Memoize();
+    
+    public static void main(String argv[]) {
         try {
-            final String fn = stFname;
+            final String fn = argv[0];
             System.out.println("accepti");
             InputStream fins = new InputStream(fn);
             CharBuffer cbuf = fins.newCharBuffer();
@@ -61,9 +90,9 @@ public class GrammarTest {
             if (!result) {
                 ParseError.printTopMessage();
             }
-            assertTrue(result);
+            assert(result);
         } catch (Exception ex) {
-            Logger.getLogger(GrammarTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Grammar.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }

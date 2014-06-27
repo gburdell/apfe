@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp;
 
+import apfe.dsl.vlogpp.parser.Spacing;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.Memoize;

@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp;
 
+import apfe.dsl.vlogpp.parser.TicMacroUsage;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.ParseError;
