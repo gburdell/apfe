@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharSeq;
@@ -41,19 +42,33 @@ public class TicDefine extends Acceptor {
     protected boolean accepti() {
         //TicDefine <- "`define" Spacing TextMacroName (MacroText)?
         Repetition r1 = new Repetition(new MacroText(), Repetition.ERepeat.eOptional);
-        Sequence s1 = new Sequence(new CharSeq("`define"), new Spacing(), 
+        Sequence s1 = new Sequence(new CharSeq("`define"), new Spacing(),
                 new TextMacroName(), r1);
         boolean match = (null != (s1 = match(s1)));
-        if  (match) {
+        if (match) {
             m_name = Util.extractEleAsString(s1, 2);
+            MacroText mtext = null;
             r1 = Util.extractEle(s1, 3);
             if (0 < r1.sizeofAccepted()) {
+                mtext = r1.getOnlyAccepted();
                 m_text = r1.getOnlyAccepted().toString();
             }
+            addDefn(mtext);
         }
         return match;
     }
 
+    private void addDefn(MacroText mtext) {
+        Main mn = Main.getTheOne();
+        if (mn.getConditionalAllow()) {
+            //TODO: MacroText needs to retain structure/object
+            if (null == mtext) {
+                mn.getMacroDefns().add(m_name, null);
+            } else {
+                //add one with more
+            }
+        }
+    }
     private String m_name;
     private String m_text;
 
@@ -71,7 +86,6 @@ public class TicDefine extends Acceptor {
     protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
         return stMemo.memoized(mark);
     }
-
     /**
      * Memoize for all instances of TicDefine.
      */

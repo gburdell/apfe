@@ -138,12 +138,13 @@ public class MacroDefns {
              * parm position, 1-origin.
              */
             //Get parameter names in descending order of length
-            List<String> names = new LinkedList<String>();
+            List<String> names = new LinkedList<>();
             for (Parm p : parms) {
                 names.add(p.getParmName());
             }
-            List<String> sorted = new LinkedList<String>(names);
+            List<String> sorted = new LinkedList<>(names);
             Collections.sort(sorted, new Comparator<String>() {
+                @Override
                 public int compare(String t, String t1) {
                     //return by descending order
                     int n = t.length(), n1 = t1.length();
@@ -161,7 +162,7 @@ public class MacroDefns {
     // {[0],[1]}={prefix,suffix}
     private static final String stDelim[] = new String[]{"</%", "%/>"};
 
-    private Map<String, Val> m_valsByName = new HashMap<String, Val>();
+    private Map<String, Val> m_valsByName = new HashMap<>();
 
     public static class Val {
 
