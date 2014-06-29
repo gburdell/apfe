@@ -38,12 +38,6 @@ import java.util.StringTokenizer;
  */
 public class MessageMgr {
 
-    public static void initialize() {
-        if (null == getTheOne()) {
-            stTheOne = new MessageMgr();
-        }
-    }
-
     /**
      * Encapsulate message.
      */
@@ -58,7 +52,6 @@ public class MessageMgr {
          * @param args	arguments to pass to format.
          */
         public Message(char severity, String code, Object... args) {
-            initialize();
             m_type = getTheOne().getMessenger().factory(severity);
             m_message = format(m_type, code, args);
         }
@@ -157,9 +150,12 @@ public class MessageMgr {
      * @param fname new messages.
      */
     public static void addMessages(String fname) {
-        initialize();
+        addMessages(new File(fname));
+    }
+
+    public static void addMessages(File f) {
         MessageMgr mgr = getTheOne();
-        mgr.init(new File(fname));
+        mgr.init(f);
     }
 
     private void init() {
@@ -274,7 +270,7 @@ public class MessageMgr {
         return m_msgs.get(code);
     }
     private static final String stFname = "messages.txt";
-    private static MessageMgr stTheOne = null;
+    private static MessageMgr stTheOne = new MessageMgr();
     private final Map<String, String> m_msgs = new HashMap<>();
     private final IMessenger m_messenger = new DefaultMessenger();
     private final int m_msgCnts[] = new int[]{0, 0, 0};

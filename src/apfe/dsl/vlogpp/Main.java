@@ -23,45 +23,107 @@
  */
 package apfe.dsl.vlogpp;
 
+import apfe.runtime.MessageMgr;
+import apfe.runtime.Util;
+import java.io.File;
+import java.util.Stack;
+
 /**
  * Toplevel object/singleton for vlogpp system.
+ *
  * @author gburdell
  */
 public class Main {
-    private Main() {}
-    
+
+    private Main() {
+    }
+
     public static Main getTheOne() {
         return stTheOne;
     }
-    
+
+    public static void warning(String code, Object... args) {
+        MessageMgr.message('W', code, args);
+    }
+
     public MacroDefns getMacroDefns() {
         return m_macroDefns;
     }
 
-    /**
-     * Set current conditional allow state.
-     * Reflects ability to change state when we are processing
-     * conditional statement (like `ifdef).
-     * @param m_conditionalAllow value of current allow state.
-     */
-    public void setConditionalAllow(boolean m_conditionalAllow) {
-        this.m_conditionalAllow = m_conditionalAllow;
+    private MacroDefns m_macroDefns = new MacroDefns();
+
+    private static Main stTheOne = new Main();
+
+    private static enum IfdefState {
+
+        eDone, eNotDone, eBlockDone;
+
+        public boolean pass() {
+            return (this == eDone);
+        }
     }
-    
+
     /**
-     * Get current conditional allow state.
-     * @return true if state can change; else we are in a blocked
-     * statement.
+     * Check state of conditional block pass.
+     *
+     * @return true if not blocked by conditional clause/block.
      */
     public boolean getConditionalAllow() {
-        return m_conditionalAllow;
+        return (m_ifdefStack.isEmpty()) ? true : m_ifdefStack.peek().pass();
     }
-   
-    private MacroDefns m_macroDefns = new MacroDefns();
+
+    public boolean isDefined(String key) {
+        return m_macroDefns.isDefined(key);
+    }
+
+    public void ticIfdef(String key) {
+        boolean rval = isDefined(key);
+        m_ifdefStack.push(next(rval ? IfdefState.eDone
+                : IfdefState.eNotDone));
+    }
+
+    public void ticIfndef(String key) {
+        boolean rval = !isDefined(key);
+        m_ifdefStack.push(next(rval ? IfdefState.eDone
+                : IfdefState.eNotDone));
+    }
+
+    public void ticElse() {
+        IfdefState was = m_ifdefStack.pop();
+        IfdefState nxt = (was == IfdefState.eDone)
+                ? IfdefState.eBlockDone : IfdefState.eDone;
+        m_ifdefStack.push(next(nxt));
+    }
+
+    public void ticElsif(String key) {
+        IfdefState was = m_ifdefStack.pop();
+        IfdefState nxt = (was == IfdefState.eDone) ? IfdefState.eBlockDone
+                : (isDefined(key) ? IfdefState.eDone : IfdefState.eNotDone);
+        m_ifdefStack.push(next(nxt));
+    }
+
+    public void ticEndif() {
+        assert (!m_ifdefStack.empty());
+        m_ifdefStack.pop();
+    }
+
     /**
-     * State of current conditional clause to allow state changes.
+     * Alter next state if previous is block
      */
-    private boolean m_conditionalAllow = true;
-    
-    private static Main stTheOne = new Main();
+    private IfdefState next(IfdefState dflt) {
+        IfdefState ns = dflt;
+        if (!m_ifdefStack.empty()
+                && (IfdefState.eDone != m_ifdefStack.peek())) {
+            ns = IfdefState.eBlockDone;
+        }
+        return ns;
+    }
+
+    private Stack<IfdefState> m_ifdefStack = new Stack<>();
+
+    static {
+        File f = new File(new File(Util.getToolRoot()), "messages.vlogpp.txt");
+        MessageMgr.addMessages(f);
+    }
+
 }

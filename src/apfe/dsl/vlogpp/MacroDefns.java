@@ -38,6 +38,18 @@ public class MacroDefns {
     public MacroDefns() {
     }
 
+    public void checkDupl(String key, Location loc) {
+        if (isDefined(key)) {
+            Val val = lookup(key);
+            Main.warning("VPP-DUP-1a", loc.toString(), key);
+            Main.warning("VPP-DUP-1b", val.m_loc.toString(), key);
+        }
+    }
+    
+    private Val lookup(String key) {
+        return m_valsByName.get(key);
+    }
+    
     public boolean isDefined(String nm) {
         return (m_valsByName.containsKey(nm));
     }
@@ -46,8 +58,8 @@ public class MacroDefns {
         return isDefined(key) && m_valsByName.get(key).hasParms();
     }
 
-    public void add(String nm, String defn) {
-        add(nm, null, defn);
+    public void add(String nm, String defn, Location loc) {
+        add(nm, null, defn, loc);
     }
 
     public static class ExpansionException extends Exception {
@@ -128,11 +140,10 @@ public class MacroDefns {
         return val.m_defn;
     }
 
-    public void add(String nm, List<Parm> parms, String defn) {
-        //TODO: cleanup dups
-        assert (!isDefined(nm));
+    public void add(String nm, List<Parm> parms, String defn, Location loc) {
+        checkDupl(nm, loc);
         if (null == parms) {
-            m_valsByName.put(nm, new Val(defn));
+            m_valsByName.put(nm, new Val(null, defn, loc));
         } else {
             /* replace each parameter value w/ </%n%/> where n is
              * parm position, 1-origin.
@@ -156,7 +167,7 @@ public class MacroDefns {
                 String repl = stDelim[0] + ix + stDelim[1];
                 defn = defn.replace(p, repl);
             }
-            m_valsByName.put(nm, new Val(parms, defn));
+            m_valsByName.put(nm, new Val(parms, defn, loc));
         }
     }
     // {[0],[1]}={prefix,suffix}
@@ -167,18 +178,20 @@ public class MacroDefns {
     public static class Val {
 
         public Val(String defn) {
-            this(null, defn);
+            this(null, defn, null);
         }
 
-        public Val(List<Parm> parms, String defn) {
+        public Val(List<Parm> parms, String defn, Location loc) {
             m_parms = parms;
             m_defn = defn;
+            m_loc = (null != loc) ? loc : Location.stCmdLine;
         }
-
+        
         public boolean hasParms() {
             return (null != m_parms);
         }
         public final List<Parm> m_parms;
         public final String m_defn;
+        public final Location m_loc;
     }
 }

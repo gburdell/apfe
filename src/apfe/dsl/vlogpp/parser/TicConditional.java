@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharSeq;
@@ -31,6 +32,8 @@ import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -63,6 +66,12 @@ public class TicConditional extends Acceptor {
             return false;
         }
         m_id = id.toString();
+        Main main = Main.getTheOne();
+        if (m_ifdef) {
+            main.ticIfdef(m_id);
+        } else {
+            main.ticIfndef(m_id);
+        }
         ConditionalLines cl1 = new ConditionalLines();
         match &= (null != (cl1 = match(cl1)));
         if (!match) {
@@ -70,28 +79,41 @@ public class TicConditional extends Acceptor {
         }
         m_condLines = cl1.toString();
         //("`elsif" Spacing Identifier ConditionalLines)*
-        Sequence s1 = new Sequence(new CharSeq("`elseif"), new Spacing(),
-                new Identifier(), new ConditionalLines());
-        Repetition r1 = new Repetition(s1, Repetition.ERepeat.eZeroOrMore);
-        match &= (null != (r1 = match(r1)));
-        if (!match) {
-            return false;
+        //Process as a loop here so we can interject action
+        StringBuilder sb = null;
+        while (true) {
+            Sequence s1 = new Sequence(new CharSeq("`elseif"), new Spacing(),
+                    new Identifier());
+            if (null != (s1 = match(s1))) {
+                String eifId = Util.extractEleAsString(s1, 2);
+                main.ticElsif(eifId);
+                ConditionalLines clns = new ConditionalLines();
+                assert null != (clns = match(clns));
+                if (null == sb) {
+                    sb = new StringBuilder();
+                }
+                sb.append(clns.toString());
+            } else {
+                break; //while
+            }
         }
-        if (0 < r1.sizeofAccepted()) {
-            m_elseifs = r1;
+        if (null != sb) {
+            m_elsifLines = sb.toString();
         }
         //("`else" ConditionalLines)?
-        r1 = new Repetition(new Sequence(new CharSeq("`else"),
-                new ConditionalLines()), Repetition.ERepeat.eOptional);
-        match &= (null != (r1 = match(r1)));
-        if (!match) {
-            return false;
-        }
-        if (0 < r1.sizeofAccepted()) {
-            m_else = Util.extractEleAsString((Sequence) r1.getOnlyAccepted(), 1);
+        if (matchTrue(new CharSeq("`else"))) {
+            main.ticElse();
+            ConditionalLines cl2 = new ConditionalLines();
+            assert (null != (cl2 = match(cl2)));
+            m_else = cl2.toString();
         }
         match &= (new CharSeq("`endif")).acceptTrue();
         if (match) {
+            main.ticEndif();
+            /**
+             * NOTE: m_str may not be correct depending on how the conditionals
+             * get expanded.  Though guess it should be right.
+             */
             m_str = super.toString();
         }
         return match;
@@ -99,7 +121,7 @@ public class TicConditional extends Acceptor {
     private boolean m_ifdef;
     private String m_id;
     private String m_condLines;
-    private Repetition m_elseifs;
+    private String m_elsifLines;
     private String m_else;
     private String m_str;
 

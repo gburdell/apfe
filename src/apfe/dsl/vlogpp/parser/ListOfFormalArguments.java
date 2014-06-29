@@ -60,7 +60,14 @@ public class ListOfFormalArguments extends Acceptor {
     private List<FormalArgument> m_fargs;
     private String m_str;
     
-    @Override public String toString() {return m_str;}
+    public List<FormalArgument> getFormalArgs() {
+        return m_fargs;
+    }
+
+    @Override
+    public String toString() {
+        return m_str;
+    }
 
     @Override
     public Acceptor create() {

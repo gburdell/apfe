@@ -61,6 +61,10 @@ public class FormalArgument extends Acceptor {
         }
         return match;
     }
+    
+    public String[] getIdAndDefaultText() {
+        return new String[]{m_id, m_dfltText};
+    }
 
     private String m_id;
     private String m_dfltText;

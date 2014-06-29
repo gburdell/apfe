@@ -45,7 +45,7 @@ public class MacroText extends Acceptor {
         if (match) {
             m_text = super.toString();
             match &= (new EndOfLine()).acceptTrue();
-            if (!match) {
+            if (!match || m_text.isEmpty()) {
                 m_text = null;
             }
         }

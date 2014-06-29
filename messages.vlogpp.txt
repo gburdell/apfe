@@ -1,0 +1,4 @@
+// Add messages for vlogpp
+
+VPP-DUP-1a %s: replace macro '%s' definition
+VPP-DUP-1b %s: previous definition of macro '%s'

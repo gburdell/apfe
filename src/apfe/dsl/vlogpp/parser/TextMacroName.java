@@ -44,7 +44,7 @@ public class TextMacroName extends Acceptor {
         Identifier id1 = new Identifier();
         boolean match = (null != (id1 = match(id1)));
         if (match) {
-            Sequence s1 = new Sequence(new CharSeq('('), 
+            Sequence s1 = new Sequence(new CharSeq('('),
                     new ListOfFormalArguments(), new CharSeq(')'));
             Repetition r1 = new Repetition(s1, Repetition.ERepeat.eOptional);
             match &= (null != (r1 = match(r1)));
@@ -55,12 +55,27 @@ public class TextMacroName extends Acceptor {
                     m_args = Util.extractEle(s1, 1);
                 }
             }
+            m_text = super.toString();
         }
         return match;
     }
 
     private String m_id;
     private ListOfFormalArguments m_args;
+    private String m_text;
+
+    public String getId() {
+        return m_id;
+    }
+
+    public ListOfFormalArguments getFormalArgs() {
+        return m_args;
+    }
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {

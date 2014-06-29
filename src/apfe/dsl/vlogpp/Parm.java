@@ -21,6 +21,8 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 package apfe.dsl.vlogpp;
+import apfe.dsl.vlogpp.parser.FormalArgument;
+import apfe.dsl.vlogpp.parser.ListOfFormalArguments;
 import  java.util.*;
 
 /**
@@ -29,26 +31,42 @@ import  java.util.*;
  * @author kpfalzer
  */
 public class Parm extends Pair<String,String> {
-    static List<Parm> createList() {
-        return new LinkedList<Parm>();
+    public static List<Parm> createList(final ListOfFormalArguments lofas) {
+        List<Parm> rval = null;
+        if (null != lofas) {
+            List<FormalArgument> lofa = lofas.getFormalArgs();
+            if (null != lofa) {
+                rval = new LinkedList<>();
+                String idAndDflt[];
+                for (FormalArgument fa : lofa) {
+                    idAndDflt = fa.getIdAndDefaultText();
+                    rval.add(new Parm(idAndDflt[0], idAndDflt[1]));
+                }
+            }
+        }
+        return rval;
     }
-    Parm(String parm) {
+    public Parm(String parm) {
         super(parm,null);
     }
 
-    void setDefault(String dflt) {
+    public Parm(String parm, String dflt) {
+        super(parm,dflt);
+    }
+
+    public void setDefault(String dflt) {
         super.v2 = dflt;
     }
 
-    String getParmName() {
+    public String getParmName() {
         return v1;
     }
 
-    String getDefault() {
+    public String getDefault() {
         return v2;
     }
 
-    boolean hasDefault() {
+    public boolean hasDefault() {
         return (null != getDefault());
     }
 }

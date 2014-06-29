@@ -129,9 +129,17 @@ public class CharBuffer {
     public String getFileName() {
         return m_fname;
     }
+    
+    public int getLine() {
+        return m_lnum;
+    }
+    
+    public int getCol() {
+        return 1 + m_col;
+    }
 
     public String getPos() {
-        return m_lnum + ":" + (m_col + 1);
+        return getLine() + ":" + getCol();
     }
 
     /**

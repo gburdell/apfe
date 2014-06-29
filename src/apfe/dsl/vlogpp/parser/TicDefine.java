@@ -23,7 +23,9 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Location;
 import apfe.dsl.vlogpp.Main;
+import apfe.dsl.vlogpp.Parm;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharSeq;
@@ -31,6 +33,7 @@ import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
+import java.util.List;
 
 /**
  *
@@ -44,33 +47,41 @@ public class TicDefine extends Acceptor {
         Repetition r1 = new Repetition(new MacroText(), Repetition.ERepeat.eOptional);
         Sequence s1 = new Sequence(new CharSeq("`define"), new Spacing(),
                 new TextMacroName(), r1);
+        Location loc = Location.getCurrent();
         boolean match = (null != (s1 = match(s1)));
         if (match) {
-            m_name = Util.extractEleAsString(s1, 2);
+            TextMacroName mname = Util.extractEle(s1, 2);
             MacroText mtext = null;
             r1 = Util.extractEle(s1, 3);
             if (0 < r1.sizeofAccepted()) {
                 mtext = r1.getOnlyAccepted();
-                m_text = r1.getOnlyAccepted().toString();
             }
-            addDefn(mtext);
+            addDefn(mname, mtext, loc);
+            m_text = super.toString();
         }
         return match;
     }
 
-    private void addDefn(MacroText mtext) {
+    private void addDefn(TextMacroName mname, MacroText mtext, Location loc) {
         Main mn = Main.getTheOne();
         if (mn.getConditionalAllow()) {
-            //TODO: MacroText needs to retain structure/object
-            if (null == mtext) {
-                mn.getMacroDefns().add(m_name, null);
+            String macnm = mname.getId();
+            String text = (null != mtext) ? mtext.toString() : null;
+            List<Parm> parms = Parm.createList(mname.getFormalArgs());
+            if (null == parms) {
+                mn.getMacroDefns().add(macnm, text, loc);
             } else {
-                //add one with more
+                mn.getMacroDefns().add(macnm, parms, text, loc);
             }
         }
     }
-    private String m_name;
+
     private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
+    }
 
     @Override
     public Acceptor create() {
