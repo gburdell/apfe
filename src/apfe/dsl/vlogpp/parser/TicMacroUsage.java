@@ -23,6 +23,9 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Location;
+import apfe.dsl.vlogpp.MacroDefns;
+import apfe.dsl.vlogpp.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharSeq;
@@ -30,6 +33,7 @@ import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
+import java.util.List;
 
 /**
  *
@@ -40,6 +44,7 @@ public class TicMacroUsage extends Acceptor {
     @Override
     protected boolean accepti() {
         //TicMacroUsage <- '`'Identifier (Spacing '(' ListOfActualArguments ')')?
+        Location loc = Location.getCurrent();
         Sequence s1 = new Sequence(new CharSeq('`'), new Identifier());
         boolean match = (null != (s1 = match(s1)));
         if (match) {
@@ -55,13 +60,36 @@ public class TicMacroUsage extends Acceptor {
             }
             assert match;
             m_str = super.toString();
+            expandMacro(loc);
         }
         return match;
     }
-
     private String m_ident;
     private ListOfActualArguments m_args;
     private String m_str;
+
+    /**
+     * Expand macro usage. The CharBuffer (in State) is then rewound to
+     * beginning so any embedded TicMacroUsage are then subsequently expanded.
+     * @param loc location of instance.
+     */
+    private void expandMacro(final Location loc) {
+        Main mn = Main.getTheOne();
+        if (false == mn.getConditionalAllow()) {
+            return;
+        }
+        if (false == mn.isDefined(m_ident)) {
+            Main.error("VPP-NODEFN", loc, m_ident);
+            return;
+        }
+        List<String> instArgs = (null != m_args) ? m_args.getArgs() : null;
+        MacroDefns defns = mn.getMacroDefns();
+        String expanded = defns.expandMacro(m_ident, instArgs, loc);
+        if (null == expanded) {
+            return; //had error
+        }
+        //Push string onto CharBuffer
+    }
 
     @Override
     public String toString() {
@@ -82,7 +110,6 @@ public class TicMacroUsage extends Acceptor {
     protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
         return stMemo.memoized(mark);
     }
-
     /**
      * Memoize for all instances of TicMacroUsage.
      */

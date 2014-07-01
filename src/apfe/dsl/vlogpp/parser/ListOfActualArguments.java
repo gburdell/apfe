@@ -46,18 +46,30 @@ public class ListOfActualArguments extends Acceptor {
         boolean match = (null != (a1 = match(a1)));
         if (match) {
             m_args = new LinkedList<>();
-            m_args.add(a1);
+            m_args.add(a1.toString());
             Sequence s1 = new Sequence(new CharSeq(','), new ActualArgument());
             Repetition r1 = new Repetition(s1, Repetition.ERepeat.eZeroOrMore);
             match &= (null != (r1 = match(r1)));
             if (match && (0 < r1.sizeofAccepted())) {
-                Util.extractList(r1, 1, m_args);
+                List<ActualArgument> laa = new LinkedList<>();
+                Util.extractList(r1, 1, laa);
+                for (ActualArgument aa : laa) {
+                    m_args.add(aa.toString());
+                }
             }
         }
         return match;
     }
 
-    private List<ActualArgument> m_args;
+    private List<String> m_args;
+    
+    /**
+     * Get actual arguments.
+     * @return null or list of arguments.
+     */
+    public List<String> getArgs() {
+        return m_args;
+    }
 
     @Override
     public Acceptor create() {

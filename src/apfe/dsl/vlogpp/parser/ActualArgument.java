@@ -85,13 +85,11 @@ public class ActualArgument extends Acceptor {
         });
         boolean match = (null != (pc1 = match(pc1)));
         if (match) {
-            m_arg = pc1;
             m_str = super.toString();
         }
         return match;
     }
 
-    private PrioritizedChoice m_arg;
     private String m_str;
 
     @Override

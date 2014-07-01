@@ -64,18 +64,18 @@ public class TicDefine extends Acceptor {
 
     private void addDefn(TextMacroName mname, MacroText mtext, Location loc) {
         Main mn = Main.getTheOne();
-        if (mn.getConditionalAllow()) {
-            String macnm = mname.getId();
-            String text = (null != mtext) ? mtext.toString() : null;
-            List<Parm> parms = Parm.createList(mname.getFormalArgs());
-            if (null == parms) {
-                mn.getMacroDefns().add(macnm, text, loc);
-            } else {
-                mn.getMacroDefns().add(macnm, parms, text, loc);
-            }
+        if (false == mn.getConditionalAllow()) {
+            return;
+        }
+        String macnm = mname.getId();
+        String text = (null != mtext) ? mtext.toString() : null;
+        List<Parm> parms = Parm.createList(mname.getFormalArgs());
+        if (null == parms) {
+            mn.getMacroDefns().add(macnm, text, loc);
+        } else {
+            mn.getMacroDefns().add(macnm, parms, text, loc);
         }
     }
-
     private String m_text;
 
     @Override

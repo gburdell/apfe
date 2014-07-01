@@ -46,6 +46,10 @@ public class Main {
         MessageMgr.message('W', code, args);
     }
 
+    public static void error(String code, Object... args) {
+        MessageMgr.message('E', code, args);
+    }
+
     public MacroDefns getMacroDefns() {
         return m_macroDefns;
     }

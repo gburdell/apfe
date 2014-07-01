@@ -1,4 +1,7 @@
 // Add messages for vlogpp
 
+VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d
 VPP-DUP-1a %s: replace macro '%s' definition
 VPP-DUP-1b %s: previous definition of macro '%s'
+VPP-NODEFN %s: no definition for macro instance '%s'
+VPP-NODFLT %s: macro '%s' has no default value for parameter '%s' and was not assigned actual value

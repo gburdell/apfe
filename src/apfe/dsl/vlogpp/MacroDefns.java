@@ -45,79 +45,67 @@ public class MacroDefns {
             Main.warning("VPP-DUP-1b", val.m_loc.toString(), key);
         }
     }
-    
+
     private Val lookup(String key) {
         return m_valsByName.get(key);
     }
-    
+
     public boolean isDefined(String nm) {
         return (m_valsByName.containsKey(nm));
     }
 
-    public boolean hasParams(String key) {
+    private boolean hasParams(String key) {
         return isDefined(key) && m_valsByName.get(key).hasParms();
     }
 
     public void add(String nm, String defn, Location loc) {
         add(nm, null, defn, loc);
     }
-
-    public static class ExpansionException extends Exception {
-
-        private ExpansionException(String reason) {
-            super(reason);
-        }
-    }
-
     public final static String stNul = "";
 
     /**
-     * Expand macro with actual arguments.
+     * Expand macro.
      *
      * @param macnm name of macro.
-     * @param args list of actual arguments.
+     * @param args list of actual arguments (or null)
      * @return expanded macro.
-     * @throws parser.v2k.preprocessor.MacroDefns.ExpansionException
      */
-    public String expandMacro(String macnm, List<String> args)
-            throws ExpansionException {
-        assert (hasParams(macnm));
+    public String expandMacro(String macnm, List<String> args, Location loc) {
         List<Parm> parms = m_valsByName.get(macnm).m_parms;
-        int hasN = args.size();
-        int expectsN = parms.size();
+        int hasN = (null != args) ? args.size() : 0;
+        int expectsN = (null != parms) ? parms.size() : 0;
         if (hasN > expectsN) {
-            StringBuilder msg = new StringBuilder("macro '");
-            msg.append(macnm).append("' has ").append(expectsN)
-                    .append(" arguments, usage has ").append(hasN);
-            throw new ExpansionException(msg.toString());
+            Main.error("VPP-ARGN", loc, hasN, expectsN);
+            return null;
         }
         String defn = m_valsByName.get(macnm).m_defn;
         int pos = 1;
         String with;
-        for (String arg : args) {
-            if (arg.isEmpty()) {
-                with = parms.get(pos - 1).getDefault();
-                if (null == with) {
-                    with = stNul;    //""
+        if (null != args) {
+            for (String arg : args) {
+                if (arg.isEmpty()) {
+                    with = parms.get(pos - 1).getDefault();
+                    if (null == with) {
+                        with = stNul;    //""
+                    }
+                } else {
+                    with = arg;
                 }
-            } else {
-                with = arg;
+                defn = replace(defn, pos, with);
+                pos++;
             }
-            defn = replace(defn, pos, with);
-            pos++;
         }
         //from LRM: if more formal than actual, the remaining formal must have 
         //defaults.
-        for (; pos <= hasN; pos++) {
-            with = parms.get(pos - 1).getDefault();
-            if (null == with) {
-                StringBuilder msg = new StringBuilder("macro '");
-                msg.append(macnm).append("' parameter named '")
-                        .append(parms.get(pos - 1).getParmName())
-                        .append("' has no default value and was not assigned actual value");
-                throw new ExpansionException(msg.toString());
+        if (null != parms) {
+            for (; pos <= expectsN; pos++) {
+                with = parms.get(pos - 1).getDefault();
+                if (null == with) {
+                    Main.error("VPP-NODFLT", loc, macnm, parms.get(pos - 1).getParmName());
+                    return null;
+                }
+                defn = replace(defn, pos, with);
             }
-            defn = replace(defn, pos, with);
         }
         return defn;
     }
@@ -134,7 +122,7 @@ public class MacroDefns {
      * @param nm macro name.
      * @return non-parameterized macro value.
      */
-    public String getVal(String nm) {
+    private String getVal(String nm) {
         Val val = m_valsByName.get(nm);
         assert (null == val.m_parms);
         return val.m_defn;
@@ -172,10 +160,9 @@ public class MacroDefns {
     }
     // {[0],[1]}={prefix,suffix}
     private static final String stDelim[] = new String[]{"</%", "%/>"};
-
     private Map<String, Val> m_valsByName = new HashMap<>();
 
-    public static class Val {
+    private static class Val {
 
         public Val(String defn) {
             this(null, defn, null);
@@ -186,7 +173,7 @@ public class MacroDefns {
             m_defn = defn;
             m_loc = (null != loc) ? loc : Location.stCmdLine;
         }
-        
+
         public boolean hasParms() {
             return (null != m_parms);
         }
