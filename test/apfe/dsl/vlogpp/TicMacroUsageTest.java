@@ -39,7 +39,8 @@ import static org.junit.Assert.*;
 public class TicMacroUsageTest {
 
     private static final String stBuf[] = {
-        "`m1", "`m2(a )", "`m3(a,b,c,d)"
+        //"`m1", "`m2(a )", "`m3(a,b,c,d)"
+        "`m1(`m2(a,b),`m2(c,d))"
     };
 
     /**

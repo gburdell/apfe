@@ -35,11 +35,24 @@ import apfe.runtime.PrioritizedChoice;
  */
 public class NotChar4 extends Acceptor {
 
+    public NotChar4() {
+        this(0);
+    }
+
+    public NotChar4(int lvl) {
+        m_lvl = lvl;
+    }
+    /**
+     * Set level to indicate whether we are in a closure (e.g.: '(...)', '[...]').
+     */
+    private final int m_lvl;
+
     @Override
     protected boolean accepti() {
         //NotChar4 <- !(',' / ')' / '}' / ']' / EOF)
+        String matchSet = (0 < m_lvl) ? ")}]" : ",)}]";
         PrioritizedChoice pc1 = new PrioritizedChoice(
-                new CharClass(CharClass.matchOneOf(",)}]")), new EndOfFile());
+                new CharClass(CharClass.matchOneOf(matchSet)), new EndOfFile());
         NotPredicate np1 = new NotPredicate(pc1);
         boolean match = (null != (np1 = match(np1)));
         return match;
@@ -49,5 +62,4 @@ public class NotChar4 extends Acceptor {
     public Acceptor create() {
         return new NotChar4();
     }
-
 }

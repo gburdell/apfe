@@ -39,6 +39,18 @@ import apfe.runtime.Sequence;
  * @author gburdell
  */
 public class DefaultText extends Acceptor {
+    public DefaultText() {
+        this(0);
+    }
+    private DefaultText(int lvl) {
+        m_lvl = lvl;
+    }
+
+    /**
+     * Set level to indicate whether we are in a closure (e.g.: '(...)', '[...]').
+     */
+    private final int m_lvl;
+    
 
     @Override
     protected boolean accepti() {
@@ -71,13 +83,13 @@ public class DefaultText extends Acceptor {
                         PrioritizedChoice pc2 = new PrioritizedChoice(
                                 new Space(), new Comment());
                         Repetition r1 = new Repetition(pc2, Repetition.ERepeat.eOneOrMore);
-                        a = new Sequence(r1, new DefaultText());
+                        a = new Sequence(r1, new DefaultText(m_lvl));
                         break;
                     }
                     case 5:
                         a = new Repetition(
-                                new Sequence(new NotChar4(), new CharClass(ICharClass.IS_ANY),
-                                        new DefaultText()), Repetition.ERepeat.eOptional);
+                                new Sequence(new NotChar4(m_lvl), new CharClass(ICharClass.IS_ANY),
+                                        new DefaultText(m_lvl)), Repetition.ERepeat.eOptional);
                         break;
                 }
                 return a;
@@ -106,10 +118,10 @@ public class DefaultText extends Acceptor {
      * @param c2 trailing character.
      * @return Acceptor sequence to use in alternative.
      */
-    private static Acceptor getMatch(char c1, char c2) {
+    private Acceptor getMatch(char c1, char c2) {
         // c1 !c2 ActualArgument c2
         Sequence s1 = new Sequence(new CharSeq(c1), new NotPredicate(new CharSeq(c2)),
-                new DefaultText(), new CharSeq(c2));
+                new DefaultText(m_lvl+1), new CharSeq(c2));
         return s1;
     }
 

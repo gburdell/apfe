@@ -23,6 +23,8 @@
 package apfe.dsl.vlogpp;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * `define macro definitions. NOTES from LRM: It shall be an error if any of the
@@ -153,10 +155,46 @@ public class MacroDefns {
             for (String p : sorted) {
                 int ix = names.indexOf(p) + 1;  //which parm
                 String repl = stDelim[0] + ix + stDelim[1];
-                defn = defn.replace(p, repl);
+                defn = replace(defn, p, repl);
             }
             m_valsByName.put(nm, new Val(parms, defn, loc));
         }
+    }
+
+    /**
+     * Replace occurrences of 'id' in 'src' with 'repl', iff. 'id' is not part
+     * of another id.
+     *
+     * @param src source string.
+     * @param id id to search for (and replace).
+     * @param repl replacement string.
+     * @return updated string.
+     */
+    private static String replace(String src, String id, String repl) {
+        final String spatt = "(^|\\W)(" + id + ")($|\\W)";
+        /*This did not work, so try explicitly
+         final String capRepl = "$1" + repl;   //replace 2-nd capture
+         String rval = src.replaceAll(spatt, capRepl);
+         */
+        String rval = src;
+        Pattern patt = Pattern.compile(spatt);
+        while (true) {
+            Matcher m = patt.matcher(rval);
+            if (false == m.find()) {
+                break;//while
+            }
+            int start = m.start(2), end = m.end(2);
+            StringBuilder ns = new StringBuilder();
+            if (0 < start) {
+                ns.append(rval.substring(0, start));
+            }
+            ns.append(repl);
+            if (end < rval.length()) {
+                ns.append(rval.substring(end));
+            }
+            rval = ns.toString();
+        }
+        return rval;
     }
     // {[0],[1]}={prefix,suffix}
     private static final String stDelim[] = new String[]{"</%", "%/>"};
