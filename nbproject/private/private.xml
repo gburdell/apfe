@@ -45,8 +45,10 @@
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/MacroDefns.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/parser/TicDefine.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Acceptor.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharBuffer.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/parser/TicMacroUsage.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/parser/TicConditional.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/parser/NotChar4.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/vlogpp/parser/MacroText.java</file>
         </group>
     </open-files>
 </project-private>

@@ -80,7 +80,11 @@ public abstract class Acceptor {
     protected abstract boolean accepti();
 
     private CharBuffer.Marker m_startMark;
-
+    
+    protected CharBuffer.Marker getStartMark() {
+        return m_startMark;
+    }
+    
     /**
      * Determine if implementation accepts from current State. If not, rewind
      * token buffer.

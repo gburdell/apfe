@@ -88,7 +88,7 @@ public class TicMacroUsage extends Acceptor {
         if (null == expanded) {
             return; //had error
         }
-        //Push string onto CharBuffer
+        Main.replaceCharBuffer(super.getStartMark(), expanded);
     }
 
     @Override

@@ -10,6 +10,8 @@
            `define add
 
 `define max(a,b) ((a < b) ? b : a)
+`define abs(a) ((a < 0) ? -a : a)
+`define absmax(a,b) `max(`abs(a),`abs(b))
 
 //make sure the positional parm replacement does right thing
 `define min(aa,aab) ((aa > aab) ? aab : aa
@@ -23,6 +25,7 @@ d)
 
 module t1 (input [`N-1:0] a);
 integer i = `add(4,5);
+int j = `add(1,2,3,`absmax(4,5));
 endmodule
 
 `endif	//__t1_vh__

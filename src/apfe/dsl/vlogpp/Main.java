@@ -23,7 +23,10 @@
  */
 package apfe.dsl.vlogpp;
 
+import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Memoize;
 import apfe.runtime.MessageMgr;
+import apfe.runtime.State;
 import apfe.runtime.Util;
 import java.io.File;
 import java.util.Stack;
@@ -54,6 +57,20 @@ public class Main {
         return m_macroDefns;
     }
 
+    /**
+     * Replace current CharBuffer contents [start,current) with s.
+     * Clear/invalidate any memoization too.
+     * @param start start position in buffer.
+     * @param s string to stitch into buffer[start,current).
+     */
+    public static void replaceCharBuffer(final Marker start, String s) {
+        if (s.isEmpty()) {
+            s = " ";
+        }
+        State.getTheOne().getBuf().replace(start, s);
+        Memoize.reset();
+    }
+    
     private MacroDefns m_macroDefns = new MacroDefns();
 
     private static Main stTheOne = new Main();
