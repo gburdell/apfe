@@ -39,6 +39,9 @@ public class UndefineAll extends Acceptor {
         //UndefineAll <- "`undefineall"
         boolean match = (new CharSeq("`undefineall")).acceptTrue();
         if (match) {
+            /*
+            NOTE: see LRM: 22.5.3 on remove from compilation_unit
+            */
             m_text = super.toString();
         }
         return match;

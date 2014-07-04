@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 gburdell.
+ * Copyright 2013 gburdell.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,29 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.dsl.vlogpp.parser;
-
-import apfe.runtime.Acceptor;
-import apfe.runtime.CharClass;
-import apfe.runtime.EndOfLine;
-import apfe.runtime.PrioritizedChoice;
+package apfe.runtime;
 
 /**
+ * Grab rest of line: [^\n]*\n
  *
  * @author gburdell
  */
-public class Space extends Acceptor {
+public class RestOfLine extends Acceptor {
+
+    public RestOfLine() {
+    }
 
     @Override
     protected boolean accepti() {
-        //Space <- ' ' / "\t" / EOL
-        PrioritizedChoice p1 = new PrioritizedChoice(new CharClass(CharClass.matchOneOf(" \t")),
-                new EndOfLine());
-        boolean match = p1.acceptTrue();
-        if (match) {
-            m_text = super.toString();
+        CharBuffer buf = State.getTheOne().getBuf();
+        char c;
+        while (true) {
+            c = buf.accept();
+            if (CharBuffer.EOF == c) {
+                return false;
+            }
+            if (CharBuffer.NL == c) {
+                break;//while
+            }
         }
-        return false;
+        m_text = super.toString();
+        return true;
     }
 
     private String m_text;
@@ -55,6 +59,6 @@ public class Space extends Acceptor {
 
     @Override
     public Acceptor create() {
-        return new Space();
+        return new RestOfLine();
     }
 }

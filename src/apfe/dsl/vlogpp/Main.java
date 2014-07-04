@@ -29,6 +29,7 @@ import apfe.runtime.MessageMgr;
 import apfe.runtime.State;
 import apfe.runtime.Util;
 import java.io.File;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -71,7 +72,38 @@ public class Main {
         Memoize.reset();
     }
     
+    public static boolean stWarnOnMultipleInclude = true;
+    
+    /**
+     * Get 1st valid include file by searching include dirs for fnm.
+     * @param loc location of filename (in `include stmt).
+     * @param fnm include file to find.
+     * @return first valid include file (or null).
+     */
+    public File getInclFile(Location loc, String fnm) {
+        List<File> cands = m_inclDirs.findInclFile(fnm);
+        if (stWarnOnMultipleInclude && (1 < cands.size())) {
+            warning("VPP-INCL-1", loc, fnm, cands.size());
+            int i = 1;
+            for (File f : cands) {
+                warning("VPP-INCL-2", i++, f.getName());
+            }
+        }
+        return (0 < cands.size()) ? cands.get(0) : null;
+    }
+    
+    /**
+     * Add include directory to search path.
+     * @param dir include directory.
+     * @return true on success, else false.
+     */
+    public boolean addInclDir(String dir) {
+        return m_inclDirs.add(dir);
+    }
+    
     private MacroDefns m_macroDefns = new MacroDefns();
+    
+    private IncludeDirs m_inclDirs = IncludeDirs.create(".");
 
     private static Main stTheOne = new Main();
 

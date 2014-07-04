@@ -47,7 +47,6 @@ public class InputStream {
     }
     /**
      * Get a character stream bound to this buffer.
-     * TODO: use multi-threading to do parallel parse attempts?
      * @return character stream.
      */
     public CharBuffer newCharBuffer() {

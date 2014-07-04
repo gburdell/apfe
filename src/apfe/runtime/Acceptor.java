@@ -95,7 +95,7 @@ public abstract class Acceptor {
      */
     protected Acceptor accept(boolean isPredicate) {
         State st = State.getTheOne();
-        CharBuffer.Marker mark = st.getBuf().mark();
+        CharBuffer.Marker mark = st.getCurrentMark();
         m_startMark = mark;
         Acceptor accepted = this;
         boolean ok = false;

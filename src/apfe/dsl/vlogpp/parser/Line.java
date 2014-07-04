@@ -23,14 +23,17 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import static apfe.runtime.Util.abnormalExit;
+import apfe.dsl.vlogpp.Main;
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
 import apfe.runtime.ICharClass;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
+import apfe.runtime.RestOfLine;
 import apfe.runtime.Sequence;
+import apfe.runtime.State;
 import apfe.runtime.Util;
 
 /**
@@ -45,14 +48,27 @@ public class Line extends Acceptor {
         CharClass c1 = new CharClass(ICharClass.IS_DIGIT);
         Repetition r1 = new Repetition(c1, Repetition.ERepeat.eOneOrMore);
         Sequence s1 = new Sequence(new CharSeq("`line"), new Spacing(), r1,
-                new Spacing(), new VString(), new Spacing(), 
+                new Spacing(), new VString(), new Spacing(),
                 new CharClass(CharClass.matchOneOf("012")));
-        boolean match = (null != (s1 = match(s1)));
+        boolean match = (null != (s1 = match(s1))) && (new RestOfLine()).acceptTrue();
         if (match) {
             m_fname = Util.extractEleAsString(s1, 4);
             m_lnum = Integer.parseInt(Util.extractEleAsString(s1, 2));
             m_type = Integer.parseInt(Util.extractEleAsString(s1, 6));
+            switch (m_type) {
+                case 1:
+                    if (stMaxInclNestCnt < stInclNestCnt++) {
+                        Main.error("VPP-INCL-3", stMaxInclNestCnt);
+                        abnormalExit(new Exception("Unexpected.  Very bad."));
+                    }
+                    break;
+                case 2:
+                    stInclNestCnt = (0 < stInclNestCnt) ? stInclNestCnt-1 : 0;
+                    break;
+            }
             m_text = super.toString();
+            State.getTheOne().getBuf().reset(m_fname, m_lnum);
+            Memoize.reset();
         }
         return match;
     }
@@ -65,18 +81,10 @@ public class Line extends Acceptor {
         return new Line();
     }
 
-    @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
-        stMemo.add(mark, this, endMark);
-    }
-
-    @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
-        return stMemo.memoized(mark);
-    }
-
     /**
-     * Memoize for all instances of Line.
+     * Track include file nesting count.
      */
-    private static Memoize stMemo = new Memoize();
+    private static int stInclNestCnt = 0;
+
+    public static int stMaxInclNestCnt = 32;
 }

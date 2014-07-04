@@ -23,12 +23,18 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Location;
+import apfe.dsl.vlogpp.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.CharSeq;
-import apfe.runtime.Memoize;
+import apfe.runtime.InputStream;
+import apfe.runtime.RestOfLine;
 import apfe.runtime.Sequence;
+import apfe.runtime.State;
 import apfe.runtime.Util;
+import java.io.File;
 
 /**
  *
@@ -48,34 +54,50 @@ public class TicInclude extends Acceptor {
     @Override
     protected boolean accepti() {
         //TicInclude <- "`include" Spacing ('"' FileName '"' / '<' FileName '>')
+        Marker start = getStartMark();
         CharSeq c1 = new CharSeq("`include");
         boolean match = matchTrue(new Sequence(c1, new Spacing()));
+        Location loc = Location.getCurrent();
         match &= match('"', '"') || match('<', '>');
+        //Grab spacing afterwards so we can get next start line
+        match &= (new RestOfLine()).acceptTrue();
         if (match) {
-            //TODO: process fname
+            match &= processIncludeFile(loc, start);
         }
         return match;
     }
 
     private String m_fname;
 
+    private boolean processIncludeFile(Location loc, Marker start) {
+        CharBuffer currBuf = State.getTheOne().getBuf();
+        Marker here = currBuf.mark();
+        String currFn = currBuf.getFileName();
+        File incl = Main.getTheOne().getInclFile(loc, m_fname);
+        if (null == incl) {
+            Main.error("VPP-INCL-4", loc, m_fname);
+            return true;    //gooble up anyway else `include triggers `macroInst
+        }
+        //Build up stuffing
+        StringBuilder sb = new StringBuilder();
+        sb.append("`line 1").append(" \"").append(incl.getName())
+                .append("\" 1\n");
+        boolean ok = true;
+        try {
+            InputStream fis = new InputStream(incl.getName());
+            CharBuffer buf = fis.newCharBuffer();
+            buf.fill(sb).append("\n`line ").append(start.getLnum())
+                    .append(" \"").append(currFn).append("\" 2\n");
+            currBuf.replace(start, buf.toString());
+            currBuf.reset(start);
+        } catch (Exception ex) {
+            ok = false;//Logger.getLogger(TicInclude.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ok;
+    }
+
     @Override
     public Acceptor create() {
         return new TicInclude();
     }
-
-    @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
-        stMemo.add(mark, this, endMark);
-    }
-
-    @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
-        return stMemo.memoized(mark);
-    }
-
-    /**
-     * Memoize for all instances of TicInclude.
-     */
-    private static Memoize stMemo = new Memoize();
 }

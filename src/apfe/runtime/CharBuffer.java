@@ -41,6 +41,17 @@ public class CharBuffer {
         m_lnum = 1;
         m_col = m_pos = 0;
     }
+    
+    public void reset(String fname, int lnum) {
+        m_fname = fname;
+        m_lnum = lnum;
+        m_col = 0;
+    }
+    
+    public StringBuilder fill(StringBuilder sb) {
+        sb.append(m_buf, 0, m_len);
+        return sb;
+    }
 
     /**
      * Look ahead at next character. Position is <b>not</b> advanced.
@@ -183,7 +194,7 @@ public class CharBuffer {
     public final static char NL = '\n';    //LineNumberReader converts all to this.
     private char m_buf[];
     private int m_len;
-    private final String m_fname;
+    private String m_fname;
     /**
      * Current position in buffer.
      */

@@ -3,6 +3,8 @@
 `ifndef  __t1_vh__
 `define  __t1_vh__
 
+`include "dinosaur.vh"
+
 `ifndef N
 `define N 23
 `endif

@@ -52,6 +52,10 @@ public class State {
         return m_buf;
     }
     
+    public CharBuffer.Marker getCurrentMark() {
+        return getBuf().mark();
+    }
+    
     public boolean isEOF() {
         return (CharBuffer.EOF == peek());
     }
