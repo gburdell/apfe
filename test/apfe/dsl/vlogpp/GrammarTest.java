@@ -25,8 +25,6 @@ package apfe.dsl.vlogpp;
 
 import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
-import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
 import apfe.runtime.State;
 import java.util.logging.Level;
@@ -48,16 +46,13 @@ public class GrammarTest {
         try {
             final String fn = stFname;
             System.out.println("accepti");
-            InputStream fins = new InputStream(fn);
-            CharBuffer cbuf = fins.newCharBuffer();
-            State st = State.create(cbuf);
-            Grammar gram = new Grammar();
+            Grammar gram = Main.getTheOne().start(fn);
             Acceptor acc = gram.accept();
             if (null != acc) {
                 String ss = acc.toString();
                 System.out.println("returns:\n========\n"+ss);
             }
-            boolean result = (null != acc) && st.isEOF();
+            boolean result = (null != acc) && State.getTheOne().isEOF();
             if (!result) {
                 ParseError.printTopMessage();
             }

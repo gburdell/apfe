@@ -23,7 +23,10 @@
  */
 package apfe.dsl.vlogpp;
 
+import apfe.dsl.vlogpp.parser.Grammar;
+import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
 import apfe.runtime.MessageMgr;
 import apfe.runtime.State;
@@ -54,6 +57,32 @@ public class Main {
         MessageMgr.message('E', code, args);
     }
 
+    /**
+     * Entry point for running vlogpp.
+     *
+     * @param fname source file to process.
+     * @return Grammar instance to run acceptor() (or null on error).
+     */
+    public Grammar start(String fname) {
+        Grammar gram = null;
+        m_fname = null;
+        try {
+            InputStream fins = new InputStream(fname);
+            CharBuffer cbuf = fins.newCharBuffer();
+            State st = State.create(cbuf);
+            m_fname = fname;
+            gram = new Grammar();
+        } catch (Exception ex) {
+            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            error("VPP-FILE-1", fname, "read");
+        }
+        return gram;
+    }
+
+    public String getFname() {
+        return m_fname;
+    }
+    
     public MacroDefns getMacroDefns() {
         return m_macroDefns;
     }
@@ -61,6 +90,7 @@ public class Main {
     /**
      * Replace current CharBuffer contents [start,current) with s.
      * Clear/invalidate any memoization too.
+     *
      * @param start start position in buffer.
      * @param s string to stitch into buffer[start,current).
      */
@@ -71,11 +101,11 @@ public class Main {
         State.getTheOne().getBuf().replace(start, s);
         Memoize.reset();
     }
-    
     public static boolean stWarnOnMultipleInclude = true;
-    
+
     /**
      * Get 1st valid include file by searching include dirs for fnm.
+     *
      * @param loc location of filename (in `include stmt).
      * @param fnm include file to find.
      * @return first valid include file (or null).
@@ -91,21 +121,20 @@ public class Main {
         }
         return (0 < cands.size()) ? cands.get(0) : null;
     }
-    
+
     /**
      * Add include directory to search path.
+     *
      * @param dir include directory.
      * @return true on success, else false.
      */
     public boolean addInclDir(String dir) {
         return m_inclDirs.add(dir);
     }
-    
     private MacroDefns m_macroDefns = new MacroDefns();
-    
     private IncludeDirs m_inclDirs = IncludeDirs.create(".");
-
     private static Main stTheOne = new Main();
+    private String m_fname;
 
     private static enum IfdefState {
 
@@ -171,12 +200,10 @@ public class Main {
         }
         return ns;
     }
-
     private Stack<IfdefState> m_ifdefStack = new Stack<>();
 
     static {
         File f = new File(new File(Util.getToolRoot()), "messages.vlogpp.txt");
         MessageMgr.addMessages(f);
     }
-
 }

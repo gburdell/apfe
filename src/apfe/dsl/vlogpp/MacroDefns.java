@@ -56,10 +56,6 @@ public class MacroDefns {
         return (m_valsByName.containsKey(nm));
     }
 
-    private boolean hasParams(String key) {
-        return isDefined(key) && m_valsByName.get(key).hasParms();
-    }
-
     public void add(String nm, String defn, Location loc) {
         add(nm, null, defn, loc);
     }
@@ -73,14 +69,16 @@ public class MacroDefns {
      * @return expanded macro.
      */
     public String expandMacro(String macnm, List<String> args, Location loc) {
-        List<Parm> parms = m_valsByName.get(macnm).m_parms;
+        Val mval = m_valsByName.get(macnm);
+        mval.m_hitCnt++;
+        List<Parm> parms = mval.m_parms;
         int hasN = (null != args) ? args.size() : 0;
         int expectsN = (null != parms) ? parms.size() : 0;
         if (hasN > expectsN) {
             Main.error("VPP-ARGN", loc, hasN, expectsN);
             return null;
         }
-        String defn = m_valsByName.get(macnm).m_defn;
+        String defn = mval.m_defn;
         int pos = 1;
         String with;
         if (null != args) {
@@ -116,18 +114,6 @@ public class MacroDefns {
         String repl = stDelim[0] + pos + stDelim[1];
         s = s.replace(repl, with);
         return s;
-    }
-
-    /**
-     * Get non-parameterized macro value.
-     *
-     * @param nm macro name.
-     * @return non-parameterized macro value.
-     */
-    private String getVal(String nm) {
-        Val val = m_valsByName.get(nm);
-        assert (null == val.m_parms);
-        return val.m_defn;
     }
 
     public void add(String nm, List<Parm> parms, String defn, Location loc) {
@@ -218,5 +204,9 @@ public class MacroDefns {
         public final List<Parm> m_parms;
         public final String m_defn;
         public final Location m_loc;
+        /**
+         * Track how many times macro is referenced.
+         */
+        public int m_hitCnt = 0;
     }
 }

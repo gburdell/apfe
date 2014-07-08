@@ -2,18 +2,18 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="5">
         <file>
-            <url>src/apfe/runtime/PrioritizedChoice.java</url>
-            <bookmark id="1">
-                <name/>
-                <line>102</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>src/apfe/dsl/vlogpp/Comment.java</url>
             <bookmark id="5">
                 <name/>
                 <line>125</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/apfe/runtime/PrioritizedChoice.java</url>
+            <bookmark id="1">
+                <name/>
+                <line>102</line>
                 <key/>
             </bookmark>
         </file>
