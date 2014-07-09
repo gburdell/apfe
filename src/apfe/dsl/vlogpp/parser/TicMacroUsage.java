@@ -25,7 +25,7 @@ package apfe.dsl.vlogpp.parser;
 
 import apfe.dsl.vlogpp.Location;
 import apfe.dsl.vlogpp.MacroDefns;
-import apfe.dsl.vlogpp.Main;
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharSeq;
@@ -74,12 +74,12 @@ public class TicMacroUsage extends Acceptor {
      * @param loc location of instance.
      */
     private void expandMacro(final Location loc) {
-        Main mn = Main.getTheOne();
+        Helper mn = Helper.getTheOne();
         if (false == mn.getConditionalAllow()) {
             return;
         }
         if (false == mn.isDefined(m_ident)) {
-            Main.error("VPP-NODEFN", loc, m_ident);
+            Helper.error("VPP-NODEFN", loc, m_ident);
             return;
         }
         List<String> instArgs = (null != m_args) ? m_args.getArgs() : null;
@@ -88,7 +88,7 @@ public class TicMacroUsage extends Acceptor {
         if (null == expanded) {
             return; //had error
         }
-        Main.replaceCharBuffer(super.getStartMark(), expanded);
+        Helper.replaceCharBuffer(super.getStartMark(), expanded);
     }
 
     @Override

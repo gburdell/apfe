@@ -24,7 +24,7 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.dsl.vlogpp.Location;
-import apfe.dsl.vlogpp.Main;
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.Marker;
@@ -73,9 +73,9 @@ public class TicInclude extends Acceptor {
         CharBuffer currBuf = State.getTheOne().getBuf();
         Marker here = currBuf.mark();
         String currFn = currBuf.getFileName();
-        File incl = Main.getTheOne().getInclFile(loc, m_fname);
+        File incl = Helper.getTheOne().getInclFile(loc, m_fname);
         if (null == incl) {
-            Main.error("VPP-INCL-4", loc, m_fname);
+            Helper.error("VPP-INCL-4", loc, m_fname);
             return true;    //gooble up anyway else `include triggers `macroInst
         }
         //Build up stuffing

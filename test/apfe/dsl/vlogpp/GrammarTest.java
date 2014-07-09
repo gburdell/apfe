@@ -46,7 +46,7 @@ public class GrammarTest {
         try {
             final String fn = stFname;
             System.out.println("accepti");
-            Grammar gram = Main.getTheOne().start(fn);
+            Grammar gram = Helper.getTheOne().start(fn);
             Acceptor acc = gram.accept();
             if (null != acc) {
                 String ss = acc.toString();

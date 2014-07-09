@@ -23,17 +23,14 @@
  */
 package apfe.dsl.vlogpp.parser;
 
-import apfe.dsl.vlogpp.Main;
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
 import apfe.runtime.PrioritizedChoice;
-import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  *
@@ -66,7 +63,7 @@ public class TicConditional extends Acceptor {
             return false;
         }
         m_id = id.toString();
-        Main main = Main.getTheOne();
+        Helper main = Helper.getTheOne();
         if (m_ifdef) {
             main.ticIfdef(m_id);
         } else {

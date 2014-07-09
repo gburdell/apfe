@@ -60,6 +60,21 @@ public class Util {
         }
     }
 
+    public static String nl() {
+        return System.lineSeparator();
+    }
+
+    /**
+     * Return null as an empty collection.
+     * @param <T> base type.
+     * @param x scalar to test for null.
+     * @param empty empty collection to return iff. x is null.
+     * @return x or empty (if x is null).
+     */
+    public static <T> T asEmpty(T x, T empty) {
+        return (null != x) ? x : empty;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T downCast(Object o) {
         return (T) o;

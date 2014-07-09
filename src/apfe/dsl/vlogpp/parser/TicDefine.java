@@ -24,7 +24,7 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.dsl.vlogpp.Location;
-import apfe.dsl.vlogpp.Main;
+import apfe.dsl.vlogpp.Helper;
 import apfe.dsl.vlogpp.Parm;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
@@ -63,7 +63,7 @@ public class TicDefine extends Acceptor {
     }
 
     private void addDefn(TextMacroName mname, MacroText mtext, Location loc) {
-        Main mn = Main.getTheOne();
+        Helper mn = Helper.getTheOne();
         if (false == mn.getConditionalAllow()) {
             return;
         }

@@ -43,8 +43,8 @@ public class MacroDefns {
     public void checkDupl(String key, Location loc) {
         if (isDefined(key)) {
             Val val = lookup(key);
-            Main.warning("VPP-DUP-1a", loc.toString(), key);
-            Main.warning("VPP-DUP-1b", val.m_loc.toString(), key);
+            Helper.warning("VPP-DUP-1a", loc.toString(), key);
+            Helper.warning("VPP-DUP-1b", val.m_loc.toString(), key);
         }
     }
 
@@ -75,7 +75,7 @@ public class MacroDefns {
         int hasN = (null != args) ? args.size() : 0;
         int expectsN = (null != parms) ? parms.size() : 0;
         if (hasN > expectsN) {
-            Main.error("VPP-ARGN", loc, hasN, expectsN);
+            Helper.error("VPP-ARGN", loc, hasN, expectsN);
             return null;
         }
         String defn = mval.m_defn;
@@ -101,7 +101,7 @@ public class MacroDefns {
             for (; pos <= expectsN; pos++) {
                 with = parms.get(pos - 1).getDefault();
                 if (null == with) {
-                    Main.error("VPP-NODFLT", loc, macnm, parms.get(pos - 1).getParmName());
+                    Helper.error("VPP-NODFLT", loc, macnm, parms.get(pos - 1).getParmName());
                     return null;
                 }
                 defn = replace(defn, pos, with);

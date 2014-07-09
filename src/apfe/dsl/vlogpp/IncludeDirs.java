@@ -55,7 +55,7 @@ public class IncludeDirs {
             try {
                 asAbs = d.getCanonicalPath();
             } catch (IOException ex) {
-                Main.error("VPP-DIR-1", dirNm);
+                Helper.error("VPP-DIR-1", dirNm);
                 return false;
             }
             for (File i : m_inclDirs) {
@@ -65,14 +65,14 @@ public class IncludeDirs {
                         break;
                     }
                 } catch (IOException ex) {
-                    Main.error("VPP-DIR-2", i.getName(), "access");
+                    Helper.error("VPP-DIR-2", i.getName(), "access");
                 }
             }
             if (null != d) {
                 m_inclDirs.add(d);
             }
         } else {
-            Main.error("VPP-DIR-1", dirNm);
+            Helper.error("VPP-DIR-1", dirNm);
         }
         return ok;
     }
@@ -130,7 +130,7 @@ public class IncludeDirs {
     }
 
     private static void fileReadError(final File f) {
-        Main.error("VPP-FILE-1", f.getName(), "read");
+        Helper.error("VPP-FILE-1", f.getName(), "read");
     }
 
     private List<File> m_inclDirs = new LinkedList<>();

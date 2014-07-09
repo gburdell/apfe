@@ -24,7 +24,7 @@
 package apfe.dsl.vlogpp.parser;
 
 import static apfe.runtime.Util.abnormalExit;
-import apfe.dsl.vlogpp.Main;
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
@@ -58,7 +58,7 @@ public class Line extends Acceptor {
             switch (m_type) {
                 case 1:
                     if (stMaxInclNestCnt < stInclNestCnt++) {
-                        Main.error("VPP-INCL-3", stMaxInclNestCnt);
+                      Helper.error("VPP-INCL-3", stMaxInclNestCnt);
                         abnormalExit(new Exception("Unexpected.  Very bad."));
                     }
                     break;
