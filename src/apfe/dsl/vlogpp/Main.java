@@ -23,7 +23,10 @@
 package apfe.dsl.vlogpp;
 
 import apfe.dsl.vlogpp.ProcArgs.Spec.EType;
-import apfe.runtime.Util;
+import apfe.dsl.vlogpp.parser.Grammar;
+import apfe.runtime.Acceptor;
+import apfe.runtime.ParseError;
+import apfe.runtime.State;
 import static apfe.runtime.Util.asEmpty;
 import static apfe.runtime.Util.nl;
 import java.util.LinkedList;
@@ -37,25 +40,18 @@ import java.util.Map;
 public class Main {
 
     private void init(String argv[]) {
+        if (1 > argv.length) {
+            usageErr(null);
+        }
         try {
             m_args = new Args(argv);
-            //SysVlogParser.stDebug = true;
-            //SysVlogParser.stQuick = false;
             parse();
         } catch (ProcArgs.ArgException ex) {
-            Util.abnormalExit(ex);
+            usageErr(ex.toString());
         }
     }
 
     public Main(String argv[]) {
-        init(argv);
-    }
-
-    public Main() {
-        //nothing
-    }
-
-    void initAndParse(String argv[]) {
         init(argv);
     }
 
@@ -64,7 +60,9 @@ public class Main {
     }
 
     private static void usageErr(String msg) {
-        System.err.println("Error: " + msg);
+        if (null != msg) {
+            System.err.println("Error: " + msg);
+        }
         usage();
         System.exit(1);
     }
@@ -90,16 +88,31 @@ public class Main {
         m_srcFiles = m_args.getOptVals(".");
         List<String> inclDirs = m_args.getOptVals("-I");
         List<Pair<String, String>> defs = Pair.factory(m_args.getOptVals("-D"));
-        m_parser = new SvParser();
-        m_parser.parse(m_srcFiles, inclDirs, defs);
+        Helper hlp = Helper.getTheOne();
+        for (String d : inclDirs) {
+            hlp.addInclDir(d);
+        }
+        MacroDefns macs = hlp.getMacroDefns();
+        for (Pair<String, String> md : defs) {
+            macs.add(md.v1, md.v2, Location.stCmdLine);
+        }
+        parse(m_srcFiles);
     }
 
-    public void parse(String srcs[]) {
-        m_parser.parse(srcs);
-    }
-
-    public Parser getParser() {
-        return m_parser;
+    private void parse(final List<String> srcs) {
+        for (String fn : srcs) {
+            Grammar gram = Helper.getTheOne().start(fn);
+            Acceptor acc = gram.accept();
+            if (null != acc) {
+                String ss = acc.toString();
+                System.out.println(super.getClass().getName()
+                        + " returns:\n========\n" + ss);
+            }
+            boolean result = (null != acc) && State.getTheOne().isEOF();
+            if (!result) {
+                ParseError.printTopMessage();
+            }
+        }
     }
 
     private Args m_args;

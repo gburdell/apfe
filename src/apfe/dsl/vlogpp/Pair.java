@@ -37,6 +37,8 @@ public class Pair<T1, T2> {
     /**
      * Create list of Pair parsing key(=val)?
      *
+     * @param keyVals key(=val)? values.
+     * @param delim delimiter (usu. =).
      * @return list of pair from parsing.
      */
     public static List<Pair<String, String>> factory(

@@ -52,7 +52,7 @@ public class ProcArgs {
      * @throws apfe.dsl.vlogpp.ProcArgs.ArgException
      */
     public Map<String, List<String>> parse(String fname) throws ArgException {
-        List<String> args = new LinkedList();
+        List<String> args = new LinkedList<>();
         try {
             String ln;
             LineNumberReader rdr = new LineNumberReader(new FileReader(fname));
