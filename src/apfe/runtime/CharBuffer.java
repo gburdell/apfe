@@ -23,8 +23,6 @@
  */
 package apfe.runtime;
 
-import java.util.Arrays;
-
 /**
  *
  * @author gburdell
@@ -34,10 +32,13 @@ import java.util.Arrays;
  */
 public class CharBuffer {
 
-    public CharBuffer(String fname, final char buf[], int len) {
+    public CharBuffer(String fname, CharSequence buf) {
+        this(fname, new StringBuilder(buf));
+    }
+    
+    public CharBuffer(String fname, StringBuilder buf) {
         m_fname = fname;
         m_buf = buf;
-        m_len = len;
         m_lnum = 1;
         m_col = m_pos = 0;
     }
@@ -48,9 +49,9 @@ public class CharBuffer {
         m_col = 0;
     }
     
-    public StringBuilder fill(StringBuilder sb) {
-        sb.append(m_buf, 0, m_len);
-        return sb;
+    public StringBuilder getBuf() {
+        return m_buf;
+        
     }
 
     /**
@@ -134,7 +135,7 @@ public class CharBuffer {
     private char laCheck(int la) {
         int n = m_pos + la;
         assert (0 <= n);
-        return (n < m_len) ? m_buf[n] : EOF;
+        return (n < m_buf.length()) ? m_buf.charAt(n) : EOF;
     }
 
     public String getFileName() {
@@ -160,40 +161,37 @@ public class CharBuffer {
      */
     public String substring(final Marker start) {
         assert start.m_xpos <= m_pos;
-        return new String(Arrays.copyOfRange(m_buf, start.m_xpos, m_pos));
+        return m_buf.substring(start.getPos(), m_pos);
     }
 
     /**
      * Replace buffer contents from start to current position with s.
-     * The old buffer is replaced and markers moved.
-     * So, make sure any memoization is reset.
      * @param start start marker.
      * @param s replace string.
      */
     public void replace(final Marker start, String s) {
-        assert start.m_xpos <= m_pos;
-        int newLen = start.m_xpos + s.length() + (m_len - m_pos) + 1;
-        // new buffer to accomodate |before|s|after s|
-        char newBuf[] = Arrays.copyOf(m_buf, newLen);
-        // replace with s
-        System.arraycopy(s.toCharArray(), 0, newBuf, start.m_xpos, s.length());
-        int newStart = start.m_xpos + s.length();
-        int len = m_len - m_pos;
-        assert 0 <= len;
-        // tack on trailing
-        if (0 < len) {
-            System.arraycopy(m_buf, m_pos, newBuf, newStart, len);
+        getBuf().replace(start.getPos(), m_pos, s);
+        reset(start);
+    }
+    
+    /**
+     * Replace current CharBuffer contents [start,current) with space,
+     * while retaining any newline.
+     * Clear/invalidate any memoization too.
+     * @param start start position.
+     */
+    public void replace(final Marker start) {
+        for (int i = start.getPos(); i < m_pos; i++) {
+            if (m_buf.charAt(i) != NL) {
+                m_buf.setCharAt(i, ' ');
+            }
         }
-        m_buf = newBuf;
-        m_len = newLen;
-        m_pos = start.m_xpos;
     }
     
     public final static char NUL = 0;
     public final static char EOF = (char) -1;
     public final static char NL = '\n';    //LineNumberReader converts all to this.
-    private char m_buf[];
-    private int m_len;
+    private final StringBuilder m_buf;
     private String m_fname;
     /**
      * Current position in buffer.
@@ -216,6 +214,10 @@ public class CharBuffer {
             m_xcol = m_col;
         }
 
+        public int length(final Marker end) {
+            return end.getCol() - getCol();
+        }
+        
         @Override
         public boolean equals(Object m) {
             return (m_xpos == ((Marker) m).m_xpos);

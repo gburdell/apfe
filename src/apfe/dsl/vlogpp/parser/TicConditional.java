@@ -25,9 +25,8 @@ package apfe.dsl.vlogpp.parser;
 
 import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
+import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.CharSeq;
-import apfe.runtime.Memoize;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -69,21 +68,28 @@ public class TicConditional extends Acceptor {
         } else {
             main.ticIfndef(m_id);
         }
+        main.replace(super.getStartMark());
         ConditionalLines cl1 = new ConditionalLines();
+        Marker curr = getCurrentMark();
         match &= (null != (cl1 = match(cl1)));
         if (!match) {
             return false;
         }
         m_condLines = cl1.toString();
+        //TODO: if we are not passing, then push spaces or `line
+        //to replace [curr,getCurrentMark())
+        
         //("`elsif" Spacing Identifier ConditionalLines)*
         //Process as a loop here so we can interject action
         StringBuilder sb = null;
         while (true) {
+            curr = getCurrentMark();
             Sequence s1 = new Sequence(new CharSeq("`elseif"), new Spacing(),
                     new Identifier());
             if (null != (s1 = match(s1))) {
                 String eifId = Util.extractEleAsString(s1, 2);
                 main.ticElsif(eifId);
+                main.replace(curr);
                 ConditionalLines clns = new ConditionalLines();
                 assert null != (clns = match(clns));
                 if (null == sb) {
@@ -98,23 +104,24 @@ public class TicConditional extends Acceptor {
             m_elsifLines = sb.toString();
         }
         //("`else" ConditionalLines)?
+        curr = getCurrentMark();
         if (matchTrue(new CharSeq("`else"))) {
             main.ticElse();
+            main.replace(curr);
             ConditionalLines cl2 = new ConditionalLines();
             assert (null != (cl2 = match(cl2)));
             m_else = cl2.toString();
         }
+        curr = getCurrentMark();
         match &= (new CharSeq("`endif")).acceptTrue();
         if (match) {
             main.ticEndif();
-            /**
-             * NOTE: m_str may not be correct depending on how the conditionals
-             * get expanded.  Though guess it should be right.
-             */
+            main.replace(curr);
             m_str = super.toString();
         }
         return match;
     }
+     
     private boolean m_ifdef;
     private String m_id;
     private String m_condLines;
@@ -131,18 +138,4 @@ public class TicConditional extends Acceptor {
     public Acceptor create() {
         return new TicConditional();
     }
-
-    @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
-        stMemo.add(mark, this, endMark);
-    }
-
-    @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
-        return stMemo.memoized(mark);
-    }
-    /**
-     * Memoize for all instances of TicConditional.
-     */
-    private static Memoize stMemo = new Memoize();
 }

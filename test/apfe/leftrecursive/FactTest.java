@@ -54,8 +54,7 @@ public class FactTest {
 
     public static void test(final String tt) {
         System.out.print("fact: " + tt + ": parses as: ");
-        final char cbuf[] = tt.toCharArray();
-        CharBuffer buf = new CharBuffer("<test>", cbuf, cbuf.length);
+        CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
         Fact gram = new Fact();

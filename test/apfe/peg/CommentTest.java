@@ -38,8 +38,6 @@ public class CommentTest {
     public CommentTest() {
     }
     private static final String stTry = "# this is a line comment\nthis is not";
-    private static final char stBuf[] = stTry.toCharArray();
-    private static final int stN = stTry.length();
 
     /**
      * Test of accepti method, of class Comment.
@@ -47,7 +45,7 @@ public class CommentTest {
     @Test
     public void testAccepti() {
         System.out.println("accepti");
-        CharBuffer buf = new CharBuffer("<test>", stBuf, stN);
+        CharBuffer buf = new CharBuffer("<test>", stTry);
         State st = State.create(buf);
         Comment instance = new Comment();
         boolean expResult = true;

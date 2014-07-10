@@ -35,6 +35,7 @@ import java.nio.file.Path;
  * @author gburdell
  */
 public class InputStream {
+
     /**
      * Create InputStream from file source.
      *
@@ -45,31 +46,32 @@ public class InputStream {
         m_fname = fname;
         init();
     }
+
     /**
      * Get a character stream bound to this buffer.
+     *
      * @return character stream.
      */
     public CharBuffer newCharBuffer() {
-        return new CharBuffer(m_fname, m_buf, m_len);
+        return new CharBuffer(m_fname, m_buf);
     }
+
     private void init() throws Exception {
         Path path = FileSystems.getDefault().getPath(m_fname);
-        int sz = Util.longToInt(Files.size(path));
-        m_buf = new char[sz];
+        long lsz = Files.size(path);
+        if (lsz > Integer.MAX_VALUE) {
+            Util.abnormalExit(lsz + " > " + Integer.MAX_VALUE);
+        }
+        int sz = Util.longToInt(lsz);
+        m_buf = new StringBuilder(sz);
         int i;
         try (LineNumberReader rdr = new LineNumberReader(new FileReader(m_fname))) {
+            //Need to use read()/singular since read([],..) does not discard \r.
             while (0 <= (i = rdr.read())) {
-                m_buf[m_len++] = Util.intToChar(i);
+                m_buf.append(Util.intToChar(i));
             }
         }
     }
     private final String m_fname;
-    /**
-     * The buffer.
-     */
-    private char m_buf[];
-    /**
-     * Length of buffer.
-     */
-    private int m_len;
+    private StringBuilder m_buf;
 }

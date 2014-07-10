@@ -65,10 +65,8 @@ public class GrammarTest {
         for (String s : stExps) {
             bld.append(s).append("\n");
         }
-        final char stBuf[] = bld.toString().toCharArray();
-        final int stN = stBuf.length;
         System.out.println("accepti");
-        CharBuffer buf = new CharBuffer("<test>", stBuf, stN);
+        CharBuffer buf = new CharBuffer("<test>", bld);
         State st = State.create(buf);
         boolean result;
         Grammar gram = new Grammar();

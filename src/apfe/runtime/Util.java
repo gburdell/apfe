@@ -281,6 +281,10 @@ public class Util {
         System.exit(1);
     }
 
+    public static void abnormalExit(String msg) {
+        abnormalExit(new Exception(msg));
+    }
+
     public static void info(String code, Object... args) {
         message('I', code, args);
     }

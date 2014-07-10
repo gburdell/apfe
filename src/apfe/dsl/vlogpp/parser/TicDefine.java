@@ -57,6 +57,7 @@ public class TicDefine extends Acceptor {
                 mtext = r1.getOnlyAccepted();
             }
             addDefn(mname, mtext, loc);
+            Helper.getTheOne().replace(super.getStartMark());
             m_text = super.toString();
         }
         return match;
@@ -100,5 +101,5 @@ public class TicDefine extends Acceptor {
     /**
      * Memoize for all instances of TicDefine.
      */
-    private static Memoize stMemo = new Memoize();
+    private static final Memoize stMemo = new Memoize();
 }

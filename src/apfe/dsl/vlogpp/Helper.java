@@ -82,9 +82,13 @@ public class Helper {
     public String getFname() {
         return m_fname;
     }
-    
+
     public MacroDefns getMacroDefns() {
         return m_macroDefns;
+    }
+
+    public static CharBuffer getBuf() {
+        return State.getTheOne().getBuf();
     }
 
     /**
@@ -94,13 +98,25 @@ public class Helper {
      * @param start start position in buffer.
      * @param s string to stitch into buffer[start,current).
      */
-    public static void replaceCharBuffer(final Marker start, String s) {
+    public void replace(final Marker start, String s) {
         if (s.isEmpty()) {
             s = " ";
         }
-        State.getTheOne().getBuf().replace(start, s);
+        getBuf().replace(start, s);
         Memoize.reset();
     }
+
+    /**
+     * Replace current CharBuffer contents [start,current) with space, while
+     * retaining any newline. Clear/invalidate any memoization too.
+     *
+     * @param start start position.
+     */
+    public void replace(final Marker start) {
+        getBuf().replace(start);
+        Memoize.reset();
+    }
+
     public static boolean stWarnOnMultipleInclude = true;
 
     /**
@@ -131,9 +147,9 @@ public class Helper {
     public boolean addInclDir(String dir) {
         return m_inclDirs.add(dir);
     }
-    private MacroDefns m_macroDefns = new MacroDefns();
-    private IncludeDirs m_inclDirs = IncludeDirs.create(".");
-    private static Helper stTheOne = new Helper();
+    private final MacroDefns m_macroDefns = new MacroDefns();
+    private final IncludeDirs m_inclDirs = IncludeDirs.create(".");
+    private static final Helper stTheOne = new Helper();
     private String m_fname;
 
     private static enum IfdefState {
@@ -200,7 +216,7 @@ public class Helper {
         }
         return ns;
     }
-    private Stack<IfdefState> m_ifdefStack = new Stack<>();
+    private final Stack<IfdefState> m_ifdefStack = new Stack<>();
 
     static {
         File f = new File(new File(Util.getToolRoot()), "messages.vlogpp.txt");

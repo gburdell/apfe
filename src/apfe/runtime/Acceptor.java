@@ -80,11 +80,15 @@ public abstract class Acceptor {
     protected abstract boolean accepti();
 
     private CharBuffer.Marker m_startMark;
-    
+
     protected CharBuffer.Marker getStartMark() {
         return m_startMark;
     }
-    
+
+    protected Marker getCurrentMark() {
+        return State.getTheOne().getCurrentMark();
+    }
+
     /**
      * Determine if implementation accepts from current State. If not, rewind
      * token buffer.
@@ -99,13 +103,6 @@ public abstract class Acceptor {
         m_startMark = mark;
         Acceptor accepted = this;
         boolean ok = false;
-
-        //{track nonterm for debugging
-        String nonTermId = getNonTermID();
-        if (null != nonTermId) {
-            st.pushNonTermID(nonTermId);
-        }
-        //}
 
         if (isPredicate) {
             st.incrPredicate();
@@ -131,7 +128,10 @@ public abstract class Acceptor {
             ok = accepti();
             if (ok && !st.inPredicate() && Memoize.stEnableMemoize) {
                 //memoize
-                memoize(mark, st.getBuf().mark());
+                Marker end = st.getBuf().mark();
+                if (0 < mark.length(end)) {
+                    memoize(mark, end);
+                }
             }
         }
         if (!ok || isPredicate) {
@@ -143,12 +143,6 @@ public abstract class Acceptor {
         if (ok) {
             String dbgText = toString();
             dbgText += "";
-        }
-
-        //we'll still track track since helps see whats going on
-        if (null != nonTermId) {
-            String x = st.popNonTermID();
-            assert x.equals(nonTermId);
         }
 
         return ok ? accepted : null;
@@ -175,8 +169,8 @@ public abstract class Acceptor {
 
     /**
      * Test if accepted.
-     * 
-     * @return true if implementation accepts from current State. 
+     *
+     * @return true if implementation accepts from current State.
      */
     public boolean acceptTrue() {
         return (null != accept());

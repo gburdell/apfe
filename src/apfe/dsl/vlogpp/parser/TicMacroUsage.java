@@ -88,7 +88,7 @@ public class TicMacroUsage extends Acceptor {
         if (null == expanded) {
             return; //had error
         }
-        Helper.replaceCharBuffer(super.getStartMark(), expanded);
+        Helper.getBuf().replace(super.getStartMark(), expanded);
     }
 
     @Override
@@ -113,5 +113,5 @@ public class TicMacroUsage extends Acceptor {
     /**
      * Memoize for all instances of TicMacroUsage.
      */
-    private static Memoize stMemo = new Memoize();
+    private static final Memoize stMemo = new Memoize();
 }

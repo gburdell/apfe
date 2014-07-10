@@ -50,10 +50,8 @@ public class CharSeqTest {
         for (String s : stExps) {
             bld.append(s);
         }
-        final char stBuf[] = bld.toString().toCharArray();
-        final int stN = stBuf.length;
         System.out.println("accepti");
-        CharBuffer buf = new CharBuffer("<test>", stBuf, stN);
+        CharBuffer buf = new CharBuffer("<test>", bld);
         State st = State.create(buf);
         CharSeq instance;
         boolean result;

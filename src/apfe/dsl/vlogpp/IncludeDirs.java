@@ -133,5 +133,5 @@ public class IncludeDirs {
         Helper.error("VPP-FILE-1", f.getName(), "read");
     }
 
-    private List<File> m_inclDirs = new LinkedList<>();
+    private final List<File> m_inclDirs = new LinkedList<>();
 }

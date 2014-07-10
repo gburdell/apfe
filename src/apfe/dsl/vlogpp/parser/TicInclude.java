@@ -30,6 +30,7 @@ import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.InputStream;
+import apfe.runtime.Memoize;
 import apfe.runtime.RestOfLine;
 import apfe.runtime.Sequence;
 import apfe.runtime.State;
@@ -86,10 +87,13 @@ public class TicInclude extends Acceptor {
         try {
             InputStream fis = new InputStream(incl.getName());
             CharBuffer buf = fis.newCharBuffer();
-            buf.fill(sb).append("\n`line ").append(start.getLnum())
+            sb.append(buf.getBuf());    //tack on file contents
+            sb.append("\n`line ").append(start.getLnum())
                     .append(" \"").append(currFn).append("\" 2\n");
-            currBuf.replace(start, buf.toString());
+            //TODO: replace `include with contents
+            currBuf.replace(start, sb.toString());
             currBuf.reset(start);
+            Memoize.reset();
         } catch (Exception ex) {
             ok = false;//Logger.getLogger(TicInclude.class.getName()).log(Level.SEVERE, null, ex);
         }

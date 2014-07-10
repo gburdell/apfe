@@ -60,8 +60,7 @@ public class TermTest {
 
     public static void test(final String tt) {
         System.out.print("term: " + tt + ": parses as: ");
-        final char cbuf[] = tt.toCharArray();
-        CharBuffer buf = new CharBuffer("<test>", cbuf, cbuf.length);
+        CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
         Term gram = new Term();

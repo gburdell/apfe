@@ -23,8 +23,8 @@
  */
 package apfe.dsl.vlogpp.parser;
 
-import static apfe.runtime.Util.abnormalExit;
 import apfe.dsl.vlogpp.Helper;
+import static apfe.runtime.Util.abnormalExit;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
