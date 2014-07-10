@@ -71,7 +71,7 @@ public class TicInclude extends Acceptor {
     private String m_fname;
 
     private boolean processIncludeFile(Location loc, Marker start) {
-        CharBuffer currBuf = State.getTheOne().getBuf();
+        CharBuffer currBuf = Helper.getBuf();
         Marker here = currBuf.mark();
         String currFn = currBuf.getFileName();
         File incl = Helper.getTheOne().getInclFile(loc, m_fname);
@@ -90,7 +90,6 @@ public class TicInclude extends Acceptor {
             sb.append(buf.getBuf());    //tack on file contents
             sb.append("\n`line ").append(start.getLnum())
                     .append(" \"").append(currFn).append("\" 2\n");
-            //TODO: replace `include with contents
             currBuf.replace(start, sb.toString());
             currBuf.reset(start);
             Memoize.reset();

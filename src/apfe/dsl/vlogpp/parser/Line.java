@@ -67,9 +67,8 @@ public class Line extends Acceptor {
                     break;
             }
             m_text = super.toString();
-            State.getTheOne().getBuf().reset(m_fname, m_lnum);
-            Memoize.reset();
-        }
+            Helper.getBuf().reset(m_fname, m_lnum);
+       }
         return match;
     }
 

@@ -76,9 +76,12 @@ public class TicConditional extends Acceptor {
             return false;
         }
         m_condLines = cl1.toString();
+        if (false == main.getConditionalAllow()) {
+            main.replace(curr);
+        }
         //TODO: if we are not passing, then push spaces or `line
         //to replace [curr,getCurrentMark())
-        
+
         //("`elsif" Spacing Identifier ConditionalLines)*
         //Process as a loop here so we can interject action
         StringBuilder sb = null;
@@ -89,13 +92,17 @@ public class TicConditional extends Acceptor {
             if (null != (s1 = match(s1))) {
                 String eifId = Util.extractEleAsString(s1, 2);
                 main.ticElsif(eifId);
-                main.replace(curr);
+                main.replace(curr);  //remove `elseif
+                curr = getCurrentMark();
                 ConditionalLines clns = new ConditionalLines();
                 assert null != (clns = match(clns));
                 if (null == sb) {
                     sb = new StringBuilder();
                 }
                 sb.append(clns.toString());
+                if (false == main.getConditionalAllow()) {
+                    main.replace(curr);
+                }
             } else {
                 break; //while
             }
@@ -107,10 +114,14 @@ public class TicConditional extends Acceptor {
         curr = getCurrentMark();
         if (matchTrue(new CharSeq("`else"))) {
             main.ticElse();
-            main.replace(curr);
+            main.replace(curr); //rm `else
+            curr = getCurrentMark();
             ConditionalLines cl2 = new ConditionalLines();
             assert (null != (cl2 = match(cl2)));
             m_else = cl2.toString();
+            if (false == main.getConditionalAllow()) {
+                main.replace(curr);
+            }
         }
         curr = getCurrentMark();
         match &= (new CharSeq("`endif")).acceptTrue();
@@ -121,7 +132,7 @@ public class TicConditional extends Acceptor {
         }
         return match;
     }
-     
+
     private boolean m_ifdef;
     private String m_id;
     private String m_condLines;
