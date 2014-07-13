@@ -69,7 +69,7 @@ ConditionalLineContent <- TicInclude
          / TicDefine
          / TicConditional
          / TicReserved
-         / !("`elseif" / "`else" / "`endif") TicMacroUsage
+         / !("`elsif" / "`else" / "`endif") TicMacroUsage
         ##
         ## Dont want to catch a `elsif,`else,`endif with AnyChar    
         ##

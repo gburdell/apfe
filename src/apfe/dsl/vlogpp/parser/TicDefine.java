@@ -43,18 +43,16 @@ public class TicDefine extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        //TicDefine <- "`define" Spacing TextMacroName (MacroText)?
-        Repetition r1 = new Repetition(new MacroText(), Repetition.ERepeat.eOptional);
+        //TicDefine <- "`define" Spacing TextMacroName MacroText
         Sequence s1 = new Sequence(new CharSeq("`define"), new Spacing(),
-                new TextMacroName(), r1);
+                new TextMacroName(), new MacroText());
         Location loc = Location.getCurrent();
         boolean match = (null != (s1 = match(s1)));
         if (match) {
             TextMacroName mname = Util.extractEle(s1, 2);
-            MacroText mtext = null;
-            r1 = Util.extractEle(s1, 3);
-            if (0 < r1.sizeofAccepted()) {
-                mtext = r1.getOnlyAccepted();
+            MacroText mtext = Util.extractEle(s1, 3);
+            if (mtext.toString().isEmpty()) {
+                mtext = null;
             }
             addDefn(mname, mtext, loc);
             Helper.getTheOne().replace(super.getStartMark());

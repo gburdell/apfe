@@ -80,6 +80,7 @@ public abstract class Acceptor {
     protected abstract boolean accepti();
 
     private CharBuffer.Marker m_startMark;
+    private final long m_memoBar = Memoize.getTheBar();
 
     protected CharBuffer.Marker getStartMark() {
         return m_startMark;
@@ -127,10 +128,16 @@ public abstract class Acceptor {
         if (!ok) {
             ok = accepti();
             if (ok && !st.inPredicate() && Memoize.stEnableMemoize) {
-                //memoize
-                Marker end = st.getBuf().mark();
-                if (0 < mark.length(end)) {
-                    memoize(mark, end);
+                /*
+                 * We dont want to memoize if the bar has been raised
+                 * while we are in process.
+                 */
+                if (m_memoBar == Memoize.getTheBar()) {
+                    //memoize
+                    Marker end = st.getBuf().mark();
+                    if (0 < mark.length(end)) {
+                        memoize(mark, end);
+                    }
                 }
             }
         }
@@ -140,13 +147,15 @@ public abstract class Acceptor {
         if (isPredicate) {
             st.decrPredicate();
         }
-        if (ok) {
+        if (stDebug && ok) {
             String dbgText = toString();
             dbgText += "";
         }
 
         return ok ? accepted : null;
     }
+
+    public static boolean stDebug = System.getProperty("apfe.runtime.Acceptor.Debug", "false").equals("true");
 
     public boolean inPredicate() {
         return State.getTheOne().inPredicate();

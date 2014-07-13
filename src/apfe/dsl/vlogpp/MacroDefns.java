@@ -22,9 +22,11 @@
 //THE SOFTWARE.
 package apfe.dsl.vlogpp;
 
+import apfe.runtime.Util;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * `define macro definitions. NOTES from LRM: It shall be an error if any of the
@@ -36,26 +38,30 @@ import java.util.regex.Pattern;
  * @author kpfalzer
  */
 public class MacroDefns {
-
+    
     public MacroDefns() {
     }
-
-    public void checkDupl(String key, Location loc) {
+    
+    public void checkDupl(String key, Location loc, String defn) {
         if (isDefined(key)) {
             Val val = lookup(key);
-            Helper.warning("VPP-DUP-1a", loc.toString(), key);
-            Helper.warning("VPP-DUP-1b", val.m_loc.toString(), key);
+            if (val.m_loc.equals(loc)) {
+                assert Util.equalsInclNull(val.m_defn, defn);
+            } else if (!Util.equalsInclNull(val.m_defn, defn)) {
+                Helper.warning("VPP-DUP-1a", loc.toString(), key);
+                Helper.warning("VPP-DUP-1b", val.m_loc.toString(), key);
+            }
         }
     }
-
+    
     private Val lookup(String key) {
         return m_valsByName.get(key);
     }
-
+    
     public boolean isDefined(String nm) {
         return (m_valsByName.containsKey(nm));
     }
-
+    
     public void add(String nm, String defn, Location loc) {
         add(nm, null, defn, loc);
     }
@@ -109,15 +115,15 @@ public class MacroDefns {
         }
         return defn;
     }
-
+    
     private static String replace(String s, int pos, String with) {
         String repl = stDelim[0] + pos + stDelim[1];
         s = s.replace(repl, with);
         return s;
     }
-
+    
     public void add(String nm, List<Parm> parms, String defn, Location loc) {
-        checkDupl(nm, loc);
+        checkDupl(nm, loc, defn);
         if (null == parms) {
             m_valsByName.put(nm, new Val(null, defn, loc));
         } else {
@@ -185,19 +191,19 @@ public class MacroDefns {
     // {[0],[1]}={prefix,suffix}
     private static final String stDelim[] = new String[]{"</%", "%/>"};
     private Map<String, Val> m_valsByName = new HashMap<>();
-
+    
     private static class Val {
-
+        
         public Val(String defn) {
             this(null, defn, null);
         }
-
+        
         public Val(List<Parm> parms, String defn, Location loc) {
             m_parms = parms;
             m_defn = defn;
             m_loc = (null != loc) ? loc : Location.stCmdLine;
         }
-
+        
         public boolean hasParms() {
             return (null != m_parms);
         }

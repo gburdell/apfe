@@ -85,14 +85,13 @@ public class TicInclude extends Acceptor {
                 .append("\" 1\n");
         boolean ok = true;
         try {
-            InputStream fis = new InputStream(incl.getName());
+            InputStream fis = new InputStream(incl.getPath());
             CharBuffer buf = fis.newCharBuffer();
             sb.append(buf.getBuf());    //tack on file contents
             sb.append("\n`line ").append(start.getLnum())
                     .append(" \"").append(currFn).append("\" 2\n");
-            currBuf.replace(start, sb.toString());
-            currBuf.reset(start);
-            Memoize.reset();
+            Helper.getTheOne().replace(start, sb.toString(), false);
+            Helper.getTheOne().reset(start);
         } catch (Exception ex) {
             ok = false;//Logger.getLogger(TicInclude.class.getName()).log(Level.SEVERE, null, ex);
         }

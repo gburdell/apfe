@@ -23,7 +23,9 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
+import apfe.runtime.CharBuffer;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
 import apfe.runtime.EndOfLine;
@@ -40,16 +42,32 @@ public class MacroText extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        //MacroText <- MacroText2 EOL
-        boolean match = (new MacroText2()).acceptTrue();
-        if (match) {
-            m_text = super.toString();
-            match &= (new EndOfLine()).acceptTrue();
-            if (!match || m_text.isEmpty()) {
-                m_text = null;
+        CharBuffer cbuf = Helper.getBuf();
+        StringBuilder sb = new StringBuilder();
+        boolean ok = true;
+        while (ok) {
+            Repetition a = new Repetition(new CharClass(CharClass.matchOneOf(" \t")),
+                    Repetition.ERepeat.eZeroOrMore);
+            assert (null != (a = match(a)));
+            if (0 < a.sizeofAccepted()) {
+                sb.append(a.toString());
+            }
+            if (cbuf.la() == CharBuffer.NL) {
+                ok = false;
+            } else if ((new Comment.SL_COMMENT()).acceptTrue()) {
+                ok = false;
+            } else if ((new Comment.ML_COMMENT()).acceptTrue()) {
+                ; //stay here
+            } else if ((new Sequence(new CharSeq("\\"), new EndOfLine())).acceptTrue()) {
+                sb.append(CharBuffer.NL);
+                ;//stay here
+            } else {
+                sb.append(cbuf.accept());
             }
         }
-        return match;
+        m_text = sb.toString().replace('\t', ' ');
+        (new EndOfLine()).acceptTrue();
+        return true;
     }
 
     private String m_text;
@@ -64,110 +82,4 @@ public class MacroText extends Acceptor {
         return new MacroText();
     }
 
-    private static class MacroText2 extends Acceptor {
-        @Override
-        protected boolean accepti() {
-            //MacroText2 <- (("`\\`\"") / MacroText3)* ("\\" EOL MacroText2)?
-            PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
-                @Override
-                public Acceptor getChoice(int ix) {
-                    Acceptor a = null;
-                    switch (ix) {
-                        case 0:
-                            a = new CharSeq("`\\`\"");
-                            break;
-                        case 1:
-                            a = new MacroText3();
-                            break;
-                    }
-                    return a;
-                }
-            });
-            Repetition r1 = new Repetition(pc1, Repetition.ERepeat.eZeroOrMore);
-            Repetition r2 = new Repetition(
-                    new Sequence(new CharSeq('\\'), new EndOfLine(), new MacroText2()),
-                    Repetition.ERepeat.eOptional);
-            Sequence s1 = new Sequence(r1, r2);
-            boolean match = (null != (s1 = match(s1)));
-            if (match) {
-                m_text = super.toString();
-            }
-            return match;
-        }
-
-        private String m_text;
-
-        @Override
-        public String toString() {
-            return m_text;
-        }
-
-        @Override
-        public Acceptor create() {
-            return new MacroText2();
-        }
-    }
-    private static class MacroText3 extends Acceptor {
-        @Override
-        protected boolean accepti() {
-            //MacroText3 <- Spacing2+ / (NotChar3 .)
-            PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
-                @Override
-                public Acceptor getChoice(int ix) {
-                    Acceptor a = null;
-                    switch (ix) {
-                        case 0:
-                            a = new Repetition(new Spacing2(), Repetition.ERepeat.eOneOrMore);
-                            break;
-                        case 1:
-                            a = new Sequence(new NotChar3(), new CharClass(ICharClass.IS_ANY));
-                            break;
-                    }
-                    return a;
-                }
-            });
-            boolean match = (null != (pc1 = match(pc1)));
-            if (match) {
-                m_text = super.toString();
-            }
-            return match;
-        }
-
-        private String m_text;
-
-        @Override
-        public String toString() {
-            return m_text;
-        }
-
-        @Override
-        public Acceptor create() {
-            return new MacroText3();
-        }
-    }
-    private static class Spacing2 extends Acceptor {
-        @Override
-        protected boolean accepti() {
-            //Spacing2 <- (' ' / "\t" / Comment)
-            PrioritizedChoice pc1 = new PrioritizedChoice(
-                    new CharClass(CharClass.matchOneOf(" \t")), new Comment());
-            boolean match = pc1.acceptTrue();
-            if (match) {
-                m_text = super.toString();
-            }
-            return match;
-        }
-
-        private String m_text;
-
-        @Override
-        public String toString() {
-            return m_text;
-        }
-
-        @Override
-        public Acceptor create() {
-            return new Spacing2();
-        }
-    }
 }

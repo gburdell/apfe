@@ -26,6 +26,7 @@ package apfe.dsl.vlogpp;
 import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.Marker;
+import static apfe.runtime.CharBuffer.NL;
 import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
 import apfe.runtime.MessageMgr;
@@ -57,6 +58,10 @@ public class Helper {
         MessageMgr.message('E', code, args);
     }
 
+    public static void info(String code, Object... args) {
+        MessageMgr.message('I', code, args);
+    }
+
     /**
      * Entry point for running vlogpp.
      *
@@ -69,6 +74,10 @@ public class Helper {
         try {
             InputStream fins = new InputStream(fname);
             CharBuffer cbuf = fins.newCharBuffer();
+            //Prepend `line
+            StringBuilder pfx = new StringBuilder("`line 1 \"");
+            pfx.append(fname).append("\" 0").append(NL);
+            cbuf.getBuf().insert(0, pfx);
             State st = State.create(cbuf);
             m_fname = fname;
             gram = new Grammar();
@@ -92,6 +101,25 @@ public class Helper {
     }
 
     /**
+     * Replace current CharBuffer contents [start,current) with s. Optionally,
+     * clear/invalidate any memoization too.
+     *
+     * @param start start position in buffer.
+     * @param s string to stitch into buffer[start,current).
+     * @param doReset do memoize reset. Normally true, but if we have series of
+     * buffer steps, then just do on last one.
+     */
+    public void replace(final Marker start, String s, boolean doReset) {
+        if (s.isEmpty()) {
+            s = " ";
+        }
+        getBuf().replace(start, s);
+        if (doReset) {
+            Memoize.reset();
+        }
+    }
+
+    /**
      * Replace current CharBuffer contents [start,current) with s.
      * Clear/invalidate any memoization too.
      *
@@ -99,11 +127,7 @@ public class Helper {
      * @param s string to stitch into buffer[start,current).
      */
     public void replace(final Marker start, String s) {
-        if (s.isEmpty()) {
-            s = " ";
-        }
-        getBuf().replace(start, s);
-        Memoize.reset();
+        replace(start, s, true);
     }
 
     /**
@@ -114,6 +138,22 @@ public class Helper {
      */
     public void replace(final Marker start) {
         getBuf().replace(start);
+        Memoize.reset();
+    }
+
+    public void reset(final Marker start) {
+        reset(start, true);
+    }
+
+    public void reset(final Marker start, boolean doReset) {
+        getBuf().reset(start);
+        if (doReset) {
+            Memoize.reset();
+        }
+    }
+
+    public void reset(String fn, int lnum) {
+        getBuf().reset(fn, lnum);
         Memoize.reset();
     }
 
@@ -154,7 +194,9 @@ public class Helper {
 
     private static enum IfdefState {
 
-        eDone, eNotDone, eBlockDone;
+        eDone, //ifn?def clause taken
+        eNotDone, //ifn?def not taken
+        eBlockDone; //block until closing endif
 
         public boolean pass() {
             return (this == eDone);
@@ -188,14 +230,14 @@ public class Helper {
 
     public void ticElse() {
         IfdefState was = m_ifdefStack.pop();
-        IfdefState nxt = (was == IfdefState.eDone)
+        IfdefState nxt = (was != IfdefState.eNotDone)
                 ? IfdefState.eBlockDone : IfdefState.eDone;
         m_ifdefStack.push(next(nxt));
     }
 
     public void ticElsif(String key) {
         IfdefState was = m_ifdefStack.pop();
-        IfdefState nxt = (was == IfdefState.eDone) ? IfdefState.eBlockDone
+        IfdefState nxt = (was != IfdefState.eNotDone) ? IfdefState.eBlockDone
                 : (isDefined(key) ? IfdefState.eDone : IfdefState.eNotDone);
         m_ifdefStack.push(next(nxt));
     }

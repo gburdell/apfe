@@ -71,6 +71,7 @@ public class Memoize {
         for (Memoize item : stMemos) {
             item.m_memoized.clear();
         }
+        stBar++;
     }
     
     public static class MaxSizeHashMap<K, V> extends LinkedHashMap<K, V> {
@@ -101,8 +102,18 @@ public class Memoize {
             return this.e2;
         }
     }
+    
     private final static int stMemoizeSize;
-    final static boolean stEnableMemoize;
+    public static boolean stEnableMemoize;
+    /**
+     * When memoize is reset, we raise the bar to prevent Acceptors
+     * in process from adding stale memo.
+     */
+    private static long stBar = 1;
+    
+    public static long getTheBar() {
+        return stBar;
+    }
 
     static {
         stEnableMemoize = "true".equals(System.getProperty("apfe.runtime.EnableMemoize", "true"));

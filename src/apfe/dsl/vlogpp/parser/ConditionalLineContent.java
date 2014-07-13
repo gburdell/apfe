@@ -45,7 +45,7 @@ public class ConditionalLineContent extends Acceptor {
          / TicDefine
          / TicConditional
          / TicReserved
-         / !("`elseif" / "`else" / "`endif") TicMacroUsage
+         / !("`elsif" / "`else" / "`endif") TicMacroUsage
          ##
          ## Dont want to catch a `elsif,`else,`endif with AnyChar    
          ##
@@ -70,7 +70,7 @@ public class ConditionalLineContent extends Acceptor {
                         break;
                     case 4: {
                         PrioritizedChoice pc2 = new PrioritizedChoice(
-                                new CharSeq("`elseif"), new CharSeq("`else"),
+                                new CharSeq("`elsif"), new CharSeq("`else"),
                                 new CharSeq("`endif"));
                         a = new Sequence(new NotPredicate(pc2), new TicMacroUsage());
                     }

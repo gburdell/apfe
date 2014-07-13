@@ -25,6 +25,7 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.CharBuffer;
 import apfe.runtime.State;
+import apfe.runtime.Util;
 
 /**
  * Detailed file location.
@@ -61,6 +62,14 @@ public class Location {
         return m_fname + ":" + m_lnum + ":" + m_col;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        Location other = Util.downCast(obj);
+        boolean eq = m_fname.equals(other.m_fname) && (m_lnum == other.m_lnum)
+                && (m_col == other.m_col);
+        return eq;
+    }
+    
     private final String m_fname;
     private final int m_lnum, m_col;
     

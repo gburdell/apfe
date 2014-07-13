@@ -101,6 +101,7 @@ public class Main {
 
     private void parse(final List<String> srcs) {
         for (String fn : srcs) {
+            Helper.info("VPP-PROC", fn);
             Grammar gram = Helper.getTheOne().start(fn);
             Acceptor acc = gram.accept();
             if (null != acc) {

@@ -87,12 +87,12 @@ public class TicConditional extends Acceptor {
         StringBuilder sb = null;
         while (true) {
             curr = getCurrentMark();
-            Sequence s1 = new Sequence(new CharSeq("`elseif"), new Spacing(),
+            Sequence s1 = new Sequence(new CharSeq("`elsif"), new Spacing(),
                     new Identifier());
             if (null != (s1 = match(s1))) {
                 String eifId = Util.extractEleAsString(s1, 2);
                 main.ticElsif(eifId);
-                main.replace(curr);  //remove `elseif
+                main.replace(curr);  //remove `elsif
                 curr = getCurrentMark();
                 ConditionalLines clns = new ConditionalLines();
                 assert null != (clns = match(clns));

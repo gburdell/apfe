@@ -12,3 +12,4 @@ VPP-INCL-3 include file nesting exceeds %d levels
 VPP-INCL-4 %s: cannot find include file '%s'
 VPP-NODEFN %s: no definition for macro instance '%s'
 VPP-NODFLT %s: macro '%s' has no default value for parameter '%s' and was not assigned actual value
+VPP-PROC %s: processing

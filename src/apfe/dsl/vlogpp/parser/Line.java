@@ -50,7 +50,8 @@ public class Line extends Acceptor {
         Sequence s1 = new Sequence(new CharSeq("`line"), new Spacing(), r1,
                 new Spacing(), new VString(), new Spacing(),
                 new CharClass(CharClass.matchOneOf("012")));
-        boolean match = (null != (s1 = match(s1))) && (new RestOfLine()).acceptTrue();
+        boolean match = (null != (s1 = match(s1)));
+        match &= (new RestOfLine()).acceptTrue();
         if (match) {
             m_fname = Util.extractEleAsString(s1, 4);
             m_lnum = Integer.parseInt(Util.extractEleAsString(s1, 2));
@@ -58,17 +59,17 @@ public class Line extends Acceptor {
             switch (m_type) {
                 case 1:
                     if (stMaxInclNestCnt < stInclNestCnt++) {
-                      Helper.error("VPP-INCL-3", stMaxInclNestCnt);
+                        Helper.error("VPP-INCL-3", stMaxInclNestCnt);
                         abnormalExit(new Exception("Unexpected.  Very bad."));
                     }
                     break;
                 case 2:
-                    stInclNestCnt = (0 < stInclNestCnt) ? stInclNestCnt-1 : 0;
+                    stInclNestCnt = (0 < stInclNestCnt) ? stInclNestCnt - 1 : 0;
                     break;
             }
             m_text = super.toString();
-            Helper.getBuf().reset(m_fname, m_lnum);
-       }
+            Helper.getTheOne().reset(m_fname, m_lnum);
+        }
         return match;
     }
 

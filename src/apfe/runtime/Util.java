@@ -35,6 +35,24 @@ import java.util.Arrays;
 
 public class Util {
 
+    /**
+     * Check if objects are equal.
+     *
+     * @param <T> type of objects.
+     * @param a 1st object (could be null).
+     * @param b 2ns object (could be null).
+     * @return true iff. both objects are null or both are non-null and equal.
+     */
+    public static <T> boolean equalsInclNull(T a, T b) {
+        if ((null == a) && (null == b)) {
+            return true;
+        }
+        if ((null != a) && (null != b)) {
+            return a.equals(b);
+        }
+        return false;
+    }
+
     public static char intToChar(int l) throws ConversionException {
         if (l < Character.MIN_VALUE) {
             throw new ConversionException(l + "<" + Character.MIN_VALUE);
@@ -66,6 +84,7 @@ public class Util {
 
     /**
      * Return null as an empty collection.
+     *
      * @param <T> base type.
      * @param x scalar to test for null.
      * @param empty empty collection to return iff. x is null.

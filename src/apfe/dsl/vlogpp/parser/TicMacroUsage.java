@@ -88,7 +88,7 @@ public class TicMacroUsage extends Acceptor {
         if (null == expanded) {
             return; //had error
         }
-        Helper.getBuf().replace(super.getStartMark(), expanded);
+        mn.replace(super.getStartMark(), expanded);
     }
 
     @Override

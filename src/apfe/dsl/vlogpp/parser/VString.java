@@ -47,7 +47,8 @@ public class VString extends Acceptor {
         Sequence s1 = new Sequence(new CharSeq('"'), r1, new CharSeq('"'));
         boolean match = (null != (s1 = match(s1)));
         if (match) {
-            m_str = s1.toString();
+            m_str = super.toString();
+            m_str = m_str.substring(1, m_str.length()-1);
         }
         return match;
     }

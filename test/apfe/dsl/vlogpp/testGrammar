@@ -1,3 +1,4 @@
 #!/bin/csh -f
 
-exec java -ea -cp ../../../../dist/apfe.jar apfe.dsl.vlogpp.Main ${*}
+set rdir=/home/gburdell/projects/apfe
+exec java -d64 -Xms8g -ea -Dtool.root=${rdir} -cp ${rdir}/dist/apfe.jar apfe.dsl.vlogpp.Main ${*}
