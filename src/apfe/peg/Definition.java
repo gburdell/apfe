@@ -38,6 +38,16 @@ public class Definition extends Acceptor {
 
     private static final Operator stLeftArrow = new Operator(Operator.EOp.LEFTARROW);
     
+    private boolean m_isLeftRecursive = false;
+
+    public void setIsLeftRecursive(boolean isLeftRecursive) {
+        m_isLeftRecursive = isLeftRecursive;
+    }
+    
+    public boolean getIsLeftRecursive() {
+        return m_isLeftRecursive;
+    }
+    
     @Override
     protected boolean accepti() {
         //Definition <- Identifier LEFTARROW Expression CodeBlock?

@@ -27,23 +27,29 @@ package apfe.runtime;
  * @author gburdell
  */
 public class CharClass extends Acceptor {
-    public CharClass(ICharClass ... eles) {
+
+    public CharClass(ICharClass... eles) {
         m_eles = eles;
     }
 
     public static ICharClass matchOneOf(String oneOf) {
         return new CharMatch(oneOf);
     }
-    
+
+    public static ICharClass matchRange(char lb, char rb) {
+        return new CharRange(lb, rb);
+    }
+
     /**
-     * Convenience class to match any one of characters in a string.
-     * Useful for matching in class of unrelated chars: e.g. ['-''+']
+     * Convenience class to match any one of characters in a string. Useful for
+     * matching in class of unrelated chars: e.g. ['-''+']
      */
     private static class CharMatch implements ICharClass {
+
         public CharMatch(String oneOf) {
             m_oneOf = oneOf;
         }
-        private final String    m_oneOf;
+        private final String m_oneOf;
 
         @Override
         public boolean inClass(char c) {
@@ -54,13 +60,32 @@ public class CharClass extends Acceptor {
         public String getExpected() {
             return "[" + m_oneOf + "]";
         }
-        
-        
-        
     }
-    
+
+    /**
+     * Convenience class to match range of chars.
+     */
+    private static class CharRange implements ICharClass {
+
+        public CharRange(char lb, char ub) {
+            assert (lb <= ub);
+            m_bnd = new char[]{lb, ub};
+        }
+        private final char m_bnd[];
+
+        @Override
+        public boolean inClass(char c) {
+            return (m_bnd[0] <= c) && (c <= m_bnd[1]);
+        }
+
+        @Override
+        public String getExpected() {
+            return "[" + m_bnd[0] + "-" + m_bnd[1] + "]";
+        }
+    }
+
     private final ICharClass m_eles[];
-       
+
     @Override
     public Acceptor create() {
         return new CharClass(m_eles);
@@ -70,9 +95,9 @@ public class CharClass extends Acceptor {
     public String toString() {
         return String.valueOf(m_ch);
     }
-    
+
     private char m_ch;
-    
+
     @Override
     protected boolean accepti() {
         CharBuffer buf = State.getTheOne().getBuf();
@@ -92,8 +117,8 @@ public class CharClass extends Acceptor {
             StringBuilder s = new StringBuilder("[");
             for (ICharClass cc : m_eles) {
                 final String m = cc.getExpected();
-                final int n = m.length()-1;
-                assert ('['==m.charAt(0) && ']'==m.charAt(n));
+                final int n = m.length() - 1;
+                assert ('[' == m.charAt(0) && ']' == m.charAt(n));
                 s.append(m.substring(1, n));
             }
             s.append(']');
@@ -101,5 +126,5 @@ public class CharClass extends Acceptor {
         }
         return match;
     }
-    
+
 }

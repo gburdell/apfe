@@ -39,48 +39,33 @@ public class Expression extends Acceptor {
     }
 
     private static final Operator stSlash = new Operator(Operator.EOp.SLASH);
-    
+
     @Override
     protected boolean accepti() {
-        //Expression <- (!Assign Assign)? PegSequence (SLASH PegSequence)*
-        Sequence s0 = new Sequence(new NotPredicate(new Assign()), new Assign());
-        Repetition r0 = new Repetition(s0, Repetition.ERepeat.eOptional);
+        //Expression <- PegSequence (SLASH PegSequence)*
         Sequence s1 = new Sequence(stSlash.create(), new PegSequence());
         Repetition r1 = new Repetition(s1, Repetition.ERepeat.eZeroOrMore);
-        Sequence s2 = new Sequence(r0, new PegSequence(), r1);
+        Sequence s2 = new Sequence(new PegSequence(), r1);
         boolean match = (null != (s2 = match(s2)));
         if (match) {
             m_seqs = new LinkedList<>();
-            PegSequence ps = Util.extractEle(s2, 1);
+            PegSequence ps = Util.extractEle(s2, 0);
             m_seqs.add(ps);
-            r1 = Util.extractEle(s2, 2);
+            r1 = Util.extractEle(s2, 1);
             Util.extractList(r1, 1, m_seqs);
-            r0 = Util.extractEle(s2, 0);
-            if (0 < r0.sizeofAccepted()) {
-                s0 = r0.getOnlyAccepted();
-                m_asgn = Util.extractEle(s0, 1);
-            }
         }
         return match;
     }
-    
-    private List<PegSequence>   m_seqs;
-    private Assign              m_asgn;
-    
+
+    private List<PegSequence> m_seqs;
+
     public List<PegSequence> getSequences() {
         return m_seqs;
     }
-    
-    public Assign getAsgn() {
-        return m_asgn;
-    }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        if (null != getAsgn()) {
-            sb.append(getAsgn());
-        }
         for (PegSequence a : getSequences()) {
             if (0 < sb.length()) {
                 sb.append("\n  ").append(stSlash.toString()).append(' ');
@@ -89,7 +74,7 @@ public class Expression extends Acceptor {
         }
         return sb.toString();
     }
-    
+
     @Override
     public Acceptor create() {
         return new Expression();

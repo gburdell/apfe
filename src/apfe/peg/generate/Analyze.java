@@ -78,7 +78,7 @@ public class Analyze {
                     Expression expr = defn.getExpr();
                     HopCheck hopChk = new HopCheck(defnm);
                     if (checkLeftRecursive(defnm, hopChk, expr)) {
-                        continue;   //just get 1st path
+                        defn.setIsLeftRecursive(true);
                     }
                 }
             }

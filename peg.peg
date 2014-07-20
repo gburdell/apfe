@@ -1,7 +1,7 @@
 // Hierarchical syntax
 Grammar <- Spacing Definition+ EOF
 Definition <- Identifier LEFTARROW Expression CodeBlock?
-Expression <- (!Assign Assign)? Sequence (SLASH Sequence)*
+Expression <- Sequence (SLASH Sequence)*
 Sequence <- Prefix*
 Prefix <- (AND / NOT)? Assign? Suffix
 Suffix <- Primary (QUESTION / STAR / PLUS)?

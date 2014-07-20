@@ -23,19 +23,30 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Template;
 import apfe.runtime.Acceptor;
-import apfe.runtime.State;
-import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;
 
-public class Range extends Acceptor {
+public class Range extends Acceptor implements GenJava.IGen {
     public Range() {
     }
 
     @Override
+    public GenJava genJava(GenJava j) {
+        if (1 < m_ch.length) {
+            j.template("CharClass.matchRange('@1@','@2@')", 
+                    m_ch[0].getChar(), m_ch[1].getChar());
+        } else {
+            j.template("new CharSeq('@1@')",m_ch[0].getChar());
+        }
+        return j;
+    }
+
+     @Override
     protected boolean accepti() {
         // Range <- Char '-' Char / Char
         PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {

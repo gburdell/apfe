@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.CharSeq;
@@ -33,11 +34,21 @@ import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 import java.util.List;
 
-public class PegClass extends Acceptor {
+public class PegClass extends Acceptor implements GenJava.IGen {
 
     public PegClass() {
     }
 
+    @Override
+    public GenJava genJava(GenJava j) {
+        assert (0 < getRanges().size());
+        if (1 == getRanges().size()) {
+            return getRanges().get(0).genJava(j);
+        }
+        j.funcCall("new CharClass", getRanges());
+        return j;
+    }
+    
     @Override
     protected boolean accepti() {
         // Class <- '[' (!']' Range)* ']' Spacing
