@@ -34,6 +34,17 @@ public class GenJava extends GenBase {
         public GenJava genJava(GenJava j);
     }
 
+    /**
+     * Generate class name from id.
+     * @param id id to convert to class name.
+     * @return class name.
+     */
+    public static String getClsNm(String id) {
+        String clsNm = id;
+        //TODO: use regexp?
+        return clsNm;
+    }
+    
     public GenJava funcCall(String fn, Iterable<? extends IGen> args) {
         append(fn).append('(');
         boolean empty = true;

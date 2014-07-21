@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -31,9 +32,14 @@ import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 import java.util.List;
 
-public class Identifier extends Acceptor {
+public class Identifier extends Acceptor implements GenJava.IGen {
 
     public Identifier() {
+    }
+
+    @Override
+    public GenJava genJava(GenJava j) {
+        return j.append("new " + GenJava.getClsNm(getId()) + "()");
     }
 
     @Override
@@ -41,33 +47,25 @@ public class Identifier extends Acceptor {
         // Identifier <- IdentStart IdentCont* Spacing
         IdentStart e1 = new IdentStart();
         Repetition e2 = new Repetition(new IdentCont(), Repetition.ERepeat.eZeroOrMore);
-        Sequence seq = new Sequence(e1, e2, new Spacing());
-        boolean match = (null != (seq = match(seq)));
+        Sequence seq = new Sequence(e1, e2);
+        boolean match = seq.acceptTrue();
         if (match) {
-            e1 = Util.extractEle(seq, 0);
-            m_literal = new StringBuilder(e1.toString());
-            e2 = Util.extractEle(seq, 1);
-            if (0 < e2.sizeofAccepted()) {
-                List<IdentCont> l1 = Util.toList(e2.getAccepted());
-                for (IdentCont ic : l1) {
-                    m_literal.append(ic);
-                }
-            }
+            m_literal = super.toString();
+            match &= (new Spacing()).acceptTrue();
         }
         return match;
     }
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder(m_literal.toString());
-        return s.toString();
+        return m_literal;
     }
     
     public String getId() {
-        return m_literal.toString();
+        return m_literal;
     }
     
-    private StringBuilder m_literal = new StringBuilder();
+    private String m_literal;
 
     @Override
     public Acceptor create() {

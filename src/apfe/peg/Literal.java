@@ -39,9 +39,7 @@ public class Literal extends Acceptor implements GenJava.IGen {
 
     @Override
     public GenJava genJava(GenJava j) {
-        j.template("new CharSeq(@1@)", toString());
-        return j;
-
+        return j.template("new CharSeq(@1@)", toString());
     }
 
     @Override
