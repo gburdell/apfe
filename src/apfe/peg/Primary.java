@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -31,12 +32,28 @@ import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
-public class Primary extends Acceptor {
+public class Primary extends Acceptor implements GenJava.IGen {
     public static enum EType {eIdentifier, eExpression, eLiteral, eClass, eDot};
     
     private static final EType stVals[] = EType.values();
 
     public Primary() {
+    }
+
+    @Override
+    public GenJava genJava(GenJava j) {
+        switch (getType()) {
+            case eDot:
+                j.append("new CharClass(ICharClass.IS_ANY)");
+                break;
+            case eLiteral: case eClass:
+                GenJava.IGen g = Util.downCast(getEle());
+                g.genJava(j);
+                break;
+            default:
+                assert(false); //TODO
+        }
+        return j;
     }
     
     private static final Operator stOpen = new Operator(Operator.EOp.OPEN),

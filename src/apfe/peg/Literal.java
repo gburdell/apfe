@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -30,27 +31,28 @@ import apfe.runtime.NotPredicate;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
-public class Literal extends Acceptor {
+public class Literal extends Acceptor implements GenJava.IGen {
 
     public Literal() {
     }
 
     @Override
+    public GenJava genJava(GenJava j) {
+        j.template("new CharSeq(@1@)", toString());
+        return j;
+
+    }
+
+    @Override
     public String toString() {
-        StringBuilder s = new StringBuilder(getLiteral());
-        return s.toString();
+        return m_literal;
     }
-    
-    public String getLiteral() {
-        return m_literal.toString();
-    }
-    
+
     @Override
     protected boolean accepti() {
         /* [’] ![’] '\\'? Char [’] Spacing
-         / ["] (!["] Char)+ ["] Spacing
+         / ["] (!["] '\\'? Char)+ ["] Spacing
          */
         PrioritizedChoice.Choices alts = new PrioritizedChoice.Choices() {
             @Override
@@ -60,13 +62,15 @@ public class Literal extends Acceptor {
                     case 0: {
                         acc = new Sequence(new Char('\''), new NotPredicate(new Char('\'')),
                                 new Repetition(new Char('\\'), Repetition.ERepeat.eOptional),
-                                new Char(), new Char('\''), new Spacing());
+                                new Char(), new Char('\''));
                     }
                     break;
                     case 1: {
-                        Sequence e2 = new Sequence(new NotPredicate(new Char('"')), new Char());
+                        Sequence e2 = new Sequence(new NotPredicate(new Char('"')),
+                                new Repetition(new Char('\\'), Repetition.ERepeat.eOptional),
+                                new Char());
                         acc = new Sequence(new Char('"'), new Repetition(e2, Repetition.ERepeat.eOneOrMore),
-                                new Char('"'), new Spacing());
+                                new Char('"'));
 
                     }
                     break;
@@ -75,28 +79,15 @@ public class Literal extends Acceptor {
             }
         };
         PrioritizedChoice e4 = new PrioritizedChoice(alts);
-        boolean match = (null != (e4 = match(e4)));
+        boolean match = e4.acceptTrue();
         if (match) {
-            m_literal = new StringBuilder();
-            int ix = e4.whichAccepted();
-            Acceptor eles[] = ((Sequence) e4.getAccepted()).getAccepted();
-            if (0 == ix) {
-                Util.toString(false, m_literal, eles[0], eles[2], eles[3], eles[4]);
-            } else {
-                Util.toString(false, m_literal, eles[0]);
-                Repetition r1 = (Repetition) eles[1];
-                Sequence s1;
-                for (Acceptor d : r1.getAccepted()) {
-                    s1 = (Sequence) d;
-                    Util.toString(false, m_literal, s1.getAccepted()[1]);
-                }
-                Util.toString(false, m_literal, eles[2]);
-            }
+            m_literal = super.toString();
+            match &= (new Spacing()).acceptTrue();
         }
         return match;
     }
-    
-    private StringBuilder   m_literal;
+
+    private String m_literal;
 
     @Override
     public Acceptor create() {
@@ -115,5 +106,5 @@ public class Literal extends Acceptor {
     /**
      * Memoize for all instances of Literal.
      */
-    private static Memoize stMemo = new Memoize();
+    private static final Memoize stMemo = new Memoize();
 }
