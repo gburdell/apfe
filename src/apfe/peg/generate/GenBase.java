@@ -76,4 +76,5 @@ public class GenBase extends Template {
 
     protected StringBuilder m_sb = new StringBuilder();
 
+    public static final boolean stGenClsAsCamelCase = Main.getPropertyAsBoolean("genClsAsCamelCase");
 }

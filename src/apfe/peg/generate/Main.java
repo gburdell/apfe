@@ -101,6 +101,15 @@ public class Main {
     }
     
     /**
+     * Get property value as boolean.
+     * @param key property name.
+     * @return user-specified or default value.
+     */
+    public static boolean getPropertyAsBoolean(String key) {
+        return Boolean.parseBoolean(getProperty(key));
+    }
+    
+    /**
      * Property settings for generate.
      */
     private static Properties stProps = new Properties();

@@ -2,3 +2,6 @@
 
 #Output root directory for generate files
 outputDir: .
+
+#Generated class names use CamelCase
+genClsAsCamelCase: true
