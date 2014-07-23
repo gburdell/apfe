@@ -23,6 +23,8 @@
  */
 package apfe.peg;
 
+import apfe.peg.Operator.EOp;
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -31,9 +33,24 @@ import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
-public class Prefix extends Acceptor {
+public class Prefix extends Acceptor implements GenJava.IGen {
 
     public Prefix() {
+    }
+
+    @Override
+    public GenJava genJava(GenJava j) {
+        assert null == getAsgn();//not supported for now.
+        if (null != getOp()) {
+            j = j.append("new ")
+                    .append((getOp().getOp() == EOp.AND) ? "And" : "Not")
+                    .append("Predicate(");
+        }
+        j = j.append(getSuffix());
+        if (null != getOp()) {
+            j = j.append(")");
+        }
+        return j;
     }
 
     @Override
@@ -42,21 +59,21 @@ public class Prefix extends Acceptor {
         Repetition r1 = new Repetition(new Assign(), Repetition.ERepeat.eOptional);
         Sequence s1 = new Sequence(
                 new Repetition(new PrioritizedChoice(new PrioritizedChoice.Choices() {
-            @Override
-            public Acceptor getChoice(int ix) {
-                Acceptor a = null;
-                switch (ix) {
-                    case 0:
-                        a = new Operator(Operator.EOp.AND);
-                        break;
-                    case 1:
-                        a = new Operator(Operator.EOp.NOT);
-                        break;
-                }
-                return a;
-            }
-        }),
-                Repetition.ERepeat.eOptional), r1, new Suffix());
+                    @Override
+                    public Acceptor getChoice(int ix) {
+                        Acceptor a = null;
+                        switch (ix) {
+                            case 0:
+                                a = new Operator(Operator.EOp.AND);
+                                break;
+                            case 1:
+                                a = new Operator(Operator.EOp.NOT);
+                                break;
+                        }
+                        return a;
+                    }
+                }),
+                        Repetition.ERepeat.eOptional), r1, new Suffix());
         boolean match = (null != (s1 = match(s1)));
         if (match) {
             Repetition r2 = Util.extractEle(s1, 0);
@@ -79,7 +96,7 @@ public class Prefix extends Acceptor {
     public Operator getOp() {
         return m_op;
     }
-    
+
     public Assign getAsgn() {
         return m_asgn;
     }

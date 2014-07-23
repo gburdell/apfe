@@ -37,7 +37,8 @@ public class PrimaryTest {
 
     private static final String stData[] = {
         "\"foobar\"", "'d'", "\"xyz\\\"\"", "'\\n'", ".",
-        "ident1", "__ident_cls_", "_another__id_cls___"
+        "ident1", "__ident_cls_", "_another__id_cls___",
+        "(a b c)", "(a b c* / d e f ? fo_bar+ dog)"
     };
 
     /**

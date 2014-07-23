@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -31,7 +32,19 @@ import apfe.runtime.Util;
 import static apfe.runtime.Util.toList;
 import java.util.List;
 
-public class PegSequence extends Acceptor {
+public class PegSequence extends Acceptor implements GenJava.IGen {
+
+    @Override
+    public GenJava genJava(GenJava j) {
+        //TODO: if empty?
+        assert (null != getPrefixes() && (0 < getPrefixes().size()));
+        if (1 == getPrefixes().size()) {
+            j = j.append(getPrefixes().get(0));
+        } else {
+            j = j.funcCall("new Sequence", getPrefixes());
+        }
+        return j;
+    }
 
     @Override
     protected boolean accepti() {

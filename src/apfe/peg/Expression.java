@@ -23,19 +23,31 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
-import apfe.runtime.NotPredicate;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Expression extends Acceptor {
+public class Expression extends Acceptor implements GenJava.IGen {
 
     public Expression() {
+    }
+
+    @Override
+    public GenJava genJava(GenJava j) {
+        assert (null != getSequences() && (0 < getSequences().size()));
+        if (1 == getSequences().size()) {
+            j = j.append(getSequences().get(0));
+        } else {
+            //TODO: this is the lazy/inefficient way
+            j = j.funcCall("new PrioritizedChoice", getSequences());
+        }
+        return j;
     }
 
     private static final Operator stSlash = new Operator(Operator.EOp.SLASH);

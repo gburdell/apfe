@@ -48,13 +48,14 @@ public class Primary extends Acceptor implements GenJava.IGen {
     public GenJava genJava(GenJava j) {
         switch (getType()) {
             case eDot:
-                j.append("new CharClass(ICharClass.IS_ANY)");
+                j = j.append("new CharClass(ICharClass.IS_ANY)");
                 break;
             case eLiteral:
             case eClass:        //fall through
             case eIdentifier:   //fall through
+            case eExpression:   //fall through
                 GenJava.IGen g = Util.downCast(getEle());
-                g.genJava(j);
+                j = j.append(g);
                 break;
             default:
                 assert (false); //TODO

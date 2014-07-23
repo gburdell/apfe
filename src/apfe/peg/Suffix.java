@@ -44,8 +44,8 @@ public class Suffix extends Acceptor implements GenJava.IGen {
         }
         Repetition.ERepeat rep = getOpAsRep();
         j = j.append("new Repetition(");
-        j = getPrimary().genJava(j).append(", Repetition.ERepeat.").append(rep.name())
-                .append(")");
+        j = j.append(getPrimary()).append(", Repetition.ERepeat.")
+                .append(rep.name()).append(")");
         return j;
     }
 

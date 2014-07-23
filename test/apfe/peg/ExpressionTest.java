@@ -33,26 +33,28 @@ import static org.junit.Assert.*;
  *
  * @author gburdell
  */
-public class SuffixTest {
+public class ExpressionTest {
 
     private static final String stData[] = {
-        "ident1+", "__ident_cls_?", "_another__id_cls___*",
-        "\"foobar\"", "'d'", "\"xyz\\\"\"", "'\\n'", "."
+        "ident1+", "__ident_cls_?", "!_another__id_cls___*",
+        "\"foobar\"", "&'d'", "\"xyz\\\"\"", "'\\n'", ".",
+        "a b c+ &d*",
+        "a b c* / d e f ? fo_bar+ dog"
     };
 
     /**
-     * Test of genJava method, of class Suffix.
+     * Test of genJava method, of class Expression.
      */
     @Test
     public void testGenJava() {
-        Suffix instance;
+        Expression instance;
         System.out.println("genJava");
         State st;
         String res;
         for (String s : stData) {
             CharBuffer buf = new CharBuffer("<test>", s);
             st = State.create(buf);
-            instance = new Suffix();
+            instance = new Expression();
             assertTrue(instance.acceptTrue());
             GenJava j = new GenJava();
             j = instance.genJava(j);

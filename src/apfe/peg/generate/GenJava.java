@@ -36,6 +36,7 @@ public class GenJava extends GenBase {
 
     /**
      * Generate class name from id.
+     *
      * @param id id to convert to class name.
      * @return class name.
      */
@@ -43,7 +44,19 @@ public class GenJava extends GenBase {
         String clsNm = (stGenClsAsCamelCase) ? toCamelCase(id) : id;
         return clsNm;
     }
-    
+
+    /**
+     * A convenience method to chain an object which supports IGen so one
+     * could do <pre>
+     *   GenJava j; 
+     *   j.append(obj).append(" suffix").append(...)</pre>
+     * @param g object which supports IGen.
+     * @return generator contents.
+     */
+    public GenJava append(IGen g) {
+        return g.genJava(this);
+    }
+
     public GenJava funcCall(String fn, Iterable<? extends IGen> args) {
         append(fn).append('(');
         boolean empty = true;
