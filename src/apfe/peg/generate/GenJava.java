@@ -40,8 +40,7 @@ public class GenJava extends GenBase {
      * @return class name.
      */
     public static String getClsNm(String id) {
-        String clsNm = id;
-        //TODO: use regexp?
+        String clsNm = toCamelCase(id);
         return clsNm;
     }
     

@@ -36,7 +36,8 @@ import static org.junit.Assert.*;
 public class PrimaryTest {
 
     private static final String stData[] = {
-        "\"foobar\"", "'d'", "\"xyz\\\"\"", "'\\n'", "."
+        "\"foobar\"", "'d'", "\"xyz\\\"\"", "'\\n'", ".",
+        "ident1", "__ident_cls_", "_another__id_cls___"
     };
 
     /**

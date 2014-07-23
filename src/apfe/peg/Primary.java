@@ -33,8 +33,12 @@ import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
 public class Primary extends Acceptor implements GenJava.IGen {
-    public static enum EType {eIdentifier, eExpression, eLiteral, eClass, eDot};
-    
+
+    public static enum EType {
+
+        eIdentifier, eExpression, eLiteral, eClass, eDot
+    };
+
     private static final EType stVals[] = EType.values();
 
     public Primary() {
@@ -46,16 +50,18 @@ public class Primary extends Acceptor implements GenJava.IGen {
             case eDot:
                 j.append("new CharClass(ICharClass.IS_ANY)");
                 break;
-            case eLiteral: case eClass:
+            case eLiteral:
+            case eClass:        //fall through
+            case eIdentifier:   //fall through
                 GenJava.IGen g = Util.downCast(getEle());
                 g.genJava(j);
                 break;
             default:
-                assert(false); //TODO
+                assert (false); //TODO
         }
         return j;
     }
-    
+
     private static final Operator stOpen = new Operator(Operator.EOp.OPEN),
             stClose = new Operator(Operator.EOp.CLOSE);
 
@@ -68,9 +74,9 @@ public class Primary extends Acceptor implements GenJava.IGen {
             @Override
             public Acceptor getChoice(int ix) {
                 Acceptor a = null;
-                switch(ix) {
+                switch (ix) {
                     case 0:
-                        a = new Sequence(new Identifier(), 
+                        a = new Sequence(new Identifier(),
                                 new NotPredicate(new Operator(Operator.EOp.LEFTARROW)));
                         break;
                     case 1:
@@ -94,51 +100,51 @@ public class Primary extends Acceptor implements GenJava.IGen {
         if (match) {
             int ix = pc1.whichAccepted();
             m_type = stVals[ix];
-            switch(m_type) {
-                case eLiteral: case eClass: case eDot:
+            switch (m_type) {
+                case eLiteral:
+                case eClass:
+                case eDot:
                     m_ele = pc1.getAccepted();
                     break;
-                case eIdentifier:
-                {
+                case eIdentifier: {
                     Sequence s1 = Util.downCast(pc1.getAccepted());
                     m_ele = Util.extractEle(s1, 0);
                 }
-                    break;
-                case eExpression:
-                {
+                break;
+                case eExpression: {
                     Sequence s1 = Util.downCast(pc1.getAccepted());
                     m_ele = Util.extractEle(s1, 1);
                 }
-                    break;
+                break;
                 default:
                     assert false;
             }
         }
         return match;
     }
-    
+
     public EType getType() {
         return m_type;
     }
-    
+
     public Acceptor getEle() {
         return m_ele;
     }
-    
-    private EType       m_type;
-    private Acceptor    m_ele;
-    
+
+    private EType m_type;
+    private Acceptor m_ele;
+
     @Override
     public String toString() {
         String s;
-        if (EType.eExpression  != m_type) {
+        if (EType.eExpression != m_type) {
             s = m_ele.toString();
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append(stOpen).append(m_ele).append(stClose);
             s = sb.toString();
         }
-            return s;
+        return s;
     }
 
     @Override

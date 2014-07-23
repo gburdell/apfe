@@ -29,7 +29,31 @@ import static apfe.runtime.Util.downCast;
  * @author gburdell
  */
 public class GenBase extends Template {
-
+    public static String toCamelCase(String s) {
+        StringBuilder sb = new StringBuilder(s);
+        int i;
+        //remove leading _
+        while (0 == sb.indexOf("_")) {
+            sb.deleteCharAt(0);
+        }
+        //remove trailing _
+        for (i = sb.length() - 1; '_' == sb.charAt(i); i = sb.length() - 1) {
+            sb.delete(i, i+1);
+        }
+        //remove consecutive _
+        while (0 <= (i = sb.indexOf("__"))) {
+            sb.delete(i, i+1);
+        }
+        assert (0 < sb.length());
+        //to camel case
+        sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
+        while (0 <= (i = sb.indexOf("_"))) {
+            sb.deleteCharAt(i);
+            sb.setCharAt(i, Character.toUpperCase(sb.charAt(i)));
+        }
+        return sb.toString();
+    }
+    
     @Override
     public String toString() {
         return m_sb.toString();

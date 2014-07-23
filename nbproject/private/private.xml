@@ -40,7 +40,9 @@
         <group>
             <file>file:/home/gburdell/projects/apfe/test/apfe/peg/PrimaryTest.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Literal.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenJava.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Primary.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenBase.java</file>
         </group>
     </open-files>
 </project-private>
