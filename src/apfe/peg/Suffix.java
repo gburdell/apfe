@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -31,9 +32,21 @@ import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 
-public class Suffix extends Acceptor {
+public class Suffix extends Acceptor implements GenJava.IGen {
 
     public Suffix() {
+    }
+
+    @Override
+    public GenJava genJava(GenJava j) {
+        if (false == hasOp()) {
+            return getPrimary().genJava(j);
+        }
+        Repetition.ERepeat rep = getOpAsRep();
+        j = j.append("new Repetition(");
+        j = getPrimary().genJava(j).append(", Repetition.ERepeat.").append(rep.name())
+                .append(")");
+        return j;
     }
 
     @Override
@@ -41,24 +54,24 @@ public class Suffix extends Acceptor {
         // Suffix <- Primary (QUESTION / STAR / PLUS)?
         Sequence s1 = new Sequence(new Primary(),
                 new Repetition(new PrioritizedChoice(new PrioritizedChoice.Choices() {
-            @Override
-            public Acceptor getChoice(int ix) {
-                Acceptor a = null;
-                switch (ix) {
-                    case 0:
-                        a = new Operator(Operator.EOp.QUESTION);
-                        break;
-                    case 1:
-                        a = new Operator(Operator.EOp.STAR);
-                        break;
-                    case 2:
-                        a = new Operator(Operator.EOp.PLUS);
-                        break;
-                }
-                return a;
-            }
-        }),
-                Repetition.ERepeat.eOptional));
+                    @Override
+                    public Acceptor getChoice(int ix) {
+                        Acceptor a = null;
+                        switch (ix) {
+                            case 0:
+                                a = new Operator(Operator.EOp.QUESTION);
+                                break;
+                            case 1:
+                                a = new Operator(Operator.EOp.STAR);
+                                break;
+                            case 2:
+                                a = new Operator(Operator.EOp.PLUS);
+                                break;
+                        }
+                        return a;
+                    }
+                }),
+                        Repetition.ERepeat.eOptional));
         boolean match = (null != (s1 = match(s1)));
         if (match) {
             Repetition r1 = Util.extractEle(s1, 1);
@@ -75,6 +88,26 @@ public class Suffix extends Acceptor {
 
     public Operator getOp() {
         return m_op;
+    }
+
+    public Repetition.ERepeat getOpAsRep() {
+        Repetition.ERepeat rval = null;
+        if (hasOp()) {
+            switch (getOp().getOp()) {
+                case QUESTION:
+                    rval = Repetition.ERepeat.eOptional;
+                    break;
+                case STAR:
+                    rval = Repetition.ERepeat.eZeroOrMore;
+                    break;
+                case PLUS:
+                    rval = Repetition.ERepeat.eOneOrMore;
+                    break;
+                default:
+                    assert false;
+            }
+        }
+        return rval;
     }
 
     public Primary getPrimary() {

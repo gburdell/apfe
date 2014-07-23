@@ -64,6 +64,10 @@ public class Operator extends Acceptor {
 
     private final EOp   m_op;
     
+    public EOp getOp() {
+        return m_op;
+    }
+    
     @Override
     public String toString() {
         return Util.toString(m_op.getCharSeq()).toString();
