@@ -23,6 +23,7 @@
  */
 package apfe.leftrecursive;
 
+import apfe.runtime.LeftRecursiveAcceptor;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharClass;
 import apfe.runtime.Sequence;

@@ -59,6 +59,7 @@ public class Definition extends Acceptor {
             m_expr = extractEle(s1, 2);
             r1 = extractEle(s1, 3);
             if (0 != r1.sizeofAccepted()) {
+                assert false; //no codeblocks supported in generator
                 assert (1 == r1.sizeofAccepted());
                 m_codeBlk = Util.downCast(r1.getAccepted().get(0));
             }

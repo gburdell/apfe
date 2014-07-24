@@ -1,7 +1,16 @@
 # Specify default property values for generate.
 
-#Output root directory for generate files
+# Output root directory for generate files
 outputDir: .
 
-#Generated class names use CamelCase
+# Generated class names use CamelCase
 genClsAsCamelCase: true
+
+# package name
+packageName: apfe.dsl.grammar
+
+# Base class for non-left-recursive
+baseCls: Acceptor
+
+# Base class for left-recursive
+lrBaseCls: LeftRecursiveAcceptor

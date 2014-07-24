@@ -21,11 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.leftrecursive;
+package apfe.runtime;
 
-import apfe.runtime.Acceptor;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 import java.util.Arrays;
 import java.util.LinkedList;
 

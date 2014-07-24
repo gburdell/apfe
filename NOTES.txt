@@ -1,0 +1,9 @@
+23jul
+1) Generate phase needs to handle left recursion ala LeftRecursiveAcceptor.
+   The getChoice() template might as well be used for the alternative
+   rather than PrioritizedChoice constructor.
+
+2) While handling left-recursion, also look for DRR (Definate Right Recursion)
+
+3) For now, since indirect lr is not handled; just look for 1st element of
+   alternative and also need getNonRecursiveChoiceIx() too.

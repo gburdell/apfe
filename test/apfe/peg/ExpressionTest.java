@@ -39,7 +39,8 @@ public class ExpressionTest {
         "ident1+", "__ident_cls_?", "!_another__id_cls___*",
         "\"foobar\"", "&'d'", "\"xyz\\\"\"", "'\\n'", ".",
         "a b c+ &d*",
-        "a b c* / d e f ? fo_bar+ dog"
+        "a b c* / d e f ? fo_bar+ dog",
+        "a (b (c d e)* f g (h (i? (j k (l m n)+)) o p)) q r"
     };
 
     /**
