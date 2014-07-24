@@ -44,8 +44,12 @@ public class Expression extends Acceptor implements GenJava.IGen {
         if (1 == getSequences().size()) {
             j = j.append(getSequences().get(0));
         } else {
+            if (true) {
+                j = j.genChoiceClause(getSequences());
+            } else {
             //TODO: this is the lazy/inefficient way
-            j = j.funcCall("new PrioritizedChoice", getSequences());
+                j = j.funcCall("new PrioritizedChoice", getSequences());
+            }
         }
         return j;
     }

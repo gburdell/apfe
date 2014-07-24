@@ -28,7 +28,7 @@ import static apfe.runtime.Util.downCast;
  *
  * @author gburdell
  */
-public class GenBase extends Template {
+public abstract class GenBase extends Template {
     public static String toCamelCase(String s) {
         StringBuilder sb = new StringBuilder(s);
         int i;
@@ -59,19 +59,19 @@ public class GenBase extends Template {
         return m_sb.toString();
     }
     
-    public <T extends GenBase> T append(String s) {
+    public GenBase append(String s) {
         m_sb.append(s);
-        return downCast(this);
+        return this;
     }
 
-    public <T extends GenBase> T append(char c) {
+    public GenBase append(char c) {
         m_sb.append(c);
-        return downCast(this);
+        return this;
     }
 
-    public <T extends GenBase> T template(String tmpl, Object... args) {
+    public GenBase template(String tmpl, Object... args) {
         m_sb.append(replace(tmpl, args));
-        return downCast(this);
+        return this;
     }
 
     protected StringBuilder m_sb = new StringBuilder();

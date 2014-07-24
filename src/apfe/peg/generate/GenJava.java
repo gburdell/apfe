@@ -45,11 +45,28 @@ public class GenJava extends GenBase {
         return clsNm;
     }
 
+    @Override
+    public GenJava append(String s) {
+        return (GenJava) super.append(s);
+    }
+
+    @Override
+    public GenJava append(char c) {
+        return (GenJava) super.append(c);
+    }
+
+    @Override
+    public GenJava template(String tmpl, Object... args) {
+        return (GenJava) super.template(tmpl, args);
+    }
+
     /**
-     * A convenience method to chain an object which supports IGen so one
-     * could do <pre>
-     *   GenJava j; 
+     * A convenience method to chain an object which supports IGen so one could
+     * do
+     * <pre>
+     *   GenJava j;
      *   j.append(obj).append(" suffix").append(...)</pre>
+     *
      * @param g object which supports IGen.
      * @return generator contents.
      */
@@ -68,6 +85,32 @@ public class GenJava extends GenBase {
             empty = false;
         }
         append(")");
+        return this;
+    }
+
+    /**
+     * A convenience method for creating PrioritizedChoice as a case statement.
+     * This would appear more efficient since objects (Acceptors) are only
+     * created as they are needed (as opposed to calling new for all objects to
+     * populate at call time.
+     *
+     * @param alts sequence of choices.
+     * @return switch form of PrioritizedChoice.
+     */
+    public GenJava genChoiceClause(Iterable<? extends IGen> alts) {
+        append("new PrioritizedChoice(")
+                .append("new PrioritizedChoice.Choices() {\n@Override\n")
+                .append("public Acceptor getChoice(int ix) {\n")
+                .append("Acceptor acc = null;\nswitch (ix) {\n");
+        int i = 0;
+        for (IGen g : alts) {
+            append("case " + i)
+                    .append(":\nacc = ")
+                    .append(g)
+                    .append(" ;\nbreak;\n");
+            i++;
+        }
+        append("}\nreturn acc;\n}\n})");
         return this;
     }
 }

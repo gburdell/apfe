@@ -52,7 +52,7 @@ public class Literal extends Acceptor implements GenJava.IGen {
         /* [’] ![’] '\\'? Char [’] Spacing
          / ["] (!["] '\\'? Char)+ ["] Spacing
          */
-        PrioritizedChoice.Choices alts = new PrioritizedChoice.Choices() {
+        PrioritizedChoice e4 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
             @Override
             public Acceptor getChoice(int ix) {
                 Acceptor acc = null;
@@ -75,8 +75,8 @@ public class Literal extends Acceptor implements GenJava.IGen {
                 }
                 return acc;
             }
-        };
-        PrioritizedChoice e4 = new PrioritizedChoice(alts);
+        });
+
         boolean match = e4.acceptTrue();
         if (match) {
             m_literal = super.toString();

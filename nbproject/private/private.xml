@@ -38,22 +38,9 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Definition.java</file>
-            <file>file:/home/gburdell/projects/apfe/test/apfe/peg/ExpressionTest.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/leftrecursive/Term.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Operator.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/LeftRecursiveAcceptor.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Analyze.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Primary.java</file>
-            <file>file:/home/gburdell/projects/apfe/test/apfe/peg/PegSequenceTest.java</file>
-            <file>file:/home/gburdell/projects/apfe/test/apfe/peg/PrimaryTest.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Suffix.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Identifier.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Literal.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Repetition.java</file>
-            <file>file:/home/gburdell/projects/apfe/test/apfe/peg/SuffixTest.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenJava.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/leftrecursive/Fact.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Expression.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenBase.java</file>
         </group>
     </open-files>

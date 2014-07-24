@@ -31,7 +31,29 @@ import apfe.runtime.CharBuffer.Marker;
  * @author gburdell
  */
 public abstract class Acceptor {
+    /**
+     * Interface for class which processes events issued from 
+     * Acceptor subclass.  The implementation class is totally separate
+     * from an Acceptor class hierarchy.
+     */
+    public static interface Listener {
+        /**
+         * Listen for onAccept events.
+         * @param accepted instance which accepted latest sequence.
+         */
+        public void onAccept(final Acceptor accepted);
+    }
+    public static interface HasListeners {
 
+        /**
+         * A subclass of Acceptor which supports callbacks will implement this
+         * interface.  The recommended interface would implement using static
+         * members: i.e., the class needs to know the Listeners, no each instance.  
+         * @param listener an object which receives callback on Listener
+         * actions.
+         */
+        public void addListener(final Listener listener);
+    }
     /**
      * Test if subclass can accept.
      *
