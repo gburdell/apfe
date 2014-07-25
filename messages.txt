@@ -8,6 +8,9 @@ LINK-2   %s: link status.
 LINK-3   %s: rule defined but not used.
 LR-1     %s: rule is direct left-recursive: path '%s'.
 LR-2     %s: rule is indirect left-recursive: path '%s'.
+LR-3     %s: (direct left-recursive) rule has predicate '%s' at choice %d.
+LR-4     %s: (direct left-recursive) rule has repetition '%s' at choice %d.
+LR-5     %s: non-consecutive (direct left-recursive) rule detected at choice %d.
 PARSE-1  %s:%d: unexpected token '%s'.
 PARSE-2  %s:%d: syntax error at '%s'.
 PARSE-3  %s: unexpected char '%c'.

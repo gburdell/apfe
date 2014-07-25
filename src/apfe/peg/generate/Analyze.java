@@ -30,6 +30,7 @@ import apfe.peg.Identifier;
 import apfe.peg.PegSequence;
 import apfe.peg.Prefix;
 import apfe.peg.Primary;
+import apfe.peg.Suffix;
 import apfe.runtime.MessageMgr;
 import apfe.runtime.Util;
 import java.util.HashMap;
@@ -58,9 +59,93 @@ public class Analyze {
         m_errCnt += MessageMgr.getErrorCnt();
         if (0 == m_errCnt) {
             reportUnused();
-            checkLeftRecursive();
+            int lrCnt = checkLeftRecursive();
+            if ((0 < lrCnt) && (0 == m_errCnt)) {
+                detailLeftRecursion();
+            }
         }
         return m_errCnt;
+    }
+
+    /**
+     * Setup some internal state to detail left recursion to assist in code
+     * generation.
+     */
+    private void detailLeftRecursion() {
+        for (Definition d : m_defnByName.values()) {
+            if (d.getIsLeftRecursive()) {
+                LRDetails lrd = new LRDetails(d);
+                m_lrDetailByName.put(d.getId().toString(), lrd);
+            }
+        }
+    }
+
+    private Map<String, LRDetails> m_lrDetailByName = new HashMap<>();
+
+    public static class LRDetails {
+
+        public LRDetails(final Definition lrDef) {
+            m_defn = lrDef;
+            m_name = m_defn.getId().toString();
+            process();
+        }
+
+        private void process() {
+            List<Prefix> pfxs;
+            int n = m_defn.getExpr().getSequences().size();
+            int lastOK = -1;
+            m_hasDRR = new boolean[n];
+            for (PegSequence seq : m_defn.getExpr().getSequences()) {
+                pfxs = seq.getPrefixes();
+                //   allowed: a <- a b ...
+                //        or: a <- a b ... a
+                if (isOK(pfxs.get(0))) {
+                    n = pfxs.size() - 1;
+                    if (isOK(pfxs.get(n))) {
+                        m_hasDRR[m_cnt] = true;
+                    }
+                    if (++lastOK != m_cnt++) {
+                        Util.error("LR-5", m_name, m_cnt);
+                    }
+                }
+            }
+        }
+
+        /**
+         * Check is prefix matches name (direct left or right recursion).
+         *
+         * @param pfx prefix to validate matches without prefix or suffix.
+         * @return true if direct and passes pfx/sfx noOp test; else return
+         * false;
+         */
+        private boolean isOK(final Prefix pfx) {
+            boolean ok = false;
+            final Suffix sfx = pfx.getSuffix();
+            final Primary prim = sfx.getPrimary();
+            if (prim.getType() == Primary.EType.eIdentifier) {
+                if (m_name.equals(prim.toString())) {
+                    if (pfx.hasOp()) {
+                        Util.error("LR-3", m_name, pfx.getOp().toString(), m_cnt+1);
+                    } else if (sfx.hasOp()) {
+                        Util.error("LR-4", m_name, sfx.getOp().toString(), m_cnt+1);
+                    } else {
+                        ok = true;
+                    }
+                }
+            }
+            return ok;
+        }
+
+        public final Definition m_defn;
+        public final String m_name;
+        /**
+         * Number of leading/valid left-recursions.
+         */
+        public int m_cnt = 0;
+        /**
+         * Bit array indicating which alts have direct right recursion.
+         */
+        public boolean m_hasDRR[];
     }
 
     /**
@@ -69,7 +154,8 @@ public class Analyze {
      * simple, since also have to follow through every 1st to catch indirect, as
      * in: a: b b: c c: a <--- left-recursive: a->b->c->a
      */
-    private void checkLeftRecursive() {
+    private int checkLeftRecursive() {
+        int cnt = 0;
         for (String defnm : m_processed.keySet()) {
             if (EStatus.eProcessed == m_processed.get(defnm)) {
                 //only work on those used
@@ -79,10 +165,12 @@ public class Analyze {
                     HopCheck hopChk = new HopCheck(defnm);
                     if (checkLeftRecursive(defnm, hopChk, expr)) {
                         defn.setIsLeftRecursive(true);
+                        cnt++;
                     }
                 }
             }
         }
+        return cnt;
     }
     /**
      * Use to mark left-recursive paths already found.
@@ -127,6 +215,7 @@ public class Analyze {
     }
 
     private static class CntType {
+
         public boolean notZero() {
             return 0 < (m_direct + m_indirect);
         }
@@ -205,13 +294,14 @@ public class Analyze {
 
     /**
      * Update direct left recursion count.
+     *
      * @param nm name of non-terminal to update.
      */
     private void updateDirectLR(String nm) {
         int cnt = m_dlrByName.containsKey(nm) ? m_dlrByName.get(nm) : 0;
-        m_dlrByName.put(nm, cnt+1);
+        m_dlrByName.put(nm, cnt + 1);
     }
-    
+
     private void reportUnused() {
         for (String nm : m_processed.keySet()) {
             if (EStatus.eDefined == m_processed.get(nm)) {
@@ -283,8 +373,8 @@ public class Analyze {
     private Map<String, Definition> m_defnByName = new HashMap<>();
     private Map<String, EStatus> m_processed = new HashMap<>();
     /**
-     * Map of direct left recursion count by name.
-     * Value is number of consecutive direct left recursions.
+     * Map of direct left recursion count by name. Value is number of
+     * consecutive direct left recursions.
      */
-    private Map<String,Integer> m_dlrByName = new HashMap<>();
+    private Map<String, Integer> m_dlrByName = new HashMap<>();
 }
