@@ -73,7 +73,7 @@ public class Analyze {
      */
     private void detailLeftRecursion() {
         for (Definition d : m_defnByName.values()) {
-            if (d.getIsLeftRecursive()) {
+            if ((null != d) && d.getIsLeftRecursive()) {
                 LRDetails lrd = new LRDetails(d);
                 m_lrDetailByName.put(d.getId().toString(), lrd);
             }
