@@ -61,16 +61,16 @@ K_TRUE      <- "true" Spacing
 K_FALSE     <- "false" Spacing
 
 IDENT      <- IdentStart IdentCont* Spacing
-IdentStart <- ['a'-'z''A'-'Z''_'] 
-IdentCont  <- IdentStart / ['0'-'9''.''/''+''-']
+IdentStart <- [a-zA-Z_] 
+IdentCont  <- IdentStart / [0-9.+-] / '/'
 
 NUMBER <- (Float / Integer) Spacing
 
-Integer <- ['-''+']? Digit+
+Integer <- [-+]? Digit+
 
-Digit <- ['0'-'9']
+Digit <- [0-9]
 
-Float <- Integer ('.' Digit+)? (['e''E'] Integer)?
+Float <- Integer ('.' Digit+)? ([eE] Integer)?
 
 #Include \\. EOLN so string can span lines
 STRING <- '"' (!'"' .)* '"' Spacing

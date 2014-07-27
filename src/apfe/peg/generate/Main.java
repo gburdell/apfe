@@ -58,11 +58,13 @@ public class Main {
             State.create(cb);
             Grammar gram = new Grammar();
             gram = Util.downCast(gram.accept());
+            Analyze anl = null;
+            int numErrs = 0;
             if (null != gram) {
                 System.out.println("grammar:");
                 System.out.println(gram.toString());
-                Analyze anl = new Analyze(gram);
-                int numErrs = anl.analyze();
+                anl = new Analyze(gram);
+                numErrs = anl.analyze();
             } else {
                 ParseError.printTopMessage();
             }
@@ -75,44 +77,55 @@ public class Main {
                 }
                 Util.info("STAT-1", stats[0], stats[1], pcnt);
             }
+            if (0 < numErrs) {
+                System.exit(numErrs);
+            } else {
+                Generate.generate(anl);
+            }
         } catch (Exception ex) {
             Util.abnormalExit(ex);
         }
     }
-
+    
     /**
      * Get property value.
+     *
      * @param key property name.
      * @return user-specified or default value.
      */
     public static String getProperty(String key) {
+        if (! stProps.containsKey(key)) {
+            Util.abnormalExit(key+": missing property definition");
+        }
         String v = stProps.getProperty(key);
         assert null != v;
         return v;
     }
-    
+
     /**
      * Get property value as int.
+     *
      * @param key property name.
      * @return user-specified or default value.
      */
     public static int getPropertyAsInt(String key) {
         return Integer.parseInt(getProperty(key));
     }
-    
+
     /**
      * Get property value as boolean.
+     *
      * @param key property name.
      * @return user-specified or default value.
      */
     public static boolean getPropertyAsBoolean(String key) {
         return Boolean.parseBoolean(getProperty(key));
     }
-    
+
     /**
      * Property settings for generate.
      */
-    private static Properties stProps = new Properties();
+    private static final Properties stProps = new Properties();
 
     private static void loadProperties(File f) {
         try {

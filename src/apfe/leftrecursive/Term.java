@@ -61,21 +61,21 @@ public class Term extends LeftRecursiveAcceptor {
             case 0:
                 /**/
                 a = new Sequence(this,//new Term(), 
-                        new CharClass(CharClass.matchOneOf("?")), 
+                        new CharClass("?"), 
                         new Term(),
-                        new CharClass(CharClass.matchOneOf(":")), 
+                        new CharClass(":"), 
                         new Term(true));
                 /**/
                 break;
 
             case 1:
                 a = new Sequence(this,//new Term(), 
-                        new CharClass(CharClass.matchOneOf("+")),
+                        new CharClass("+"),
                         new Term(true));
                 break;
             case 2:
                 a = new Sequence(this,//new Term(), 
-                        new CharClass(CharClass.matchOneOf("-")),
+                        new CharClass("-"),
                         new Term(true));
                 break;
             case 3:
@@ -100,12 +100,12 @@ public class Term extends LeftRecursiveAcceptor {
         switch (ix) {
             case 0:
                 a = new Sequence(this,//new Term(), 
-                        new CharClass(CharClass.matchOneOf("+")),
+                        new CharClass("+"),
                         new Fact());
                 break;
             case 1:
                 a = new Sequence(this,//new Term(), 
-                        new CharClass(CharClass.matchOneOf("-")),
+                        new CharClass("-"),
                         new Fact());
                 break;
             case 2:

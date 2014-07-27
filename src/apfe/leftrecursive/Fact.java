@@ -53,12 +53,12 @@ public class Fact extends LeftRecursiveAcceptor {
         switch (ix) {
             case 0:
                 a = new Sequence(this,//new Fact(),
-                        new CharClass(CharClass.matchOneOf("*")),
+                        new CharClass("*"),
                         new Fact(true));//for definite right recursion
                 break;
             case 1:
                 a = new Sequence(this,//new Fact(),
-                        new CharClass(CharClass.matchOneOf("/")),
+                        new CharClass("/"),
                         new Fact(true));//for definite right recursion
                 break;
             case 2:
@@ -77,12 +77,12 @@ public class Fact extends LeftRecursiveAcceptor {
         switch (ix) {
             case 0:
                 a = new Sequence(this,//new Fact(),
-                        new CharClass(CharClass.matchOneOf("*")),
+                        new CharClass("*"),
                         new Prim());
                 break;
             case 1:
                 a = new Sequence(this,//new Fact(),
-                        new CharClass(CharClass.matchOneOf("/")),
+                        new CharClass("/"),
                         new Prim());
                 break;
             case 2:

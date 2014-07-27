@@ -32,8 +32,29 @@ public class CharClass extends Acceptor {
         m_eles = eles;
     }
 
+    /**
+     * Match one of the characters.
+     * @param oneOf sequence of independent characters.
+     */
+    public CharClass(String oneOf) {
+        this(matchOneOf(oneOf));
+    }
+    
+    /**
+     * Match range [lb,rb]
+     * @param lb lower bound.
+     * @param ub upper bound.
+     */
+    public CharClass(char lb, char ub) {
+        this(matchRange(lb, ub));
+    }
+
     public static ICharClass matchOneOf(String oneOf) {
         return new CharMatch(oneOf);
+    }
+
+    public static ICharClass matchOneOf(char c) {
+        return new CharMatch(new String(new char[]{c}));
     }
 
     public static ICharClass matchRange(char lb, char rb) {

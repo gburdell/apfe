@@ -41,7 +41,16 @@ public class GenJava extends GenBase {
      * @return class name.
      */
     public static String getClsNm(String id) {
-        String clsNm = (stGenClsAsCamelCase) ? toCamelCase(id) : id;
+        String clsNm;
+        switch (id) {
+            case "EOL":
+            case "EOF":
+                clsNm = id;
+                break;
+            default:
+                clsNm = (stGenClsAsCamelCase) ? toCamelCase(id) : id;
+                clsNm = stClsNmPrefix + clsNm;
+        }
         return clsNm;
     }
 

@@ -23,7 +23,14 @@
  */
 package @1@ ;
 
-import apfe.runtime.*; ;
+@6@
+import java.util.List;
+import java.util.LinkedList;
+@7@
+import apfe.runtime.*;
+@4@
+import apfe.runtime.CharBuffer.Marker;
+@5@
 
 public class @2@ extends @3@ {
 
@@ -32,7 +39,16 @@ public class @2@ extends @3@ {
 
     @Override
     protected boolean accepti() {
-		boolean match = false;
+		Acceptor matcher = @8@ ;
+		Acceptor accepted = match(matcher);
+		boolean match = (null != accepted);
+@6@
+        if (match && (null != getListeners())) {
+            for (Listener cb : getListeners()) {
+                cb.onAccept(accepted);
+            }
+        }
+@7@
         return match;
     }
 
@@ -55,5 +71,25 @@ public class @2@ extends @3@ {
      * Memoize for all instances of @2@.
      */
     private static final Memoize stMemo = new Memoize();
-@5@ //End memoize
+	//End memoize
+@5@ 
+
+@6@
+	//Begin Listener
+	@Override
+	public void addListener(final Listener listener) {
+		if (null == stListeners) {
+			stListeners = new LinkedList<>();
+		}
+		stListeners.add(listener);
+	}
+
+	@Override
+    protected Iterable<Listener> getListeners() {
+		return stListeners;
+	}
+
+	private static List<Listener> stListeners;
+	//End Listener
+@7@
 }

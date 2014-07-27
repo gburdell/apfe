@@ -1,4 +1,5 @@
 DEFN-1   %s: rule already defined.
+DIR-1    %s: could not %s directory.
 FILE-1   %s: could not write file.
 FILE-2   %s: could not read file.
 GEN-1    %s: generating file.

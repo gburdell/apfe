@@ -31,29 +31,42 @@ import apfe.runtime.CharBuffer.Marker;
  * @author gburdell
  */
 public abstract class Acceptor {
+
     /**
-     * Interface for class which processes events issued from 
-     * Acceptor subclass.  The implementation class is totally separate
-     * from an Acceptor class hierarchy.
+     * Interface for class which processes events issued from Acceptor subclass.
+     * The implementation class is totally separate from an Acceptor class
+     * hierarchy.
      */
     public static interface Listener {
+
         /**
          * Listen for onAccept events.
+         *
          * @param accepted instance which accepted latest sequence.
          */
         public void onAccept(final Acceptor accepted);
     }
-    public static interface HasListeners {
 
-        /**
-         * A subclass of Acceptor which supports callbacks will implement this
-         * interface.  The recommended interface would implement using static
-         * members: i.e., the class needs to know the Listeners, no each instance.  
-         * @param listener an object which receives callback on Listener
-         * actions.
-         */
-        public void addListener(final Listener listener);
+    /**
+     * A subclass of Acceptor which supports callbacks will implement this
+     * method. It is recommended subclass implement using static members: i.e.,
+     * the class needs to know the Listeners, not each instance.
+     *
+     * @param listener an object which receives callback on Listener actions.
+     */
+    public void addListener(final Listener listener) {
+        throw new UnsupportedOperationException("Not supported in base class.");
     }
+
+    /**
+     * Get Listeners.
+     *
+     * @return listeners.
+     */
+    protected Iterable<Listener> getListeners() {
+        return null;
+    }
+
     /**
      * Test if subclass can accept.
      *
@@ -173,7 +186,6 @@ public abstract class Acceptor {
             String dbgText = toString();
             dbgText += "";
         }
-
         return ok ? accepted : null;
     }
 

@@ -368,6 +368,15 @@ public class Analyze {
             }
         }
     }
+    
+    public Map<String, Definition> getDefnByName() {
+        return m_defnByName;
+    }
+    
+    public Map<String, LRDetails> getLRDetailsByName() {
+        return m_lrDetailByName;
+    }
+    
     private int m_errCnt = 0;
     private final Grammar m_gram;
     private Map<String, Definition> m_defnByName = new HashMap<>();

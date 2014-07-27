@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  */
 package apfe.peg.generate;
-import static apfe.runtime.Util.downCast;
 
 /**
  *
@@ -60,7 +59,7 @@ public abstract class GenBase extends Template {
     }
     
     public GenBase append(String s) {
-        m_sb.append(s);
+        m_sb.append(s.replace("'''", "'\\''"));
         return this;
     }
 
@@ -70,11 +69,12 @@ public abstract class GenBase extends Template {
     }
 
     public GenBase template(String tmpl, Object... args) {
-        m_sb.append(replace(tmpl, args));
+        m_sb.append(replace(tmpl, args).replace("'''", "'\\''"));
         return this;
     }
 
     protected StringBuilder m_sb = new StringBuilder();
 
     public static final boolean stGenClsAsCamelCase = Main.getPropertyAsBoolean("genClsAsCamelCase");
+    public static final String stClsNmPrefix = Main.getProperty("clsNmPrefix");
 }

@@ -23,3 +23,12 @@ baseJavaTemplate: baseTmpl.java
 
 # Template for left-recursive class
 dlrBaseJavaTemplate: dlrbaseTmpl.java
+
+# Generate listeners
+genListeners: true
+
+# Generate memoize
+genMemoize: true
+
+# Class name prefix: so do not clash with runtime names
+clsNmPrefix: Peg

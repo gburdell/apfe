@@ -2,18 +2,18 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="5">
         <file>
-            <url>src/apfe/dsl/vlogpp/Comment.java</url>
-            <bookmark id="5">
-                <name/>
-                <line>125</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>src/apfe/runtime/PrioritizedChoice.java</url>
             <bookmark id="1">
                 <name/>
                 <line>102</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/apfe/dsl/vlogpp/Comment.java</url>
+            <bookmark id="5">
+                <name/>
+                <line>125</line>
                 <key/>
             </bookmark>
         </file>
@@ -38,18 +38,26 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Definition.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Generate.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Main.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/PegSequence.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Suffix.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Operator.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Prefix.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Literal.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenJava.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Primary.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Definition.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharSeq.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Grammar.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/leftrecursive/Term.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Acceptor.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Analyze.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Expression.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/Template.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/slf/IdentCont.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/PegClass.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/EndOfLine.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/grammar/PegIdentCont.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/EOF.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/dsl/grammar/PegIdentStart.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/EOL.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/leftrecursive/Fact.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenJava.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenBase.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharClass.java</file>
         </group>
     </open-files>
 </project-private>

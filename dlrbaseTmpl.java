@@ -23,7 +23,14 @@
  */
 package @1@ ;
 
+@8@
+import java.util.List;
+import java.util.LinkedList;
+@9@
 import apfe.runtime.* ;
+@6@
+import apfe.runtime.CharBuffer.Marker ;
+@7@
 
 public class @2@ extends @3@ {
 
@@ -70,4 +77,22 @@ public class @2@ extends @3@ {
     private static final Memoize stMemo = new Memoize();
 @7@ //End memoize
 
+@8@
+	//Begin Listener
+	@Override
+	public void addListener(final Listener listener) {
+		if (null == stListeners) {
+			stListeners = new LinkedList<>();
+		}
+		stListeners.add(listener);
+	}
+
+	@Override
+    protected Iterable<Listener> getListeners() {
+		return stListeners;
+	}
+
+	private static List<Listener> stListeners;
+	//End Listener
+@9@
 }
