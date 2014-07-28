@@ -79,8 +79,10 @@ public class Generate {
     private void getDlrSwitchClause(GenJava gen, final Definition defn) {
         final String nm = defn.getId().getId();
         Analyze.LRDetails lrd = m_anz.getLRDetailsByName().get(nm);
+        gen.beginDLR(lrd);
         Expression expr = defn.getExpr();
-        int ix = 0;
+        gen = expr.genJava(gen);
+        gen.endDLR();
         //TODO
     }
     

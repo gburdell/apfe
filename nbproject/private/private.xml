@@ -54,6 +54,7 @@
             <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/EOL.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/leftrecursive/Fact.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenJava.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/peg/Expression.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/peg/generate/GenBase.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharClass.java</file>
         </group>
