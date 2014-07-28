@@ -108,11 +108,23 @@ public class Char extends Acceptor {
 
     @Override
     public String toString() {
-        return new String(new char[]{getChar()});
+        return getChar(false);
     }
 
-    public char getChar() {
-        return m_char;
+    public String getChar() {
+        return getChar(true);
+    }
+    
+    /**
+     * Get char with optional escape (if char=='\'').
+     * @param withEsc specify true to prefix with escape if '\''.
+     * @return optionally escaped char.
+     */
+    public String getChar(boolean withEsc) {
+        char cb[] = (withEsc && (m_char=='\'')) 
+                ? new char[]{'\\',m_char}
+                : new char[]{m_char};
+        return new String(cb);
     }
 
     private final char m_expect;

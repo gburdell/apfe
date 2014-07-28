@@ -1,40 +1,20 @@
-/*
- * The MIT License
- *
- * Copyright 2014 gburdell.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
+@9@
 package @1@ ;
 
-@8@
+@6.1@
 import java.util.List;
 import java.util.LinkedList;
+@6.1@
+import apfe.runtime.*;
+@4.1@
+import apfe.runtime.CharBuffer.Marker;
+@4.1@
 @9@
-import apfe.runtime.* ;
-@6@
-import apfe.runtime.CharBuffer.Marker ;
-@7@
 
-public class @2@ extends @3@ {
+@10@
+public @11@ class @2@ extends @3@ {
 
-    public @2@ () {
+    public @2@() {
     }
 
     private @2@(boolean isDRR) {
@@ -53,15 +33,32 @@ public class @2@ extends @3@ {
 
     @Override
     public Acceptor getChoice(int ix) {
-        Acceptor a = null;
-		@5@
+        Acceptor matcher = @5@  ;
         //Keep track so if we growSeed()
         m_lastIx = ix;
-        m_lastChoice = a;
-        return a;
+        m_lastChoice = matcher;
+        return matcher;
     }
 
-@6@ //Begin memoize
+    @Override
+    protected boolean accepti() {
+		boolean match = super.accepti();
+@6.2@
+        if (match && (null != getListeners())) {
+            for (Listener cb : getListeners()) {
+                cb.onAccept(m_lastChoice);
+            }
+        }
+@6.2@
+        return match;
+    }
+
+    @Override
+    public @2@ create() {
+        return new @2@();
+    }
+
+@4.2@ //Begin memoize
     @Override
     protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
@@ -75,9 +72,10 @@ public class @2@ extends @3@ {
      * Memoize for all instances of @2@.
      */
     private static final Memoize stMemo = new Memoize();
-@7@ //End memoize
+	//End memoize
+@4.2@ 
 
-@8@
+@6.3@
 	//Begin Listener
 	@Override
 	public void addListener(final Listener listener) {
@@ -94,5 +92,6 @@ public class @2@ extends @3@ {
 
 	private static List<Listener> stListeners;
 	//End Listener
-@9@
+@6.3@
 }
+@10@

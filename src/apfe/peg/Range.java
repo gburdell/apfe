@@ -24,7 +24,6 @@
 package apfe.peg;
 
 import apfe.peg.generate.GenJava;
-import apfe.peg.generate.Template;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -35,13 +34,18 @@ public class Range extends Acceptor implements GenJava.IGen {
     public Range() {
     }
 
+    /**
+     * Generate for use within CharClass (not standalone).
+     * @param j generator to fill.
+     * @return updated generator.
+     */
     @Override
     public GenJava genJava(GenJava j) {
         if (1 < m_ch.length) {
             j.template("CharClass.matchRange('@1@','@2@')", 
                     m_ch[0].getChar(), m_ch[1].getChar());
         } else {
-            j.template("new CharSeq('@1@')",m_ch[0].getChar());
+            j.template("CharClass.matchOneOf('@1@')",m_ch[0].getChar());
         }
         return j;
     }

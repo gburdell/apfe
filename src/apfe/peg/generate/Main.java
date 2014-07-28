@@ -97,7 +97,7 @@ public class Main {
         if (! stProps.containsKey(key)) {
             Util.abnormalExit(key+": missing property definition");
         }
-        String v = stProps.getProperty(key);
+        String v = stProps.getProperty(key).trim();
         assert null != v;
         return v;
     }

@@ -1,11 +1,11 @@
 Grammar <- Contents EOF
-a1 <- a2
-NotChar1 <- !('"' / EOF / EOL)
-#We'll make sure to match closures
-default_text <- STRING
-              / '(' (!')' default_text) ')'
-              / '{' (!'}' default_text) '}'
-              / '[' (!']' default_text) ']'
-              / (' ' / "\t")+
-              / (NotChar2 .)*
-NotChar2 <- !(EOF / EOL)
+Contents <- 
+/	a
+/	b
+//	c
+/	d
+
+a <- 'a'
+b <- 'b'
+d <- 'd'
+

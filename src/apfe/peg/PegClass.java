@@ -42,10 +42,6 @@ public class PegClass extends Acceptor implements GenJava.IGen {
     @Override
     public GenJava genJava(GenJava j) {
         assert (0 < getRanges().size());
-        if (1 == getRanges().size()) {
-            return getRanges().get(0).genJava(j);
-        }
-        //TODO: fix this
         return j.funcCall("new CharClass", getRanges());
     }
     

@@ -2036,7 +2036,7 @@ system_tf_identifier LPAREN data_type ( COMMA expression )? RPAREN
 
 subroutine_call <-
 //{method_call
-/	(	//NOTE: causes ILR and seems incorrect to match so much
+	(	//NOTE: causes ILR and seems incorrect to match so much
 		//so replace{: primary 
 		( class_qualifier / package_scope )? hierarchical_identifier select
 		//}
@@ -2207,7 +2207,7 @@ module_path_primary <-
 / identifier
 
 primary <-
-/ multiple_concatenation ( LBRACK range_expression RBRACK )?
+  multiple_concatenation ( LBRACK range_expression RBRACK )?
 / concatenation ( LBRACK range_expression RBRACK )?
 / empty_queue
 // / function_subroutine_call
@@ -2266,7 +2266,7 @@ cast <-
 
 //A.8.5 Expression left-side values
 net_lvalue <-
-/ LCURLY net_lvalue ( COMMA net_lvalue )* RCURLY
+  LCURLY net_lvalue ( COMMA net_lvalue )* RCURLY
 / ps_or_hierarchical_net_identifier constant_select
 / ( assignment_pattern_expression_type )? assignment_pattern_net_lvalue
 

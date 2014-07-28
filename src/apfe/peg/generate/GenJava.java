@@ -68,6 +68,11 @@ public class GenJava extends GenBase {
     public GenJava template(String tmpl, Object... args) {
         return (GenJava) super.template(tmpl, args);
     }
+    
+    @Override
+    public GenJava templateSpecd(String tmpl, Object... args) {
+        return (GenJava) super.templateSpecd(tmpl, args);
+    }
 
     /**
      * A convenience method to chain an object which supports IGen so one could

@@ -37,7 +37,7 @@ ExprVal <- IDENT / Number
 
 ExprOp <- STAR / PLUS
 
-Number <- NUMBER
+Number <- (Float / Integer) Spacing
 
 #NOTE: order of alts important since CELL matches an IDENT
 VIdent <- K_CELL / K_LIBRARY / IDENT
@@ -62,9 +62,7 @@ K_FALSE     <- "false" Spacing
 
 IDENT      <- IdentStart IdentCont* Spacing
 IdentStart <- [a-zA-Z_] 
-IdentCont  <- IdentStart / [0-9.+-] / '/'
-
-NUMBER <- (Float / Integer) Spacing
+IdentCont  <- IdentStart / [0-9.+/] / '-'
 
 Integer <- [-+]? Digit+
 

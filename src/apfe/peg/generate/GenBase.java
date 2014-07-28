@@ -28,6 +28,7 @@ package apfe.peg.generate;
  * @author gburdell
  */
 public abstract class GenBase extends Template {
+
     public static String toCamelCase(String s) {
         StringBuilder sb = new StringBuilder(s);
         int i;
@@ -37,11 +38,11 @@ public abstract class GenBase extends Template {
         }
         //remove trailing _
         for (i = sb.length() - 1; '_' == sb.charAt(i); i = sb.length() - 1) {
-            sb.delete(i, i+1);
+            sb.delete(i, i + 1);
         }
         //remove consecutive _
         while (0 <= (i = sb.indexOf("__"))) {
-            sb.delete(i, i+1);
+            sb.delete(i, i + 1);
         }
         assert (0 < sb.length());
         //to camel case
@@ -52,14 +53,14 @@ public abstract class GenBase extends Template {
         }
         return sb.toString();
     }
-    
+
     @Override
     public String toString() {
         return m_sb.toString();
     }
-    
+
     public GenBase append(String s) {
-        m_sb.append(s.replace("'''", "'\\''"));
+        m_sb.append(s);
         return this;
     }
 
@@ -69,7 +70,12 @@ public abstract class GenBase extends Template {
     }
 
     public GenBase template(String tmpl, Object... args) {
-        m_sb.append(replace(tmpl, args).replace("'''", "'\\''"));
+        m_sb.append(replace(tmpl, args));
+        return this;
+    }
+
+    public GenBase templateSpecd(String tmpl, Object... args) {
+        m_sb.append(replaceSpecd(tmpl, args));
         return this;
     }
 

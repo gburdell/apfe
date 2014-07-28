@@ -57,6 +57,7 @@ public class Definition extends Acceptor {
         if (match) {
             m_id = extractEle(s1, 0);
             m_expr = extractEle(s1, 2);
+            check();
             r1 = extractEle(s1, 3);
             if (0 != r1.sizeofAccepted()) {
                 assert false; //no codeblocks supported in generator
@@ -65,6 +66,18 @@ public class Definition extends Acceptor {
             }
         }
         return match;
+    }
+    
+    private void check() {
+        //Look for any empty alts
+        int n = 1;
+        for (PegSequence ps : getExpr().getSequences()) {
+            if ((null == ps) || (null == ps.getPrefixes()) ||
+                    (1 > ps.getPrefixes().size())) {
+                Util.error("EMPTY-1", m_id.getId(), n);
+            }
+            n++;
+        }
     }
     
     @Override

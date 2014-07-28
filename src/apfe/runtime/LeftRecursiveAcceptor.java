@@ -63,11 +63,12 @@ public abstract class LeftRecursiveAcceptor extends Acceptor {
 
     /**
      * All LeftRecursive subclass will just use this one.
+     * But, may overload (augment) for Listeners.
      *
      * @return true if (subclass) accepts sequence.
      */
     @Override
-    protected final boolean accepti() {
+    protected boolean accepti() {
         boolean ok = false;
         if (!hasSeed()) {
             final int startNonLrIx = getNonRecursiveChoiceIx();
