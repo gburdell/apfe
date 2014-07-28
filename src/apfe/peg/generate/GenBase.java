@@ -59,6 +59,10 @@ public abstract class GenBase extends Template {
         return m_sb.toString();
     }
 
+    public StringBuilder getStringBuilder() {
+        return m_sb;
+    }
+    
     public GenBase append(String s) {
         m_sb.append(s);
         return this;

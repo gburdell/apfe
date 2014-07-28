@@ -25,6 +25,7 @@ package apfe.peg.generate;
 
 import apfe.peg.Definition;
 import apfe.peg.Expression;
+import apfe.peg.PegSequence;
 import apfe.runtime.Util;
 import static apfe.peg.generate.Main.getProperty;
 import static apfe.peg.generate.Main.getPropertyAsBoolean;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -75,15 +77,44 @@ public class Generate {
             generateOne();
         }
     }
-    
-    private void getDlrSwitchClause(GenJava gen, final Definition defn) {
+    /**
+     * Quick-n-dirty approach to generate direct left-recursive with
+     * direct right-recursive.
+     * Generate each PegSequence and then search for instance of this
+     * definition on begin and tail (if isDRR), and replace with
+     * 'this' (on first) and isDRR(true) on tail.
+     * @param gen code generator.
+     * @param defn left-recursive Definition.
+     */
+    private GenJava getDlrSwitchClause(GenJava gen, final Definition defn) {
         final String nm = defn.getId().getId();
+        final String toMatch = "new " + GenJava.getClsNm(nm) + "()";
+        final String drrReplace = "new " + GenJava.getClsNm(nm) + "(true)";
+        final String tmpl = "case @1@:\nmatcher = @2@ ;\nbreak;\n";
         Analyze.LRDetails lrd = m_anz.getLRDetailsByName().get(nm);
-        gen.beginDLR(lrd);
-        Expression expr = defn.getExpr();
-        gen = expr.genJava(gen);
-        gen.endDLR();
-        //TODO
+        List<PegSequence> seqs = defn.getExpr().getSequences();
+        assert (null != seqs && (1 < seqs.size()));
+        int ix = 0, beg, end;
+        StringBuilder srep;    //string rep of alternative
+        for (PegSequence s : seqs) {
+            srep = (new GenJava()).append(s).getStringBuilder();
+            if (ix < lrd.m_cnt) {
+                //lr candidate
+                beg = srep.indexOf(toMatch);
+                assert (0 <= beg);
+                end = beg + toMatch.length();
+                srep.replace(beg, end, "this");
+                if (lrd.m_hasDRR[ix]) {
+                    beg = srep.lastIndexOf(toMatch);
+                    assert (0 < beg);
+                    end = beg + toMatch.length();
+                    srep.replace(beg, end, drrReplace);
+                }
+            }
+            gen = gen.template(tmpl, ix, srep.toString());
+            ix++;
+        }
+        return gen;
     }
     
     private void generateOne() {
@@ -119,7 +150,8 @@ public class Generate {
                 gen = new GenJava();
                 if (defn.getIsLeftRecursive()) {
                     baseNm = getProperty("lrBaseCls");
-                    getDlrSwitchClause(gen, defn);
+                    gen = getDlrSwitchClause(gen, defn);
+                    //todo: populate template
                 } else {
                     baseNm = getProperty("baseCls");
                     gen = defn.getExpr().genJava(gen);

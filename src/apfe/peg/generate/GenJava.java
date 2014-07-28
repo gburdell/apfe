@@ -22,30 +22,12 @@
  * THE SOFTWARE.
  */
 package apfe.peg.generate;
-import apfe.peg.generate.Analyze.LRDetails;
 
 /**
  *
  * @author gburdell
  */
 public class GenJava extends GenBase {
-    public void beginDLR(final LRDetails dlr) {
-        m_lrDetails = dlr;
-    }
-    
-    public LRDetails getLRDetails() {
-        return m_lrDetails;
-    }
-    
-    public boolean hasLR() {
-        return (null != m_lrDetails);
-    }
-    
-    public void endDLR() {
-        m_lrDetails = null;
-    }
-    
-    private LRDetails m_lrDetails = null;
     
     public static interface IGen {
 
