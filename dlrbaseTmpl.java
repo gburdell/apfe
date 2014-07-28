@@ -33,7 +33,10 @@ public @11@ class @2@ extends @3@ {
 
     @Override
     public Acceptor getChoice(int ix) {
-        Acceptor matcher = @5@  ;
+        Acceptor matcher = null  ;
+		switch(ix) {
+		@5@
+		}
         //Keep track so if we growSeed()
         m_lastIx = ix;
         m_lastChoice = matcher;

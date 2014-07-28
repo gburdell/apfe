@@ -24,6 +24,7 @@
 package apfe.peg.generate;
 
 import apfe.peg.Definition;
+import apfe.peg.Expression;
 import apfe.runtime.Util;
 import static apfe.peg.generate.Main.getProperty;
 import static apfe.peg.generate.Main.getPropertyAsBoolean;
@@ -50,9 +51,11 @@ public class Generate {
     }
 
     private void generate() {
-        {   //read basic template
+        {   //read templates
             String fn = getProperty("baseJavaTemplate");
             m_baseTmpl = readWholeFile(fn);
+            fn = getProperty("dlrBaseJavaTemplate");
+            m_dlrBaseTmpl = readWholeFile(fn);
         }
         {   //create output dir
             String odir = getProperty("outputDir");
@@ -72,14 +75,22 @@ public class Generate {
             generateOne();
         }
     }
-
+    
+    private void getDlrSwitchClause(GenJava gen, final Definition defn) {
+        final String nm = defn.getId().getId();
+        Analyze.LRDetails lrd = m_anz.getLRDetailsByName().get(nm);
+        Expression expr = defn.getExpr();
+        int ix = 0;
+        //TODO
+    }
+    
     private void generateOne() {
         final File outf = new File(m_outputDir, m_topLevelCls + ".java");
         try (PrintStream fos = new PrintStream(new FileOutputStream(outf))) {
             //dump outermost so strip out class
-            String tmpl = Template.delete(m_baseTmpl, "@10@");
+            String baseTmpl = Template.delete(m_baseTmpl, "@10@");
             GenJava gen = new GenJava();
-            gen.templateSpecd(tmpl,
+            gen.templateSpecd(baseTmpl,
                     "@1@", m_pkgNm,
                     "@9@", ""
             ).append("public class ")
@@ -87,8 +98,11 @@ public class Generate {
                     .append(" {");
             fos.println(gen.toString());
             //new template for static inner class
-            tmpl = Template.delete(m_baseTmpl, "@9@");
-            tmpl = Template.removeOrKeep(true, tmpl, "@10@");
+            baseTmpl = Template.delete(m_baseTmpl, "@9@");
+            baseTmpl = Template.removeOrKeep(true, baseTmpl, "@10@");
+            //new template for dlr static inner class
+            String dlrBaseTmpl = Template.delete(m_baseTmpl, "@9@");
+            dlrBaseTmpl = Template.removeOrKeep(true, dlrBaseTmpl, "@10@");
             String contents = null;
             String baseNm, clsNm;
             for (Definition defn : m_anz.getDefnByName().values()) {
@@ -102,11 +116,12 @@ public class Generate {
                 clsNm = GenJava.getClsNm(nm);
                 gen = new GenJava();
                 if (defn.getIsLeftRecursive()) {
-                    //TODO
+                    baseNm = getProperty("lrBaseCls");
+                    getDlrSwitchClause(gen, defn);
                 } else {
                     baseNm = getProperty("baseCls");
                     gen = defn.getExpr().genJava(gen);
-                    contents = GenJava.replaceSpecd(tmpl,
+                    contents = GenJava.replaceSpecd(baseTmpl,
                             "@11@", "static",
                             "@2@", clsNm,
                             "@3@", baseNm,
@@ -177,7 +192,7 @@ public class Generate {
 
     private File m_outputDir;
     private final Analyze m_anz;
-    private String m_baseTmpl;
+    private String m_baseTmpl, m_dlrBaseTmpl;
     private static final boolean stGenListeners = getPropertyAsBoolean("genListeners");
     private static final boolean stGenMemoize = getPropertyAsBoolean("genMemoize");
     private final String m_pkgNm = Main.getProperty("packageName");
