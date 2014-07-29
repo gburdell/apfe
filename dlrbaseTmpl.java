@@ -56,11 +56,6 @@ public @11@ class @2@ extends @3@ {
         return match;
     }
 
-    @Override
-    public @2@ create() {
-        return new @2@();
-    }
-
 @4.2@ //Begin memoize
     @Override
     protected void memoize(Marker mark, Marker endMark) {

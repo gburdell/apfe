@@ -24,7 +24,6 @@
 package apfe.peg.generate;
 
 import apfe.peg.Definition;
-import apfe.peg.Expression;
 import apfe.peg.PegSequence;
 import apfe.runtime.Util;
 import static apfe.peg.generate.Main.getProperty;
@@ -52,6 +51,14 @@ public class Generate {
         m_anz = anz;
     }
 
+    private static String prepTmpl(String tmpl) {
+        tmpl = Template.removeOrKeep(stGenListeners, tmpl,
+                "@6.1@", "@6.2@", "@6.3@");
+        tmpl = Template.removeOrKeep(stGenMemoize, tmpl,
+                "@4.1@", "@4.2@");
+        return tmpl;
+    }
+
     private void generate() {
         {   //read templates
             String fn = getProperty("baseJavaTemplate");
@@ -67,22 +74,21 @@ public class Generate {
             }
         }
         //adjust template
-        m_baseTmpl = Template.removeOrKeep(stGenListeners, m_baseTmpl,
-                "@6.1@", "@6.2@", "@6.3@");
-        m_baseTmpl = Template.removeOrKeep(stGenMemoize, m_baseTmpl,
-                "@4.1@", "@4.2@");
+        m_baseTmpl = prepTmpl(m_baseTmpl);
+        m_dlrBaseTmpl = prepTmpl(m_dlrBaseTmpl);
         if (m_topLevelCls.isEmpty()) {
             generateSeparate();
         } else {
             generateOne();
         }
     }
+
     /**
-     * Quick-n-dirty approach to generate direct left-recursive with
-     * direct right-recursive.
-     * Generate each PegSequence and then search for instance of this
-     * definition on begin and tail (if isDRR), and replace with
-     * 'this' (on first) and isDRR(true) on tail.
+     * Quick-n-dirty approach to generate direct left-recursive with direct
+     * right-recursive. Generate each PegSequence and then search for instance
+     * of this definition on begin and tail (if isDRR), and replace with 'this'
+     * (on first) and isDRR(true) on tail.
+     *
      * @param gen code generator.
      * @param defn left-recursive Definition.
      */
@@ -116,7 +122,7 @@ public class Generate {
         }
         return gen;
     }
-    
+
     private void generateOne() {
         final File outf = new File(m_outputDir, m_topLevelCls + ".java");
         try (PrintStream fos = new PrintStream(new FileOutputStream(outf))) {
@@ -134,7 +140,7 @@ public class Generate {
             baseTmpl = Template.delete(m_baseTmpl, "@9@");
             baseTmpl = Template.removeOrKeep(true, baseTmpl, "@10@");
             //new template for dlr static inner class
-            String dlrBaseTmpl = Template.delete(m_baseTmpl, "@9@");
+            String dlrBaseTmpl = Template.delete(m_dlrBaseTmpl, "@9@");
             dlrBaseTmpl = Template.removeOrKeep(true, dlrBaseTmpl, "@10@");
             String contents = null;
             String baseNm, clsNm;
@@ -151,7 +157,13 @@ public class Generate {
                 if (defn.getIsLeftRecursive()) {
                     baseNm = getProperty("lrBaseCls");
                     gen = getDlrSwitchClause(gen, defn);
-                    //todo: populate template
+                    contents = GenJava.replaceSpecd(dlrBaseTmpl,
+                            "@11@", "static",
+                            "@2@", clsNm,
+                            "@3@", baseNm,
+                            "@5@", gen.toString(),
+                            "@4@", m_anz.getLRDetailsByName().get(nm).m_cnt
+                    );
                 } else {
                     baseNm = getProperty("baseCls");
                     gen = defn.getExpr().genJava(gen);
@@ -185,7 +197,18 @@ public class Generate {
             clsNm = GenJava.getClsNm(nm);
             matcher = new GenJava();
             if (defn.getIsLeftRecursive()) {
-                //TODO
+                baseNm = getProperty("lrBaseCls");
+                matcher = getDlrSwitchClause(matcher, defn);
+                contents = GenJava.replaceSpecd(m_dlrBaseTmpl,
+                        "@2@", clsNm,
+                        "@3@", baseNm,
+                        "@5@", matcher.toString(),
+                        "@4@", m_anz.getLRDetailsByName().get(nm).m_cnt,
+                        "@9@", "",
+                        "@10@", "",
+                        "@11@", "",
+                        "@1@", m_pkgNm
+                );
             } else {
                 baseNm = getProperty("baseCls");
                 matcher = defn.getExpr().genJava(matcher);

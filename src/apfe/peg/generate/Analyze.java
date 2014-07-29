@@ -56,13 +56,14 @@ public class Analyze {
     public int analyze() {
         createMap();
         checkDefined("Grammar");
-        m_errCnt += MessageMgr.getErrorCnt();
+        m_errCnt = MessageMgr.getErrorCnt();
         if (0 == m_errCnt) {
             reportUnused();
             int lrCnt = checkLeftRecursive();
             if ((0 < lrCnt) && (0 == m_errCnt)) {
                 detailLeftRecursion();
             }
+            m_errCnt = MessageMgr.getErrorCnt();
         }
         return m_errCnt;
     }
@@ -93,7 +94,7 @@ public class Analyze {
         private void process() {
             List<Prefix> pfxs;
             int n = m_defn.getExpr().getSequences().size();
-            int lastOK = -1;
+            int lastOK = -1, cnt = 0;
             m_hasDRR = new boolean[n];
             for (PegSequence seq : m_defn.getExpr().getSequences()) {
                 pfxs = seq.getPrefixes();
@@ -104,10 +105,13 @@ public class Analyze {
                     if (isOK(pfxs.get(n))) {
                         m_hasDRR[m_cnt] = true;
                     }
-                    if (++lastOK != m_cnt++) {
-                        Util.error("LR-5", m_name, m_cnt);
+                    lastOK++;
+                    if ((lastOK != m_cnt) || (cnt != lastOK)) {
+                        Util.error("LR-5", m_name, cnt+1);
                     }
+                    m_cnt++;
                 }
+                cnt++;
             }
         }
 

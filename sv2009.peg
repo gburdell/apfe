@@ -1043,9 +1043,9 @@ coverage_event <-
 / clocking_event	//IDENT ==> sample (but not a keyword)
 
 block_event_expression <-
-  BEGIN_K hierarchical_btf_identifier
+  block_event_expression OR_K block_event_expression
+/ BEGIN_K hierarchical_btf_identifier
 / END_K hierarchical_btf_identifier
-/ block_event_expression OR_K block_event_expression
 
 hierarchical_btf_identifier <-
   hierarchical_identifier ( class_scope )? method_identifier
@@ -1477,9 +1477,9 @@ event_control <-
 / AT ps_or_hierarchical_sequence_identifier
 
 event_expression <-
-  LPAREN event_expression RPAREN
-/ event_expression OR_K event_expression
+  event_expression OR_K event_expression
 / event_expression COMMA event_expression
+/ LPAREN event_expression RPAREN
 / ( edge_identifier )? expression ( IFF_K expression )?
 / sequence_instance ( IFF_K expression )?
 
@@ -2157,8 +2157,8 @@ module_path_expression <-
 //ILR{ / module_path_conditional_expression
   module_path_expression QMARK ( attribute_instance )* module_path_expression COLON module_path_expression
 //}
-/ unary_module_path_operator ( attribute_instance )* module_path_primary module_path_expression
 / module_path_expression binary_module_path_operator ( attribute_instance )*
+/ unary_module_path_operator ( attribute_instance )* module_path_primary module_path_expression
 / module_path_primary
 
 module_path_mintypmax_expression <-
