@@ -2177,9 +2177,9 @@ genvar_expression <- constant_expression
 constant_primary <-
 //NOTE replace to mitigate ILR{ / constant_cast
 //ILR{ / casting_type 
-  (simple_type / constant_primary / signing / STRING_K / CONST_K)
+constant_primary 
 //}
-	SQUOTE LPAREN constant_expression RPAREN
+/ SQUOTE LPAREN constant_expression RPAREN
 //}
 / constant_multiple_concatenation ( LBRACK constant_range_expression RBRACK )?
 / constant_concatenation ( LBRACK constant_range_expression RBRACK )?
@@ -2196,6 +2196,10 @@ constant_primary <-
 / constant_assignment_pattern_expression
 / type_reference
 / primary_literal
+/ simple_type 
+/ signing 
+/ STRING_K 
+/ CONST_K
 
 module_path_primary <-
   LPAREN module_path_mintypmax_expression RPAREN
