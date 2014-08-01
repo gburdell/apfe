@@ -27,6 +27,7 @@ genListeners: false
 
 # Generate memoize
 genMemoize: true
+#genMemoize: false
 
 # Generated class names use CamelCase
 #genClsAsCamelCase: true
@@ -37,5 +38,5 @@ genClsAsCamelCase: false
 clsNmPrefix:
 
 # Specify toplevel class name for all-in-one generation; else leave blank.
-topLevelClsNm: Sv2009
-#topLevelClsNm:
+##topLevelClsNm: Sv2009
+topLevelClsNm:
