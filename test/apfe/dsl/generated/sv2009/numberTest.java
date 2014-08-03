@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
  *
  * @author gburdell
  */
-public class constant_expressionTest {
+public class numberTest {
      private static final String stBuf[] = {
         "4'b001", "12", "'b1", "12'h23"
     };
@@ -53,7 +53,7 @@ public class constant_expressionTest {
         CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
-        constant_expression gram = new constant_expression();
+        number gram = new number();
         Acceptor acc = gram.accept();
         if (null != acc) {
             String ss = acc.toString();

@@ -138,7 +138,7 @@ DS_FATAL_K (LPAREN finish_number (COMMA list_of_arguments)? RPAREN)? SEMI
 / DS_WARNING_K (LPAREN list_of_arguments RPAREN)? SEMI
 / DS_INFO_K (LPAREN list_of_arguments RPAREN)? SEMI
 
-finish_number <- NUMBER	//012
+finish_number <- [0-2]
 
 module_common_item <-
 module_or_generate_item_declaration
@@ -1333,7 +1333,7 @@ sequential_body <- ( udp_initial_statement )? TABLE_K sequential_entry ( sequent
 
 udp_initial_statement <- INITIAL_K output_port_identifier EQ init_val SEMI
 
-init_val <- NUMBER //1’b0 / 1’b1 / 1’bx / 1’bX / 1’B0 / 1’B1 / 1’Bx / 1’BX / 1 / 0
+init_val <- ("1'" [bB] [01xX]) / [01]
 
 sequential_entry <- seq_input_list COLON current_state COLON next_state SEMI
 
@@ -1349,11 +1349,11 @@ current_state <- level_symbol
 
 next_state <- output_symbol / MINUS
 
-output_symbol <- NUMBER / IDENT //DIGIT / ALPHA //0 / 1 / x / X
+output_symbol <- [01xX]
 
-level_symbol <- QMARK / NUMBER / IDENT //0 / 1 / x / X / ? / b / B
+level_symbol <- [01xX?bB]
 
-edge_symbol <- STAR / IDENT //r / R / f / F / p / P / n / N / *
+edge_symbol <- [rRfFpPnN*]
 
 //A.5.4 UDP instantiation
 udp_instantiation <- udp_identifier ( drive_strength )? ( delay2 )? udp_instance ( COMMA udp_instance )* SEMI
@@ -1972,11 +1972,7 @@ specify_input_terminal_descriptor
 
 edge_control_specifier <- EDGE_K LBRACK edge_descriptor ( COMMA edge_descriptor )* RBRACK
 
-edge_descriptor <- NUMBER / z_or_x zero_or_one / zero_or_one z_or_x //01 / 10 / z_or_x zero_or_one / zero_or_one z_or_x
-
-zero_or_one <- DIGIT //0 / 1
-
-z_or_x <- IDENT //x / X / z / Z
+edge_descriptor <- "01" / "10" / [01][xX] / [xX][01]
 
 timing_check_condition <-
   LPAREN scalar_timing_check_condition RPAREN
@@ -1989,7 +1985,7 @@ scalar_timing_check_condition <-
 / expression NOT_EQ2 scalar_constant
 / TILDE? expression
 
-scalar_constant <- NUMBER //1’b0 / 1’b1 / 1’B0 / 1’B1 / ’b0 / ’b1 / ’B0 / ’B1 / 1 / 0
+scalar_constant <- ('1'? [bB])? [01]
 
 //A.8 Expressions
 //A.8.1 Concatenations
@@ -2173,13 +2169,17 @@ expression PLUS_COLON constant_expression
 
 genvar_expression <- constant_expression
 
+//constant_cast <-
+//casting_type SQUOTE LPAREN constant_expression RPAREN
+//casting_type <- simple_type / constant_primary / signing / STRING_K /CONST_K 
+
 //A.8.4 Primaries
 constant_primary <-
 //NOTE replace to mitigate ILR{ / constant_cast
 //ILR{ / casting_type 
-constant_primary 
+constant_primary SQUOTE LPAREN constant_expression RPAREN
+/ (simple_type / signing / STRING_K / CONST_K) SQUOTE LPAREN constant_expression RPAREN
 //}
-/ SQUOTE LPAREN constant_expression RPAREN
 //}
 / constant_multiple_concatenation ( LBRACK constant_range_expression RBRACK )?
 / constant_concatenation ( LBRACK constant_range_expression RBRACK )?
@@ -2196,10 +2196,6 @@ constant_primary
 / constant_assignment_pattern_expression
 / type_reference
 / primary_literal
-/ simple_type 
-/ signing 
-/ STRING_K 
-/ CONST_K
 
 module_path_primary <-
   LPAREN module_path_mintypmax_expression RPAREN
@@ -2298,7 +2294,45 @@ unary_module_path_operator <- NOT / TILDE / AND / TILDE_AND / OR / TILDE_OR / XO
 binary_module_path_operator <- EQ2 / NOT_EQ / AND2 / OR2 / AND / OR / XOR / XOR_TILDE / TILDE_XOR
 
 //A.8.7 Numbers
-//TODO
+number <- Spacing (real_number / integral_number)
+
+integral_number <-
+octal_number
+/ binary_number
+/ hex_number
+/ decimal_number
+
+decimal_number <-
+size? decimal_base unsigned_number
+/ size? decimal_base [xX] '_'*
+/ size? decimal_base [zZ?] '_'*
+/ unsigned_number
+
+binary_number <- size? binary_base binary_value
+
+octal_number <- size? octal_base octal_value
+
+hex_number <- size? hex_base hex_value
+
+size <- non_zero_unsigned_number
+
+//no spacing allowed in these begin{{
+non_zero_unsigned_number <- [1-9] [_0-9]*
+real_number <-
+unsigned_number ('.' unsigned_number)? [eE] ('-'/'+')? unsigned_number
+/ fixed_point_number
+fixed_point_number <- unsigned_number '.' unsigned_number
+unsigned_number <- [0-9] [_0-9]*
+binary_value <- [01xXzZ?] [01xXzZ?_]* 
+octal_value <- [0-7xXzZ?] [0-7xXzZ?_]*
+hex_value <- [0-9a-fA-FxXzZ?] [0-9a-fA-FxXzZ?_]*
+decimal_base <- "'" [sS]? [dD]
+binary_base <- "'" [sS]? [bB]
+octal_base <- "'" [sS]? [oO]
+hex_base <- "'" [sS]? [hH]
+//no spacing }}end
+
+unbased_unsized_literal <- "'" [01xXzZ?]
 
 //A.8.8 Strings
 string_literal <- STRING //" ( Any_ASCII_Characters )* "
@@ -2414,7 +2448,7 @@ package_identifier <- identifier
 
 package_scope <-
 package_identifier COLON2
-//TODO<- UNIT_K: $unit
+//UNIT_K: $unit
 / DS_UNIT_K COLON2
 
 parameter_identifier <- identifier
@@ -2459,11 +2493,11 @@ sequence_identifier <- identifier
 
 signal_identifier <- identifier
 
-simple_identifier <- IDENT //TODO<- ( a-zA-Z_ )? ( ( a-zA-Z0-9_$ )? )*
+simple_identifier <- IDENT
 
 specparam_identifier <- identifier
 
-system_tf_identifier <- SYSTEM_IDENT //TODO<- $( a-zA-Z0-9_$ )?( ( a-zA-Z0-9_$ )? )*
+system_tf_identifier <- SYSTEM_IDENT
 
 task_identifier <- identifier
 
@@ -2479,14 +2513,7 @@ udp_identifier <- identifier
 
 variable_identifier <- identifier
 
-
-unsigned_number <- NUMBER
-fixed_point_number <- NUMBER
-number <- NUMBER
-unbased_unsized_literal <- NUMBER
-integral_number <- NUMBER
 generate_block_identifier <- IDENT
-real_number <- NUMBER
 
 extern_tf_declaration <- 
 EXTERN_K method_prototype SEMI
@@ -2856,8 +2883,6 @@ IdentCont <- IdentStart / [0-9] / '$'
 
 STRING <- Spacing '"' (!'"' .)+ '"'
 
-//TODO: embelish
-NUMBER <- Spacing [0-9]+
 SYSTEM_IDENT <- Spacing '$' IDENT
 DIGIT <- Spacing [0-9]
 
