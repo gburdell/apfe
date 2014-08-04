@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
  */
 public class constant_expressionTest {
      private static final String stBuf[] = {
-        "4'b001", "12", "'b1", "12'h23"
+        "6'b0?0?10", "4'b001", "12", "'b1", "12'h23"
     };
 
    @Test

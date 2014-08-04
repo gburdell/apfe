@@ -39,7 +39,9 @@ import static org.junit.Assert.*;
  */
 public class Sv2009Test {
 
-    static String stFname = "/home/gburdell/projects/apfe/test/apfe/dsl/generated/sv2009/m1.v";
+    static String stFname = 
+            "/home/gburdell/projects/apfe/test/apfe/dsl/generated/sv2009/m1.v";
+            //"/home/gburdell/projects/apfe/test/apfe/dsl/generated/sv2009/s1_top.flat.v";
 
     public static void main(String argv[]) {
         if (1 == argv.length) {

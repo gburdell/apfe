@@ -2209,6 +2209,7 @@ module_path_primary <-
 primary <-
   multiple_concatenation ( LBRACK range_expression RBRACK )?
 / concatenation ( LBRACK range_expression RBRACK )?
+/ ( class_qualifier / package_scope )? hierarchical_identifier select
 / empty_queue
 // / function_subroutine_call
 / subroutine_call
@@ -2221,7 +2222,6 @@ primary <-
 / THIS_K
 / DOLLAR
 / NULL_K
-/ ( class_qualifier / package_scope )? hierarchical_identifier select
 / primary_literal
 
 //LOCAL_COLON2<- local::

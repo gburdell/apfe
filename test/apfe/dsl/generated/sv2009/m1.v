@@ -1,3 +1,31 @@
+module zmuxi31d_prim (z, d0, d1, d2, s0, s1, s2);
+output z;
+input  d0, d1, d2, s0, s1, s2;
+// for Blacktie
+              
+                                              
+      
+wire [2:0] sel = {s0,s1,s2}; // 0in one_hot
+reg z;
+    always @ (s2 or d2 or s1 or d1 or s0 or d0)
+        casez ({s2,d2,s1,d1,s0,d0})
+            6'b0?0?10: z = 1'b1;
+            6'b0?0?11: z = 1'b0;
+            6'b0?100?: z = 1'b1;
+            6'b0?110?: z = 1'b0;
+            6'b0?1010: z = 1'b1;
+            6'b0?1111: z = 1'b0;
+            6'b100?0?: z = 1'b1;
+            6'b110?0?: z = 1'b0;
+            6'b100?10: z = 1'b1;
+            6'b110?11: z = 1'b0;
+            6'b10100?: z = 1'b1;
+            6'b11110?: z = 1'b0;
+            6'b101010: z = 1'b1;
+            6'b111111: z = 1'b0;
+            default: z = 1'bx;
+        endcase
+endmodule
 
 
 /* -------------------------------------------------------------------------- */
