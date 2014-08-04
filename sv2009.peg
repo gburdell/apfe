@@ -2886,9 +2886,11 @@ STRING <- Spacing '"' (!'"' .)+ '"'
 SYSTEM_IDENT <- Spacing '$' IDENT
 DIGIT <- Spacing [0-9]
 
-Spacing <- (Space / Comment)*
+Spacing <- (Space / Comment / TicLine)*
 Comment <- SL_COMMENT / ML_COMMENT
 SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
 ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
 
 Space <- ' ' / "\t" / EOL
+
+TicLine <- "`line" Space+ [0-9]+ Space+ STRING Space+ [0-2]
