@@ -1379,7 +1379,11 @@ initial_construct <- INITIAL_K statement_or_null
 
 always_construct <- always_keyword statement
 
-always_keyword <- ALWAYS_K / ALWAYS_COMB_K / ALWAYS_LATCH_K / ALWAYS_FF_K
+always_keyword <- 
+ALWAYS_COMB_K 
+/ ALWAYS_LATCH_K 
+/ ALWAYS_FF_K
+/ ALWAYS_K 
 
 final_construct <- FINAL_K function_statement
 

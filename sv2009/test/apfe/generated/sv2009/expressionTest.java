@@ -1,3 +1,5 @@
+package apfe.generated.sv2009;
+
 /*
  * The MIT License
  *
@@ -22,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-package apfe.dsl.generated.sv2009;
+
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;

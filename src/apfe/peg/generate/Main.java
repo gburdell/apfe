@@ -136,6 +136,6 @@ public class Main {
     }
 
     static {
-        loadProperties(new File(Util.getToolRoot(), "generate.props.txt"));
+        loadProperties(new File(".", "generate.props.txt"));
     }
 }

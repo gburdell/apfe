@@ -1,3 +1,5 @@
+package apfe.generated.sv2009;
+
 /*
  * The MIT License
  *
@@ -22,7 +24,7 @@
  * THE SOFTWARE.
  */
 
-package apfe.dsl.generated.sv2009;
+
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
@@ -34,10 +36,11 @@ import static org.junit.Assert.*;
  *
  * @author gburdell
  */
-public class numberTest {
+public class primaryTest {
      private static final String stBuf[] = {
-        "4'b001", "12", "'b1", "12'h23"
-    };
+         "z[2]",    //not a subroutine call
+         "a" 
+     };
 
    @Test
     public void testAccepti() {
@@ -53,7 +56,7 @@ public class numberTest {
         CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
-        number gram = new number();
+        primary gram = new primary();
         Acceptor acc = gram.accept();
         if (null != acc) {
             String ss = acc.toString();

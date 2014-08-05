@@ -1,3 +1,5 @@
+package apfe.generated.sv2009;
+
 /*
  * The MIT License
  *
@@ -21,7 +23,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-    package apfe.dsl.generated.sv2009;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
@@ -40,8 +41,8 @@ import static org.junit.Assert.*;
 public class GrammarTest {
 
     static String stFname = 
-            "/home/gburdell/projects/apfe/test/apfe/dsl/generated/sv2009/m1.v";
-            //"/home/gburdell/projects/apfe/test/apfe/dsl/generated/sv2009/s1_top.flat.v";
+            "/home/gburdell/projects/apfe/sv2009/test/apfe/generated/sv2009/m1.v";
+            //"/home/gburdell/projects/apfe/sv2009/test/apfe/generated/sv2009/s1_top.flat.v";
 
     public static void main(String argv[]) {
         if (1 == argv.length) {
