@@ -597,8 +597,8 @@ delay2 <-
 
 delay_value <-
   W1STEP_K //1step
-/ unsigned_number
 / real_number
+/ unsigned_number
 / ps_identifier
 / time_literal
 
@@ -1531,7 +1531,7 @@ case_statement <-
 / ( unique_priority )? CASE_K LPAREN case_expression RPAREN INSIDE_K case_inside_item ( case_inside_item )* ENDCASE_K
 / ( unique_priority )? case_keyword LPAREN case_expression RPAREN case_item ( case_item )* ENDCASE_K
 
-case_keyword <- CASE_K / CASEZ_K / CASEX_K
+case_keyword <- CASEZ_K / CASEX_K / CASE_K
 
 case_expression <- expression
 
@@ -2280,18 +2280,72 @@ nonrange_variable_lvalue <- ( implicit_class_handle DOT / package_scope )? hiera
 
 //A.8.6 Operators
 unary_operator <-
-PLUS / MINUS / NOT / TILDE / AND / TILDE_AND / OR / TILDE_OR / XOR / TILDE_XOR / XOR_TILDE
+TILDE_AND 
+/ TILDE_OR 
+/ TILDE_XOR 
+/ XOR_TILDE 
+/ PLUS 
+/ MINUS 
+/ NOT 
+/ TILDE 
+/ AND 
+/ OR 
+/ XOR
 
 binary_operator <-
-PLUS / MINUS / STAR / DIV / MOD / EQ2 / NOT_EQ / EQ3 / NOT_EQ2 / EQ2_QMARK / NOT_EQ_QMARK / AND2 / OR2 / STAR2
-/ LT / LT_EQ / GT / GT_EQ / AND / OR / XOR / XOR_TILDE / TILDE_XOR / GT2 / LT2 / GT3 / LT3
-/ MINUS_GT / LT_MINUS_GT
+LT_MINUS_GT
+/ NOT_EQ_QMARK 
+/ MINUS_GT 
+/ GT3 
+/ LT3
+/ GT2 
+/ LT2 
+/ EQ3 
+/ EQ2_QMARK 
+/ EQ2 
+/ NOT_EQ2 
+/ NOT_EQ 
+/ LT_EQ 
+/ GT_EQ 
+/ AND2 
+/ OR2 
+/ STAR2
+/ XOR_TILDE 
+/ TILDE_XOR 
+/ PLUS 
+/ MINUS 
+/ STAR 
+/ DIV 
+/ MOD 
+/ LT 
+/ GT 
+/ AND 
+/ OR 
+/ XOR 
 
 inc_or_dec_operator <- PLUS2 / MINUS2
 
-unary_module_path_operator <- NOT / TILDE / AND / TILDE_AND / OR / TILDE_OR / XOR / TILDE_XOR / XOR_TILDE
+unary_module_path_operator <- 
+TILDE_AND 
+/ TILDE_OR 
+/ TILDE_XOR 
+/ XOR_TILDE
+/ NOT 
+/ TILDE 
+/ AND 
+/ OR 
+/ XOR 
 
-binary_module_path_operator <- EQ2 / NOT_EQ / AND2 / OR2 / AND / OR / XOR / XOR_TILDE / TILDE_XOR
+binary_module_path_operator <- 
+EQ2 
+/ NOT_EQ 
+/ AND2 
+/ OR2 
+/ XOR_TILDE 
+/ TILDE_XOR
+/ AND 
+/ OR 
+/ XOR 
 
 //A.8.7 Numbers
 number <- Spacing (real_number / integral_number)
@@ -2886,7 +2940,7 @@ STRING <- Spacing '"' (!'"' .)+ '"'
 SYSTEM_IDENT <- Spacing '$' IDENT
 DIGIT <- Spacing [0-9]
 
-Spacing <- (Space / Comment / TicLine)*
+Spacing <- (Space / Comment / TicLine / TimeScale)*
 Comment <- SL_COMMENT / ML_COMMENT
 SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
 ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
@@ -2894,3 +2948,6 @@ ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
 Space <- ' ' / "\t" / EOL
 
 TicLine <- "`line" Space+ [0-9]+ Space+ STRING Space+ [0-2]
+
+TimeScale <- "`timescale" Space+ TimeValue Space* '/' Space* TimeValue
+TimeValue <- [0-9]+ Space* ("s" / "ms" / "us" / "ns" / "ps" / "fs")
