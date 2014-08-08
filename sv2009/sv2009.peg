@@ -127,7 +127,10 @@ INTERFACE_K (DOT modport_identifier)?
 / interface_identifier (DOT modport_identifier)?
 
 ansi_port_declaration <-
-(net_port_header / interface_port_header)? port_identifier unpacked_dimension* ( EQ constant_expression )?
+//since we dont track types, first(net_port_header)==ident which also matches
+//port_identifier.  Eeek, lots of ambiguities
+port_direction? port_identifier unpacked_dimension* ( EQ constant_expression )?
+/ (net_port_header / interface_port_header)? port_identifier unpacked_dimension* ( EQ constant_expression )?
 / variable_port_header? port_identifier variable_dimension* (EQ constant_expression )?
 / port_direction? DOT port_identifier LPAREN expression? RPAREN
 
@@ -2039,8 +2042,8 @@ subroutine_call <-
 	/ 	implicit_class_handle
 	) DOT method_call_body
 //}
-/ tf_call
 / system_tf_call
+/ tf_call
 //NOTE<- "std::"
 / (std_colon2)? randomize_call
 
@@ -2939,7 +2942,7 @@ IdentCont <- IdentStart / [0-9] //TODO: where is this used: / '$'
 
 STRING <- Spacing '"' (!'"' .)+ '"'
 
-SYSTEM_IDENT <- Spacing '$' IDENT
+SYSTEM_IDENT <- Spacing '$' IdentStart IdentCont*
 DIGIT <- Spacing [0-9]
 
 Spacing <- (Space / Comment / TicLine / TimeScale)*

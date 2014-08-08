@@ -29,8 +29,6 @@ import apfe.runtime.CharClass;
 import apfe.runtime.ICharClass;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
