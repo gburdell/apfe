@@ -35,8 +35,6 @@ import apfe.runtime.NotPredicate;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
-import apfe.runtime.Util;
-import java.util.List;
 
 public class Comment extends Acceptor {
 

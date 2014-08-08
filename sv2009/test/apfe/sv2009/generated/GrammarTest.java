@@ -1,4 +1,4 @@
-package apfe.generated.sv2009;
+package apfe.sv2009.generated;
 
 /*
  * The MIT License
@@ -41,8 +41,8 @@ import static org.junit.Assert.*;
 public class GrammarTest {
 
     static String stFname = 
-            "/home/gburdell/projects/apfe/sv2009/test/apfe/generated/sv2009/m1.v";
-            //"/home/gburdell/projects/apfe/sv2009/test/apfe/generated/sv2009/s1_top.flat.v";
+            //"/home/gburdell/projects/apfe/sv2009/test/apfe/generated/sv2009/m1.v";
+            "/home/gburdell/projects/apfe/sv2009/test/apfe/generated/sv2009/s1_top.flat.v";
 
     public static void main(String argv[]) {
         if (1 == argv.length) {

@@ -1,4 +1,4 @@
-package apfe.generated.sv2009;
+package apfe.sv2009.generated;
 
 /*
  * The MIT License
@@ -36,9 +36,9 @@ import static org.junit.Assert.*;
  *
  * @author gburdell
  */
-public class constant_expressionTest {
+public class numberTest {
      private static final String stBuf[] = {
-        "6'b0?0?10", "4'b001", "12", "'b1", "12'h23"
+        "4'b001", "12", "'b1", "12'h23"
     };
 
    @Test
@@ -55,7 +55,7 @@ public class constant_expressionTest {
         CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
-        constant_expression gram = new constant_expression();
+        number gram = new number();
         Acceptor acc = gram.accept();
         if (null != acc) {
             String ss = acc.toString();

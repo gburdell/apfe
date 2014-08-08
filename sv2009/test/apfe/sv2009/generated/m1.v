@@ -1,3 +1,25 @@
+module bw_u1_ckbuf_1p5x  (clk, rclk);
+        buf (clk, rclk);
+endmodule
+module zzadd32v (/*AUTOARG*/
+   // Outputs
+   z,
+   // Inputs
+   a, b, cin, add32
+   ) ;
+   parameter N = 31;
+   input [N:0] a;
+   wire          cout15; // carry out from lower 16 bit add
+   wire          cin16; // carry in to the upper 16 bit add
+   wire          cout31; // carry out from the upper 16 bit add
+
+   assign        cin16 = (add32)? cout15: cin;
+
+   assign      {cout15, z[15:0]} = a[15:0]+b[15:0]+ cin;
+   assign      {cout31, z[N:16]} = a[N:16]+b[N:16]+ cin16;
+
+endmodule // zzadd32v
+
 module bw_r_irf_register(clk, wrens, save, save_addr, restore, restore_addr, wr_data0, wr_data1, wr_data2, wr_data3, rd_thread, rd_data);
     input       clk;
     input   [3:0]   wrens;
