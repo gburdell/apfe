@@ -145,7 +145,7 @@ public class Generate {
             String contents = null;
             String baseNm, clsNm;
             for (Definition defn : m_anz.getDefnByName().values()) {
-                if (null == defn) {
+                if (null == defn || defn.isExtCls()) {
                     continue;
                 }
                 final String nm = defn.getId().getId();
@@ -187,7 +187,7 @@ public class Generate {
         String baseNm, clsNm;
         GenJava matcher;
         for (Definition defn : m_anz.getDefnByName().values()) {
-            if (null == defn) {
+            if (null == defn || defn.isExtCls()) {
                 continue;
             }
             final String nm = defn.getId().getId();

@@ -25,33 +25,19 @@ package apfe.sv2009.generated;
  */
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.ParseError;
 import apfe.runtime.State;
+import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author gburdell
  */
-public class expressionTest {
+public class class_constructor_declarationTest {
 
     private static final String stBuf[] = {
-        "\"foo\"",
-        "\" \"",
-        "\"\"",
-        "$time > (4* 1)", 
-        "z[2]",
-        "a",
-        "b | c",
-        "~d",
-        "~(e ^ f)",
-        "~(g[1] & g[2])"
-    };
-    private static final String XXstBuf[] = {
-        "~(a[0]  | a[1]  | a[2]  | a[3]  | a[4]  | a[5]  | a[6]  | a[7]\n"
-        + "           | a[8]  | a[9]  | a[10] | a[11] | a[12] | a[13] | a[14] | a[15]\n"
-        + "           | a[16] | a[17] | a[18] | a[19] | a[20] | a[21] | a[22] | a[23]\n"
-        + "           | a[24] | a[25] | a[26] | a[27] | a[28] | a[29] | a[30] | a[31])"
+        "function UNI_cell::new();if (syndrome_not_generated) generate_syndrome();endfunction : new"
     };
 
     @Test
@@ -63,18 +49,21 @@ public class expressionTest {
     }
 
     public static void test(final String tt) {
-        System.out.print("fact: " + tt + ": parses as: ");
+        System.out.print("class_constructor_declaration: " + tt + ": parses as: ");
         CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
-        expression gram = new expression();
+        class_constructor_declaration gram = new class_constructor_declaration();
         Acceptor acc = gram.accept();
         if (null != acc) {
             String ss = acc.toString();
             System.out.println(ss);
         }
         result = (null != acc) && st.isEOF();
-        assertTrue(result);
+        if (!result) {
+            ParseError.printTopMessage();
+        }
+        Assert.assertTrue(result);
     }
 
 }

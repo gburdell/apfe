@@ -23,12 +23,14 @@
  */
 package apfe.peg.generate;
 
+import apfe.peg.Definition;
+
 /**
  *
  * @author gburdell
  */
 public class GenJava extends GenBase {
-    
+
     public static interface IGen {
 
         public GenJava genJava(GenJava j);
@@ -48,8 +50,12 @@ public class GenJava extends GenBase {
                 clsNm = id;
                 break;
             default:
-                clsNm = (stGenClsAsCamelCase) ? toCamelCase(id) : id;
-                clsNm = stClsNmPrefix + clsNm;
+                if (Definition.hasExtCls(id)) {
+                    clsNm = Definition.getExtCls(id).getId();
+                } else {
+                    clsNm = (stGenClsAsCamelCase) ? toCamelCase(id) : id;
+                    clsNm = stClsNmPrefix + clsNm;
+                }
         }
         return clsNm;
     }
@@ -68,7 +74,7 @@ public class GenJava extends GenBase {
     public GenJava template(String tmpl, Object... args) {
         return (GenJava) super.template(tmpl, args);
     }
-    
+
     @Override
     public GenJava templateSpecd(String tmpl, Object... args) {
         return (GenJava) super.templateSpecd(tmpl, args);
@@ -106,7 +112,7 @@ public class GenJava extends GenBase {
      * A convenience method for creating PrioritizedChoice as a case statement.
      * This would appear more efficient since objects (Acceptors) are only
      * created as they are needed (as opposed to calling new for all objects to
-     * populate at call time.
+     * populate at call time).
      *
      * @param alts sequence of choices.
      * @return switch form of PrioritizedChoice.

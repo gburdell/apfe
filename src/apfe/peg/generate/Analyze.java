@@ -278,6 +278,9 @@ public class Analyze {
      * @return true if match (left recursion); else false.
      */
     private boolean checkLeftRecursive(String defNm, HopCheck hopChk, Expression expr) {
+        if (null == expr) {
+            return false;
+        }
         CntType ct = new CntType();
         for (PegSequence seq : expr.getSequences()) {
             List<Prefix> pfxs = seq.getPrefixes();
@@ -355,7 +358,9 @@ public class Analyze {
                 Definition defn = m_defnByName.get(defnNm);
                 if (null != defn) {
                     Expression expr = defn.getExpr();
-                    checkDefined(expr);
+                    if (null != expr) {
+                        checkDefined(expr);
+                    }
                 }
             }
             //else: eProcessed || eNotFound

@@ -1,3 +1,26 @@
+function void UNI_cell::post_randomize();
+   HEC = hec({GFC, VPI, VCI, CLP, PT});
+endfunction : post_randomize
+
+function UNI_cell::new();
+   if (syndrome_not_generated)
+     generate_syndrome();
+endfunction : new
+
+virtual class BaseTr;
+  function new();
+    id = count++;
+  endfunction
+
+  pure virtual function bit compare(input BaseTr to);
+  pure virtual function BaseTr copy(input BaseTr to=null);
+  pure virtual function void display(input string prefix="");
+endclass // BaseTr
+
+module foo();
+output wire ww;
+endmodule
+
 module spc2wbm (
 
     /*

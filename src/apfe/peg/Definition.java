@@ -26,10 +26,13 @@ package apfe.peg;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
+import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 import static apfe.runtime.Util.extractEle;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Definition extends Acceptor {
 
@@ -37,57 +40,79 @@ public class Definition extends Acceptor {
     }
 
     private static final Operator stLeftArrow = new Operator(Operator.EOp.LEFTARROW);
-    
+    private static final Operator stExtOp = new Operator(Operator.EOp.EXT_OP);
+
     private boolean m_isLeftRecursive = false;
 
     public void setIsLeftRecursive(boolean isLeftRecursive) {
         m_isLeftRecursive = isLeftRecursive;
     }
-    
+
     public boolean getIsLeftRecursive() {
         return m_isLeftRecursive;
     }
-    
+
     @Override
     protected boolean accepti() {
-        //Definition <- Identifier LEFTARROW Expression CodeBlock?
+        // Definition <- Identifier LEFTARROW Expression CodeBlock?
+        //             / Identifier "<<" Identifier
         Repetition r1 = new Repetition(new CodeBlock(), Repetition.ERepeat.eOptional);
         Sequence s1 = new Sequence(new Identifier(), stLeftArrow.create(), new Expression(), r1);
-        boolean match = (null != (s1 = match(s1)));
+        Sequence s2 = new Sequence(new Identifier(), stExtOp.create(), new Identifier());
+        PrioritizedChoice p1 = new PrioritizedChoice(s1, s2);
+        boolean match;
+        match = (null != (p1 = match(p1)));
         if (match) {
-            m_id = extractEle(s1, 0);
-            m_expr = extractEle(s1, 2);
-            check();
-            r1 = extractEle(s1, 3);
-            if (0 != r1.sizeofAccepted()) {
-                assert false; //no codeblocks supported in generator
-                assert (1 == r1.sizeofAccepted());
-                m_codeBlk = Util.downCast(r1.getAccepted().get(0));
+            s1 = Util.downCast(p1.getAccepted());
+            switch (p1.whichAccepted()) {
+                case 0:
+                    m_id = extractEle(s1, 0);
+                    m_expr = extractEle(s1, 2);
+                    check();
+                    r1 = extractEle(s1, 3);
+                    if (0 != r1.sizeofAccepted()) {
+                        assert false; //no codeblocks supported in generator
+                        assert (1 == r1.sizeofAccepted());
+                        m_codeBlk = Util.downCast(r1.getAccepted().get(0));
+                    }
+                    break;
+                case 1:
+                    m_id = extractEle(s1, 0);
+                    m_extCls = extractEle(s1, 2);
+                    assert !hasExtCls(m_id.getId());
+                    stExtClsByDefn.put(m_id.getId(), m_extCls);
+                    break;
+                default:
+                    assert false;
             }
         }
         return match;
     }
-    
+
     private void check() {
         //Look for any empty alts
         int n = 1;
         for (PegSequence ps : getExpr().getSequences()) {
-            if ((null == ps) || (null == ps.getPrefixes()) ||
-                    (1 > ps.getPrefixes().size())) {
+            if ((null == ps) || (null == ps.getPrefixes())
+                    || (1 > ps.getPrefixes().size())) {
                 Util.error("EMPTY-1", m_id.getId(), n);
             }
             n++;
         }
     }
-    
+
     @Override
     public String toString() {
-        return Util.toString(m_id, stLeftArrow, m_expr, m_codeBlk).append("\n").toString();
+        if (isExtCls()) {
+            return Util.toString(m_id, stExtOp, m_extCls).append("\n").toString();
+        } else {
+            return Util.toString(m_id, stLeftArrow, m_expr, m_codeBlk).append("\n").toString();
+        }
     }
-    
-    private Identifier  m_id;
-    private Expression  m_expr;
-    private CodeBlock   m_codeBlk;
+
+    private Identifier m_id, m_extCls;
+    private Expression m_expr;
+    private CodeBlock m_codeBlk;
 
     public Identifier getId() {
         return m_id;
@@ -96,7 +121,24 @@ public class Definition extends Acceptor {
     public Expression getExpr() {
         return m_expr;
     }
+
+    public Identifier getExtCls() {
+        assert isExtCls();
+        return m_extCls;
+    }
+
+    public static Identifier getExtCls(String id) {
+        return stExtClsByDefn.get(id);
+    }
     
+    public static boolean hasExtCls(String id) {
+        return stExtClsByDefn.containsKey(id);
+    }
+    
+    public boolean isExtCls() {
+        return (null != m_extCls);
+    }
+
     @Override
     public Acceptor create() {
         return new Definition();
@@ -115,4 +157,10 @@ public class Definition extends Acceptor {
      * Memoize for all instances of Definition.
      */
     private static Memoize stMemo = new Memoize();
+    
+    /**
+     * Map of Definition name to its class name.  Used only
+     * if external.
+     */
+    private static Map<String,Identifier> stExtClsByDefn = new HashMap<>();
 }

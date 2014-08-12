@@ -10,6 +10,7 @@ import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
 import apfe.runtime.State;
+import apfe.runtime.Util;
 import apfe.sv2009.generated.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +37,15 @@ public class Main {
             boolean result = (null != acc) && State.getTheOne().isEOF();
             if (!result) {
                 ParseError.printTopMessage();
+            }
+            {
+                //dump memoize stats
+                long stats[] = State.getTheOne().getMemoizeStats();
+                double pcnt = 0;
+                if (0 < stats[1]) {
+                    pcnt = (100.0 * stats[0]) / stats[1];
+                }
+                Util.info("STAT-1", stats[0], stats[1], pcnt);
             }
         } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

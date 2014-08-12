@@ -1,0 +1,7 @@
+#!/bin/csh -f
+
+set prg=../../../../bin/sv2009
+foreach i (test or1200_top s1_top)
+	echo -n "Info: $i ... : " 
+	echo "`time $prg ${i}.flat.v >! ${i}.flat.postApfe.v`"
+end

@@ -21,57 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.dsl.vlogpp.parser;
+package apfe.peg;
 
-import apfe.runtime.Acceptor;
+import apfe.peg.generate.GenJava;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
+import apfe.runtime.State;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
  * @author gburdell
  */
-public class ConditionalLine extends Acceptor {
+public class DefinitionTest {
 
-    @Override
-    protected boolean accepti() {
-        //ConditionalLine <- Spacing ConditionalLineContent Spacing / Spacing
-        Sequence s1 = new Sequence(new Spacing(), new ConditionalLineContent(), new Spacing());
-        boolean match = (null != (s1 = match(s1)));
-        if (!match) {
-            match = (new Spacing(false)).acceptTrue();
-        }
-        if (match) {
-            m_text = super.toString();
-        }
-        return match;
-    }
-
-    @Override
-    public String toString() {
-        return m_text;
-    }
-
-    private String m_text;
-
-    @Override
-    public Acceptor create() {
-        return new ConditionalLine();
-    }
-
-    @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
-        stMemo.add(mark, this, endMark);
-    }
-
-    @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
-        return stMemo.memoized(mark);
-    }
+    private static final String stData[] = {
+        "a <- b d* e?",
+        "c << my"
+    };
 
     /**
-     * Memoize for all instances of ConditionalLine.
+     * Test of acceptTrue method, of class Definition.
      */
-    private static Memoize stMemo = new Memoize();
+    @Test
+    public void testAcceptTrue() {
+        Definition instance;
+        System.out.println("testAcceptTrue");
+        State st;
+        String res;
+        for (String s : stData) {
+            CharBuffer buf = new CharBuffer("<test>", s);
+            st = State.create(buf);
+            instance = new Definition();
+            assertTrue(instance.acceptTrue());
+        }
+    }
 }

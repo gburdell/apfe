@@ -197,7 +197,7 @@ public class MessageMgr {
 
             eInfo(System.out, "Info ", 0),
             eWarn(System.out, "Warn ", 1),
-            eError(System.out, "Error", 2);
+            eError(System.err, "Error", 2);
 
             /**
              * Create An Enum based on code.

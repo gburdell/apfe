@@ -35,7 +35,16 @@ import apfe.runtime.Space;
  * @author gburdell
  */
 public class Spacing extends Acceptor {
-
+    public Spacing() {
+        this(true);
+    }
+    
+    public Spacing(boolean matchOnEmpty) {
+        m_matchOnEmpty = matchOnEmpty;
+    }
+    
+    private boolean m_matchOnEmpty;
+    
     @Override
     protected boolean accepti() {
         //Spacing <- (Space / Comment)*
@@ -56,6 +65,7 @@ public class Spacing extends Acceptor {
         });
         Repetition r1 = new Repetition(pc, Repetition.ERepeat.eZeroOrMore);
         boolean match = (null != (r1 = match(r1)));
+        match &= !(!m_matchOnEmpty && (0 == r1.sizeofAccepted()));
         if (match) {
             m_spacing = (0 < r1.sizeofAccepted()) ? r1.getAccepted().toString() : "";
         }
@@ -72,7 +82,7 @@ public class Spacing extends Acceptor {
     
     @Override
     public Acceptor create() {
-        return new Spacing();
+        return new Spacing(m_matchOnEmpty);
     }
 
     @Override

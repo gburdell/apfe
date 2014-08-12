@@ -330,11 +330,11 @@ CONST_K class_item_qualifier* data_type const_identifier (EQ constant_expression
 / property_qualifier* data_declaration
 
 class_method <-
-  EXTERN_K method_qualifier* method_prototype SEMI
-/ EXTERN_K method_qualifier* class_constructor_prototype
-/ method_qualifier* task_declaration
+method_qualifier* task_declaration
 / method_qualifier* function_declaration
 / method_qualifier* class_constructor_declaration
+/ EXTERN_K? method_qualifier* class_constructor_prototype
+/ EXTERN_K? method_qualifier* method_prototype SEMI
 
 class_constructor_prototype <-
 FUNCTION_K NEW_K LPAREN tf_port_list? RPAREN SEMI
@@ -467,15 +467,18 @@ SPECPARAM_K packed_dimension? list_of_specparam_assignments SEMI
  */
 inout_declaration <-
 INOUT_K list_of_port_identifiers
+/ INOUT_K net_type list_of_port_identifiers
 / INOUT_K net_port_type list_of_port_identifiers
 
 input_declaration <-
 INPUT_K list_of_port_identifiers
+/ INPUT_K net_type list_of_port_identifiers
 / INPUT_K net_port_type list_of_port_identifiers
 / INPUT_K variable_port_type list_of_variable_identifiers
 
 output_declaration <-
 OUTPUT_K list_of_port_identifiers
+/ OUTPUT_K net_type list_of_port_identifiers
 / OUTPUT_K net_port_type list_of_port_identifiers
 / OUTPUT_K variable_port_type list_of_variable_port_identifiers
 
@@ -534,7 +537,7 @@ data_type <-
 / ENUM_K enum_base_type? LCURLY enum_name_declaration (COMMA enum_name_declaration)* RCURLY packed_dimension*
 / STRING_K
 / CHANDLE_K
-/ VIRTUAL_K INTERFACE_K? interface_identifier
+/ VIRTUAL_K INTERFACE_K? interface_identifier (DOT modport_identifier)?
 / EVENT_K
 / type_reference
   //1st set: ident...
@@ -2360,16 +2363,16 @@ octal_number
 / decimal_number
 
 decimal_number <-
-size? decimal_base unsigned_number
-/ size? decimal_base [xX] '_'*
-/ size? decimal_base [zZ?] '_'*
+size? Space* decimal_base Space* unsigned_number
+/ size? Space* decimal_base Space* [xX] '_'*
+/ size? Space* decimal_base Space* [zZ?] '_'*
 / unsigned_number
 
-binary_number <- size? binary_base binary_value
+binary_number <- size? Space* binary_base Space* binary_value
 
-octal_number <- size? octal_base octal_value
+octal_number <- size? Space* octal_base Space* octal_value
 
-hex_number <- size? hex_base hex_value
+hex_number <- size? Space* hex_base Space* hex_value
 
 size <- non_zero_unsigned_number
 
@@ -2504,7 +2507,7 @@ output_port_identifier <- identifier
 package_identifier <- identifier
 
 package_scope <-
-package_identifier COLON2
+package_identifier COLON2 &identifier
 //UNIT_K: $unit
 / DS_UNIT_K COLON2
 
@@ -2936,16 +2939,22 @@ DS_ROOT_K <- Spacing  		"$root" kwrdTail
 
 ESC_IDENT  <- Spacing '\\' (!(' ' / '\r' / '\t' / EOL) .)+
         
+/**Need to match keywords (*_K) or IDENT
 IDENT <- Spacing IdentStart IdentCont*
+**/
+IDENT << MyIDENT
 IdentStart <- [a-zA-Z_]
 IdentCont <- IdentStart / [0-9] //TODO: where is this used: / '$'
 
-STRING <- Spacing '"' (!'"' .)+ '"'
+STRING <- Spacing '"' ('"' / (!'"' .)+ '"')
 
 SYSTEM_IDENT <- Spacing '$' IdentStart IdentCont*
 DIGIT <- Spacing [0-9]
 
+/** Improve performance dramatically
 Spacing <- (Space / Comment / TicLine / TimeScale)*
+**/
+Spacing << MySpacing
 Comment <- SL_COMMENT / ML_COMMENT
 SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
 ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"

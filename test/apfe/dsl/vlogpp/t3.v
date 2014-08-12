@@ -1,3 +1,7 @@
+`ifdef FOO
+//comment
+`endif
+
 `define P 45 //`define P 0
 `define Q `P+1	//`define Q 1
 `define R `Q-2

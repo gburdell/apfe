@@ -40,7 +40,7 @@ public class Operator extends Acceptor {
         QUESTION('?'), STAR('*'), PLUS('+'),
         OPEN('('), CLOSE(')'), DOT('.'),
         LCURLY2("{{"), RCURLY2("}}"),
-        EQ('=');
+        EQ('='), EXT_OP("<<");
         
         private EOp(char c) {
             m_cs = new CharSeq(c);

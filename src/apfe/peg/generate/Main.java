@@ -77,7 +77,7 @@ public class Main {
                 }
                 Util.info("STAT-1", stats[0], stats[1], pcnt);
             }
-            if (0 < numErrs) {
+            if ((0 < numErrs) || (null == gram)) {
                 System.exit(numErrs);
             } else {
                 Generate.generate(anl);

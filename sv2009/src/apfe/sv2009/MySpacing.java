@@ -1,13 +1,17 @@
-package apfe.sv2009.generated;
+package apfe.sv2009;
 
 import apfe.runtime.*;
 import static apfe.runtime.CharBuffer.EOF;
 
 import apfe.runtime.CharBuffer.Marker;
+import apfe.sv2009.generated.ML_COMMENT;
+import apfe.sv2009.generated.SL_COMMENT;
+import apfe.sv2009.generated.TicLine;
+import apfe.sv2009.generated.TimeScale;
 
-public class Spacing extends Acceptor {
+public class MySpacing extends Acceptor {
 
-    public Spacing() {
+    public MySpacing() {
     }
 
     @Override
@@ -75,8 +79,8 @@ public class Spacing extends Acceptor {
     }
 
     @Override
-    public Spacing create() {
-        return new Spacing();
+    public MySpacing create() {
+        return new MySpacing();
     }
 
     //Begin memoize
@@ -90,7 +94,7 @@ public class Spacing extends Acceptor {
         return stMemo.memoized(mark);
     }
     /**
-     * Memoize for all instances of Spacing.
+     * Memoize for all instances of MySpacing.
      */
     private static final Memoize stMemo = new Memoize();
     //End memoize

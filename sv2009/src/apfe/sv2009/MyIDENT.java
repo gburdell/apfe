@@ -1,19 +1,21 @@
-package apfe.sv2009.generated;
+package apfe.sv2009;
 
 import apfe.runtime.*;
 
 import apfe.runtime.CharBuffer.Marker;
+import apfe.sv2009.generated.IdentCont;
+import apfe.sv2009.generated.IdentStart;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IDENT extends Acceptor {
+public class MyIDENT extends Acceptor {
 
-    public IDENT() {
+    public MyIDENT() {
     }
 
     @Override
     protected boolean accepti() {
-        (new Spacing()).acceptTrue();
+        (new MySpacing()).acceptTrue();
         CharBuffer.Marker mark = getCurrentMark();
         Acceptor matcher = new Sequence(new IdentStart(), new Repetition(new IdentCont(), Repetition.ERepeat.eZeroOrMore));
         Acceptor accepted = match(matcher);
@@ -26,8 +28,8 @@ public class IDENT extends Acceptor {
     }
 
     @Override
-    public IDENT create() {
-        return new IDENT();
+    public MyIDENT create() {
+        return new MyIDENT();
     }
 
     //Begin memoize
@@ -41,7 +43,7 @@ public class IDENT extends Acceptor {
         return stMemo.memoized(mark);
     }
     /**
-     * Memoize for all instances of IDENT.
+     * Memoize for all instances of MyIDENT.
      */
     private static final Memoize stMemo = new Memoize();
 	//End memoize

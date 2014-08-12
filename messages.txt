@@ -18,5 +18,5 @@ PARSE-1  %s:%d: unexpected token '%s'.
 PARSE-2  %s:%d: syntax error at '%s'.
 PARSE-3  %s: unexpected char '%c'.
 PARSE-4  %s: parse failed.
-PARSE-5  %s:%s: found '%s', expected '%s'.
+PARSE-5  %s:%s: found '%s', expected %s.
 STAT-1   Memoize hit rate: %d / %d (%.2f%%)
