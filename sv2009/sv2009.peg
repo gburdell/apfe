@@ -2507,7 +2507,7 @@ output_port_identifier <- identifier
 package_identifier <- identifier
 
 package_scope <-
-package_identifier COLON2 &identifier
+package_identifier COLON2 &identifier	//identifier predicate (to not match *_K (keyword))	
 //UNIT_K: $unit
 / DS_UNIT_K COLON2
 
