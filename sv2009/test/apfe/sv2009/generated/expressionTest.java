@@ -25,7 +25,9 @@ package apfe.sv2009.generated;
  */
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
+import apfe.runtime.ParseError;
 import apfe.runtime.State;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -36,11 +38,12 @@ import static org.junit.Assert.*;
 public class expressionTest {
 
     private static final String stBuf[] = {
+        "z[2]",
+        "hec({a,b,c})",
         "\"foo\"",
         "\" \"",
         "\"\"",
         "$time > (4* 1)", 
-        "z[2]",
         "a",
         "b | c",
         "~d",
@@ -74,7 +77,10 @@ public class expressionTest {
             System.out.println(ss);
         }
         result = (null != acc) && st.isEOF();
-        assertTrue(result);
+        if (!result) {
+            ParseError.printTopMessage();
+        }
+        Assert.assertTrue(result);
     }
 
 }

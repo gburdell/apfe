@@ -541,7 +541,7 @@ data_type <-
 / EVENT_K
 / type_reference
   //1st set: ident...
-/ (class_scope / package_scope)? type_identifier packed_dimension*
+/ (package_scope / class_scope)? type_identifier packed_dimension*
   //1st set: ident...
 / class_type
   //1st set: ident...
@@ -569,8 +569,12 @@ integer_atom_type signing?
 enum_name_declaration <- enum_identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ constant_expression)?
 
 class_scope <- class_type COLON2
+func_class_scope <- func_class_type COLON2
 
+//TODO: need to rm ambiguity here on COLON2 identifier and punch through
+//to ps_class_identifier
 class_type <- ps_class_identifier parameter_value_assignment?  (COLON2 class_identifier parameter_value_assignment?)*
+func_class_type <- func_ps_class_identifier parameter_value_assignment?  (COLON2 !function_body_declaration_follow class_identifier parameter_value_assignment?)*
 
 integer_type <- integer_vector_type / integer_atom_type
 
@@ -730,14 +734,16 @@ data_type_or_void
 
 function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
+function_body_declaration_follow <- function_identifier (LPAREN / SEMI)
+
 function_body_declaration <-
   function_data_type_or_implicit
-	( interface_identifier DOT / class_scope )? function_identifier LPAREN ( tf_port_list )? RPAREN SEMI
+	( interface_identifier DOT / func_class_scope )? function_identifier LPAREN ( tf_port_list )? RPAREN SEMI
 	( block_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON function_identifier )?
 / function_data_type_or_implicit
-	( interface_identifier DOT / class_scope )? function_identifier SEMI
+	( interface_identifier DOT / func_class_scope )? function_identifier SEMI
 	( tf_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON function_identifier )?
@@ -1391,7 +1397,7 @@ final_construct <- FINAL_K function_statement
 
 blocking_assignment <-
 variable_lvalue EQ delay_or_event_control expression
-/ ( implicit_class_handle DOT / class_scope / package_scope )? hierarchical_variable_identifier select EQ class_new
+/ ( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_variable_identifier select EQ class_new
 / nonrange_variable_lvalue EQ dynamic_array_new
 / operator_assignment
 
@@ -2040,7 +2046,7 @@ subroutine_call <-
 //{method_call
 	(	//NOTE: causes ILR and seems incorrect to match so much
 		//so replace{: primary 
-		( class_qualifier / package_scope )? hierarchical_identifier select
+		( package_scope / class_qualifier )? hierarchical_identifier select
 		//}
 	/ 	implicit_class_handle
 	) DOT method_call_body
@@ -2215,7 +2221,6 @@ module_path_primary <-
 primary <-
   multiple_concatenation ( LBRACK range_expression RBRACK )?
 / concatenation ( LBRACK range_expression RBRACK )?
-/ ( class_qualifier / package_scope )? hierarchical_identifier select
 / empty_queue
 // / function_subroutine_call
 / subroutine_call
@@ -2228,6 +2233,7 @@ primary <-
 / THIS_K
 / DOLLAR
 / NULL_K
+/ ( package_scope / class_qualifier )? hierarchical_identifier select
 / primary_literal
 
 //LOCAL_COLON2<- local::
@@ -2507,8 +2513,12 @@ output_port_identifier <- identifier
 package_identifier <- identifier
 
 package_scope <-
-package_identifier COLON2 &identifier	//identifier predicate (to not match *_K (keyword))	
+package_identifier COLON2 !NEW_K
 //UNIT_K: $unit
+/ DS_UNIT_K COLON2
+
+func_package_scope <-
+package_identifier COLON2 !function_body_declaration_follow
 / DS_UNIT_K COLON2
 
 parameter_identifier <- identifier
@@ -2522,13 +2532,14 @@ program_identifier <- identifier
 property_identifier <- identifier
 
 ps_class_identifier <- ( package_scope )? class_identifier
+func_ps_class_identifier <- ( func_package_scope )? class_identifier
 
 ps_covergroup_identifier <- ( package_scope )? covergroup_identifier
 
 ps_identifier <- ( package_scope )? identifier
 
 ps_or_hierarchical_array_identifier <-
-( implicit_class_handle DOT / class_scope / package_scope )? hierarchical_array_identifier
+( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_array_identifier
 
 ps_or_hierarchical_net_identifier <- ( package_scope )? net_identifier / hierarchical_net_identifier
 

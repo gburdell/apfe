@@ -34,13 +34,10 @@ import org.junit.Test;
  *
  * @author gburdell
  */
-public class primaryTest {
+public class blocking_assignmentTest {
 
     private static final String stBuf[] = {
-        "z[2]", //not a subroutine call,
-        "hec({a,b,c})",
-        "\"foo\"",
-        "a"
+        "HEC = hec({GFC, VPI, VCI, CLP, PT});"  
     };
 
     @Test
@@ -52,11 +49,11 @@ public class primaryTest {
     }
 
     public static void test(final String tt) {
-        System.out.print("fact: " + tt + ": parses as: ");
+        System.out.print("blocking_assignment: " + tt + ": parses as: ");
         CharBuffer buf = new CharBuffer("<test>", tt);
         State st = State.create(buf);
         boolean result;
-        primary gram = new primary();
+        blocking_assignment gram = new blocking_assignment();
         Acceptor acc = gram.accept();
         if (null != acc) {
             String ss = acc.toString();
