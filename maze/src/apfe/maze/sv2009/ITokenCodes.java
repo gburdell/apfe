@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.sv2009;
 
 /**
@@ -376,4 +375,11 @@ public interface ITokenCodes {
 	public static final int XOR = 345 ;
 	public static final int XOR_EQ = 346 ;
 	public static final int XOR_TILDE = 347 ;
+	public static final int IDENT = 348 ;
+	public static final int ESC_IDENT = 349 ;
+	public static final int FINISH_NUMBER = 350 ;
+	public static final int UNBASED_UNSIZED_LITERAL = 351 ;
+	public static final int NUMBER = 352 ;
+	public static final int TIME_LITERAL = 353 ;
+	public static final int SYSTEM_IDENT = 354 ;
 }

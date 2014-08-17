@@ -77,10 +77,10 @@ attribute_instance* PACKAGE_K lifetime? package_identifier SEMI
 	ENDPACKAGE_K (COLON package_identifier)?
 
 timeunits_declaration <-
-TIMEUNIT_K time_literal SEMI TIMEPRECISION_K time_literal SEMI
-/ TIMEUNIT_K time_literal (DIV time_literal)? SEMI
-/ TIMEPRECISION_K time_literal SEMI TIMEUNIT_K time_literal SEMI
-/ TIMEPRECISION_K time_literal SEMI
+TIMEUNIT_K TIME_LITERAL SEMI TIMEPRECISION_K TIME_LITERAL SEMI
+/ TIMEUNIT_K TIME_LITERAL (DIV TIME_LITERAL)? SEMI
+/ TIMEPRECISION_K TIME_LITERAL SEMI TIMEUNIT_K TIME_LITERAL SEMI
+/ TIMEPRECISION_K TIME_LITERAL SEMI
 
 parameter_port_list <-
 POUND LPAREN list_of_param_assignments (COMMA parameter_port_declaration)* RPAREN
@@ -136,12 +136,10 @@ port_direction? port_identifier unpacked_dimension* ( EQ constant_expression )?
 
 elaboration_system_task <-
 // $fatal $error $warning $info
-DS_FATAL_K (LPAREN finish_number (COMMA list_of_arguments)? RPAREN)? SEMI
+DS_FATAL_K (LPAREN FINISH_NUMBER (COMMA list_of_arguments)? RPAREN)? SEMI
 / DS_ERROR_K (LPAREN list_of_arguments RPAREN)? SEMI
 / DS_WARNING_K (LPAREN list_of_arguments RPAREN)? SEMI
 / DS_INFO_K (LPAREN list_of_arguments RPAREN)? SEMI
-
-finish_number <- [0-2]
 
 module_common_item <-
 initial_construct
@@ -566,15 +564,11 @@ integer_atom_type signing?
 / integer_vector_type signing? packed_dimension?
 / type_identifier packed_dimension?
 
-enum_name_declaration <- enum_identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ constant_expression)?
+enum_name_declaration <- enum_identifier (LBRACK NUMBER (COLON NUMBER)? RBRACK)? (EQ constant_expression)?
 
 class_scope <- class_type COLON2
-func_class_scope <- func_class_type COLON2
 
-//TODO: need to rm ambiguity here on COLON2 identifier and punch through
-//to ps_class_identifier
 class_type <- ps_class_identifier parameter_value_assignment?  (COLON2 class_identifier parameter_value_assignment?)*
-func_class_type <- func_ps_class_identifier parameter_value_assignment?  (COLON2 !function_body_declaration_follow class_identifier parameter_value_assignment?)*
 
 integer_type <- integer_vector_type / integer_atom_type
 
@@ -632,10 +626,10 @@ delay2 <-
 
 delay_value <-
   W1STEP_K //1step
-/ real_number
-/ unsigned_number
+/ NUMBER
+/ UNSIGNED_NUMBER
 / ps_identifier
-/ time_literal
+/ TIME_LITERAL
 
 //A.2.3 Declaration lists
 list_of_defparam_assignments <- defparam_assignment (COMMA defparam_assignment)*
@@ -738,12 +732,12 @@ function_body_declaration_follow <- function_identifier (LPAREN / SEMI)
 
 function_body_declaration <-
   function_data_type_or_implicit
-	( interface_identifier DOT / func_class_scope )? function_identifier LPAREN ( tf_port_list )? RPAREN SEMI
+	( interface_identifier DOT / class_scope )? function_identifier LPAREN ( tf_port_list )? RPAREN SEMI
 	( block_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON function_identifier )?
 / function_data_type_or_implicit
-	( interface_identifier DOT / func_class_scope )? function_identifier SEMI
+	( interface_identifier DOT / class_scope )? function_identifier SEMI
 	( tf_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON function_identifier )?
@@ -1709,7 +1703,7 @@ clocking_drive <- clockvar_expression LT_EQ ( cycle_delay )? expression
 
 cycle_delay <-
   POUND2 LPAREN expression RPAREN
-/ POUND2 integral_number
+/ POUND2 NUMBER
 / POUND2 identifier
 
 clockvar <- hierarchical_identifier
@@ -1728,7 +1722,7 @@ rs_production_list <-
 / rs_prod ( rs_prod )*
 
 weight_specification <-
-integral_number
+NUMBER
 / ps_identifier
 / LPAREN expression RPAREN
 
@@ -2215,7 +2209,7 @@ module_path_primary <-
 / module_path_concatenation
 // / function_subroutine_call
 / subroutine_call
-/ number
+/ NUMBER
 / identifier
 
 primary <-
@@ -2243,13 +2237,7 @@ range_expression <-
 expression
 / part_select_range
 
-primary_literal <- number / time_literal / unbased_unsized_literal / string_literal
-
-time_literal <-
-unsigned_number time_unit
-/ fixed_point_number time_unit
-
-time_unit <- IDENT //s / ms / us / ns / ps / fs
+primary_literal <- NUMBER / TIME_LITERAL / UNBASED_UNSIZED_LITERAL / STRING
 
 implicit_class_handle <- THIS_K / SUPER_K / THIS_K DOT SUPER_K
 
@@ -2359,50 +2347,6 @@ EQ2
 / OR 
 / XOR 
 
-//A.8.7 Numbers
-number <- Spacing (real_number / integral_number)
-
-integral_number <-
-octal_number
-/ binary_number
-/ hex_number
-/ decimal_number
-
-decimal_number <-
-size? Space* decimal_base Space* unsigned_number
-/ size? Space* decimal_base Space* [xX] '_'*
-/ size? Space* decimal_base Space* [zZ?] '_'*
-/ unsigned_number
-
-binary_number <- size? Space* binary_base Space* binary_value
-
-octal_number <- size? Space* octal_base Space* octal_value
-
-hex_number <- size? Space* hex_base Space* hex_value
-
-size <- non_zero_unsigned_number
-
-//no spacing allowed in these begin{{
-non_zero_unsigned_number <- [1-9] [_0-9]*
-real_number <-
-unsigned_number ('.' unsigned_number)? [eE] ('-'/'+')? unsigned_number
-/ fixed_point_number
-fixed_point_number <- unsigned_number '.' unsigned_number
-unsigned_number <- [0-9] [_0-9]*
-binary_value <- [01xXzZ?] [01xXzZ?_]* 
-octal_value <- [0-7xXzZ?] [0-7xXzZ?_]*
-hex_value <- [0-9a-fA-FxXzZ?] [0-9a-fA-FxXzZ?_]*
-decimal_base <- "'" [sS]? [dD]
-binary_base <- "'" [sS]? [bB]
-octal_base <- "'" [sS]? [oO]
-hex_base <- "'" [sS]? [hH]
-//no spacing }}end
-
-unbased_unsized_literal <- "'" [01xXzZ?]
-
-//A.8.8 Strings
-string_literal <- STRING //" ( Any_ASCII_Characters )* "
-
 //A.9 General
 //A.9.1 Attributes
 attribute_instance <- LPAREN_STAR attr_spec ( COMMA attr_spec )* STAR_RPAREN
@@ -2411,7 +2355,6 @@ attr_spec <- attr_name ( EQ constant_expression )?
 
 attr_name <- identifier
 
-
 //A.9.3 Identifiers
 //NOT USED: array_identifier <- identifier
 
@@ -2419,7 +2362,7 @@ block_identifier <- identifier
 
 bin_identifier <- identifier
 
-c_identifier <- identifier //TODO<- ( a-zA-Z_ )? ( ( a-zA-Z0-9_ )? )*
+c_identifier <- IDENT
 
 cell_identifier <- identifier
 
@@ -2449,7 +2392,7 @@ dynamic_array_variable_identifier <- variable_identifier
 
 enum_identifier <- identifier
 
-escaped_identifier <- ESC_IDENT //TODO<- \ (any_ASCII_character_except_white_space)* white_space
+escaped_identifier <- ESC_IDENT
 
 //NOT USED: formal_identifier <- identifier
 
@@ -2517,10 +2460,6 @@ package_identifier COLON2 !NEW_K
 //UNIT_K: $unit
 / DS_UNIT_K COLON2
 
-func_package_scope <-
-package_identifier COLON2 !function_body_declaration_follow
-/ DS_UNIT_K COLON2
-
 parameter_identifier <- identifier
 
 port_identifier <- identifier
@@ -2532,7 +2471,6 @@ program_identifier <- identifier
 property_identifier <- identifier
 
 ps_class_identifier <- ( package_scope )? class_identifier
-func_ps_class_identifier <- ( func_package_scope )? class_identifier
 
 ps_covergroup_identifier <- ( package_scope )? covergroup_identifier
 
@@ -2590,389 +2528,3 @@ extern_tf_declaration <-
 EXTERN_K method_prototype SEMI
 / EXTERN_K FORKJOIN_K task_prototype SEMI
 
-// Define tail predicate to isolate keyword
-kwrdTail <- ![a-zA-Z_0-9]
-
-ACCEPT_ON_K  <- Spacing   "accept_on"  kwrdTail
-ALIAS_K  <- Spacing   "alias"  kwrdTail
-ALWAYS_COMB_K  <- Spacing   "always_comb"  kwrdTail
-ALWAYS_FF_K  <- Spacing   "always_ff"  kwrdTail
-ALWAYS_K  <- Spacing   "always"  kwrdTail
-ALWAYS_LATCH_K  <- Spacing   "always_latch"  kwrdTail
-AND_K  <- Spacing   "and"  kwrdTail
-ASSERT_K  <- Spacing   "assert"  kwrdTail
-ASSIGN_K  <- Spacing   "assign"  kwrdTail
-ASSUME_K  <- Spacing   "assume"  kwrdTail
-AUTOMATIC_K  <- Spacing   "automatic"  kwrdTail
-BEFORE_K  <- Spacing   "before"  kwrdTail
-BEGIN_K  <- Spacing   "begin"  kwrdTail
-BIND_K  <- Spacing   "bind"  kwrdTail
-BINSOF_K  <- Spacing   "binsof"  kwrdTail
-BINS_K  <- Spacing   "bins"  kwrdTail
-BIT_K  <- Spacing   "bit"  kwrdTail
-BREAK_K  <- Spacing   "break"  kwrdTail
-BUFIF0_K  <- Spacing   "bufif0"  kwrdTail
-BUFIF1_K  <- Spacing   "bufif1"  kwrdTail
-BUF_K  <- Spacing   "buf"  kwrdTail
-BYTE_K  <- Spacing   "byte"  kwrdTail
-CASEX_K  <- Spacing   "casex"  kwrdTail
-CASEZ_K  <- Spacing   "casez"  kwrdTail
-CASE_K  <- Spacing   "case"  kwrdTail
-CELL_K  <- Spacing   "cell"  kwrdTail
-CHANDLE_K  <- Spacing   "chandle"  kwrdTail
-CHECKER_K  <- Spacing   "checker"  kwrdTail
-CLASS_K  <- Spacing   "class"  kwrdTail
-CLOCKING_K  <- Spacing   "clocking"  kwrdTail
-CMOS_K  <- Spacing   "cmos"  kwrdTail
-CONFIG_K  <- Spacing   "config"  kwrdTail
-CONSTRAINT_K  <- Spacing   "constraint"  kwrdTail
-CONST_K  <- Spacing   "const"  kwrdTail
-CONTEXT_K  <- Spacing   "context"  kwrdTail
-CONTINUE_K  <- Spacing   "continue"  kwrdTail
-COVERGROUP_K  <- Spacing   "covergroup"  kwrdTail
-COVERPOINT_K  <- Spacing   "coverpoint"  kwrdTail
-COVER_K  <- Spacing   "cover"  kwrdTail
-CROSS_K  <- Spacing   "cross"  kwrdTail
-DEASSIGN_K  <- Spacing   "deassign"  kwrdTail
-DEFAULT_K  <- Spacing   "default"  kwrdTail
-DEFPARAM_K  <- Spacing   "defparam"  kwrdTail
-DESIGN_K  <- Spacing   "design"  kwrdTail
-DISABLE_K  <- Spacing   "disable"  kwrdTail
-DIST_K  <- Spacing   "dist"  kwrdTail
-DO_K  <- Spacing   "do"  kwrdTail
-EDGE_K  <- Spacing   "edge"  kwrdTail
-ELSE_K  <- Spacing   "else"  kwrdTail
-ENDCASE_K  <- Spacing   "endcase"  kwrdTail
-ENDCHECKER_K  <- Spacing   "endchecker"  kwrdTail
-ENDCLASS_K  <- Spacing   "endclass"  kwrdTail
-ENDCLOCKING_K  <- Spacing   "endclocking"  kwrdTail
-ENDCONFIG_K  <- Spacing   "endconfig"  kwrdTail
-ENDFUNCTION_K  <- Spacing   "endfunction"  kwrdTail
-ENDGENERATE_K  <- Spacing   "endgenerate"  kwrdTail
-ENDGROUP_K  <- Spacing   "endgroup"  kwrdTail
-ENDINTERFACE_K  <- Spacing   "endinterface"  kwrdTail
-ENDMODULE_K  <- Spacing   "endmodule"  kwrdTail
-ENDPACKAGE_K  <- Spacing   "endpackage"  kwrdTail
-ENDPRIMITIVE_K  <- Spacing   "endprimitive"  kwrdTail
-ENDPROGRAM_K  <- Spacing   "endprogram"  kwrdTail
-ENDPROPERTY_K  <- Spacing   "endproperty"  kwrdTail
-ENDSEQUENCE_K  <- Spacing   "endsequence"  kwrdTail
-ENDSPECIFY_K  <- Spacing   "endspecify"  kwrdTail
-ENDTABLE_K  <- Spacing   "endtable"  kwrdTail
-ENDTASK_K  <- Spacing   "endtask"  kwrdTail
-END_K  <- Spacing   "end"  kwrdTail
-ENUM_K  <- Spacing   "enum"  kwrdTail
-EVENTUALLY_K  <- Spacing   "eventually"  kwrdTail
-EVENT_K  <- Spacing   "event"  kwrdTail
-EXPECT_K  <- Spacing   "expect"  kwrdTail
-EXPORT_K  <- Spacing   "export"  kwrdTail
-EXTENDS_K  <- Spacing   "extends"  kwrdTail
-EXTERN_K  <- Spacing   "extern"  kwrdTail
-FINAL_K  <- Spacing   "final"  kwrdTail
-FIRST_MATCH_K  <- Spacing   "first_match"  kwrdTail
-FORCE_K  <- Spacing   "force"  kwrdTail
-FOREACH_K  <- Spacing   "foreach"  kwrdTail
-FOREVER_K  <- Spacing   "forever"  kwrdTail
-FORKJOIN_K  <- Spacing   "forkjoin"  kwrdTail
-FORK_K  <- Spacing   "fork"  kwrdTail
-FOR_K  <- Spacing   "for"  kwrdTail
-FUNCTION_K  <- Spacing   "function"  kwrdTail
-GENERATE_K  <- Spacing   "generate"  kwrdTail
-GENVAR_K  <- Spacing   "genvar"  kwrdTail
-GLOBAL_K  <- Spacing   "global"  kwrdTail
-HIGHZ0_K  <- Spacing   "highz0"  kwrdTail
-HIGHZ1_K  <- Spacing   "highz1"  kwrdTail
-IFF_K  <- Spacing   "iff"  kwrdTail
-IFNONE_K  <- Spacing   "ifnone"  kwrdTail
-IF_K  <- Spacing   "if"  kwrdTail
-IGNORE_BINS_K  <- Spacing   "ignore_bins"  kwrdTail
-ILLEGAL_BINS_K  <- Spacing   "illegal_bins"  kwrdTail
-IMPLIES_K  <- Spacing   "implies"  kwrdTail
-IMPORT_K  <- Spacing   "import"  kwrdTail
-INCDIR_K  <- Spacing   "incdir"  kwrdTail
-INCLUDE_K  <- Spacing   "include"  kwrdTail
-INITIAL_K  <- Spacing   "initial"  kwrdTail
-INOUT_K  <- Spacing   "inout"  kwrdTail
-INPUT_K  <- Spacing   "input"  kwrdTail
-INSIDE_K  <- Spacing   "inside"  kwrdTail
-INSTANCE_K  <- Spacing   "instance"  kwrdTail
-INTEGER_K  <- Spacing   "integer"  kwrdTail
-INTERFACE_K  <- Spacing   "interface"  kwrdTail
-INTERSECT_K  <- Spacing   "intersect"  kwrdTail
-INT_K  <- Spacing   "int"  kwrdTail
-JOIN_ANY_K  <- Spacing   "join_any"  kwrdTail
-JOIN_K  <- Spacing   "join"  kwrdTail
-JOIN_NONE_K  <- Spacing   "join_none"  kwrdTail
-LARGE_K  <- Spacing   "large"  kwrdTail
-LET_K  <- Spacing   "let"  kwrdTail
-LIBLIST_K  <- Spacing   "liblist"  kwrdTail
-LIBRARY_K  <- Spacing   "library"  kwrdTail
-LOCALPARAM_K  <- Spacing   "localparam"  kwrdTail
-LOCAL_K  <- Spacing   "local"  kwrdTail
-LOGIC_K  <- Spacing   "logic"  kwrdTail
-LONGINT_K  <- Spacing   "longint"  kwrdTail
-MACROMODULE_K  <- Spacing   "macromodule"  kwrdTail
-MATCHES_K  <- Spacing   "matches"  kwrdTail
-MEDIUM_K  <- Spacing   "medium"  kwrdTail
-MODPORT_K  <- Spacing   "modport"  kwrdTail
-MODULE_K  <- Spacing   "module"  kwrdTail
-NAND_K  <- Spacing   "nand"  kwrdTail
-NEGEDGE_K  <- Spacing   "negedge"  kwrdTail
-NEW_K  <- Spacing   "new"  kwrdTail
-NEXTTIME_K  <- Spacing   "nexttime"  kwrdTail
-NMOS_K  <- Spacing   "nmos"  kwrdTail
-NOR_K  <- Spacing   "nor"  kwrdTail
-NOSHOWCANCELLED_K  <- Spacing   "noshowcancelled"  kwrdTail
-NOTIF0_K  <- Spacing   "notif0"  kwrdTail
-NOTIF1_K  <- Spacing   "notif1"  kwrdTail
-NOT_K  <- Spacing   "not"  kwrdTail
-NULL_K  <- Spacing   "null"  kwrdTail
-OR_K  <- Spacing   "or"  kwrdTail
-OUTPUT_K  <- Spacing   "output"  kwrdTail
-PACKAGE_K  <- Spacing   "package"  kwrdTail
-PACKED_K  <- Spacing   "packed"  kwrdTail
-PARAMETER_K  <- Spacing   "parameter"  kwrdTail
-PMOS_K  <- Spacing   "pmos"  kwrdTail
-POSEDGE_K  <- Spacing   "posedge"  kwrdTail
-PRIMITIVE_K  <- Spacing   "primitive"  kwrdTail
-PRIORITY_K  <- Spacing   "priority"  kwrdTail
-PROGRAM_K  <- Spacing   "program"  kwrdTail
-PROPERTY_K  <- Spacing   "property"  kwrdTail
-PROTECTED_K  <- Spacing   "protected"  kwrdTail
-PULL0_K  <- Spacing   "pull0"  kwrdTail
-PULL1_K  <- Spacing   "pull1"  kwrdTail
-PULLDOWN_K  <- Spacing   "pulldown"  kwrdTail
-PULLUP_K  <- Spacing   "pullup"  kwrdTail
-PULSESTYLE_ONDETECT_K  <- Spacing   "pulsestyle_ondetect"  kwrdTail
-PULSESTYLE_ONEVENT_K  <- Spacing   "pulsestyle_onevent"  kwrdTail
-PURE_K  <- Spacing   "pure"  kwrdTail
-RANDCASE_K  <- Spacing   "randcase"  kwrdTail
-RANDC_K  <- Spacing   "randc"  kwrdTail
-RANDSEQUENCE_K  <- Spacing   "randsequence"  kwrdTail
-RAND_K  <- Spacing   "rand"  kwrdTail
-RANDOMIZE_K  <- Spacing   "randomize"  kwrdTail
-RCMOS_K  <- Spacing   "rcmos"  kwrdTail
-REALTIME_K  <- Spacing   "realtime"  kwrdTail
-REAL_K  <- Spacing   "real"  kwrdTail
-REF_K  <- Spacing   "ref"  kwrdTail
-REG_K  <- Spacing   "reg"  kwrdTail
-REJECT_ON_K  <- Spacing   "reject_on"  kwrdTail
-RELEASE_K  <- Spacing   "release"  kwrdTail
-REPEAT_K  <- Spacing   "repeat"  kwrdTail
-RESTRICT_K  <- Spacing   "restrict"  kwrdTail
-RETURN_K  <- Spacing   "return"  kwrdTail
-RNMOS_K  <- Spacing   "rnmos"  kwrdTail
-RPMOS_K  <- Spacing   "rpmos"  kwrdTail
-RTRANIF0_K  <- Spacing   "rtranif0"  kwrdTail
-RTRANIF1_K  <- Spacing   "rtranif1"  kwrdTail
-RTRAN_K  <- Spacing   "rtran"  kwrdTail
-SCALARED_K  <- Spacing   "scalared"  kwrdTail
-SEQUENCE_K  <- Spacing   "sequence"  kwrdTail
-SHORTINT_K  <- Spacing   "shortint"  kwrdTail
-SHORTREAL_K  <- Spacing   "shortreal"  kwrdTail
-SHOWCANCELLED_K  <- Spacing   "showcancelled"  kwrdTail
-SIGNED_K  <- Spacing   "signed"  kwrdTail
-SMALL_K  <- Spacing   "small"  kwrdTail
-SOLVE_K  <- Spacing   "solve"  kwrdTail
-SPECIFY_K  <- Spacing   "specify"  kwrdTail
-SPECPARAM_K  <- Spacing   "specparam"  kwrdTail
-STATIC_K  <- Spacing   "static"  kwrdTail
-STRING_K  <- Spacing   "string"  kwrdTail
-STRONG0_K  <- Spacing   "strong0"  kwrdTail
-STRONG1_K  <- Spacing   "strong1"  kwrdTail
-STRONG_K  <- Spacing   "strong"  kwrdTail
-STRUCT_K  <- Spacing   "struct"  kwrdTail
-SUPER_K  <- Spacing   "super"  kwrdTail
-SUPPLY0_K  <- Spacing   "supply0"  kwrdTail
-SUPPLY1_K  <- Spacing   "supply1"  kwrdTail
-SYNC_ACCEPT_ON_K  <- Spacing   "sync_accept_on"  kwrdTail
-SYNC_REJECT_ON_K  <- Spacing   "sync_reject_on"  kwrdTail
-S_ALWAYS_K  <- Spacing   "s_always"  kwrdTail
-S_EVENTUALLY_K  <- Spacing   "s_eventually"  kwrdTail
-S_NEXTTIME_K  <- Spacing   "s_nexttime"  kwrdTail
-S_UNTIL_K  <- Spacing   "s_until"  kwrdTail
-S_UNTIL_WITH_K  <- Spacing   "s_until_with"  kwrdTail
-TABLE_K  <- Spacing   "table"  kwrdTail
-TAGGED_K  <- Spacing   "tagged"  kwrdTail
-TASK_K  <- Spacing   "task"  kwrdTail
-THIS_K  <- Spacing   "this"  kwrdTail
-THROUGHOUT_K  <- Spacing   "throughout"  kwrdTail
-TIMEPRECISION_K  <- Spacing   "timeprecision"  kwrdTail
-TIMEUNIT_K  <- Spacing   "timeunit"  kwrdTail
-TIME_K  <- Spacing   "time"  kwrdTail
-TRANIF0_K  <- Spacing   "tranif0"  kwrdTail
-TRANIF1_K  <- Spacing   "tranif1"  kwrdTail
-TRAN_K  <- Spacing   "tran"  kwrdTail
-TRI0_K  <- Spacing   "tri0"  kwrdTail
-TRI1_K  <- Spacing   "tri1"  kwrdTail
-TRIAND_K  <- Spacing   "triand"  kwrdTail
-TRIOR_K  <- Spacing   "trior"  kwrdTail
-TRIREG_K  <- Spacing   "trireg"  kwrdTail
-TRI_K  <- Spacing   "tri"  kwrdTail
-TYPEDEF_K  <- Spacing   "typedef"  kwrdTail
-TYPE_K  <- Spacing   "type"  kwrdTail
-UNION_K  <- Spacing   "union"  kwrdTail
-UNIQUE0_K  <- Spacing   "unique0"  kwrdTail
-UNIQUE_K  <- Spacing   "unique"  kwrdTail
-UNSIGNED_K  <- Spacing   "unsigned"  kwrdTail
-UNTIL_K  <- Spacing   "until"  kwrdTail
-UNTIL_WITH_K  <- Spacing   "until_with"  kwrdTail
-UNTYPED_K  <- Spacing   "untyped"  kwrdTail
-USE_K  <- Spacing   "use"  kwrdTail
-UWIRE_K  <- Spacing   "uwire"  kwrdTail
-VAR_K  <- Spacing   "var"  kwrdTail
-VECTORED_K  <- Spacing   "vectored"  kwrdTail
-VIRTUAL_K  <- Spacing   "virtual"  kwrdTail
-VOID_K  <- Spacing   "void"  kwrdTail
-WAIT_K  <- Spacing   "wait"  kwrdTail
-WAIT_ORDER_K  <- Spacing   "wait_order"  kwrdTail
-WAND_K  <- Spacing   "wand"  kwrdTail
-WEAK0_K  <- Spacing   "weak0"  kwrdTail
-WEAK1_K  <- Spacing   "weak1"  kwrdTail
-WEAK_K  <- Spacing   "weak"  kwrdTail
-WHILE_K  <- Spacing   "while"  kwrdTail
-WILDCARD_K  <- Spacing   "wildcard"  kwrdTail
-WIRE_K  <- Spacing   "wire"  kwrdTail
-WITHIN_K  <- Spacing   "within"  kwrdTail
-WITH_K  <- Spacing   "with"  kwrdTail
-WOR_K  <- Spacing   "wor"  kwrdTail
-XNOR_K  <- Spacing   "xnor"  kwrdTail
-XOR_K  <- Spacing   "xor"  kwrdTail
-W1STEP_K  <- Spacing   "1step" kwrdTail	//NOTE: actually not a keyword in LRM
-
-//Token definitions
-
-AND <- Spacing  				'&'		
-AND2 <- Spacing  				"&&"	
-AND3 <- Spacing  				"&&&"	
-AND_EQ <- Spacing  				"&="	
-AT <- Spacing  					'@'		
-AT2 <- Spacing  				"@@"	
-AT_STAR <- Spacing  			"@*"	
-BAR_EQ_GT <- Spacing  			"|=>"	
-BAR_MINUS_GT <- Spacing  		"|->"	
-COLON2 <- Spacing  				"::" 	
-COLON <- Spacing  				':'		
-COLON_DIV <- Spacing  			":/"	
-COLON_EQ <- Spacing  			":="	
-COMMA <- Spacing  				','		
-//changed to NUMBER <- Spacing   DIGIT_012:			'0'..'2'
-DIV <- Spacing  				'/'		
-DIV_EQ <- Spacing  				"/="	
-DOLLAR <- Spacing  				'$'		
-DOT <- Spacing  				'.'		
-DOT_STAR <- Spacing  			".*"	
-EQ2 <- Spacing  				"=="	 
-EQ2_QMARK <- Spacing  			"==?"	
-EQ3 <- Spacing  				"==="	
-EQ <- Spacing  					'='		
-EQ_GT <- Spacing  				"=>"	
-GT2 <- Spacing  				">>"	
-GT2_EQ <- Spacing  				">>="	
-GT3_EQ <- Spacing  				">>>="	
-GT <- Spacing  					'>'		 
-GT3 <- Spacing  				">>>"	
-GT_EQ <- Spacing  				">="	 
-LBRACK <- Spacing  				'['		
-LCURLY <- Spacing  				'{'		
-LPAREN <- Spacing  				'('		
-LPAREN_STAR <- Spacing  		"(*"	
-LT2 <- Spacing  				"<<"	
-LT2_EQ <- Spacing  				"<<="	
-LT3_EQ <- Spacing  				"<<<="	
-LT <- Spacing  					'<'		 
-LT3 <- Spacing  				"<<<"	
-LT_EQ <- Spacing  				"<="	 
-LT_MINUS_GT <- Spacing  		"<->"	
-MINUS2 <- Spacing  				"--"	 
-MINUS <- Spacing  				'-'		
-MINUS_COLON <- Spacing  		"-:"	
-MINUS_EQ <- Spacing  			"-="	
-MINUS_GT2 <- Spacing  			"->>"	
-MINUS_GT <- Spacing  			"->"	
-MOD <- Spacing  				'%'		 
-MOD_EQ <- Spacing  				"%="	
-NOT <- Spacing  				'!'		
-NOT_EQ2 <- Spacing  			"!=="	
-NOT_EQ <- Spacing  				"!="	 
-NOT_EQ_QMARK <- Spacing  		"!=?"	
-OR2 <- Spacing  				"||"	
-OR <- Spacing  					'|'		
-OR_EQ <- Spacing  				"|="	
-PLUS2 <- Spacing  				"++"	 
-PLUS <- Spacing  				'+'		 
-PLUS_COLON <- Spacing  			"+:"	
-PLUS_EQ <- Spacing  			"+="	
-POUND2 <- Spacing  				"##"	
-POUND <- Spacing  				'#'		
-POUND_EQ_POUND <- Spacing  		"#=#"	
-POUND_MINUS_POUND <- Spacing  	"#-#"	
-QMARK <- Spacing  				'?'		
-RBRACK <- Spacing  				']'		
-RCURLY <- Spacing  				'}'		
-RPAREN <- Spacing  				')'		
-SEMI <- Spacing  				';'		
-STAR2 <- Spacing  				"**"	 
-STAR <- Spacing  				'*'		
-STAR_COLON2_STAR <- Spacing  	"*::*"	
-STAR_EQ <- Spacing  			"*="	
-STAR_GT <- Spacing  			"*>"	
-STAR_RPAREN <- Spacing  		"*)"	
-TILDE <- Spacing  				'~'		
-TILDE_AND <- Spacing  			"~&"	
-TILDE_OR <- Spacing  			"~|"	
-TILDE_XOR <- Spacing  			"~^"	
-XOR <- Spacing  				'^'		
-XOR_EQ <- Spacing  				"^="	
-XOR_TILDE <- Spacing  			"^~"	
-
-SQUOTE <- Spacing  				"'"		
-
-PATHPULSE_K <- Spacing  	"PATHPULSE$" kwrdTail
-DS_SETUP_K <- Spacing  		"$setup" kwrdTail
-DS_REMOVAL_K <- Spacing   	"$removal" kwrdTail
-DS_PERIOD_K <- Spacing  		"$period" kwrdTail
-DS_RECREM_K <- Spacing  		"$recrem" kwrdTail
-DS_SETUPHOLD_K <- Spacing  	"$setuphold" kwrdTail
-DS_RECOVERY_K <- Spacing  	"$recovery" kwrdTail
-DS_HOLD_K <- Spacing  		"$hold" kwrdTail
-DS_WIDTH_K <- Spacing  		"$width" kwrdTail
-DS_SKEW_K <- Spacing  		"$skew" kwrdTail
-DS_FULLSKEW_K <- Spacing  	"$fullskew" kwrdTail
-DS_TIMESKEW_K <- Spacing  	"$timeskew" kwrdTail
-DS_NOCHANGE_K <- Spacing  	"$nochange" kwrdTail
-DS_FATAL_K <- Spacing  		"$fatal" kwrdTail
-DS_ERROR_K <- Spacing  		"$error" kwrdTail
-DS_WARNING_K <- Spacing  		"$warning" kwrdTail
-DS_INFO_K <- Spacing  		"$info" kwrdTail
-DS_UNIT_K <- Spacing  		"$unit" kwrdTail
-DS_ROOT_K <- Spacing  		"$root" kwrdTail
-
-ESC_IDENT  <- Spacing '\\' (!(' ' / '\r' / '\t' / EOL) .)+
-        
-/**Need to match keywords (*_K) or IDENT
-IDENT <- Spacing IdentStart IdentCont*
-**/
-IDENT << MyIDENT
-IdentStart <- [a-zA-Z_]
-IdentCont <- IdentStart / [0-9] //TODO: where is this used: / '$'
-
-STRING <- Spacing '"' ('"' / (!'"' .)+ '"')
-
-SYSTEM_IDENT <- Spacing '$' IdentStart IdentCont*
-DIGIT <- Spacing [0-9]
-
-/** Improve performance dramatically
-Spacing <- (Space / Comment / TicLine / TimeScale)*
-**/
-Spacing << MySpacing
-Comment <- SL_COMMENT / ML_COMMENT
-SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
-ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
-
-Space <- ' ' / '\t' / EOL
-
-TicLine <- "`line" Space+ [0-9]+ Space+ STRING Space+ [0-2]
-
-TimeScale <- "`timescale" Space+ TimeValue Space* '/' Space* TimeValue
-TimeValue <- [0-9]+ Space* ("s" / "ms" / "us" / "ns" / "ps" / "fs")

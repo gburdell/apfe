@@ -13,7 +13,7 @@ import java_cup.runtime.*;
 %type Token
 
 %{
-  private StringBuilder string = new StringBuilder();
+  private final StringBuilder string = new StringBuilder();
 
   private static String stFileName = null;
 
@@ -34,7 +34,8 @@ import java_cup.runtime.*;
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 
-WhiteSpace = {LineTerminator} | [ \t\f]
+Space = [ \t\f]
+WhiteSpace = {LineTerminator} | {Space}
 
 /* comments */
 Comment = {TraditionalComment} | {EndOfLineComment}
@@ -43,21 +44,23 @@ TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
 
 /* identifiers */
-Identifier = [a-zA-Z_][a-zA-Z_0-9$]*
-EscapedIdentifier = \\ (!{WhiteSpace})+ {WhiteSpace}
+IDENT = [a-zA-Z_][a-zA-Z_0-9$]*
+ESC_IDENT = \\ (!{WhiteSpace})+ {WhiteSpace}
+SYSTEM_IDENT = "$" {IDENT}
 
 /*No whitespace between number and unit*/
-TimeLiteral = ({UnsignedNumber} | {FixedPointNumber}) {TimeUnit}
+TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {TimeUnit}
 TimeUnit = [munpf]? "s"
 
-/*
-//no spacing allowed in these begin{{
-/ fixed_point_number
-//no spacing }}end
-*/
+TicLine = "`line" {Space}+ [0-9]+ {Space}+ \" [^\"]+ \" {Space}+ [0-2]
+TimeScale = "`timescale" {Space}+ TimeLiteral {Space}* "/" {Space}* TimeLiteral
+
+FINISH_NUMBER = [0-2]
+OctDigit = [0-7]
+HexDigit = [0-9a-fA-F]
 NonZeroUnsignedNumber = [1-9][_0-9]*
 UnsignedNumber        = [0-9][_0-9]*
-RealNumber = {UnsignedNumber} ('.' {UnsignedNumber})? ([eE] [+-]? {UnsignedNumber})?
+REAL_NUMBER = {UnsignedNumber} ('.' {UnsignedNumber})? ([eE] [+-]? {UnsignedNumber})?
 FixedPointNumber = {UnsignedNumber} '.' {UnsignedNumber}
 BinaryValue = [01xXzZ?][01xXzZ?_]* 
 OctalValue = [0-7xXzZ?][0-7xXzZ?_]*
@@ -66,28 +69,27 @@ DecimalBase = \' [sS]? [dD]
 BinaryBase = \' [sS]? [bB]
 OctalBase = \' [sS]? [oO]
 HexBase = \' [sS]? [hH]
-UnbasedUnsizedLiteral = \' [ \t]* [01xXzZ?]
+UNBASED_UNSIZED_LITERAL = \' {Space}* [01xXzZ?]
 Size = {NonZeroUnsignedNumber}
 
 //A.8.7 Numbers
-Number = RealNumber | IntegralNumber
+NUMBER = {REAL_NUMBER} | {INTEGRAL_NUMBER}
 
-IntegralNumber = {OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber}
+INTEGRAL_NUMBER = {OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber}
 
-DecimalNumber = ({Size}? [ \t]* {DecimalBase}? [ \t]*)? 
+DecimalNumber = ({Size}? {Space}* {DecimalBase}? {Space}*)? 
 					({UnsignedNumber} | ([xXzZ?] '_'*))
 
-BinaryNumber = {Size}? [ \t]* BinaryBase [ \t]* BinaryValue
+BinaryNumber = {Size}? {Space}* {BinaryBase} {Space}* {BinaryValue}
 
-OctalNumber = {Size}? [ \t]* OctalBase [ \t]* OctalValue
+OctalNumber = {Size}? {Space}* {OctalBase} {Space}* {OctalValue}
 
-HexNumber = {Size}? [ \t]* HexBase [ \t]* HexValue
+HexNumber = {Size}? {Space}* {HexBase} {Space}* {HexValue}
 
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
-SingleCharacter = [^\r\n\'\\]
 
-%state STRING, CHARLITERAL
+%state STRING
 
 %%
 
@@ -439,21 +441,20 @@ SingleCharacter = [^\r\n\'\\]
 	"^" {return create(XOR);}
 	"^=" {return create(XOR_EQ);}
 	"^~" {return create(XOR_TILDE);}
+	{IDENT} {return create(IDENT);}
+	{ESC_IDENT} {return create(ESC_IDENT);}
+	{FINISH_NUMBER} {return create(FINISH_NUMBER);}
+	{UNBASED_UNSIZED_LITERAL} {return create(UNBASED_UNSIZED_LITERAL);}
+	{NUMBER} {return create(NUMBER);}
+	{TIME_LITERAL} {return create(TIME_LITERAL);}
+	{SYSTEM_IDENT} {return create(SYSTEM_IDENT);}
+
+  	{TicLine}	{ /*TODO*/ }
 
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }
 
-  /* character literal */
-  \'                             { yybegin(CHARLITERAL); }
-
-  /* comments */
-  {Comment}                      { /* ignore */ }
-
-  /* whitespace */
-  {WhiteSpace}                   { /* ignore */ }
-
-  /* identifiers */ 
-  {Identifier}                   { /*TODO*/ }  
+  {TimeScale} | {Comment} | {WhiteSpace}       { /* ignore */ }
 }
 
 <STRING> {
@@ -470,20 +471,12 @@ SingleCharacter = [^\r\n\'\\]
   "\\\""                         { string.append( '\"' ); }
   "\\'"                          { string.append( '\'' ); }
   "\\\\"                         { string.append( '\\' ); }
+  \\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8); string.append( val ); }
+  \\h{HexDigit}?{HexDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),16); string.append( val ); }
   
   /* error cases */
   \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
   {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
-}
-
-<CHARLITERAL> {
-  {SingleCharacter}\'            { yybegin(YYINITIAL); /*return symbol(CHARACTER_LITERAL, yytext().charAt(0));*/ }
-  
-  /* escape sequences */
-
-  /* error cases */
-  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
-  {LineTerminator}               { throw new RuntimeException("Unterminated character literal at end of line"); }
 }
 
 /* error fallback */
