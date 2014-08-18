@@ -22,21 +22,31 @@
  * THE SOFTWARE.
  */
 
-package apfe.maze.sv2009;
+package apfe.maze.runtime;
 
-import apfe.maze.runtime.TokenBase;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author gburdell
  */
-public class Token extends TokenBase {
-    public Token(String fname, int lnum, int col, String text, int code) {
-        super(fname, lnum, col, text, code);
-    }
+public abstract class ScannerBase extends ArrayList<TokenBase>{
+    public abstract boolean isEOF();
+    public abstract TokenBase nextToken() throws java.io.IOException;
     
-    @Override
-    public boolean isEOF() {
-        return (getCode() == ITokenCodes.EOF);
-    }    
+    public int slurp() {
+        TokenBase tok;
+        while (! isEOF()) {
+            try {
+                tok = nextToken();
+                super.add(tok);
+            } catch (IOException ex) {
+                Logger.getLogger(ScannerBase.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return super.size();
+    }
 }

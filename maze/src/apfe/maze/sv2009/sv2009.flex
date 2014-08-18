@@ -1,4 +1,6 @@
 package apfe.maze.sv2009;
+import apfe.maze.runtime.ScannerBase;
+import apfe.maze.runtime.TokenBase;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
@@ -6,12 +8,13 @@ import java.io.FileReader;
 
 %public
 %class Scanner
+%extends    ScannerBase
 %implements ITokenCodes
 %unicode
 %line
 %column
 %function nextToken
-%type Token
+%type TokenBase
 
 %{
   private final StringBuilder string = new StringBuilder();
@@ -43,6 +46,7 @@ import java.io.FileReader;
     setFileName(fn);
   }
 
+  //TODO: derive from RuntimeException to pass back to parser
   private void error(String msg) {
       StringBuilder sb = new StringBuilder("Error: ");
       sb.append(getFileName()).append(':').append(yyline+1).append(':')

@@ -22,17 +22,23 @@
  * THE SOFTWARE.
  */
 
-package apfe.maze.runtime;
+package apfe.maze.sv2009;
+import apfe.maze.runtime.TokenBase;
+import java.util.ArrayList;
 
 /**
- * 
+ * The entire collection of Tokens from a Scanner.
  * @author gburdell
  */
-public interface IToken {
-    public String getText();
-    public int getLineNum();
-    public int getColNum();
-    public String getFileName();
-    public int getCode();
-    public String getLocation();
+public class Tokens extends ArrayList<TokenBase> {
+    public Tokens(Scanner scanner) {
+        m_scanner = scanner;
+    }
+    
+    public int slurp() {
+        //todo
+        return this.size();
+    }
+    
+    private final Scanner m_scanner;
 }
