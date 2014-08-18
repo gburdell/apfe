@@ -23,10 +23,11 @@
  */
 package apfe.maze.sv2009;
 
+import apfe.maze.runtime.ScannerBase;
+import apfe.maze.runtime.TokenBase;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -36,16 +37,17 @@ public class ScannerTest {
 
     private static final String stFname = "/home/gburdell/projects/apfe/maze/test/apfe/maze/sv2009/m1.v";
 
-    private static void print(final Token tok) {
-        System.out.println(tok.toString());
+    private static void print(final ScannerBase scn) {
+        for (TokenBase tok : scn) {
+            System.out.println(tok.toString());
+        }
     }
 
     private static Path[] getFiles() {
         final String dir = "/home/gburdell/projects/apfe/maze/test/apfe/maze/sv2009";
         final String fns[] = {
-            "m1.v", "or1200_top.flat.v", "s1_top.flat.v" /*, "test.flat.v"*/
-            //"m1.v"
-            //"m2.v"
+            "m1.v", "or1200_top.flat.v", "s1_top.flat.v" /*, "test.flat.v"*/ //"m1.v"
+        //"m2.v"
         };
         Path paths[] = new Path[fns.length];
         for (int i = 0; i < paths.length; i++) {
@@ -56,6 +58,7 @@ public class ScannerTest {
 
     /**
      * Test of nextToken method, of class Scanner.
+     * @throws java.lang.Exception
      */
     @Test
     public void testNextToken() throws Exception {
@@ -64,12 +67,9 @@ public class ScannerTest {
             String fn = path.toString();
             System.out.println("Info: " + fn + " ...");
             Scanner instance = new Scanner(fn);
-            Token tok = null;
-            while (!instance.isEOF()) {
-                tok = instance.nextToken();
-                assertNotNull(tok);
-                print(tok);
-            }
+            int n = instance.slurp();
+            System.out.println("n="+n);
+            //print(instance);
         }
     }
 

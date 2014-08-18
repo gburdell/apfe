@@ -3,6 +3,7 @@ import apfe.maze.runtime.ScannerBase;
 import apfe.maze.runtime.TokenBase;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 %%
 
@@ -13,7 +14,7 @@ import java.io.FileReader;
 %unicode
 %line
 %column
-%function nextToken
+%function xnextToken
 %type TokenBase
 
 %{
@@ -54,6 +55,15 @@ import java.io.FileReader;
               .append(": ").append(yytext());
       throw new RuntimeException(sb.toString());
   }
+
+    @Override
+    public TokenBase nextToken() {
+        try {
+            return xnextToken();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
   
   public boolean isEOF() {
   	return zzAtEOF;

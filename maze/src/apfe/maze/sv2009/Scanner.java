@@ -5,6 +5,7 @@ import apfe.maze.runtime.ScannerBase;
 import apfe.maze.runtime.TokenBase;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 
 /**
@@ -2528,6 +2529,15 @@ public class Scanner extends ScannerBase implements ITokenCodes {
               .append(": ").append(yytext());
       throw new RuntimeException(sb.toString());
   }
+
+    @Override
+    public TokenBase nextToken() {
+        try {
+            return xnextToken();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
   
   public boolean isEOF() {
   	return zzAtEOF;
@@ -2763,7 +2773,7 @@ public class Scanner extends ScannerBase implements ITokenCodes {
    * @return      the next token
    * @exception   java.io.IOException  if any I/O-Error occurs
    */
-  public TokenBase nextToken() throws java.io.IOException {
+  public TokenBase xnextToken() throws java.io.IOException {
     int zzInput;
     int zzAction;
 

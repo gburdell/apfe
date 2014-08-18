@@ -21,31 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author gburdell
  */
-public abstract class ScannerBase extends ArrayList<TokenBase>{
+public abstract class ScannerBase extends ArrayList<TokenBase> {
+
     public abstract boolean isEOF();
-    public abstract TokenBase nextToken() throws java.io.IOException;
-    
+
+    public abstract TokenBase nextToken();
+
     public int slurp() {
         TokenBase tok;
-        while (! isEOF()) {
-            try {
-                tok = nextToken();
-                super.add(tok);
-            } catch (IOException ex) {
-                Logger.getLogger(ScannerBase.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        while (!isEOF()) {
+            tok = nextToken();
+            super.add(tok);
         }
         return super.size();
     }
