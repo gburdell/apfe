@@ -4026,12 +4026,6 @@ endfunction : wrap_up
    end
 endprogram : testp
 
-Warn : test.sv:84:15: replace macro 'TxPorts' definition  (VPP-DUP-1a)
-Warn : small.sv:25:1: previous definition of macro 'TxPorts'  (VPP-DUP-1b)
-Warn : test.sv:85:15: replace macro 'RxPorts' definition  (VPP-DUP-1a)
-Warn : small.sv:26:1: previous definition of macro 'RxPorts'  (VPP-DUP-1b)
-Warn : test.sv:90:17: replace macro 'SYNTHESIS' definition  (VPP-DUP-1a)
-Warn : small.sv:24:1: previous definition of macro 'SYNTHESIS'  (VPP-DUP-1b)
 `line 1 "test.sv" 0
 /**********************************************************************
  * Utopia ATM testbench
@@ -8009,10 +8003,6 @@ program automatic test
 endprogram // test
 
 
-Warn : top.sv:72:1: replace macro 'TxPorts' definition  (VPP-DUP-1a)
-Warn : test.sv:84:15: previous definition of macro 'TxPorts'  (VPP-DUP-1b)
-Warn : top.sv:73:1: replace macro 'RxPorts' definition  (VPP-DUP-1a)
-Warn : test.sv:85:15: previous definition of macro 'RxPorts'  (VPP-DUP-1b)
 `line 1 "top.sv" 0
 /**********************************************************************
  * Utopia top-level--includes all files for simulating the complete

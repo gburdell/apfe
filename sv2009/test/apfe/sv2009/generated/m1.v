@@ -1,3 +1,6 @@
+function \escapedId ;
+endfunction
+
 function void UNI_cell::post_randomize();
    HEC = hec({GFC, VPI, VCI, CLP, PT});
 endfunction : post_randomize

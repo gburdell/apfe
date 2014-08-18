@@ -1,5 +1,6 @@
 package apfe.maze.sv2009;
-import java_cup.runtime.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 %%
 
@@ -15,7 +16,7 @@ import java_cup.runtime.*;
 %{
   private final StringBuilder string = new StringBuilder();
 
-  private static String stFileName = null;
+  private static String stFileName = "?";
 
   public static void setFileName(String fn) {
   	stFileName = fn;
@@ -25,9 +26,34 @@ import java_cup.runtime.*;
   	return stFileName;
   }
 
-  private Token create(int id) {
-  	return new Token(); /*TODO*/
+  private Token create(int id, String text) {
+  	  	return new Token(stFileName, yyline+1, yycolumn+1, text, id);
   }
+
+  private Token create(int id) {
+  	  	return create(id, yytext());
+  }
+
+  private void ticLine() {
+  	String ss = yytext();
+  }
+
+  public Scanner(String fn) throws FileNotFoundException {
+	this(new FileReader(fn));
+    setFileName(fn);
+  }
+
+  private void error(String msg) {
+      StringBuilder sb = new StringBuilder("Error: ");
+      sb.append(getFileName()).append(':').append(yyline+1).append(':')
+              .append(yycolumn+1).append(": ").append(msg)
+              .append(": ").append(yytext());
+      throw new RuntimeException(sb.toString());
+  }
+  
+  public boolean isEOF() {
+  	return zzAtEOF;
+	}
 %}
 
 /* main character classes */
@@ -38,14 +64,12 @@ Space = [ \t\f]
 WhiteSpace = {LineTerminator} | {Space}
 
 /* comments */
-Comment = {TraditionalComment} | {EndOfLineComment}
-
-TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
+Comment = ("/*" ~"*/") | {EndOfLineComment}
 EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
 
 /* identifiers */
 IDENT = [a-zA-Z_][a-zA-Z_0-9$]*
-ESC_IDENT = \\ (!{WhiteSpace})+ {WhiteSpace}
+ESC_IDENT = \\ ~{WhiteSpace}
 SYSTEM_IDENT = "$" {IDENT}
 
 /*No whitespace between number and unit*/
@@ -53,38 +77,37 @@ TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {TimeUnit}
 TimeUnit = [munpf]? "s"
 
 TicLine = "`line" {Space}+ [0-9]+ {Space}+ \" [^\"]+ \" {Space}+ [0-2]
-TimeScale = "`timescale" {Space}+ TimeLiteral {Space}* "/" {Space}* TimeLiteral
+TimeScale = "`timescale" {Space}+ {TIME_LITERAL} {Space}* "/" {Space}* {TIME_LITERAL}
 
 FINISH_NUMBER = [0-2]
 OctDigit = [0-7]
 HexDigit = [0-9a-fA-F]
 NonZeroUnsignedNumber = [1-9][_0-9]*
 UnsignedNumber        = [0-9][_0-9]*
-REAL_NUMBER = {UnsignedNumber} ('.' {UnsignedNumber})? ([eE] [+-]? {UnsignedNumber})?
+RealNumber = {UnsignedNumber} '.' {UnsignedNumber} ([eE] [+-]? {UnsignedNumber})?
 FixedPointNumber = {UnsignedNumber} '.' {UnsignedNumber}
 BinaryValue = [01xXzZ?][01xXzZ?_]* 
 OctalValue = [0-7xXzZ?][0-7xXzZ?_]*
 HexValue = [0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]*
-DecimalBase = \' [sS]? [dD]
-BinaryBase = \' [sS]? [bB]
-OctalBase = \' [sS]? [oO]
-HexBase = \' [sS]? [hH]
+DecimalBase = \' [sS]? [dD] {Space}*
+BinaryBase = \' [sS]? [bB] {Space}*
+OctalBase = \' [sS]? [oO] {Space}*
+HexBase = \' [sS]? [hH] {Space}*
 UNBASED_UNSIZED_LITERAL = \' {Space}* [01xXzZ?]
-Size = {NonZeroUnsignedNumber}
+Size = {NonZeroUnsignedNumber} {Space}*
 
 //A.8.7 Numbers
-NUMBER = {REAL_NUMBER} | {INTEGRAL_NUMBER}
+NUMBER = {IntegralNumber} | {RealNumber}
 
-INTEGRAL_NUMBER = {OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber}
+IntegralNumber = {Size}? ({OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber})
 
-DecimalNumber = ({Size}? {Space}* {DecimalBase}? {Space}*)? 
-					({UnsignedNumber} | ([xXzZ?] '_'*))
+DecimalNumber = {DecimalBase}? ({UnsignedNumber} | ([xXzZ?] '_'*))
 
-BinaryNumber = {Size}? {Space}* {BinaryBase} {Space}* {BinaryValue}
+BinaryNumber = {BinaryBase} {BinaryValue}
 
-OctalNumber = {Size}? {Space}* {OctalBase} {Space}* {OctalValue}
+OctalNumber = {OctalBase} {OctalValue}
 
-HexNumber = {Size}? {Space}* {HexBase} {Space}* {HexValue}
+HexNumber = {HexBase} {HexValue}
 
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
@@ -94,6 +117,10 @@ StringCharacter = [^\r\n\"\\]
 %%
 
 <YYINITIAL> {
+    {WhiteSpace}+ |
+	{Comment}     |
+    {TimeScale}   { /* ignore */ }
+
 	"accept_on" {return create(ACCEPT_ON_K);}
 	"alias" {return create(ALIAS_K);}
 	"always_comb" {return create(ALWAYS_COMB_K);}
@@ -444,21 +471,19 @@ StringCharacter = [^\r\n\"\\]
 	{IDENT} {return create(IDENT);}
 	{ESC_IDENT} {return create(ESC_IDENT);}
 	{FINISH_NUMBER} {return create(FINISH_NUMBER);}
-	{UNBASED_UNSIZED_LITERAL} {return create(UNBASED_UNSIZED_LITERAL);}
 	{NUMBER} {return create(NUMBER);}
+	{UNBASED_UNSIZED_LITERAL} {return create(UNBASED_UNSIZED_LITERAL);}
 	{TIME_LITERAL} {return create(TIME_LITERAL);}
 	{SYSTEM_IDENT} {return create(SYSTEM_IDENT);}
 
-  	{TicLine}	{ /*TODO*/ }
+  	{TicLine}	{ ticLine(); }
 
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }
-
-  {TimeScale} | {Comment} | {WhiteSpace}       { /* ignore */ }
 }
 
 <STRING> {
-  \"                             { yybegin(YYINITIAL); /*return symbol(STRING_LITERAL, string.toString());*/ }
+  \"                             { yybegin(YYINITIAL); return create(STRING_LITERAL, string.toString()); }
   
   {StringCharacter}+             { string.append( yytext() ); }
   
@@ -475,11 +500,10 @@ StringCharacter = [^\r\n\"\\]
   \\h{HexDigit}?{HexDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),16); string.append( val ); }
   
   /* error cases */
-  \\.                            { throw new RuntimeException("Illegal escape sequence \""+yytext()+"\""); }
-  {LineTerminator}               { throw new RuntimeException("Unterminated string at end of line"); }
+  \\.                            { error("Illegal escape sequence"); }
+  {LineTerminator}               { error("Unterminated string at end of line"); }
 }
 
 /* error fallback */
-[^]                              { throw new RuntimeException("Illegal character \""+yytext()+
-                                                              "\" at line "+yyline+", column "+yycolumn); }
-<<EOF>>                          { /*return symbol(EOF); */ }
+[^]                              { error("Illegal character"); }
+<<EOF>>                          { return create(EOF);  }

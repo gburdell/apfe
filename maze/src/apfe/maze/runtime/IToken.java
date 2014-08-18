@@ -34,4 +34,5 @@ public interface IToken {
     public int getColNum();
     public String getFileName();
     public int getCode();
+    public String getLocation();
 }
