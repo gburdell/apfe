@@ -45,7 +45,12 @@ public abstract class AcceptorBase {
      * @param state Scanner start.
      * @return true if can accept prescribed sequence.
      */
-    public abstract boolean accept(State state);
+    public boolean accept(State state) {
+        m_state = state;
+        return acceptImpl();
+    }
+    
+    protected abstract boolean acceptImpl();
     
     /**
      * Encapsulate start position of Scanner/Lexer.
@@ -63,4 +68,6 @@ public abstract class AcceptorBase {
         public final ScannerBase    m_lex;
         public final int            m_pos;
     }
+    
+    protected State   m_state;
 }
