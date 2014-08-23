@@ -23,6 +23,9 @@
  */
 package apfe.maze.runtime;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
+
 /**
  * A sequence of one or more AcceptorBase.
  *
@@ -36,18 +39,37 @@ public class Sequence extends AcceptorBase {
      * @param eles sequence of Acceptor prescribed.
      */
     public Sequence(AcceptorBase... eles) {
-        m_eles = eles;
+        m_eles = Util.arrayAsQueue(eles);
     }
 
+    private Sequence(Queue<AcceptorBase> eles) {
+        m_eles = new ArrayDeque<>(eles.size());
+        for (AcceptorBase ele : eles) {
+            m_eles.add(ele.create());
+        }
+    }
+    
     @Override
     public AcceptorBase create() {
+        //deep clone
         return new Sequence(m_eles);
     }
 
     @Override
     protected boolean acceptImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        AcceptorBase top = m_eles.remove();
+        boolean match = top.acceptImpl();
+        while (match) {
+            for (AcceptorBase leaf : top.getAccepted()) {
+                /*
+                TODO: No. Just add remaining m_eles and w/ asParent start state
+                to work on.
+                We cant assess match until all successors are done.
+                */
+            }
+        };
+        return match;
     }
 
-    private final AcceptorBase m_eles[];
+    private final Queue<AcceptorBase> m_eles;
 }

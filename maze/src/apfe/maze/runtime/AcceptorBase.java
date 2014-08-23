@@ -24,6 +24,9 @@
 
 package apfe.maze.runtime;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  *
  * @author gburdell
@@ -52,6 +55,10 @@ public abstract class AcceptorBase {
     
     protected abstract boolean acceptImpl();
     
+    public Iterable<AcceptorBase> getAccepted() {
+        return (null != m_accepted) ? m_accepted : stEmpty;
+    }
+    
     /**
      * Encapsulate start position of Scanner/Lexer.
      */
@@ -60,14 +67,41 @@ public abstract class AcceptorBase {
          * Capture (start) lexer position.
          * @param lex Scanner/lexer.
          * @param pos start position.
+         * @param parent parent for graph.
          */
-        public State(ScannerBase lex, int pos) {
+        public State(ScannerBase lex, int pos, AcceptorBase parent) {
             m_lex = lex;
             m_pos = pos;
+            m_parent = parent;
         }
+        
+        public State(ScannerBase lex, int pos) {
+            this(lex, pos, null);
+        }
+        
         public final ScannerBase    m_lex;
         public final int            m_pos;
+        public final AcceptorBase   m_parent;
     }
     
-    protected State   m_state;
+    protected TokenBase getToken() {
+        return m_state.m_lex.get(getPos());
+    }
+    
+    protected int getPos() {
+        return m_state.m_pos;
+    }
+    
+    protected void addAccepted(AcceptorBase acc) {
+        if (null == m_accepted) {
+            m_accepted = new LinkedList<>();
+        }
+        m_accepted.add(acc);
+    }
+    
+    private State   m_state;
+    
+    private List<AcceptorBase>  m_accepted;
+    
+    private static final Iterable<AcceptorBase> stEmpty = new Util.EmptyCollection<>();
 }

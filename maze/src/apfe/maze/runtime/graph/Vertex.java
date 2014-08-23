@@ -21,39 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime;
+package apfe.maze.runtime.graph;
+
+import apfe.maze.runtime.AcceptorBase;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
- * A single token.
  *
  * @author gburdell
  */
-public class Terminal extends AcceptorBase {
+public class Vertex {
 
-    /**
-     * Accept a single token.
-     *
-     * @param tokCode of single token to accept.
-     */
-    public Terminal(int tokCode) {
-        m_tokCode = tokCode;
+    public Vertex(AcceptorBase parent) {
+        m_parent = parent;
     }
 
-    @Override
-    public AcceptorBase create() {
-        return new Terminal(m_tokCode);
+    public Vertex() {
+        this(null);
     }
 
-    @Override
-    protected boolean acceptImpl() {
-        final boolean match = m_tokCode == getToken().getCode();
-        if (match) {
-            m_matched = getToken();
-            addAccepted(this);
+    public void addChild(AcceptorBase child) {
+        if (null == m_children) {
+            m_children = new LinkedList<>();
         }
-        return match;
+        m_children.add(child);
     }
-
-    private final int m_tokCode;
-    private TokenBase m_matched;
+    
+    private final AcceptorBase m_parent;
+    private List<AcceptorBase> m_children;
 }

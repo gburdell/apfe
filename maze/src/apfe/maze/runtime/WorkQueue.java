@@ -23,37 +23,40 @@
  */
 package apfe.maze.runtime;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
- * A single token.
- *
+ * The queue of work (bits) attempting to accept tokens through the maze
+ * of possible paths/acceptors.
+ * 
  * @author gburdell
  */
-public class Terminal extends AcceptorBase {
-
-    /**
-     * Accept a single token.
-     *
-     * @param tokCode of single token to accept.
-     */
-    public Terminal(int tokCode) {
-        m_tokCode = tokCode;
+public class WorkQueue {
+    public static class Work {
+        
     }
-
-    @Override
-    public AcceptorBase create() {
-        return new Terminal(m_tokCode);
+    
+    public boolean isEmpty() {
+        return m_fifo.isEmpty();
     }
-
-    @Override
-    protected boolean acceptImpl() {
-        final boolean match = m_tokCode == getToken().getCode();
-        if (match) {
-            m_matched = getToken();
-            addAccepted(this);
-        }
-        return match;
+    
+    public int length() {
+        return m_fifo.size();
     }
-
-    private final int m_tokCode;
-    private TokenBase m_matched;
+    
+    public Work peek() {
+        return m_fifo.get(0);
+    }
+    
+    public Work pop() {
+        return m_fifo.remove(0);
+    }
+    
+    public void push(Work item) {
+        m_fifo.add(item);
+    }
+    
+    private final List<Work> m_fifo = Collections.synchronizedList(new LinkedList());
 }

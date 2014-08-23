@@ -23,37 +23,44 @@
  */
 package apfe.maze.runtime;
 
+import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Queue;
+
 /**
- * A single token.
  *
  * @author gburdell
  */
-public class Terminal extends AcceptorBase {
+public class Util {
 
-    /**
-     * Accept a single token.
-     *
-     * @param tokCode of single token to accept.
-     */
-    public Terminal(int tokCode) {
-        m_tokCode = tokCode;
-    }
+    public static class EmptyCollection<T> implements Iterable<T> {
 
-    @Override
-    public AcceptorBase create() {
-        return new Terminal(m_tokCode);
-    }
+        @Override
+        public Iterator<T> iterator() {
+            return new Iterator<T>() {
 
-    @Override
-    protected boolean acceptImpl() {
-        final boolean match = m_tokCode == getToken().getCode();
-        if (match) {
-            m_matched = getToken();
-            addAccepted(this);
+                @Override
+                public boolean hasNext() {
+                    return false;
+                }
+
+                @Override
+                public T next() {
+                    assert false;
+                    return null;
+                }
+
+                @Override
+                public void remove() {
+                    assert false;
+                }
+            };
         }
-        return match;
     }
-
-    private final int m_tokCode;
-    private TokenBase m_matched;
+    
+    public static <T> Queue<T> arrayAsQueue(T ar[]) {
+        Queue<T> asQ = new ArrayDeque<>(java.util.Arrays.asList(ar));
+        return asQ;
+    }
 }
