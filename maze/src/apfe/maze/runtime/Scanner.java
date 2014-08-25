@@ -23,62 +23,24 @@
  */
 package apfe.maze.runtime;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author gburdell
  */
-public abstract class TokenBase {
-
-    protected TokenBase(String fname, int lnum, int col, String text, int code) {
-        m_fname = fname;
-        m_lnum = lnum;
-        m_col = col;
-        m_text = text;
-        m_code = code;
-    }
+public abstract class Scanner extends ArrayList<Token> {
 
     public abstract boolean isEOF();
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(getLocation());
-        sb.append(':').append(getCode()).append(':').append(getText());
-        return sb.toString();
-    }
+    public abstract Token nextToken();
 
-    public String getLocation() {
-        StringBuilder sb = new StringBuilder();
-        if (stLocationHasFileName) {
-            sb.append(getFileName()).append(':');
+    public int slurp() {
+        Token tok;
+        while (!isEOF()) {
+            tok = nextToken();
+            super.add(tok);
         }
-        sb.append(getLineNum()).append(':').append(getColNum());
-        return sb.toString();
+        return super.size();
     }
-
-    public int getCode() {
-        return m_code;
-    }
-
-    public String getFileName() {
-        return m_fname;
-    }
-
-    public int getLineNum() {
-        return m_lnum;
-    }
-
-    public int getColNum() {
-        return m_col;
-    }
-
-    public String getText() {
-        return m_text;
-    }
-
-    public static boolean stLocationHasFileName = true;
-
-    private final String m_fname;
-    private final int m_lnum, m_col;
-    private final String m_text;
-    private final int m_code;
 }

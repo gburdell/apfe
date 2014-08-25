@@ -23,31 +23,33 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.graph.Vertex;
+
 /**
  * An Acceptor with optional semantics.
  *
  * @author gburdell
  */
-public class Optional extends AcceptorBase {
+public class Optional extends Acceptor {
 
     /**
      * Optionally accept.
      *
      * @param opt element to optionally accept.
      */
-    public Optional(AcceptorBase opt) {
+    public Optional(Acceptor opt) {
         m_opt = opt;
     }
 
     @Override
-    public AcceptorBase create() {
+    public Acceptor create() {
         return new Optional(m_opt);
     }
 
     @Override
-    protected boolean acceptImpl() {
+    protected Vertex acceptImpl() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private final AcceptorBase m_opt;
+    private final Acceptor m_opt;
 }

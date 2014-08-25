@@ -23,15 +23,15 @@
  */
 
 package apfe.maze.sv2009;
-import apfe.maze.runtime.TokenBase;
+import apfe.maze.runtime.Token;
 import java.util.ArrayList;
 
 /**
  * The entire collection of Tokens from a Scanner.
  * @author gburdell
  */
-public class Tokens extends ArrayList<TokenBase> {
-    public Tokens(Scanner scanner) {
+public class Tokens extends ArrayList<Token> {
+    public Tokens(SvScanner scanner) {
         m_scanner = scanner;
     }
     
@@ -40,5 +40,5 @@ public class Tokens extends ArrayList<TokenBase> {
         return this.size();
     }
     
-    private final Scanner m_scanner;
+    private final SvScanner m_scanner;
 }

@@ -21,22 +21,67 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package apfe.maze.sv2009;
-
-import apfe.maze.runtime.TokenBase;
+package apfe.maze.runtime;
 
 /**
  *
  * @author gburdell
  */
-public class Token extends TokenBase {
-    public Token(String fname, int lnum, int col, String text, int code) {
-        super(fname, lnum, col, text, code);
-    }
+public class Token {
+    public static final int EOF = -1;
     
-    @Override
+    public Token(String fname, int lnum, int col, String text, int code) {
+        m_fname = fname;
+        m_lnum = lnum;
+        m_col = col;
+        m_text = text;
+        m_code = code;
+    }
+
     public boolean isEOF() {
-        return (getCode() == ITokenCodes.EOF);
-    }    
+        return (EOF == getCode());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getLocation());
+        sb.append(':').append(getCode()).append(':').append(getText());
+        return sb.toString();
+    }
+
+    public String getLocation() {
+        StringBuilder sb = new StringBuilder();
+        if (stLocationHasFileName) {
+            sb.append(getFileName()).append(':');
+        }
+        sb.append(getLineNum()).append(':').append(getColNum());
+        return sb.toString();
+    }
+
+    public int getCode() {
+        return m_code;
+    }
+
+    public String getFileName() {
+        return m_fname;
+    }
+
+    public int getLineNum() {
+        return m_lnum;
+    }
+
+    public int getColNum() {
+        return m_col;
+    }
+
+    public String getText() {
+        return m_text;
+    }
+
+    public static boolean stLocationHasFileName = true;
+
+    private final String m_fname;
+    private final int m_lnum, m_col;
+    private final String m_text;
+    private final int m_code;
 }

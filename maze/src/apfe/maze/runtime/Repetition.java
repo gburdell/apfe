@@ -23,19 +23,21 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.graph.Vertex;
+
 /**
  * An Acceptor with repetition semantics.
  *
  * @author gburdell
  */
-public class Repetition extends AcceptorBase {
+public class Repetition extends Acceptor {
 
     /**
      * Accept 0 or more.
      *
      * @param rep element to repetitively accept.
      */
-    public Repetition(AcceptorBase rep) {
+    public Repetition(Acceptor rep) {
         this(rep, false);
     }
 
@@ -45,21 +47,21 @@ public class Repetition extends AcceptorBase {
      * @param rep element to repetitively accept.
      * @param oneOrMore specify (true) for rep+ semantics, else rep*.
      */
-    public Repetition(AcceptorBase rep, boolean oneOrMore) {
+    public Repetition(Acceptor rep, boolean oneOrMore) {
         m_rep = rep;
         m_oneOrMore = oneOrMore;
     }
 
     @Override
-    public AcceptorBase create() {
+    public Acceptor create() {
         return new Repetition(m_rep, m_oneOrMore);
     }
 
     @Override
-    protected boolean acceptImpl() {
+    protected Vertex acceptImpl() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private final AcceptorBase m_rep;
+    private final Acceptor m_rep;
     private final boolean m_oneOrMore;
 }

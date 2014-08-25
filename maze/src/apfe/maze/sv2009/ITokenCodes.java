@@ -28,7 +28,6 @@ package apfe.maze.sv2009;
  * @author gburdell
  */
 public interface ITokenCodes {
-    public static final int EOF = -1;
     public static final int STRING_LITERAL = 999;
     
     //Following are auto-generated.

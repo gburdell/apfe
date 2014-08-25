@@ -24,30 +24,10 @@
 
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Vertex;
-
 /**
- * A sequence of one or more AcceptorBase.
+ *
  * @author gburdell
  */
-public class Alternates extends Acceptor {
-    /**
-     * Acceptor with alternative semantics.
-     * @param alts series of alternatives.
-     */
-    public Alternates(Acceptor... alts) {
-        m_alts = alts;
-    }
-    
-    @Override
-    public Acceptor create() {
-        return new Alternates(m_alts);
-    }
-
-    @Override
-    protected Vertex acceptImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    private final Acceptor    m_alts[];
+public class Globals {
+    public static WorkQueue workQueue = new WorkQueue();
 }

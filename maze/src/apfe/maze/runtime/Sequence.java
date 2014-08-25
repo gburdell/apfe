@@ -23,7 +23,11 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.graph.DiGraph;
+import apfe.maze.runtime.graph.Vertex;
 import java.util.ArrayDeque;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -31,45 +35,63 @@ import java.util.Queue;
  *
  * @author gburdell
  */
-public class Sequence extends AcceptorBase {
+public class Sequence extends Acceptor {
 
     /**
      * Acceptor with sequence semantics.
      *
      * @param eles sequence of Acceptor prescribed.
      */
-    public Sequence(AcceptorBase... eles) {
+    public Sequence(Acceptor... eles) {
         m_eles = Util.arrayAsQueue(eles);
     }
 
-    private Sequence(Queue<AcceptorBase> eles) {
+    private Sequence(Queue<Acceptor> eles) {
         m_eles = new ArrayDeque<>(eles.size());
-        for (AcceptorBase ele : eles) {
+        for (Acceptor ele : eles) {
             m_eles.add(ele.create());
         }
     }
-    
+
     @Override
-    public AcceptorBase create() {
+    public Acceptor create() {
         //deep clone
         return new Sequence(m_eles);
     }
 
+    /**
+     * Build sequence entirely in this subgraph. If sequence is successful, then
+     * we flatten into parent.
+     *
+     * @return
+     */
     @Override
-    protected boolean acceptImpl() {
-        AcceptorBase top = m_eles.remove();
-        boolean match = top.acceptImpl();
-        while (match) {
-            for (AcceptorBase leaf : top.getAccepted()) {
-                /*
-                TODO: No. Just add remaining m_eles and w/ asParent start state
-                to work on.
-                We cant assess match until all successors are done.
-                */
+    protected Graph acceptImpl() {
+        boolean ok = true;
+        Graph g = getSubgraph(), subg = null;
+        Acceptor acc;
+        Vertex<State> dest = null;
+        Iterable<Vertex<State>> srcs = Util.asIterable(getSubgraphRoot());
+        while (ok && !m_eles.isEmpty()) {
+            acc = m_eles.remove();
+            for (Vertex src : srcs) {
+                subg = acc.accept(src, g);
+                if (null != subg) {
+                //TODO: The returned subgraph 'subg' will have added leaf nodes.
+                    //Foreach of these leaf nodes we start subgraph and try
+                    //next acceptor.
+                    //TODO: collect leafs for next iteration
+                } else {
+                    //TODO: sequence failed
+                    ok = false;
+                }
             }
-        };
-        return match;
+        }
+        if (!ok) {
+            //remove any edges/nodes we added during processing here.
+        }
+        return ok ? g : null;
     }
 
-    private final Queue<AcceptorBase> m_eles;
+    private final Queue<Acceptor> m_eles;
 }

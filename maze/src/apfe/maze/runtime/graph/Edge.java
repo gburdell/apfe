@@ -21,33 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
-package apfe.maze.runtime;
-
-import apfe.maze.runtime.graph.Vertex;
+package apfe.maze.runtime.graph;
 
 /**
- * A sequence of one or more AcceptorBase.
+ * A directed edge from source to dest.
+ *
  * @author gburdell
+ * @param <V> vertex data type.
+ * @param <E> edge data type.
  */
-public class Alternates extends Acceptor {
-    /**
-     * Acceptor with alternative semantics.
-     * @param alts series of alternatives.
-     */
-    public Alternates(Acceptor... alts) {
-        m_alts = alts;
-    }
-    
-    @Override
-    public Acceptor create() {
-        return new Alternates(m_alts);
+public class Edge<V, E> {
+
+    public Edge(Vertex src, Vertex dest, E data) {
+        m_src = src;
+        m_dest = dest;
+        m_data = data;
     }
 
-    @Override
-    protected Vertex acceptImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    private final Acceptor    m_alts[];
+    private final E m_data;
+    private final Vertex m_src, m_dest;
 }

@@ -23,31 +23,49 @@
  */
 package apfe.maze.runtime.graph;
 
-import apfe.maze.runtime.AcceptorBase;
+import apfe.maze.runtime.State;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * A vertex with one incoming edge and many outgoing edge.
  *
  * @author gburdell
+ * @param <E> edge data type.
  */
-public class Vertex {
+public class Vertex<E> {
 
-    public Vertex(AcceptorBase parent) {
-        m_parent = parent;
+    public Vertex(E dat) {
+        m_data = dat;
     }
 
-    public Vertex() {
-        this(null);
+    public E getState() {
+        return m_data;
     }
 
-    public void addChild(AcceptorBase child) {
-        if (null == m_children) {
-            m_children = new LinkedList<>();
+    public void setIncomingEdge(Edge in) {
+        if (null != m_incoming) {
+            throw new RuntimeException("Incoming edge already set");
         }
-        m_children.add(child);
+        m_incoming = in;
+    }
+
+    public void addOutGoingEdge(Edge out) {
+        if (null == m_outgoing) {
+            m_outgoing = new LinkedList<>();
+        }
+        m_outgoing.add(out);
     }
     
-    private final AcceptorBase m_parent;
-    private List<AcceptorBase> m_children;
+    public int getOutDegree() {
+        return (null != m_outgoing) ? m_outgoing.size() : 0;
+    }
+    
+    public int getInDegree() {
+        return (null != m_incoming) ? 1 : 0;
+    }
+    
+    private final E m_data;
+    private Edge m_incoming;
+    private List<Edge> m_outgoing;
 }

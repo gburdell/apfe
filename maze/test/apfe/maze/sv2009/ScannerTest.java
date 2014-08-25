@@ -23,8 +23,8 @@
  */
 package apfe.maze.sv2009;
 
-import apfe.maze.runtime.ScannerBase;
-import apfe.maze.runtime.TokenBase;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.runtime.Token;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import org.junit.Test;
@@ -37,8 +37,8 @@ public class ScannerTest {
 
     private static final String stFname = "/home/gburdell/projects/apfe/maze/test/apfe/maze/sv2009/m1.v";
 
-    private static void print(final ScannerBase scn) {
-        for (TokenBase tok : scn) {
+    private static void print(final Scanner scn) {
+        for (Token tok : scn) {
             System.out.println(tok.toString());
         }
     }
@@ -66,7 +66,7 @@ public class ScannerTest {
         for (Path path : getFiles()) {
             String fn = path.toString();
             System.out.println("Info: " + fn + " ...");
-            Scanner instance = new Scanner(fn);
+            Scanner instance = new SvScanner(fn);
             int n = instance.slurp();
             System.out.println("n="+n);
             //print(instance);

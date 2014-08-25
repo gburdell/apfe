@@ -25,8 +25,8 @@ package apfe.maze.runtime;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Queue;
+import java.util.Arrays;
 
 /**
  *
@@ -60,7 +60,11 @@ public class Util {
     }
     
     public static <T> Queue<T> arrayAsQueue(T ar[]) {
-        Queue<T> asQ = new ArrayDeque<>(java.util.Arrays.asList(ar));
+        Queue<T> asQ = new ArrayDeque<>(Arrays.asList(ar));
         return asQ;
+    }
+    
+    public static <T> Iterable<T> asIterable(T... eles) {
+        return Arrays.asList(eles);
     }
 }

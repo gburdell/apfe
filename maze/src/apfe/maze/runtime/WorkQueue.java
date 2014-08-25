@@ -23,6 +23,9 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.graph.Edge;
+import apfe.maze.runtime.graph.DiGraph;
+import apfe.maze.runtime.graph.Vertex;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +38,25 @@ import java.util.List;
  */
 public class WorkQueue {
     public static class Work {
-        
+        public Work(Vertex parent, Acceptor acc) {
+            m_parent = parent;
+            m_acc = acc;
+        }
+        /**
+         * Attempt to accept from current state (parent).
+         * If ok, then add edge from parent to new Vertex.
+         * @return new Vertex on accept, else null.
+         */
+        public Vertex process() {
+            State st = m_parent.getState();
+            Vertex result = m_acc.accept(st);
+            if (null != result) {
+                DiGraph.addEdge(m_parent, result, m_acc);
+            }
+            return result;
+        }
+        private final Vertex    m_parent;
+        private final Acceptor  m_acc;
     }
     
     public boolean isEmpty() {

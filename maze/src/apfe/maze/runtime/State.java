@@ -26,48 +26,37 @@ package apfe.maze.runtime;
 import apfe.maze.runtime.graph.Vertex;
 
 /**
- * A single token.
- *
- * @author gburdell
+ * Encapsulate start position of Scanner/Lexer.
  */
-public class Terminal extends Acceptor {
+public class State {
 
     /**
-     * Accept a single token.
+     * Capture (start) lexer position.
      *
-     * @param tokCode of single token to accept.
+     * @param lex Scanner/lexer.
+     * @param pos start position.
      */
-    public Terminal(int tokCode) {
-        m_tokCode = tokCode;
+    public State(Scanner lex, int pos) {
+        m_lex = lex;
+        m_pos = pos;
     }
 
-    @Override
-    public Acceptor create() {
-        return new Terminal(m_tokCode);
+    public Token getToken() {
+        return m_lex.get(getPos());
     }
 
-    /**
-     * Try to accept terminal.
-     * If so, add edge to subgraph with leaf vertex updated to scanner
-     * next position (unless src already at EOF).
-     * @return subgraph if accepted else null.
-     */
-    @Override
-    protected Graph acceptImpl() {
-        Graph subg = getSubgraph();
-        final boolean match = (m_tokCode == getToken().getCode());
-        Vertex<State> src = getSubgraphRoot();
-        if ((m_tokCode == getToken().getCode()) 
-                && !src.getState().getToken().isEOF()) { //dont repeat EOF
-            m_matched = getToken();
-            Vertex<State> dest = src.getState().getNextVertex();
-            subg.addEdge(src, dest, this);
-        } else {
-            subg = null;
-        }
-        return subg;
+    public int getPos() {
+        return m_pos;
+    }
+    
+    public State getNext() {
+        return new State(m_lex, m_pos + 1);
     }
 
-    private final int m_tokCode;
-    private Token m_matched;
+    public Vertex<State> getNextVertex() {
+        return new Vertex(getNext());
+    }
+    
+    public final Scanner m_lex;
+    public final int m_pos;
 }

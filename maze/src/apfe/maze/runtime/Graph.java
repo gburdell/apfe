@@ -21,26 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package apfe.maze.runtime;
 
-import java.util.ArrayList;
+import apfe.maze.runtime.graph.DiGraph;
+import apfe.maze.runtime.graph.Vertex;
 
 /**
  *
  * @author gburdell
  */
-public abstract class ScannerBase extends ArrayList<TokenBase> {
-
-    public abstract boolean isEOF();
-
-    public abstract TokenBase nextToken();
-
-    public int slurp() {
-        TokenBase tok;
-        while (!isEOF()) {
-            tok = nextToken();
-            super.add(tok);
-        }
-        return super.size();
+public class Graph extends DiGraph<State,Acceptor> {
+    public Graph(State st) {
+        super(st);
+    }
+    public Graph(Vertex st) {
+        super(st);
     }
 }

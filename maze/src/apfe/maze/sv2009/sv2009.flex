@@ -1,6 +1,6 @@
 package apfe.maze.sv2009;
-import apfe.maze.runtime.ScannerBase;
-import apfe.maze.runtime.TokenBase;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.runtime.Token;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,14 +8,14 @@ import java.io.IOException;
 %%
 
 %public
-%class Scanner
-%extends    ScannerBase
+%class SvScanner
+%extends    Scanner
 %implements ITokenCodes
 %unicode
 %line
 %column
 %function xnextToken
-%type TokenBase
+%type Token
 
 %{
   private final StringBuilder string = new StringBuilder();
@@ -42,7 +42,7 @@ import java.io.IOException;
   	String ss = yytext();
   }
 
-  public Scanner(String fn) throws FileNotFoundException {
+  public SvScanner(String fn) throws FileNotFoundException {
 	this(new FileReader(fn));
     setFileName(fn);
   }
@@ -57,7 +57,7 @@ import java.io.IOException;
   }
 
     @Override
-    public TokenBase nextToken() {
+    public Token nextToken() {
         try {
             return xnextToken();
         } catch (IOException ex) {
@@ -520,4 +520,4 @@ StringCharacter = [^\r\n\"\\]
 
 /* error fallback */
 [^]                              { error("Illegal character"); }
-<<EOF>>                          { return create(EOF);  }
+<<EOF>>                          { return create(Token.EOF);  }
