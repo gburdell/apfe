@@ -26,8 +26,10 @@ package apfe.maze.runtime;
 import apfe.maze.runtime.graph.DiGraph;
 import apfe.maze.runtime.graph.Vertex;
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 /**
@@ -71,23 +73,26 @@ public class Sequence extends Acceptor {
         Graph g = getSubgraph(), subg = null;
         Acceptor acc;
         Vertex<State> dest = null;
-        Iterable<Vertex<State>> srcs = Util.asIterable(getSubgraphRoot());
+        Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
+        List<Vertex<State>> nextSrcs = null;
         while (ok && !m_eles.isEmpty()) {
             acc = m_eles.remove();
+            nextSrcs = null;
             for (Vertex src : srcs) {
                 subg = acc.accept(src, g);
                 if (null != subg) {
-                //TODO: The returned subgraph 'subg' will have added leaf nodes.
-                    //Foreach of these leaf nodes we start subgraph and try
-                    //next acceptor.
-                    //TODO: collect leafs for next iteration
+                    nextSrcs = Util.addToList(nextSrcs, subg.getLeafs());
                 } else {
                     //TODO: sequence failed
                     ok = false;
                 }
             }
+            srcs = nextSrcs;
         }
-        if (!ok) {
+        if (ok) {
+            //Add leafs from last subgraph to parent.
+            g.addLeafs(srcs);
+        } else {
             //remove any edges/nodes we added during processing here.
         }
         return ok ? g : null;

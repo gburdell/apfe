@@ -35,7 +35,7 @@ public class Graph extends DiGraph<State,Acceptor> {
     public Graph(State st) {
         super(st);
     }
-    public Graph(Vertex st) {
+    public Graph(Vertex<State> st) {
         super(st);
     }
 }

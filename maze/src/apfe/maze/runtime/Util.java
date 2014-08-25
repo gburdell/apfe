@@ -24,9 +24,11 @@
 package apfe.maze.runtime;
 
 import java.util.ArrayDeque;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -34,37 +36,22 @@ import java.util.Arrays;
  */
 public class Util {
 
-    public static class EmptyCollection<T> implements Iterable<T> {
-
-        @Override
-        public Iterator<T> iterator() {
-            return new Iterator<T>() {
-
-                @Override
-                public boolean hasNext() {
-                    return false;
-                }
-
-                @Override
-                public T next() {
-                    assert false;
-                    return null;
-                }
-
-                @Override
-                public void remove() {
-                    assert false;
-                }
-            };
-        }
-    }
-    
     public static <T> Queue<T> arrayAsQueue(T ar[]) {
         Queue<T> asQ = new ArrayDeque<>(Arrays.asList(ar));
         return asQ;
     }
     
-    public static <T> Iterable<T> asIterable(T... eles) {
+    public static <T> Collection<T> asCollection(T... eles) {
         return Arrays.asList(eles);
+    }
+    
+    public static <T> List<T> addToList(List<T> to, Collection<T> items) {
+        if ((null != items) && (null == to)) {
+            to = new LinkedList<>();
+        }
+        if (null != items) {
+            to.addAll(items);
+        }
+        return to;
     }
 }

@@ -23,9 +23,8 @@
  */
 package apfe.maze.runtime.graph;
 
-import apfe.maze.runtime.Util;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -37,7 +36,7 @@ import java.util.Set;
  */
 public class DiGraph<V, E> {
 
-    public DiGraph(Vertex root) {
+    public DiGraph(Vertex<V> root) {
         m_root = root;
     }
 
@@ -49,7 +48,7 @@ public class DiGraph<V, E> {
         return m_root;
     }
 
-    public int addLeafs(Iterable<Vertex> leafs) {
+    public int addLeafs(Iterable<Vertex<V>> leafs) {
         if (null != leafs) {
             for (Vertex leaf  : leafs) {
                 if (null == m_leafs) {
@@ -67,7 +66,7 @@ public class DiGraph<V, E> {
         return (null != m_leafs) ? m_leafs.size() : 0;
     }
     
-    public void addEdge(Vertex src, Vertex dest, E data) {
+    public void addEdge(Vertex<V> src, Vertex<V> dest, E data) {
         Edge e = new Edge(src, dest, data);
         src.addOutGoingEdge(e);
         dest.setIncomingEdge(e);
@@ -82,13 +81,11 @@ public class DiGraph<V, E> {
         }
     }
 
-    public Iterator<Vertex> getLeafs() {
-        return (null != m_leafs) ? m_leafs.iterator() : stEmpty.iterator();
+    public Collection<Vertex<V>> getLeafs() {
+        return (null != m_leafs) ? m_leafs : null;
     }
 
-    private final Vertex m_root;
+    private final Vertex<V> m_root;
 
-    private Set<Vertex> m_leafs;
-
-    private static final Iterable<Vertex> stEmpty = new Util.EmptyCollection<>();
+    private Set<Vertex<V>> m_leafs;
 }
