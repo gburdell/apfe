@@ -68,6 +68,11 @@ public class Terminal extends Acceptor {
         return subg;
     }
 
+    @Override
+    public String toString() {
+        return m_matched + ":" + m_tokCode;
+    }
+    
     private final int m_tokCode;
     private Token m_matched;
 }

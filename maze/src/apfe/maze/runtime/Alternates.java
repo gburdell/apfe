@@ -24,8 +24,6 @@
 
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Vertex;
-
 /**
  * A sequence of one or more AcceptorBase.
  * @author gburdell
@@ -45,7 +43,7 @@ public class Alternates extends Acceptor {
     }
 
     @Override
-    protected Vertex acceptImpl() {
+    protected Graph acceptImpl() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -32,12 +32,12 @@ package apfe.maze.runtime.graph;
  */
 public class Edge<V, E> {
 
-    public Edge(Vertex src, Vertex dest, E data) {
+    public Edge(Vertex<V> src, Vertex<V> dest, E data) {
         m_src = src;
         m_dest = dest;
         m_data = data;
     }
 
     private final E m_data;
-    private final Vertex m_src, m_dest;
+    private final Vertex<V> m_src, m_dest;
 }

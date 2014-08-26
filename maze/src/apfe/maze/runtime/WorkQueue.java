@@ -48,12 +48,15 @@ public class WorkQueue {
          * @return new Vertex on accept, else null.
          */
         public Vertex process() {
+            /*
             State st = m_parent.getState();
             Vertex result = m_acc.accept(st);
             if (null != result) {
                 DiGraph.addEdge(m_parent, result, m_acc);
             }
             return result;
+                    */
+            return null;//TODO
         }
         private final Vertex    m_parent;
         private final Acceptor  m_acc;

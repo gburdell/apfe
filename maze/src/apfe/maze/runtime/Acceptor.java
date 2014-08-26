@@ -34,14 +34,15 @@ public abstract class Acceptor {
      * Convenience class for expressing vertex and its owner graph.
      */
     public static class VG {
+
         public VG(Vertex v, Graph g) {
             m_v = v;
             m_g = g;
         }
         public final Vertex m_v;
-        public final Graph  m_g;
+        public final Graph m_g;
     }
-    
+
     protected Acceptor() {
 
     }
@@ -54,8 +55,7 @@ public abstract class Acceptor {
     public abstract Acceptor create();
 
     /**
-     * Explore whether this Acceptor can consume prescribed sequence from
-     * start.
+     * Explore whether this Acceptor can consume prescribed sequence from start.
      *
      * @param start root vertex and its owner.
      * @return subgraph if accepted else null.
@@ -66,7 +66,14 @@ public abstract class Acceptor {
         //TODO: when to fold subgraph into parent???
         return acceptImpl();
     }
-    
+
+    /**
+     * Explore whether this Acceptor can consume prescribed sequence from start.
+     *
+     * @param start root vertex.
+     * @param g parent (sub-)graph.
+     * @return subgraph if accepted, else null.
+     */
     public Graph accept(Vertex start, Graph g) {
         return accept(new VG(start, g));
     }
@@ -80,11 +87,20 @@ public abstract class Acceptor {
     protected Vertex<State> getSubgraphRoot() {
         return getSubgraph().getRoot();
     }
-    
+
     protected Graph getSubgraph() {
         return m_subgraph;
     }
+
+    protected Graph getParentGraph() {
+        return m_parent.m_g;
+    }
     
+    @Override
+    public String toString() {
+        return Class.class.getSimpleName();
+    }
+
     /**
      * The subgraph we are building with this acceptor.
      */
@@ -92,5 +108,5 @@ public abstract class Acceptor {
     /**
      * The start vertex (which roots subgraph) and its parent/owner graph.
      */
-    private VG    m_parent;
+    private VG m_parent;
 }

@@ -23,7 +23,6 @@
  */
 package apfe.maze.runtime.graph;
 
-import apfe.maze.runtime.State;
 import java.util.LinkedList;
 import java.util.List;
 

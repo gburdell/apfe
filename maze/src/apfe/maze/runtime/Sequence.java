@@ -23,12 +23,9 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.DiGraph;
 import apfe.maze.runtime.graph.Vertex;
 import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -91,7 +88,8 @@ public class Sequence extends Acceptor {
         }
         if (ok) {
             //Add leafs from last subgraph to parent.
-            g.addLeafs(srcs);
+            //TODO: g.addLeafs(srcs); --or--
+            getParentGraph().addLeafs(srcs);
         } else {
             //remove any edges/nodes we added during processing here.
         }
