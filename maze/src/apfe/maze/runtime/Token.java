@@ -38,6 +38,14 @@ public class Token {
         m_code = code;
     }
 
+    public static Token create(String fname, int lnum, int col, String text, int code) {
+        return new Token(fname, lnum, col, text, code);
+    }
+    
+    public static Token create(String text, int code) {
+        return create("_", 0, 0, text, code);
+    }
+    
     public boolean isEOF() {
         return (EOF == getCode());
     }

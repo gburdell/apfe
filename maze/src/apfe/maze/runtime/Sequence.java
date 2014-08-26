@@ -42,14 +42,7 @@ public class Sequence extends Acceptor {
      * @param eles sequence of Acceptor prescribed.
      */
     public Sequence(Acceptor... eles) {
-        m_eles = Util.arrayAsQueue(eles);
-    }
-
-    private Sequence(Queue<Acceptor> eles) {
-        m_eles = new ArrayDeque<>(eles.size());
-        for (Acceptor ele : eles) {
-            m_eles.add(ele.create());
-        }
+        m_eles = eles;
     }
 
     @Override
@@ -66,14 +59,12 @@ public class Sequence extends Acceptor {
      */
     @Override
     protected Graph acceptImpl() {
-        boolean ok = true;
+        boolean ok = false;
         Graph g = getSubgraph(), subg = null;
-        Acceptor acc;
         Vertex<State> dest = null;
         Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
         List<Vertex<State>> nextSrcs = null;
-        while (ok && !m_eles.isEmpty()) {
-            acc = m_eles.remove();
+        for (Acceptor acc : m_eles) {
             nextSrcs = null;
             for (Vertex src : srcs) {
                 subg = acc.accept(src, g);
@@ -86,6 +77,7 @@ public class Sequence extends Acceptor {
             }
             srcs = nextSrcs;
         }
+        ok = (null != srcs) && !srcs.isEmpty();
         if (ok) {
             //Add leafs from last subgraph to parent.
             //TODO: g.addLeafs(srcs); --or--
@@ -96,5 +88,5 @@ public class Sequence extends Acceptor {
         return ok ? g : null;
     }
 
-    private final Queue<Acceptor> m_eles;
+    private final Acceptor m_eles[];
 }
