@@ -78,6 +78,10 @@ public abstract class Acceptor {
         return accept(new VG(start, g));
     }
 
+    public Graph accept(Graph g) {
+        return accept(new VG(g.getRoot(), g));
+    }
+
     protected abstract Graph acceptImpl();
 
     protected Token getToken() {

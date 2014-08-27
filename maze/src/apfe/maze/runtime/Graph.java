@@ -32,6 +32,9 @@ import apfe.maze.runtime.graph.Vertex;
  * @author gburdell
  */
 public class Graph extends DiGraph<State,Acceptor> {
+    public Graph(Scanner lex) {
+        this(new State(lex, 0));
+    }
     public Graph(State st) {
         super(st);
     }
