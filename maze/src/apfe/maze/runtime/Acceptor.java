@@ -30,19 +30,6 @@ import apfe.maze.runtime.graph.Vertex;
  * @author gburdell
  */
 public abstract class Acceptor {
-    /**
-     * Convenience class for expressing vertex and its owner graph.
-     */
-    public static class VG {
-
-        public VG(Vertex v, Graph g) {
-            m_v = v;
-            m_g = g;
-        }
-        public final Vertex m_v;
-        public final Graph m_g;
-    }
-
     protected Acceptor() {
 
     }
@@ -57,32 +44,16 @@ public abstract class Acceptor {
     /**
      * Explore whether this Acceptor can consume prescribed sequence from start.
      *
-     * @param start root vertex and its owner.
+     * @param start root vertex.
      * @return subgraph if accepted else null.
      */
-    public Graph accept(VG start) {
-        m_parent = start;
-        m_subgraph = new Graph(m_parent.m_v);
-        //TODO: when to fold subgraph into parent???
-        return acceptImpl();
+    public Graph accept(Vertex<State> start) {
+        m_subgraph = new Graph(start);
+        final boolean match = acceptImpl();
+        return match ? m_subgraph : null;
     }
 
-    /**
-     * Explore whether this Acceptor can consume prescribed sequence from start.
-     *
-     * @param start root vertex.
-     * @param g parent (sub-)graph.
-     * @return subgraph if accepted, else null.
-     */
-    public Graph accept(Vertex start, Graph g) {
-        return accept(new VG(start, g));
-    }
-
-    public Graph accept(Graph g) {
-        return accept(new VG(g.getRoot(), g));
-    }
-
-    protected abstract Graph acceptImpl();
+    protected abstract boolean acceptImpl();
 
     protected Token getToken() {
         return getSubgraphRoot().getState().getToken();
@@ -96,10 +67,6 @@ public abstract class Acceptor {
         return m_subgraph;
     }
 
-    protected Graph getParentGraph() {
-        return m_parent.m_g;
-    }
-    
     @Override
     public String toString() {
         return Class.class.getSimpleName();
@@ -109,8 +76,4 @@ public abstract class Acceptor {
      * The subgraph we are building with this acceptor.
      */
     private Graph m_subgraph;
-    /**
-     * The start vertex (which roots subgraph) and its parent/owner graph.
-     */
-    private VG m_parent;
 }

@@ -43,7 +43,7 @@ public class Alternates extends Acceptor {
     }
 
     @Override
-    protected Graph acceptImpl() {
+    protected boolean acceptImpl() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

@@ -21,24 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.DiGraph;
+import apfe.maze.runtime.graph.Edge;
 import apfe.maze.runtime.graph.Vertex;
 
 /**
  *
  * @author gburdell
  */
-public class Graph extends DiGraph<State,Acceptor> {
+public class Graph extends DiGraph<State, Acceptor> {
+
     public Graph(Scanner lex) {
         this(new State(lex, 0));
     }
+
     public Graph(State st) {
         super(st);
     }
+
     public Graph(Vertex<State> st) {
         super(st);
+    }
+
+    static {
+        stPrintEdgeName = new IPrintEdgeName<State, Acceptor>() {
+            @Override
+            public String getEdgeName(Edge<State, Acceptor> e) {
+                String s;
+                if (e.getData() instanceof Terminal) {
+                    s = "'" + ((Terminal) e.getData()).getMatched().getText() + "'";
+                } else {
+                    s = e.getData().toString();
+                }
+                return s;
+            }
+        };
+        stPrintVertexName = new IPrintVertexName<State>() {
+            @Override
+            public String getVertexName(Vertex<State> v) {
+                return "";
+            }
+        };
     }
 }

@@ -38,6 +38,17 @@ public class Edge<V, E> {
         m_data = data;
     }
 
+    public E getData() {
+        return m_data;
+    }
+    
+    public Vertex<V> getSrc() {
+        return m_src;
+    }
+    
+    public Vertex<V> getDest() {
+        return m_dest;
+    }
     private final E m_data;
     private final Vertex<V> m_src, m_dest;
 }

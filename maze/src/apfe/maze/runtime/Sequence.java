@@ -24,10 +24,8 @@
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
-import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 
 /**
  * A sequence of one or more AcceptorBase.
@@ -48,44 +46,40 @@ public class Sequence extends Acceptor {
     @Override
     public Acceptor create() {
         //deep clone
-        return new Sequence(m_eles);
+        Acceptor nar[] = new Acceptor[m_eles.length];
+        for (int i = 0; i < nar.length; i++) {
+            nar[i] = m_eles[i].create();
+        }
+        Sequence nseq = new Sequence(nar);
+        return nseq;
     }
 
     /**
-     * Build sequence entirely in this subgraph. If sequence is successful, then
-     * we flatten into parent.
+     * Attempt to match sequence and build into this subgraph.
      *
-     * @return
+     * @return true if accepted, else false.
      */
     @Override
-    protected Graph acceptImpl() {
+    protected boolean acceptImpl() {
         boolean ok = false;
-        Graph g = getSubgraph(), subg = null;
+        Graph subg = null;
         Vertex<State> dest = null;
         Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
         List<Vertex<State>> nextSrcs = null;
         for (Acceptor acc : m_eles) {
             nextSrcs = null;
             for (Vertex src : srcs) {
-                subg = acc.accept(src, g);
+                subg = acc.accept(src);
                 if (null != subg) {
+                    //TODO: collapse terminal
+                    getSubgraph().addEdge(dest, subg.getRoot(), acc);
                     nextSrcs = Util.addToList(nextSrcs, subg.getLeafs());
-                } else {
-                    //TODO: sequence failed
-                    ok = false;
                 }
             }
             srcs = nextSrcs;
         }
         ok = (null != srcs) && !srcs.isEmpty();
-        if (ok) {
-            //Add leafs from last subgraph to parent.
-            //TODO: g.addLeafs(srcs); --or--
-            getParentGraph().addLeafs(srcs);
-        } else {
-            //remove any edges/nodes we added during processing here.
-        }
-        return ok ? g : null;
+        return ok;
     }
 
     private final Acceptor m_eles[];

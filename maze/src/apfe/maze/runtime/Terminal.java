@@ -47,32 +47,33 @@ public class Terminal extends Acceptor {
     }
 
     /**
-     * Try to accept terminal.
-     * If so, add edge to subgraph with leaf vertex updated to scanner
-     * next position (unless src already at EOF).
-     * @return subgraph if accepted else null.
+     * Try to accept terminal. If so, add edge to subgraph with leaf vertex
+     * updated to scanner next position (unless src already at EOF).
+     *
+     * @return true if accepted else false.
      */
     @Override
-    protected Graph acceptImpl() {
-        Graph subg = getSubgraph();
+    protected boolean acceptImpl() {
         final boolean match = (m_tokCode == getToken().getCode());
         Vertex<State> src = getSubgraphRoot();
-        if ((m_tokCode == getToken().getCode()) 
+        if ((m_tokCode == getToken().getCode())
                 && !src.getState().getToken().isEOF()) { //dont repeat EOF
             m_matched = getToken();
             Vertex<State> dest = src.getState().getNextVertex();
-            subg.addEdge(src, dest, this);
-        } else {
-            subg = null;
+            getSubgraph().addEdge(src, dest, this);
         }
-        return subg;
+        return match;
     }
 
     @Override
     public String toString() {
         return m_matched + ":" + m_tokCode;
     }
-    
+
+    public Token getMatched() {
+        return m_matched;
+    }
+
     private final int m_tokCode;
     private Token m_matched;
 }

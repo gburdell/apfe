@@ -50,11 +50,11 @@ public class DiGraph<V, E> {
 
     public int addLeafs(Iterable<Vertex<V>> leafs) {
         if (null != leafs) {
-            for (Vertex leaf  : leafs) {
+            for (Vertex leaf : leafs) {
                 if (null == m_leafs) {
                     m_leafs = new HashSet<>();
                 }
-                if (! m_leafs.contains(leaf)) {
+                if (!m_leafs.contains(leaf)) {
                     m_leafs.add(leaf);
                 }
             }
@@ -65,7 +65,7 @@ public class DiGraph<V, E> {
     public int leafCnt() {
         return (null != m_leafs) ? m_leafs.size() : 0;
     }
-    
+
     public void addEdge(Vertex<V> src, Vertex<V> dest, E data) {
         Edge e = new Edge(src, dest, data);
         src.addOutGoingEdge(e);
@@ -88,4 +88,56 @@ public class DiGraph<V, E> {
     private final Vertex<V> m_root;
 
     private Set<Vertex<V>> m_leafs;
+
+    /**
+     * Define interface for getting vertex name during DiGraph.toString().
+     *
+     * @param <V> vertex type.
+     */
+    public static interface IPrintVertexName<V> {
+
+        /**
+         * Get vertex name to be used for printing graph.
+         *
+         * @param v vertex instance to print.
+         * @return vertex name.
+         */
+        public String getVertexName(Vertex<V> v);
+    }
+
+    /**
+     * Define interface for getting edge name during DiGraph.toString().
+     *
+     * @param <V> vertex type.
+     * @param <E> edge type.
+     */
+    public static interface IPrintEdgeName<V, E> {
+
+        /**
+         * Get edge name to be used for printing graph.
+         *
+         * @param e edge instance to print.
+         * @return edge name.
+         */
+        public String getEdgeName(Edge<V, E> e);
+    }
+
+    protected static IPrintVertexName stPrintVertexName = new IPrintVertexName() {
+
+        @Override
+        public String getVertexName(Vertex v) {
+            return v.toString();
+        }
+
+    };
+    
+    protected static IPrintEdgeName stPrintEdgeName = new IPrintEdgeName() {
+
+        @Override
+        public String getEdgeName(Edge e) {
+            return e.toString();
+        }
+
+    };
+    
 }
