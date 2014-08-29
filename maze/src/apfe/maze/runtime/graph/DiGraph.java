@@ -89,6 +89,41 @@ public class DiGraph<V, E> {
 
     private Set<Vertex<V>> m_leafs;
 
+    @Override
+    public String toString() {
+        m_str = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
+        depthFirst(sb, m_root);
+        return m_str.toString();
+    }
+
+    private StringBuilder m_str;
+
+    private static final String NL = System.lineSeparator();
+
+    private void depthFirst(StringBuilder sb, Vertex<V> node) {
+        if (null != node) {
+            sb.append('(').append(stPrintVertexName.getVertexName(node))
+                    .append(')');
+            if (0 < node.getOutDegree()) {
+                String enm;
+                Vertex<V> dest;
+                for (Edge<V, E> edge : node.getOutGoingEdges()) {
+                    StringBuilder nsb = new StringBuilder(sb);
+                    enm = stPrintEdgeName.getEdgeName(edge);
+                    nsb.append('-').append(enm).append("->");
+                    dest = edge.getDest();
+                    if (null != dest) {
+                        depthFirst(nsb, dest);
+                        if (dest.isLeaf()) {
+                            m_str.append(nsb).append(NL);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Define interface for getting vertex name during DiGraph.toString().
      *
@@ -130,7 +165,7 @@ public class DiGraph<V, E> {
         }
 
     };
-    
+
     protected static IPrintEdgeName stPrintEdgeName = new IPrintEdgeName() {
 
         @Override
@@ -139,5 +174,5 @@ public class DiGraph<V, E> {
         }
 
     };
-    
+
 }

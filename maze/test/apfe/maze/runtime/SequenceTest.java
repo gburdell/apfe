@@ -78,11 +78,15 @@ public class SequenceTest {
         }
 
         @Override
-        protected Graph acceptImpl() {
+        protected boolean acceptImpl() {
             Sequence s1 = new Sequence(new Terminal(LPAREN), new Terminal(IDENT),
                     new Terminal(COMMA), new Terminal(IDENT), new Terminal(RPAREN));
-            Graph subg = s1.accept(getSubgraph());
-            return subg;
+            Graph subg = s1.accept(getSubgraph().getRoot());
+            boolean ok = (null != subg);
+            if (ok) {
+                addEdge(getSubgraphRoot(), this, subg);
+            }
+            return ok;
         }
 
     }
@@ -94,7 +98,7 @@ public class SequenceTest {
         
         public Graph run() {
             Graph g = new Graph(m_lex);
-            g = accept(g);
+            g = accept(g.getRoot());
             return g;
         }
         
@@ -106,11 +110,11 @@ public class SequenceTest {
         }
 
         @Override
-        protected Graph acceptImpl() {
+        protected boolean acceptImpl() {
             Sequence s1 = new Sequence(new Terminal(MODULE), new Terminal(IDENT),
                     new PortDecl(), new Terminal(SEMI));
-            Graph subg = s1.accept(getSubgraph());
-            return subg;
+            Graph subg = s1.accept(getSubgraph().getRoot());
+            return (null != subg);
         }
 
     }

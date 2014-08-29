@@ -30,15 +30,15 @@ import java.util.List;
  * A vertex with one incoming edge and many outgoing edge.
  *
  * @author gburdell
- * @param <E> edge data type.
+ * @param <V> vertex data type.
  */
-public class Vertex<E> {
+public class Vertex<V> {
 
-    public Vertex(E dat) {
+    public Vertex(V dat) {
         m_data = dat;
     }
-
-    public E getState() {
+    
+    public V getData() {
         return m_data;
     }
 
@@ -63,8 +63,16 @@ public class Vertex<E> {
     public int getInDegree() {
         return (null != m_incoming) ? 1 : 0;
     }
+
+    public boolean isLeaf() {
+        return (0 == getOutDegree());
+    }
     
-    private final E m_data;
+    public List<Edge> getOutGoingEdges() {
+        return (0 < getOutDegree()) ? m_outgoing : null;
+    }
+    private final V m_data;
     private Edge m_incoming;
     private List<Edge> m_outgoing;
+    
 }

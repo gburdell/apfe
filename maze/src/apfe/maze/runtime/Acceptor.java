@@ -24,6 +24,7 @@
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
+import java.util.Collection;
 
 /**
  *
@@ -44,11 +45,12 @@ public abstract class Acceptor {
     /**
      * Explore whether this Acceptor can consume prescribed sequence from start.
      *
-     * @param start root vertex.
+     * @param start root vertex which is duped as root of subgraph.
      * @return subgraph if accepted else null.
      */
     public Graph accept(Vertex<State> start) {
-        m_subgraph = new Graph(start);
+        //Duplicate data but not edges.
+        m_subgraph = new Graph(new Vertex(start.getData()));
         final boolean match = acceptImpl();
         return match ? m_subgraph : null;
     }
@@ -56,7 +58,7 @@ public abstract class Acceptor {
     protected abstract boolean acceptImpl();
 
     protected Token getToken() {
-        return getSubgraphRoot().getState().getToken();
+        return getSubgraphRoot().getData().getToken();
     }
 
     protected Vertex<State> getSubgraphRoot() {
@@ -72,6 +74,28 @@ public abstract class Acceptor {
         return Class.class.getSimpleName();
     }
 
+    /**
+     * Add (accepted) edge to this subgraph.
+     * @param src   source vertex.
+     * @param edge  edge to add.
+     * @param subg  dest vertex (root of subgraph to add).
+     * @return leafs of added subgraph/vertex.
+     */
+    protected Collection<Vertex<State>> addEdge(Vertex<State> src, Acceptor edge, Graph subg) {
+        Vertex<State> dest = subg.getRoot();
+        Collection<Vertex<State>> leafs;
+        if (edge instanceof Terminal) {
+            //just grab the leaf/dest node so we dont get -term->o-term->
+            assert (1 == dest.getOutDegree());
+            //leaf node: but with incoming edge, so just grab state.
+            dest = new Vertex(dest.getOutGoingEdges().get(0).getDest().getData());
+            leafs = Util.asCollection(dest);
+        } else {
+            leafs = subg.getLeafs();
+        }
+        getSubgraph().addEdge(src, dest, edge);
+        return leafs;
+    }
     /**
      * The subgraph we are building with this acceptor.
      */

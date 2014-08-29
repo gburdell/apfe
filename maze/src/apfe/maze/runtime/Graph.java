@@ -53,7 +53,7 @@ public class Graph extends DiGraph<State, Acceptor> {
                 if (e.getData() instanceof Terminal) {
                     s = "'" + ((Terminal) e.getData()).getMatched().getText() + "'";
                 } else {
-                    s = e.getData().toString();
+                    s = e.getData().getClass().getSimpleName();
                 }
                 return s;
             }

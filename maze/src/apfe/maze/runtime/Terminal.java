@@ -57,9 +57,9 @@ public class Terminal extends Acceptor {
         final boolean match = (m_tokCode == getToken().getCode());
         Vertex<State> src = getSubgraphRoot();
         if ((m_tokCode == getToken().getCode())
-                && !src.getState().getToken().isEOF()) { //dont repeat EOF
+                && !src.getData().getToken().isEOF()) { //dont repeat EOF
             m_matched = getToken();
-            Vertex<State> dest = src.getState().getNextVertex();
+            Vertex<State> dest = src.getData().getNextVertex();
             getSubgraph().addEdge(src, dest, this);
         }
         return match;
