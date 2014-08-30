@@ -63,25 +63,26 @@ public class Sequence extends Acceptor {
     protected boolean acceptImpl() {
         Graph subg;
         Vertex<State> dest = null;
-        Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot()), nextLeafs;
+        Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
         List<Vertex<State>> nextSrcs;
         for (Acceptor acc : m_eles) {
             nextSrcs = null;
             for (Vertex src : srcs) {
                 subg = acc.accept(src);
                 if (null != subg) {
-                    String dbg = subg.toString();
+                    //String dbg = subg.toString();
                     dest = subg.getRoot();
-                    dbg = getSubgraph().toString();
-                    nextLeafs = addEdge(src, acc, subg);
-                    dbg = getSubgraph().toString();
-                    nextSrcs = Util.addToList(nextSrcs, nextLeafs);
+                    //dbg = getSubgraph().toString();
+                    addEdge(src, acc, subg);
+                    //dbg = getSubgraph().toString();
+                    nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs());
+                } else {
+                    return false;
                 }
             }
             srcs = nextSrcs;
         }
-        boolean ok = (null != srcs) && !srcs.isEmpty();
-        return ok;
+        return true;
     }
 
     private final Acceptor m_eles[];

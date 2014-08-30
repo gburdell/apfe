@@ -71,6 +71,26 @@ public class Vertex<V> {
     public List<Edge> getOutGoingEdges() {
         return (0 < getOutDegree()) ? m_outgoing : null;
     }
+    
+    /**
+     * Remove outgoing edges from this vertex and return them.
+     * @return outgoing edges (source vertex is set null).
+     */
+    public List<Edge> rmOutGoingEdges() {
+        if (0 == getOutDegree()) {
+            return null;
+        }
+        List<Edge> outs = new LinkedList<>();
+        Vertex<V> v;
+        for (Edge e : getOutGoingEdges()) {
+            assert (this == e.getSrc());
+            e.setSrc(null);
+            outs.add(e);
+        }
+        m_outgoing = null;
+        return outs;
+    }
+    
     private final V m_data;
     private Edge m_incoming;
     private List<Edge> m_outgoing;

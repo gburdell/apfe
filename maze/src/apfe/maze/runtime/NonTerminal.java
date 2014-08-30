@@ -21,44 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime.graph;
+package apfe.maze.runtime;
 
 /**
- * A directed edge from source to dest.
- *
+ * Mark nonterminals.
  * @author gburdell
- * @param <V> vertex data type.
- * @param <E> edge data type.
  */
-public class Edge<V, E> {
-
-    public Edge(Vertex<V> src, Vertex<V> dest, E data) {
-        m_src = src;
-        m_dest = dest;
-        m_data = data;
-    }
-
-    public E getData() {
-        return m_data;
-    }
+public interface NonTerminal {
     
-    public Vertex<V> getSrc() {
-        return m_src;
-    }
-    
-    public Vertex<V> getDest() {
-        return m_dest;
-    }
-    
-    public void setSrc(Vertex<V> src) {
-        if (null != src) {
-            assert (null == m_src);
-        }
-        m_src = src;
-    }
-
-    
-    private final E m_data;
-    private Vertex<V> m_src;
-    private final Vertex<V> m_dest;
 }

@@ -70,7 +70,7 @@ public class SequenceTest {
 
     }
 
-    public static class PortDecl extends Acceptor {
+    public static class PortDecl extends Acceptor implements NonTerminal {
 
         @Override
         public Acceptor create() {
@@ -91,8 +91,8 @@ public class SequenceTest {
 
     }
 
-    public static class Start extends Acceptor {
-        public Start(Scanner lex) {
+    public static class ModuleDefn extends Acceptor implements NonTerminal {
+        public ModuleDefn(Scanner lex) {
             m_lex = lex;
         }
         
@@ -114,7 +114,11 @@ public class SequenceTest {
             Sequence s1 = new Sequence(new Terminal(MODULE), new Terminal(IDENT),
                     new PortDecl(), new Terminal(SEMI));
             Graph subg = s1.accept(getSubgraph().getRoot());
-            return (null != subg);
+            boolean ok = (null != subg);
+            if (ok) {
+                addEdge(getSubgraphRoot(), this, subg);
+            }
+            return ok;
         }
 
     }
@@ -127,7 +131,7 @@ public class SequenceTest {
     @Test
     public void testAcceptImpl() {
         System.out.println("acceptImpl");
-        Start moduleDefn = new Start(stScanner);
+        ModuleDefn moduleDefn = new ModuleDefn(stScanner);
         Graph result = moduleDefn.run();
         assertNotNull(result);
     }

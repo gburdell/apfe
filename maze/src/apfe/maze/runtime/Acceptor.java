@@ -78,10 +78,9 @@ public abstract class Acceptor {
      * Add (accepted) edge to this subgraph.
      * @param src   source vertex.
      * @param edge  edge to add.
-     * @param subg  dest vertex (root of subgraph to add).
-     * @return leafs of added subgraph/vertex.
+     * @param subg  subg vertex (root of subgraph to add).
      */
-    protected Collection<Vertex<State>> addEdge(Vertex<State> src, Acceptor edge, Graph subg) {
+    protected void addEdge(Vertex<State> src, Acceptor edge, Graph subg) {
         Vertex<State> dest = subg.getRoot();
         Collection<Vertex<State>> leafs;
         if (edge instanceof Terminal) {
@@ -90,11 +89,18 @@ public abstract class Acceptor {
             //leaf node: but with incoming edge, so just grab state.
             dest = new Vertex(dest.getOutGoingEdges().get(0).getDest().getData());
             leafs = Util.asCollection(dest);
+        } else if (edge instanceof NonTerminal) {
+            leafs = subg.getLeafs();
+            if (edge.getSubgraph() == subg) {
+                //Dont create another edge to same nonterminal
+                assert (0 == dest.getInDegree());
+                
+            }
         } else {
             leafs = subg.getLeafs();
         }
         getSubgraph().addEdge(src, dest, edge);
-        return leafs;
+        getSubgraph().addLeafs(leafs);
     }
     /**
      * The subgraph we are building with this acceptor.

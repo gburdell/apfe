@@ -51,15 +51,20 @@ public class DiGraph<V, E> {
     public int addLeafs(Iterable<Vertex<V>> leafs) {
         if (null != leafs) {
             for (Vertex leaf : leafs) {
-                if (null == m_leafs) {
-                    m_leafs = new HashSet<>();
-                }
-                if (!m_leafs.contains(leaf)) {
-                    m_leafs.add(leaf);
-                }
+                addLeaf(leaf);
             }
         }
         return leafCnt();
+    }
+
+    private void addLeaf(Vertex leaf) {
+        if (null == m_leafs) {
+            m_leafs = new HashSet<>();
+        }
+        assert leaf.isLeaf();
+        if (!hasLeaf(leaf)) {
+            m_leafs.add(leaf);
+        }
     }
 
     public int leafCnt() {
@@ -70,15 +75,17 @@ public class DiGraph<V, E> {
         Edge e = new Edge(src, dest, data);
         src.addOutGoingEdge(e);
         dest.setIncomingEdge(e);
-        if (null == m_leafs) {
-            m_leafs = new HashSet();
+        //src can no longer be leaf
+        if (hasLeaf(src)) {
+            m_leafs.remove(src);
         }
-        m_leafs.remove(src);
-        if (1 > dest.getOutDegree()) {
-            if (!m_leafs.contains(dest)) {
-                m_leafs.add(dest);
-            }
+        if (dest.isLeaf()) {
+            addLeaf(dest);
         }
+    }
+
+    private boolean hasLeaf(Vertex v) {
+        return (null != m_leafs) && m_leafs.contains(v);
     }
 
     public Collection<Vertex<V>> getLeafs() {
