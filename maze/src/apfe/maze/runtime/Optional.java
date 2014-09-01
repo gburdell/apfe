@@ -43,13 +43,38 @@ public class Optional extends Acceptor {
 
     @Override
     public Acceptor create() {
-        return new Optional(m_opt);
+        return new Optional(m_opt.create());
     }
 
     @Override
     protected boolean acceptImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Vertex<State> dest = new Vertex<>(getSubgraphRoot());
+        Vertex<State> src = getSubgraphRoot();
+        //always accept nothing.
+        getSubgraph().addEdge(src, dest, new Epsilon());
+        Graph subg = m_opt.accept(getSubgraphRoot());
+        if (null != subg) {
+            addEdge(src, m_opt, subg);
+        }
+        return true;
     }
 
     private final Acceptor m_opt;
+
+    /**
+     * Edge which consumes nothing.
+     */
+    public static class Epsilon extends Acceptor {
+
+        @Override
+        public Acceptor create() {
+            return new Epsilon();
+        }
+
+        @Override
+        protected boolean acceptImpl() {
+            return true;
+        }
+    }
+
 }

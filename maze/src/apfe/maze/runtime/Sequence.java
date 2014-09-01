@@ -45,13 +45,7 @@ public class Sequence extends Acceptor {
 
     @Override
     public Acceptor create() {
-        //deep clone
-        Acceptor nar[] = new Acceptor[m_eles.length];
-        for (int i = 0; i < nar.length; i++) {
-            nar[i] = m_eles[i].create();
-        }
-        Sequence nseq = new Sequence(nar);
-        return nseq;
+        return new Sequence(deepClone(m_eles));
     }
 
     /**
@@ -67,7 +61,7 @@ public class Sequence extends Acceptor {
         List<Vertex<State>> nextSrcs;
         for (Acceptor acc : m_eles) {
             nextSrcs = null;
-            for (Vertex src : srcs) {
+            for (Vertex<State> src : srcs) {
                 subg = acc.accept(src);
                 if (null != subg) {
                     //String dbg = subg.toString();

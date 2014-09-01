@@ -79,12 +79,17 @@ public class SequenceTest {
 
         @Override
         protected boolean acceptImpl() {
-            Sequence s1 = new Sequence(new Terminal(LPAREN), new Terminal(IDENT),
+            Sequence s1 = new Sequence(new Terminal(LPAREN), new Terminal(RPAREN));
+            Sequence s2 = new Sequence(new Terminal(LPAREN), new Terminal(IDENT),
                     new Terminal(COMMA), new Terminal(IDENT), new Terminal(RPAREN));
-            Graph subg = s1.accept(getSubgraph().getRoot());
+            Sequence s3 = new Sequence(new Optional(new Terminal(LPAREN)),
+                    new Optional(new Terminal(IDENT)), new Optional(new Terminal(RPAREN)));
+            Alternates a1 = new Alternates(s1, s2, s3);
+            Graph subg = a1.accept(getSubgraphRoot());
             boolean ok = (null != subg);
             if (ok) {
-                addEdge(getSubgraphRoot(), this, subg);
+                //addEdge(getSubgraphRoot(), this, subg);
+                setSubGraph(subg);
             }
             return ok;
         }
@@ -92,18 +97,19 @@ public class SequenceTest {
     }
 
     public static class ModuleDefn extends Acceptor implements NonTerminal {
+
         public ModuleDefn(Scanner lex) {
             m_lex = lex;
         }
-        
+
         public Graph run() {
             Graph g = new Graph(m_lex);
             g = accept(g.getRoot());
             return g;
         }
-        
-        private final Scanner   m_lex;
-        
+
+        private final Scanner m_lex;
+
         @Override
         public Acceptor create() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -116,7 +122,8 @@ public class SequenceTest {
             Graph subg = s1.accept(getSubgraph().getRoot());
             boolean ok = (null != subg);
             if (ok) {
-                addEdge(getSubgraphRoot(), this, subg);
+                //addEdge(getSubgraphRoot(), this, subg);
+                setSubGraph(subg);
             }
             return ok;
         }

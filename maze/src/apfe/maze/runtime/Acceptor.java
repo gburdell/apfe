@@ -50,7 +50,7 @@ public abstract class Acceptor {
      */
     public Graph accept(Vertex<State> start) {
         //Duplicate data but not edges.
-        m_subgraph = new Graph(new Vertex(start.getData()));
+        m_subgraph = new Graph(new Vertex<>(start.getData()));
         final boolean match = acceptImpl();
         return match ? m_subgraph : null;
     }
@@ -81,27 +81,51 @@ public abstract class Acceptor {
      * @param subg  subg vertex (root of subgraph to add).
      */
     protected void addEdge(Vertex<State> src, Acceptor edge, Graph subg) {
-        Vertex<State> dest = subg.getRoot();
+        Vertex<State> dest = subg.getRoot(), v;
         Collection<Vertex<State>> leafs;
         if (edge instanceof Terminal) {
             //just grab the leaf/dest node so we dont get -term->o-term->
             assert (1 == dest.getOutDegree());
             //leaf node: but with incoming edge, so just grab state.
-            dest = new Vertex(dest.getOutGoingEdges().get(0).getDest().getData());
+            v = dest.getOutGoingEdges().get(0).getDest();
+            dest = new Vertex(v.getData());
             leafs = Util.asCollection(dest);
         } else if (edge instanceof NonTerminal) {
             leafs = subg.getLeafs();
+            /*TODO: let the nonterminal deal with whether to add or not.
             if (edge.getSubgraph() == subg) {
                 //Dont create another edge to same nonterminal
                 assert (0 == dest.getInDegree());
-                
+                setSubGraph(subg);
             }
+            */
         } else {
             leafs = subg.getLeafs();
         }
         getSubgraph().addEdge(src, dest, edge);
         getSubgraph().addLeafs(leafs);
     }
+    
+    protected void setSubGraph(Graph subg) {
+        m_subgraph = subg;
+    }
+    
+    /**
+     * A deep clone.
+     *
+     * @param eles elements to clone.
+     * @return deep clone.
+     */
+    protected static Acceptor[] deepClone(Acceptor eles[]) {
+        final int n = eles.length;
+        assert 0 < n;
+        Acceptor dup[] = new Acceptor[n];
+        for (int i = 0; i < n; i++) {
+            dup[i] = eles[i].create();
+        }
+        return dup;
+    }
+    
     /**
      * The subgraph we are building with this acceptor.
      */

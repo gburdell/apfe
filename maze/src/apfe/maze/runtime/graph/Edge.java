@@ -57,8 +57,14 @@ public class Edge<V, E> {
         m_src = src;
     }
 
+    public void setDest(Vertex<V> dest) {
+        if (null != dest) {
+            assert (null == m_dest);
+        }
+        m_dest = dest;
+    }
     
     private final E m_data;
     private Vertex<V> m_src;
-    private final Vertex<V> m_dest;
+    private Vertex<V> m_dest;
 }

@@ -54,7 +54,7 @@ public class State {
     }
 
     public Vertex<State> getNextVertex() {
-        return new Vertex(getNext());
+        return new Vertex<>(getNext());
     }
     
     public final Scanner m_lex;

@@ -34,10 +34,18 @@ import java.util.List;
  */
 public class Vertex<V> {
 
+    /**
+     * Only dup state.
+     * @param v vertex state to dup.
+     */
+    public Vertex(Vertex<V> v) {
+        this(v.m_data);
+    }
+
     public Vertex(V dat) {
         m_data = dat;
     }
-    
+
     public V getData() {
         return m_data;
     }
@@ -55,11 +63,11 @@ public class Vertex<V> {
         }
         m_outgoing.add(out);
     }
-    
+
     public int getOutDegree() {
         return (null != m_outgoing) ? m_outgoing.size() : 0;
     }
-    
+
     public int getInDegree() {
         return (null != m_incoming) ? 1 : 0;
     }
@@ -67,13 +75,14 @@ public class Vertex<V> {
     public boolean isLeaf() {
         return (0 == getOutDegree());
     }
-    
+
     public List<Edge> getOutGoingEdges() {
         return (0 < getOutDegree()) ? m_outgoing : null;
     }
-    
+
     /**
      * Remove outgoing edges from this vertex and return them.
+     *
      * @return outgoing edges (source vertex is set null).
      */
     public List<Edge> rmOutGoingEdges() {
@@ -90,9 +99,9 @@ public class Vertex<V> {
         m_outgoing = null;
         return outs;
     }
-    
+
     private final V m_data;
     private Edge m_incoming;
     private List<Edge> m_outgoing;
-    
+
 }

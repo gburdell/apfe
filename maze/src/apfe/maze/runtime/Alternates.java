@@ -21,31 +21,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
+
+import apfe.maze.runtime.graph.Vertex;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * A sequence of one or more AcceptorBase.
+ *
  * @author gburdell
  */
 public class Alternates extends Acceptor {
+
     /**
      * Acceptor with alternative semantics.
+     *
      * @param alts series of alternatives.
      */
     public Alternates(Acceptor... alts) {
         m_alts = alts;
     }
-    
-    @Override
-    public Acceptor create() {
-        return new Alternates(m_alts);
-    }
 
     @Override
-    protected boolean acceptImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Acceptor create() {
+        return new Alternates(deepClone(m_alts));
     }
-    
-    private final Acceptor    m_alts[];
+
+    /**
+     * Attempt to match alternatives and build into this subgraph.
+     *
+     * @return true if any accepted, else false.
+     */
+    @Override
+    protected boolean acceptImpl() {
+        Graph subg;
+        Vertex<State> src = getSubgraphRoot(), dest = null;
+        int cnt = 0;
+        for (Acceptor acc : m_alts) {
+            subg = acc.accept(src);
+            if (null != subg) {
+                String dbg = subg.toString();
+                dest = subg.getRoot();
+                dbg = getSubgraph().toString();
+                addEdge(src, acc, subg);
+                dbg = getSubgraph().toString();
+                cnt++;
+            }
+        }
+        return (0 < cnt);
+    }
+
+    private final Acceptor m_alts[];
 }
