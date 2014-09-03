@@ -79,13 +79,21 @@ public class SequenceTest {
 
         @Override
         protected boolean acceptImpl() {
-            Sequence s1 = new Sequence(new Terminal(LPAREN), new Terminal(RPAREN));
+            Acceptor acc1;
             Sequence s2 = new Sequence(new Terminal(LPAREN), new Terminal(IDENT),
                     new Terminal(COMMA), new Terminal(IDENT), new Terminal(RPAREN));
-            Sequence s3 = new Sequence(new Optional(new Terminal(LPAREN)),
-                    new Optional(new Terminal(IDENT)), new Optional(new Terminal(RPAREN)));
-            Alternates a1 = new Alternates(s1, s2, s3);
-            Graph subg = a1.accept(getSubgraphRoot());
+            if (true) {
+                acc1 = s2;
+            } else {
+                //TODO: need to test this after above works.
+                //And then add stale branch/path removal.
+                Sequence s1 = new Sequence(new Terminal(LPAREN), new Terminal(RPAREN));
+                Sequence s3 = new Sequence(new Optional(new Terminal(LPAREN)),
+                        new Optional(new Terminal(IDENT)), new Optional(new Terminal(RPAREN)));
+                Alternates a1 = new Alternates(s1, s2, s3);
+                acc1 = a1;
+            }
+            Graph subg = acc1.accept(getSubgraphRoot());
             boolean ok = (null != subg);
             if (ok) {
                 //addEdge(getSubgraphRoot(), this, subg);
@@ -140,6 +148,7 @@ public class SequenceTest {
         System.out.println("acceptImpl");
         ModuleDefn moduleDefn = new ModuleDefn(stScanner);
         Graph result = moduleDefn.run();
+        System.out.println(result.toString());
         assertNotNull(result);
     }
 
