@@ -24,6 +24,8 @@
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * An Acceptor with repetition semantics.
@@ -54,12 +56,39 @@ public class Repetition extends Acceptor {
 
     @Override
     public Acceptor create() {
-        return new Repetition(m_rep, m_oneOrMore);
+        return new Repetition(m_rep.create(), m_oneOrMore);
     }
 
     @Override
     protected boolean acceptImpl() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int acceptedCnt = 0;
+        boolean matched = true;
+        Graph subg;
+        Vertex<State> dest;
+        Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
+        List<Vertex<State>> nextSrcs;
+        while (matched) {
+            nextSrcs = null;
+            matched = false;
+            for (Vertex<State> src : srcs) {
+                dest = new Vertex<>(src);
+                //always accept nothing
+                getSubgraph().addEdge(src, dest, new Optional.Epsilon());
+                subg = m_rep.accept(src);
+                if (null != subg) {
+                    //String dbg = subg.toString();
+                    addEdge(src, m_rep, subg);
+                    //dbg = getSubgraph().toString();
+                    nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs());
+                    matched = true;
+                }
+            }
+            if (matched) {
+                acceptedCnt++;
+            }
+            srcs = nextSrcs;
+        }
+        return (!m_oneOrMore || (0 < acceptedCnt));
     }
 
     private final Acceptor m_rep;
