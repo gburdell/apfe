@@ -23,7 +23,6 @@
  */
 package apfe.maze.runtime;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -80,8 +79,10 @@ public class SequenceTest {
         @Override
         protected boolean acceptImpl() {
             Acceptor acc1;
+            Repetition r1 = new Repetition(new Sequence(new Terminal(COMMA), new Terminal(IDENT)));
             Sequence s2 = new Sequence(new Terminal(LPAREN), new Terminal(IDENT),
-                    new Terminal(COMMA), new Terminal(IDENT), new Terminal(RPAREN));
+                    //new Terminal(COMMA), new Terminal(IDENT), new Terminal(RPAREN));
+                    r1, new Terminal(RPAREN));
             if (true) {
                 acc1 = s2;
             } else {
