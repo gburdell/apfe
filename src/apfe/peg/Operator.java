@@ -36,9 +36,9 @@ import apfe.runtime.Util;
  */
 public class Operator extends Acceptor {
     public static enum EOp {
-        LEFTARROW("<-"), SLASH('/'), AND('&'), NOT('!'), 
+        LEFTARROW("<-"), SLASH('/'), BAR('|'), AND('&'), NOT('!'), 
         QUESTION('?'), STAR('*'), PLUS('+'),
-        OPEN('('), CLOSE(')'), DOT('.'),
+        OPEN('('), CLOSE(')'), DOT('.'), SEMI(';'), COLON(':'),
         LCURLY2("{{"), RCURLY2("}}"),
         EQ('='), EXT_OP("<<");
         

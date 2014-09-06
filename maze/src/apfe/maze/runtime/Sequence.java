@@ -60,16 +60,16 @@ public class Sequence extends Acceptor {
         Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
         List<Vertex<State>> nextSrcs;
         boolean anyAccepted;
-        for (Acceptor acc : m_eles) {
+        for (Acceptor edge : m_eles) {
             nextSrcs = null;
             anyAccepted = false;
             for (Vertex<State> src : srcs) {
-                subg = acc.accept(src);
+                subg = edge.accept(src);
                 if (null != subg) {
                     //String dbg = subg.toString();
                     dest = subg.getRoot();
                     //dbg = getSubgraph().toString();
-                    addEdge(src, acc, subg);
+                    addEdge(src, edge, subg);
                     //dbg = getSubgraph().toString();
                     nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs());
                     anyAccepted = true;

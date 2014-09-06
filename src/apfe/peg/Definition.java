@@ -40,7 +40,10 @@ public class Definition extends Acceptor {
     }
 
     private static final Operator stLeftArrow = new Operator(Operator.EOp.LEFTARROW);
+    private static final Operator stColon = new Operator(Operator.EOp.COLON);
     private static final Operator stExtOp = new Operator(Operator.EOp.EXT_OP);
+    private static final Operator stSemi = new Operator(Operator.EOp.SEMI);
+    private static final Operator stDot = new Operator(Operator.EOp.DOT);
 
     private boolean m_isLeftRecursive = false;
 
@@ -54,18 +57,26 @@ public class Definition extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        // Definition <- Identifier LEFTARROW Expression CodeBlock?
+        // Definition <- Identifier '.'
+        //             / Identifier (LEFTARROW / COLON) Expression CodeBlock? SEMI?
         //             / Identifier "<<" Identifier
         Repetition r1 = new Repetition(new CodeBlock(), Repetition.ERepeat.eOptional);
-        Sequence s1 = new Sequence(new Identifier(), stLeftArrow.create(), new Expression(), r1);
-        Sequence s2 = new Sequence(new Identifier(), stExtOp.create(), new Identifier());
-        PrioritizedChoice p1 = new PrioritizedChoice(s1, s2);
+        Repetition r2 = new Repetition(stSemi.create(), Repetition.ERepeat.eOptional);
+        Sequence s1 = new Sequence(new Identifier(), stDot.create());
+        PrioritizedChoice a1 = new PrioritizedChoice(stLeftArrow.create(), stColon.create());
+        Sequence s2 = new Sequence(new Identifier(), a1, new Expression(), r1, r2);
+        Sequence s3 = new Sequence(new Identifier(), stExtOp.create(), new Identifier());
+        PrioritizedChoice p1 = new PrioritizedChoice(s1, s2, s3);
         boolean match;
         match = (null != (p1 = match(p1)));
         if (match) {
             s1 = Util.downCast(p1.getAccepted());
             switch (p1.whichAccepted()) {
                 case 0:
+                    m_id = extractEle(s1, 0);
+                    //TODO: this is terminal
+                    break;
+                case 1:
                     m_id = extractEle(s1, 0);
                     m_expr = extractEle(s1, 2);
                     check();
@@ -76,7 +87,7 @@ public class Definition extends Acceptor {
                         m_codeBlk = Util.downCast(r1.getAccepted().get(0));
                     }
                     break;
-                case 1:
+                case 2:
                     m_id = extractEle(s1, 0);
                     m_extCls = extractEle(s1, 2);
                     assert !hasExtCls(m_id.getId());

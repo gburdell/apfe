@@ -68,7 +68,7 @@ public class Primary extends Acceptor implements GenJava.IGen {
 
     @Override
     protected boolean accepti() {
-        // Primary <- Identifier !(LEFTARROW / EXTOP) 
+        // Primary <- Identifier !(LEFTARROW / COLON / EXTOP) 
         //            / OPEN Expression CLOSE 
         //            / Literal / Class / DOT
         PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
@@ -79,6 +79,7 @@ public class Primary extends Acceptor implements GenJava.IGen {
                     case 0: {
                         PrioritizedChoice p = new PrioritizedChoice(
                                 new Operator(Operator.EOp.LEFTARROW),
+                                new Operator(Operator.EOp.COLON),
                                 new Operator(Operator.EOp.EXT_OP));
                         a = new Sequence(new Identifier(),
                                 new NotPredicate(p));

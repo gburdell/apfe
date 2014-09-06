@@ -23,7 +23,6 @@
  */
 package apfe.peg.generate;
 
-import apfe.runtime.Util;
 import java.util.Arrays;
 import java.util.List;
 

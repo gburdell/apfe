@@ -27,6 +27,7 @@ import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
+import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -55,11 +56,13 @@ public class Expression extends Acceptor implements GenJava.IGen {
     }
 
     private static final Operator stSlash = new Operator(Operator.EOp.SLASH);
+    private static final Operator stBar = new Operator(Operator.EOp.BAR);
 
     @Override
     protected boolean accepti() {
-        //Expression <- PegSequence (SLASH PegSequence)*
-        Sequence s1 = new Sequence(stSlash.create(), new PegSequence());
+        //Expression <- PegSequence ((SLASH / BAR) PegSequence)*
+        PrioritizedChoice a1 = new PrioritizedChoice(stSlash.create(), stBar.create());
+        Sequence s1 = new Sequence(a1, new PegSequence());
         Repetition r1 = new Repetition(s1, Repetition.ERepeat.eZeroOrMore);
         Sequence s2 = new Sequence(new PegSequence(), r1);
         boolean match = (null != (s2 = match(s2)));
