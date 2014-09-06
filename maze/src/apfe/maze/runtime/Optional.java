@@ -23,6 +23,7 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.graph.Edge;
 import apfe.maze.runtime.graph.Vertex;
 
 /**
@@ -59,6 +60,14 @@ public class Optional extends Acceptor {
         return true;
     }
 
+    public static boolean incomingEdgeIsEpsilon(Vertex<State> v) {
+        if ((null == v) || (0 == v.getInDegree())) {
+            return false;
+        }
+        Edge<State,Acceptor> in = v.getIncomingEdge();
+        return ((null != in) && (in.getData() instanceof Epsilon));
+    }
+    
     private final Acceptor m_opt;
 
     /**

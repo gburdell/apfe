@@ -63,6 +63,10 @@ public class Vertex<V> {
         }
         m_outgoing.add(out);
     }
+    
+    public Edge getIncomingEdge() {
+        return m_incoming;
+    }
 
     public int getOutDegree() {
         return (null != m_outgoing) ? m_outgoing.size() : 0;

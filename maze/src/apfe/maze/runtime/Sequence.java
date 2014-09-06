@@ -59,8 +59,10 @@ public class Sequence extends Acceptor {
         Vertex<State> dest = null;
         Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
         List<Vertex<State>> nextSrcs;
+        boolean anyAccepted;
         for (Acceptor acc : m_eles) {
             nextSrcs = null;
+            anyAccepted = false;
             for (Vertex<State> src : srcs) {
                 subg = acc.accept(src);
                 if (null != subg) {
@@ -70,9 +72,11 @@ public class Sequence extends Acceptor {
                     addEdge(src, acc, subg);
                     //dbg = getSubgraph().toString();
                     nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs());
-                } else {
-                    return false;
+                    anyAccepted = true;
                 }
+            }
+            if (!anyAccepted) {
+                return false;
             }
             srcs = nextSrcs;
         }

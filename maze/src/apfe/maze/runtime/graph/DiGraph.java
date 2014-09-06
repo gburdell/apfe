@@ -25,6 +25,8 @@ package apfe.maze.runtime.graph;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -92,6 +94,25 @@ public class DiGraph<V, E> {
         return (null != m_leafs) ? m_leafs : null;
     }
 
+    public interface IVertexFilter<V> {
+        /**
+         * Test if Vertex meets filter criteria.
+         * @param v vertex to test.
+         * @return true if v meets filter criteria.
+         */
+        public boolean pass(Vertex<V> v);
+    }
+    
+    public Collection<Vertex<V>> getLeafs(IVertexFilter<V> filter) {
+        List<Vertex<V>> r = new LinkedList<>();
+        for (Vertex<V> v : getLeafs()) {
+            if (filter.pass(v)) {
+                r.add(v);
+            }
+        }
+        return r;
+    }
+    
     private final Vertex<V> m_root;
 
     private Set<Vertex<V>> m_leafs;

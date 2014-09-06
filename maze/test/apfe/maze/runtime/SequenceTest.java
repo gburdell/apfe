@@ -49,6 +49,10 @@ public class SequenceTest {
             super.add(create("p1", IDENT));
             super.add(create(",", COMMA));
             super.add(create("p2", IDENT));
+            super.add(create(",", COMMA));
+            super.add(create("p3", IDENT));
+            super.add(create(",", COMMA));
+            super.add(create("p4", IDENT));
             super.add(create(")", RPAREN));
             super.add(create(";", SEMI));
         }
