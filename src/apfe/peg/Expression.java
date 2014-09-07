@@ -24,6 +24,7 @@
 package apfe.peg;
 
 import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -87,12 +88,14 @@ public class Expression extends Acceptor implements GenJava.IGen {
         StringBuilder sb = new StringBuilder();
         for (PegSequence a : getSequences()) {
             if (0 < sb.length()) {
-                sb.append("\n  ").append(stSlash.toString()).append(' ');
+                sb.append("\n  ").append(stDelim.toString()).append(' ');
             }
             sb.append(a);
         }
         return sb.toString();
     }
+
+        public static final Acceptor stDelim = Main.stGenMaze ? stBar : stSlash;
 
     @Override
     public Acceptor create() {

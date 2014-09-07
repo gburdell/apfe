@@ -138,4 +138,6 @@ public class Main {
     static {
         loadProperties(new File(".", "generate.props.txt"));
     }
+    
+    public static final boolean stGenMaze = getPropertyAsBoolean("genMaze");
 }

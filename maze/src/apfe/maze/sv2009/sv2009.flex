@@ -135,6 +135,7 @@ StringCharacter = [^\r\n\"\\]
 	{Comment}     |
     {TimeScale}   { /* ignore */ }
 
+	//{insert 'create'
 	"accept_on" {return create(ACCEPT_ON_K);}
 	"alias" {return create(ALIAS_K);}
 	"always_comb" {return create(ALWAYS_COMB_K);}
@@ -489,6 +490,7 @@ StringCharacter = [^\r\n\"\\]
 	{UNBASED_UNSIZED_LITERAL} {return create(UNBASED_UNSIZED_LITERAL);}
 	{TIME_LITERAL} {return create(TIME_LITERAL);}
 	{SYSTEM_IDENT} {return create(SYSTEM_IDENT);}
+	//create}
 
   	{TicLine}	{ ticLine(); }
 

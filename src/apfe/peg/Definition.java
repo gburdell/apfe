@@ -23,6 +23,7 @@
  */
 package apfe.peg;
 
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -74,7 +75,7 @@ public class Definition extends Acceptor {
             switch (p1.whichAccepted()) {
                 case 0:
                     m_id = extractEle(s1, 0);
-                    //TODO: this is terminal
+                    m_isToken = true;
                     break;
                 case 1:
                     m_id = extractEle(s1, 0);
@@ -114,16 +115,25 @@ public class Definition extends Acceptor {
 
     @Override
     public String toString() {
-        if (isExtCls()) {
+        if (isToken()) {
+            return m_id.toString() + ".\n";
+        } else if (isExtCls()) {
             return Util.toString(m_id, stExtOp, m_extCls).append("\n").toString();
         } else {
-            return Util.toString(m_id, stLeftArrow, m_expr, m_codeBlk).append("\n").toString();
+            return Util.toString(m_id, stDelim, m_expr, m_codeBlk).append(" ;\n").toString();
         }
+    }
+    
+    public static final Acceptor stDelim = Main.stGenMaze ? stColon : stLeftArrow;
+
+    public boolean isToken() {
+        return m_isToken;
     }
 
     private Identifier m_id, m_extCls;
     private Expression m_expr;
     private CodeBlock m_codeBlk;
+    private boolean m_isToken = false;
 
     public Identifier getId() {
         return m_id;
@@ -141,11 +151,11 @@ public class Definition extends Acceptor {
     public static Identifier getExtCls(String id) {
         return stExtClsByDefn.get(id);
     }
-    
+
     public static boolean hasExtCls(String id) {
         return stExtClsByDefn.containsKey(id);
     }
-    
+
     public boolean isExtCls() {
         return (null != m_extCls);
     }
@@ -168,10 +178,9 @@ public class Definition extends Acceptor {
      * Memoize for all instances of Definition.
      */
     private static Memoize stMemo = new Memoize();
-    
+
     /**
-     * Map of Definition name to its class name.  Used only
-     * if external.
+     * Map of Definition name to its class name. Used only if external.
      */
-    private static Map<String,Identifier> stExtClsByDefn = new HashMap<>();
+    private static Map<String, Identifier> stExtClsByDefn = new HashMap<>();
 }
