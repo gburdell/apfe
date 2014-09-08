@@ -99,7 +99,7 @@ public class GenJava extends GenBase {
         boolean empty = true;
         for (IGen ele : args) {
             if (!empty) {
-                append(", ");
+                append(",\n");
             }
             ele.genJava(this);
             empty = false;

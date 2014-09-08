@@ -730,8 +730,6 @@ data_type_or_void
 
 function_declaration : FUNCTION_K ( lifetime )? function_body_declaration
 
-function_body_declaration_follow : function_identifier (LPAREN | SEMI)
-
 function_body_declaration :
   function_data_type_or_implicit
 	( interface_identifier DOT | class_scope )? function_identifier LPAREN ( tf_port_list )? RPAREN SEMI
@@ -909,6 +907,7 @@ property_case_item:
   DEFAULT_K ( COLON )? property_statement
 | expression_or_dist ( COMMA expression_or_dist )* COLON property_statement
 
+/*remove DLR
 property_expr :
 property_expr OR_K property_expr
 | property_expr UNTIL_K property_expr
@@ -944,6 +943,48 @@ property_expr OR_K property_expr
 | SYNC_REJECT_ON_K LPAREN expression_or_dist RPAREN property_expr
 | property_instance
 | clocking_event property_expr
+;
+*/
+property_expr : 
+property_expr_HEAD property_expr_TAIL* 
+;
+property_expr_HEAD :
+sequence_expr BAR_MINUS_GT property_expr
+| sequence_expr BAR_EQ_GT property_expr
+| sequence_expr POUND_MINUS_POUND property_expr
+| sequence_expr POUND_EQ_POUND property_expr
+| sequence_expr
+| STRONG_K LPAREN sequence_expr RPAREN
+| WEAK_K LPAREN sequence_expr RPAREN
+| LPAREN property_expr RPAREN
+| NOT_K property_expr
+| NEXTTIME_K property_expr
+| NEXTTIME_K ( constant_expression )? property_expr
+| S_NEXTTIME_K property_expr
+| S_NEXTTIME_K ( constant_expression )? property_expr
+| ALWAYS_K property_expr
+| ALWAYS_K ( cycle_delay_const_range_expression )? property_expr
+| S_ALWAYS_K ( constant_range)? property_expr
+| S_EVENTUALLY_K property_expr
+| EVENTUALLY_K ( constant_range )? property_expr
+| S_EVENTUALLY_K ( cycle_delay_const_range_expression )? property_expr
+| ACCEPT_ON_K LPAREN expression_or_dist RPAREN property_expr
+| REJECT_ON_K LPAREN expression_or_dist RPAREN property_expr
+| SYNC_ACCEPT_ON_K LPAREN expression_or_dist RPAREN property_expr
+| SYNC_REJECT_ON_K LPAREN expression_or_dist RPAREN property_expr
+| property_instance
+| clocking_event property_expr
+;
+property_expr_TAIL :
+OR_K property_expr
+| UNTIL_K property_expr
+| S_UNTIL_K property_expr
+| UNTIL_WITH_K property_expr
+| S_UNTIL_WITH_K property_expr
+| IMPLIES_K property_expr
+| IFF_K property_expr
+| AND_K property_expr
+;
 
 sequence_declaration :
 SEQUENCE_K sequence_identifier ( LPAREN ( sequence_port_list )? RPAREN )? SEMI
@@ -965,6 +1006,7 @@ sequence_formal_type :
 | UNTYPED_K
 | data_type_or_implicit
 
+/*remove dlr
 sequence_expr :
 //NOTE: covered by right recursion: 
 //sequence_expr cycle_delay_range sequence_expr ( cycle_delay_range sequence_expr )*
@@ -980,6 +1022,26 @@ sequence_expr cycle_delay_range sequence_expr
 | FIRST_MATCH_K LPAREN sequence_expr (COMMA sequence_match_item)* RPAREN
 | expression_or_dist THROUGHOUT_K sequence_expr
 | clocking_event sequence_expr
+*/
+sequence_expr :
+sequence_expr_HEAD sequence_expr_TAIL*
+;
+sequence_expr_HEAD :
+cycle_delay_range sequence_expr ( cycle_delay_range sequence_expr )*
+| expression_or_dist ( boolean_abbrev )?
+| sequence_instance ( sequence_abbrev )?
+| LPAREN sequence_expr (COMMA sequence_match_item )* RPAREN ( sequence_abbrev )?
+| FIRST_MATCH_K LPAREN sequence_expr (COMMA sequence_match_item)* RPAREN
+| expression_or_dist THROUGHOUT_K sequence_expr
+| clocking_event sequence_expr
+;
+sequence_expr_TAIL :
+cycle_delay_range sequence_expr
+| AND_K sequence_expr
+| INTERSECT_K sequence_expr
+| OR_K sequence_expr
+| WITHIN_K sequence_expr
+;
 
 cycle_delay_range :
   POUND2 LBRACK cycle_delay_const_range_expression RBRACK
@@ -1075,10 +1137,22 @@ coverage_event :
 | AT2 LPAREN block_event_expression RPAREN
 | clocking_event	//IDENT ==> sample (but not a keyword)
 
+/*remove dlr
 block_event_expression :
   block_event_expression OR_K block_event_expression
 | BEGIN_K hierarchical_btf_identifier
 | END_K hierarchical_btf_identifier
+*/
+block_event_expression :
+block_event_expression_HEAD block_event_expression_TAIL*
+;
+block_event_expression_HEAD :
+BEGIN_K hierarchical_btf_identifier
+| END_K hierarchical_btf_identifier
+;
+block_event_expression_TAIL :
+  OR_K block_event_expression
+;
 
 hierarchical_btf_identifier :
   hierarchical_identifier ( class_scope )? method_identifier
@@ -1137,12 +1211,26 @@ bins_selection_or_option :
 
 bins_selection : bins_keyword bin_identifier EQ select_expression ( IFF_K LPAREN expression RPAREN )?
 
+/*remove dlr
 select_expression :
 select_expression AND2 select_expression
 | select_expression OR2 select_expression
 | select_condition
 | NOT select_condition
 | LPAREN select_expression RPAREN
+*/
+select_expression:
+select_expression_HEAD select_expression_TAIL*
+;
+select_expression_HEAD :
+select_condition
+| NOT select_condition
+| LPAREN select_expression RPAREN
+;
+select_expression_TAIL :
+AND2 select_expression
+| OR2 select_expression
+;
 
 select_condition : BINSOF_K LPAREN bins_expression RPAREN ( INTERSECT_K LCURLY open_range_list RCURLY )?
 
@@ -1484,12 +1572,26 @@ event_control :
 | AT hierarchical_event_identifier
 | AT ps_or_hierarchical_sequence_identifier
 
+/*remove dlr
 event_expression :
   event_expression OR_K event_expression
 | event_expression COMMA event_expression
 | LPAREN event_expression RPAREN
 | ( edge_identifier )? expression ( IFF_K expression )?
 | sequence_instance ( IFF_K expression )?
+*/
+event_expression :
+event_expression_HEAD event_expression_TAIL*
+;
+event_expression_HEAD :
+LPAREN event_expression RPAREN
+| ( edge_identifier )? expression ( IFF_K expression )?
+| sequence_instance ( IFF_K expression )?
+;
+event_expression_TAIL :
+  OR_K event_expression
+| COMMA event_expression
+;
 
 procedural_timing_control :
 delay_control
@@ -2103,11 +2205,24 @@ inc_or_dec_operator ( attribute_instance )* variable_lvalue
 //NOT USED: 	)*
 //NOT USED: 	QMARK ( attribute_instance )* expression COLON expression
 
+/*Redux removing direct left-recursion (dlr)
 constant_expression :
   constant_expression QMARK ( attribute_instance )* constant_expression COLON constant_expression
 | constant_expression binary_operator ( attribute_instance )* constant_expression
 | unary_operator ( attribute_instance )* constant_primary
 | constant_primary
+*/
+constant_expression :
+constant_expression_HEAD constant_expression_TAIL*
+;
+constant_expression_HEAD :
+  unary_operator ( attribute_instance )* constant_primary
+| constant_primary
+;
+constant_expression_TAIL :
+  QMARK ( attribute_instance )* constant_expression COLON constant_expression
+| binary_operator ( attribute_instance )* constant_expression
+;
 
 constant_mintypmax_expression : constant_expression (COLON constant_expression COLON constant_expression)?
 
@@ -2130,6 +2245,7 @@ constant_indexed_range :
 constant_expression PLUS_COLON constant_expression
 | constant_expression MINUS_COLON constant_expression
 
+/*remove dlr
 expression :
 //ILR{ | conditional_expression
 expression (MATCHES_K pattern)?  ( AND3 expression (MATCHES_K pattern)?)* QMARK ( attribute_instance )* expression COLON expression
@@ -2143,6 +2259,22 @@ expression (MATCHES_K pattern)?  ( AND3 expression (MATCHES_K pattern)?)* QMARK 
 | LPAREN operator_assignment RPAREN
 | tagged_union_expression
 | primary
+*/
+expression:
+expression_HEAD expression_TAIL*
+;
+expression_HEAD :
+unary_operator ( attribute_instance )* primary
+| inc_or_dec_expression
+| LPAREN operator_assignment RPAREN
+| tagged_union_expression
+| primary
+;
+expression_TAIL :
+(MATCHES_K pattern)?  ( AND3 expression (MATCHES_K pattern)?)* QMARK ( attribute_instance )* expression COLON expression
+| binary_operator ( attribute_instance )* expression
+| INSIDE_K LCURLY open_range_list RCURLY
+;
 
 tagged_union_expression : TAGGED_K member_identifier ( expression )?
 
@@ -2157,6 +2289,7 @@ mintypmax_expression :
 //module_path_conditional_expression : 
 //module_path_expression QMARK ( attribute_instance )* module_path_expression COLON module_path_expression
 
+/*remove dlr
 module_path_expression :
 //ILR{ | module_path_conditional_expression
   module_path_expression QMARK ( attribute_instance )* module_path_expression COLON module_path_expression
@@ -2164,6 +2297,18 @@ module_path_expression :
 | module_path_expression binary_module_path_operator ( attribute_instance )*
 | unary_module_path_operator ( attribute_instance )* module_path_primary module_path_expression
 | module_path_primary
+*/
+module_path_expression:
+module_path_expression_HEAD module_path_expression_TAIL*
+;
+module_path_expression_HEAD :
+unary_module_path_operator ( attribute_instance )* module_path_primary module_path_expression
+| module_path_primary
+;
+module_path_expression_TAIL :
+  QMARK ( attribute_instance )* module_path_expression COLON module_path_expression
+| binary_module_path_operator ( attribute_instance )*
+;
 
 module_path_mintypmax_expression :
   module_path_expression COLON module_path_expression COLON module_path_expression
@@ -2182,6 +2327,7 @@ genvar_expression : constant_expression
 //casting_type : simple_type | constant_primary | signing | STRING_K |CONST_K 
 
 //A.8.4 Primaries
+/*remove dlr
 constant_primary :
 //NOTE replace to mitigate ILR{ | constant_cast
 //ILR{ | casting_type 
@@ -2204,6 +2350,28 @@ constant_primary SQUOTE LPAREN constant_expression RPAREN
 | constant_assignment_pattern_expression
 | type_reference
 | primary_literal
+*/
+constant_primary:
+constant_primary_HEAD constant_primary_TAIL*
+;
+constant_primary_HEAD :
+(simple_type | signing | STRING_K | CONST_K) SQUOTE LPAREN constant_expression RPAREN
+| constant_multiple_concatenation ( LBRACK constant_range_expression RBRACK )?
+| constant_concatenation ( LBRACK constant_range_expression RBRACK )?
+| constant_let_expression
+| LPAREN constant_mintypmax_expression RPAREN
+| subroutine_call
+| specparam_identifier ( LBRACK constant_range_expression RBRACK )?
+| ps_parameter_identifier constant_select
+| genvar_identifier
+| ( package_scope | class_scope )? enum_identifier
+| constant_assignment_pattern_expression
+| type_reference
+| primary_literal
+;
+constant_primary_TAIL :
+SQUOTE LPAREN constant_expression RPAREN
+;
 
 module_path_primary :
   LPAREN module_path_mintypmax_expression RPAREN

@@ -24,11 +24,13 @@
 package apfe.peg;
 
 import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
+import java.util.regex.Pattern;
 
 public class Identifier extends Acceptor implements GenJava.IGen {
 
@@ -37,7 +39,14 @@ public class Identifier extends Acceptor implements GenJava.IGen {
 
     @Override
     public GenJava genJava(GenJava j) {
-        return j.append("new " + GenJava.getClsNm(getId()) + "()");
+        String s;
+        //If were in maze and all [A-Z][A-Z0-9_]* then we're a Terminal
+        if (Main.stGenMaze && Pattern.matches("[A-Z][A-Z0-9_]*", getId())) {
+            s = "new Terminal(" + getId() + ")"; 
+        } else {
+            s = "new " + GenJava.getClsNm(getId()) + "()";
+        }
+        return j.append(s);
     }
 
     @Override

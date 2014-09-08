@@ -46,11 +46,12 @@ public class Expression extends Acceptor implements GenJava.IGen {
         if (1 == getSequences().size()) {
             j = j.append(getSequences().get(0));
         } else {
-            if (true) {
-                j = j.genChoiceClause(getSequences());
+            if (Main.stGenMaze) {
+                final String cc = (Main.stGenMaze) ? "Alternates" : "PrioritizedChoice";
+                //TODO: this is the lazy/inefficient way
+                j = j.funcCall("new " + cc, getSequences());
             } else {
-            //TODO: this is the lazy/inefficient way
-                j = j.funcCall("new PrioritizedChoice", getSequences());
+                j = j.genChoiceClause(getSequences());
             }
         }
         return j;
@@ -95,7 +96,7 @@ public class Expression extends Acceptor implements GenJava.IGen {
         return sb.toString();
     }
 
-        public static final Acceptor stDelim = Main.stGenMaze ? stBar : stSlash;
+    public static final Acceptor stDelim = Main.stGenMaze ? stBar : stSlash;
 
     @Override
     public Acceptor create() {

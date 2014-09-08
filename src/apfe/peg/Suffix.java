@@ -24,6 +24,7 @@
 package apfe.peg;
 
 import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -43,9 +44,22 @@ public class Suffix extends Acceptor implements GenJava.IGen {
             return getPrimary().genJava(j);
         }
         Repetition.ERepeat rep = getOpAsRep();
-        j = j.append("new Repetition(");
-        j = j.append(getPrimary()).append(", Repetition.ERepeat.")
-                .append(rep.name()).append(")");
+        if (Main.stGenMaze) {
+            if (rep == Repetition.ERepeat.eOptional) {
+                j.append("new Optional(").append(getPrimary())
+                        .append(") ");
+            } else {
+                j.append("new Repetition(").append(getPrimary());
+                if (rep == Repetition.ERepeat.eOneOrMore) {
+                    j.append(", true");
+                }
+                j.append(") ");
+            }
+        } else {
+            j.append("new Repetition(");
+            j.append(getPrimary()).append(", Repetition.ERepeat.")
+                    .append(rep.name()).append(")");
+        }
         return j;
     }
 
