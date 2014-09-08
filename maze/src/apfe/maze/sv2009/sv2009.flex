@@ -93,7 +93,6 @@ TimeUnit = [munpf]? "s"
 TicLine = "`line" {Space}+ [0-9]+ {Space}+ \" [^\"]+ \" {Space}+ [0-2]
 TimeScale = "`timescale" {Space}+ {TIME_LITERAL} {Space}* "/" {Space}* {TIME_LITERAL}
 
-FINISH_NUMBER = [0-2]
 OctDigit = [0-7]
 HexDigit = [0-9a-fA-F]
 NonZeroUnsignedNumber = [1-9][_0-9]*
@@ -111,6 +110,7 @@ UNBASED_UNSIZED_LITERAL = \' {Space}* [01xXzZ?]
 Size = {NonZeroUnsignedNumber} {Space}*
 
 //A.8.7 Numbers
+UNSIGNED_NUMBER = {UnsignedNumber}
 NUMBER = {IntegralNumber} | {RealNumber}
 
 IntegralNumber = {Size}? ({OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber})
@@ -485,11 +485,12 @@ StringCharacter = [^\r\n\"\\]
 	"^~" {return create(XOR_TILDE);}
 	{IDENT} {return create(IDENT);}
 	{ESC_IDENT} {return create(ESC_IDENT);}
-	{FINISH_NUMBER} {return create(FINISH_NUMBER);}
-	{NUMBER} {return create(NUMBER);}
+	{UNSIGNED_NUMBER} {return create(UNSIGNED_NUMBER);}
 	{UNBASED_UNSIZED_LITERAL} {return create(UNBASED_UNSIZED_LITERAL);}
+	{NUMBER} {return create(NUMBER);}
 	{TIME_LITERAL} {return create(TIME_LITERAL);}
 	{SYSTEM_IDENT} {return create(SYSTEM_IDENT);}
+	"'" {return create(SQUOTE);}
 	//create}
 
   	{TicLine}	{ ticLine(); }

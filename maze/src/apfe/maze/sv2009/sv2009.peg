@@ -138,7 +138,7 @@ port_direction? port_identifier unpacked_dimension* ( EQ constant_expression )?
 
 elaboration_system_task :
 // $fatal $error $warning $info
-DS_FATAL_K (LPAREN FINISH_NUMBER (COMMA list_of_arguments)? RPAREN)? SEMI
+DS_FATAL_K (LPAREN UNSIGNED_NUMBER (COMMA list_of_arguments)? RPAREN)? SEMI
 | DS_ERROR_K (LPAREN list_of_arguments RPAREN)? SEMI
 | DS_WARNING_K (LPAREN list_of_arguments RPAREN)? SEMI
 | DS_INFO_K (LPAREN list_of_arguments RPAREN)? SEMI
@@ -752,7 +752,7 @@ dpi_import_export :
 | EXPORT_K dpi_spec_string ( c_identifier EQ )? FUNCTION_K function_identifier SEMI
 | EXPORT_K dpi_spec_string ( c_identifier EQ )? TASK_K task_identifier SEMI
 
-dpi_spec_string : STRING //"DPI-C" | "DPI"
+dpi_spec_string : STRING_LITERAL //"DPI-C" | "DPI"
 
 dpi_function_import_property : CONTEXT_K | PURE_K
 
@@ -1662,11 +1662,11 @@ deferred_immediate_assert_statement
 | deferred_immediate_assume_statement
 | deferred_immediate_cover_statement
 
-deferred_immediate_assert_statement : ASSERT_K POUND DIGIT LPAREN expression RPAREN action_block
+deferred_immediate_assert_statement : ASSERT_K POUND UNSIGNED_NUMBER LPAREN expression RPAREN action_block
 
-deferred_immediate_assume_statement : ASSUME_K POUND DIGIT LPAREN expression RPAREN action_block
+deferred_immediate_assume_statement : ASSUME_K POUND UNSIGNED_NUMBER LPAREN expression RPAREN action_block
 
-deferred_immediate_cover_statement : COVER_K POUND DIGIT LPAREN expression RPAREN statement_or_null
+deferred_immediate_cover_statement : COVER_K POUND UNSIGNED_NUMBER LPAREN expression RPAREN statement_or_null
 
 //A.6.11 Clocking block
 clocking_declaration : 
@@ -2239,7 +2239,7 @@ range_expression :
 expression
 | part_select_range
 
-primary_literal : NUMBER | TIME_LITERAL | UNBASED_UNSIZED_LITERAL | STRING
+primary_literal : NUMBER | TIME_LITERAL | UNBASED_UNSIZED_LITERAL | STRING_LITERAL
 
 implicit_class_handle : THIS_K | SUPER_K | THIS_K DOT SUPER_K
 
@@ -2880,8 +2880,10 @@ XOR_EQ.
 XOR_TILDE.
 IDENT.
 ESC_IDENT.
-FINISH_NUMBER.
+UNSIGNED_NUMBER.
 UNBASED_UNSIZED_LITERAL.
 NUMBER.
 TIME_LITERAL.
 SYSTEM_IDENT.
+SQUOTE.
+STRING_LITERAL.
