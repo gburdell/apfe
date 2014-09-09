@@ -25,6 +25,7 @@ package apfe.peg;
 
 import apfe.peg.Operator.EOp;
 import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -42,6 +43,7 @@ public class Prefix extends Acceptor implements GenJava.IGen {
     public GenJava genJava(GenJava j) {
         assert null == getAsgn();//not supported for now.
         if (null != getOp()) {
+            Util.assertFalse(Main.stGenMaze, "Predicate() not supported for maze");
             j = j.append("new ")
                     .append((getOp().getOp() == EOp.AND) ? "And" : "Not")
                     .append("Predicate(");

@@ -24,6 +24,7 @@
 package apfe.peg;
 
 import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
@@ -31,6 +32,7 @@ import apfe.runtime.NotPredicate;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
+import apfe.runtime.Util;
 
 public class Literal extends Acceptor implements GenJava.IGen {
 
@@ -39,6 +41,7 @@ public class Literal extends Acceptor implements GenJava.IGen {
 
     @Override
     public GenJava genJava(GenJava j) {
+        Util.assertFalse(Main.stGenMaze, "Literal not supported for maze");
         return j.template("new CharSeq(@1@)", toString());
     }
 

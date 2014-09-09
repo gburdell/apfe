@@ -23,6 +23,7 @@
  */
 package apfe.peg.generate;
 
+import apfe.peg.Definition;
 import apfe.peg.Grammar;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
@@ -58,13 +59,12 @@ public class Main {
             State.create(cb);
             Grammar gram = new Grammar();
             gram = Util.downCast(gram.accept());
-            Analyze anl = null;
             int numErrs = 0;
             if (null != gram) {
                 System.out.println("grammar:");
                 System.out.println(gram.toString());
-                anl = new Analyze(gram);
-                numErrs = anl.analyze();
+                stAnyze = new Analyze(gram);
+                numErrs = stAnyze.analyze();
             } else {
                 ParseError.printTopMessage();
             }
@@ -80,11 +80,18 @@ public class Main {
             if ((0 < numErrs) || (null == gram)) {
                 System.exit(numErrs);
             } else {
-                Generate.generate(anl);
+                Generate.generate(stAnyze);
             }
         } catch (Exception ex) {
             Util.abnormalExit(ex);
         }
+    }
+    
+    private static Analyze stAnyze;
+    
+    public static boolean isToken(String idName) {
+        Definition defn = stAnyze.getDefnByName().get(idName);
+        return ((null != defn) && defn.isToken());
     }
     
     /**

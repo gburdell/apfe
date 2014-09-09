@@ -79,7 +79,7 @@ public class Generate {
         if (m_topLevelCls.isEmpty()) {
             generateSeparate();
         } else {
-            assert !Main.stGenMaze; //haven't done anything with maze for one file.
+            Util.assertFalse(Main.stGenMaze, "generateOne() not supported for maze yet");
             generateOne();
         }
     }
@@ -94,7 +94,7 @@ public class Generate {
      * @param defn left-recursive Definition.
      */
     private GenJava getDlrSwitchClause(GenJava gen, final Definition defn) {
-        assert !Main.stGenMaze; //haven't done anything with maze for one file.
+        Util.assertFalse(Main.stGenMaze, "getDlrSwitchClause() not supported for maze yet");
         final String nm = defn.getId().getId();
         final String toMatch = "new " + GenJava.getClsNm(nm) + "()";
         final String drrReplace = "new " + GenJava.getClsNm(nm) + "(true)";

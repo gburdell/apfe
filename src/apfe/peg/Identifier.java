@@ -41,7 +41,7 @@ public class Identifier extends Acceptor implements GenJava.IGen {
     public GenJava genJava(GenJava j) {
         String s;
         //If were in maze and all [A-Z][A-Z0-9_]* then we're a Terminal
-        if (Main.stGenMaze && Pattern.matches("[A-Z][A-Z0-9_]*", getId())) {
+        if (Main.stGenMaze && Main.isToken(getId())) {
             s = "new Terminal(" + getId() + ")"; 
         } else {
             s = "new " + GenJava.getClsNm(getId()) + "()";

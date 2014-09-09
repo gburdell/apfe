@@ -1425,7 +1425,7 @@ sequential_body : ( udp_initial_statement )? TABLE_K sequential_entry ( sequenti
 
 udp_initial_statement : INITIAL_K output_port_identifier EQ init_val SEMI
 
-init_val : ("1'" [bB] [01xX]) | [01]
+init_val : NUMBER; //("1'" [bB] [01xX]) | [01]
 
 sequential_entry : seq_input_list COLON current_state COLON next_state SEMI
 
@@ -1441,11 +1441,11 @@ current_state : level_symbol
 
 next_state : output_symbol | MINUS
 
-output_symbol : [01xX]
+output_symbol : NUMBER; //[01xX]
 
-level_symbol : [01xX?bB]
+level_symbol : NUMBER | IDENT; //[01xX?bB]
 
-edge_symbol : [rRfFpPnN*]
+edge_symbol : IDENT | STAR; //[rRfFpPnN*]
 
 //A.5.4 UDP instantiation
 udp_instantiation : udp_identifier ( drive_strength )? ( delay2 )? udp_instance ( COMMA udp_instance )* SEMI
@@ -2082,7 +2082,8 @@ specify_input_terminal_descriptor
 
 edge_control_specifier : EDGE_K LBRACK edge_descriptor ( COMMA edge_descriptor )* RBRACK
 
-edge_descriptor : "01" | "10" | [01][xX] | [xX][01]
+//TODO: not quite complete.  Misses [01][xX]...
+edge_descriptor : STRING_LITERAL; //"01" | "10" | [01][xX] | [xX][01]
 
 timing_check_condition :
   LPAREN scalar_timing_check_condition RPAREN
@@ -2095,7 +2096,7 @@ scalar_timing_check_condition :
 | expression NOT_EQ2 scalar_constant
 | TILDE? expression
 
-scalar_constant : ('1'? [bB])? [01]
+scalar_constant : NUMBER; //('1'? [bB])? [01]
 
 //A.8 Expressions
 //A.8.1 Concatenations
@@ -2626,7 +2627,7 @@ output_port_identifier : identifier
 package_identifier : identifier
 
 package_scope :
-package_identifier COLON2 !NEW_K
+package_identifier COLON2 //!NEW_K
 //UNIT_K: $unit
 | DS_UNIT_K COLON2
 

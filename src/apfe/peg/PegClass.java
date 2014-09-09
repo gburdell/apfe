@@ -24,6 +24,7 @@
 package apfe.peg;
 
 import apfe.peg.generate.GenJava;
+import apfe.peg.generate.Main;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.CharSeq;
@@ -41,15 +42,16 @@ public class PegClass extends Acceptor implements GenJava.IGen {
 
     @Override
     public GenJava genJava(GenJava j) {
+        Util.assertFalse(Main.stGenMaze, "PegClass not supported for maze");
         assert (0 < getRanges().size());
         return j.funcCall("new CharClass", getRanges());
     }
-    
+
     @Override
     protected boolean accepti() {
         // Class <- '[' (!']' Range)* ']' Spacing
         Repetition r1 = new Repetition(new Sequence(
-                new NotPredicate(new CharSeq(']')), 
+                new NotPredicate(new CharSeq(']')),
                 new Range()), Repetition.ERepeat.eZeroOrMore);
         Sequence sq1 = new Sequence(new CharSeq('['), r1, new CharSeq(']'), new Spacing());
         boolean match = (null != (sq1 = match(sq1)));
@@ -59,7 +61,7 @@ public class PegClass extends Acceptor implements GenJava.IGen {
         }
         return match;
     }
-    
+
     private List<Range> m_rng;
 
     public List<Range> getRanges() {
