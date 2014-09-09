@@ -1,1 +1,2 @@
- 4'b01
+module m2();
+endmodule
