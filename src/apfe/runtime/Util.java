@@ -31,7 +31,6 @@ import java.util.List;
  * @author gburdell
  */
 import static apfe.runtime.MessageMgr.message;
-import java.rmi.UnexpectedException;
 import java.util.Arrays;
 
 public class Util {
@@ -297,7 +296,7 @@ public class Util {
 
     public static void assertFalse(boolean cond, String msg) {
         if (false != cond) {
-            abnormalExit(new UnsupportedOperationException(msg));
+            abnormalExit(new RuntimeException(msg));
         }
     }
     

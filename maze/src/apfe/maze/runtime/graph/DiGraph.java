@@ -43,7 +43,7 @@ public class DiGraph<V, E> {
     }
 
     public DiGraph(V root) {
-        this(new Vertex(root));
+        this(new Vertex<V>(root));
     }
 
     public Vertex<V> getRoot() {
@@ -59,7 +59,7 @@ public class DiGraph<V, E> {
         return leafCnt();
     }
 
-    private void addLeaf(Vertex leaf) {
+    private void addLeaf(Vertex<V> leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }
@@ -74,7 +74,7 @@ public class DiGraph<V, E> {
     }
 
     public void addEdge(Vertex<V> src, Vertex<V> dest, E data) {
-        Edge e = new Edge(src, dest, data);
+        Edge e = new Edge<>(src, dest, data);
         src.addOutGoingEdge(e);
         dest.setIncomingEdge(e);
         //src can no longer be leaf
@@ -85,7 +85,7 @@ public class DiGraph<V, E> {
             addLeaf(dest);
         }
     }
-
+    
     private boolean hasLeaf(Vertex v) {
         return (null != m_leafs) && m_leafs.contains(v);
     }

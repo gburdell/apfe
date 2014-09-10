@@ -45,6 +45,26 @@ public class Graph extends DiGraph<State, Acceptor> {
         super(st);
     }
 
+    @Override
+    public void addEdge(Vertex<State> src, Vertex<State> dest, Acceptor edge) {
+        boolean add = (1 > src.getOutDegree());
+        if (!add) {
+            add = true;
+            Acceptor ea;
+            for (Edge<State,Acceptor> exists : src.getOutGoingEdges()) {
+                ea = (Acceptor)exists.getData();
+                add = !(ea.getClass().getSimpleName().equals(edge.getClass().getSimpleName()))
+                        && (exists.getDest().getData().getPos() == dest.getData().getPos());
+                if (!add) {
+                    break;
+                }
+            }
+        }
+        if (add) {
+            super.addEdge(src, dest, edge);
+        }
+    }
+
     static {
         stPrintEdgeName = new IPrintEdgeName<State, Acceptor>() {
             @Override

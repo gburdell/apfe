@@ -61,11 +61,11 @@ public class Alternates extends Acceptor {
         for (Acceptor acc : m_alts) {
             subg = acc.accept(src);
             if (null != subg) {
-                String dbg = subg.toString();
+                //String dbg = subg.toString();
                 dest = subg.getRoot();
-                dbg = getSubgraph().toString();
+                //dbg = getSubgraph().toString();
                 addEdge(src, acc, subg);
-                dbg = getSubgraph().toString();
+                //dbg = getSubgraph().toString();
                 cnt++;
             }
         }
