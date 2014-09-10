@@ -64,22 +64,23 @@ public class Repetition extends Acceptor {
         int acceptedCnt = 0;
         boolean matched = true;
         Graph subg;
-        Vertex<State> dest;
-        Collection<Vertex<State>> srcs = Util.asCollection(getSubgraphRoot());
-        List<Vertex<State>> nextSrcs;
-        Acceptor edge;
+        Vertex<State,Acceptor> dest;
+        Collection<Vertex<State,Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
+        List<Vertex<State,Acceptor>> nextSrcs;
+        Acceptor edge, nullEdge;
         while (matched) {
             nextSrcs = null;
             matched = false;
             edge = m_rep.create();
-            for (Vertex<State> src : srcs) {
+            for (Vertex<State,Acceptor> src : srcs) {
                 subg = edge.accept(src);
                 //Add an empty/epsilon edge the first time iff. 0-or-more.
                 //Then only add if we will accept
                 if ((!m_oneOrMore && (0 == acceptedCnt)) 
                         || ((null != subg) && (0 < acceptedCnt))) {
                     dest = new Vertex<>(src);
-                    getSubgraph().addEdge(src, dest, new Optional.Epsilon());
+                    nullEdge = new Optional.Epsilon();
+                    getSubgraph().addEdge(src, dest, nullEdge);
                 }
                 if (null != subg) {
                     //String dbg = subg.toString();
@@ -97,10 +98,10 @@ public class Repetition extends Acceptor {
         return (!m_oneOrMore || (0 < acceptedCnt));
     }
 
-    private static class LeafFilter implements Graph.IVertexFilter<State> {
+    private static class LeafFilter implements Graph.IVertexFilter<State,Acceptor> {
 
         @Override
-        public boolean pass(Vertex<State> v) {
+        public boolean pass(Vertex<State,Acceptor> v) {
             return !(Optional.incomingEdgeIsEpsilon(v));
         }
 

@@ -31,14 +31,15 @@ import java.util.List;
  *
  * @author gburdell
  * @param <V> vertex data type.
+ * @param <E> edge data type.
  */
-public class Vertex<V> {
+public class Vertex<V,E> {
 
     /**
      * Only dup state.
      * @param v vertex state to dup.
      */
-    public Vertex(Vertex<V> v) {
+    public Vertex(Vertex<V,E> v) {
         this(v.m_data);
     }
 
@@ -50,21 +51,21 @@ public class Vertex<V> {
         return m_data;
     }
 
-    public void setIncomingEdge(Edge in) {
+    public void setIncomingEdge(Edge<V,E> in) {
         if (null != m_incoming) {
             throw new RuntimeException("Incoming edge already set");
         }
         m_incoming = in;
     }
 
-    public void addOutGoingEdge(Edge out) {
+    public void addOutGoingEdge(Edge<V,E> out) {
         if (null == m_outgoing) {
             m_outgoing = new LinkedList<>();
         }
         m_outgoing.add(out);
     }
     
-    public Edge getIncomingEdge() {
+    public Edge<V,E> getIncomingEdge() {
         return m_incoming;
     }
 
@@ -80,7 +81,7 @@ public class Vertex<V> {
         return (0 == getOutDegree());
     }
 
-    public List<Edge> getOutGoingEdges() {
+    public List<Edge<V,E>> getOutGoingEdges() {
         return (0 < getOutDegree()) ? m_outgoing : null;
     }
 
@@ -89,13 +90,13 @@ public class Vertex<V> {
      *
      * @return outgoing edges (source vertex is set null).
      */
-    public List<Edge> rmOutGoingEdges() {
+    public List<Edge<V,E>> rmOutGoingEdges() {
         if (0 == getOutDegree()) {
             return null;
         }
-        List<Edge> outs = new LinkedList<>();
-        Vertex<V> v;
-        for (Edge e : getOutGoingEdges()) {
+        List<Edge<V,E>> outs = new LinkedList<>();
+        Vertex<V,E> v;
+        for (Edge<V,E> e : getOutGoingEdges()) {
             assert (this == e.getSrc());
             e.setSrc(null);
             outs.add(e);
@@ -105,7 +106,7 @@ public class Vertex<V> {
     }
 
     private final V m_data;
-    private Edge m_incoming;
-    private List<Edge> m_outgoing;
+    private Edge<V,E> m_incoming;
+    private List<Edge<V,E>> m_outgoing;
 
 }

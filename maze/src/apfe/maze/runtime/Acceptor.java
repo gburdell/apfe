@@ -31,6 +31,7 @@ import java.util.Collection;
  * @author gburdell
  */
 public abstract class Acceptor {
+
     protected Acceptor() {
 
     }
@@ -48,9 +49,9 @@ public abstract class Acceptor {
      * @param start root vertex which is duped as root of subgraph.
      * @return subgraph if accepted else null.
      */
-    public Graph accept(Vertex<State> start) {
+    public Graph accept(Vertex<State, Acceptor> start) {
         //Duplicate data but not edges.
-        m_subgraph = new Graph(new Vertex<>(start.getData()));
+        m_subgraph = new Graph(new Vertex<State, Acceptor>(start.getData()));
         final boolean match = acceptImpl();
         return match ? m_subgraph : null;
     }
@@ -61,7 +62,7 @@ public abstract class Acceptor {
         return getSubgraphRoot().getData().getToken();
     }
 
-    protected Vertex<State> getSubgraphRoot() {
+    protected Vertex<State, Acceptor> getSubgraphRoot() {
         return getSubgraph().getRoot();
     }
 
@@ -74,42 +75,48 @@ public abstract class Acceptor {
         return Class.class.getSimpleName();
     }
 
+    public boolean equals(Object obj) {
+        boolean eq = (null != obj) && (obj instanceof Acceptor);
+        if (eq) {
+            String objNm = obj.getClass().getSimpleName();
+            String thisNm = getClass().getSimpleName();
+            eq = thisNm.equals(objNm);
+        }
+        return eq;
+    }
+
     /**
      * Add (accepted) edge to this subgraph.
-     * @param src   source vertex.
-     * @param edge  edge to add.
-     * @param subg  subg vertex (root of subgraph to add).
+     *
+     * @param src source vertex.
+     * @param edge edge to add.
+     * @param subg subg vertex (root of subgraph to add).
      */
-    protected void addEdge(Vertex<State> src, Acceptor edge, Graph subg) {
-        Vertex<State> dest = subg.getRoot(), v;
-        Collection<Vertex<State>> leafs;
+    protected void addEdge(Vertex<State, Acceptor> src, Acceptor edge, Graph subg) {
+        Vertex<State, Acceptor> dest = subg.getRoot(), v;
+        Collection<Vertex<State, Acceptor>> leafs;
         if (edge instanceof Terminal) {
             //just grab the leaf/dest node so we dont get -term->o-term->
             assert (1 == dest.getOutDegree());
             //leaf node: but with incoming edge, so just grab state.
             v = dest.getOutGoingEdges().get(0).getDest();
-            dest = new Vertex(v.getData());
-            leafs = Util.asCollection(dest);
-        } else if (edge instanceof NonTerminal) {
-            leafs = subg.getLeafs();
-            /*TODO: let the nonterminal deal with whether to add or not.
-            if (edge.getSubgraph() == subg) {
-                //Dont create another edge to same nonterminal
-                assert (0 == dest.getInDegree());
-                setSubGraph(subg);
+            dest = new Vertex<>(v.getData());
+            if (getSubgraph().addEdge(src, dest, edge)) {
+                leafs = Util.asCollection(dest);
+                assert (1 >= leafs.size());
+                getSubgraph().addLeafs(leafs);
             }
-            */
-        } else {
+        } else if (getSubgraph().addEdge(src, dest, edge)) {
+            //we only add leafs if we took the subgraph
             leafs = subg.getLeafs();
-        }
-        getSubgraph().addEdge(src, dest, edge);
-        getSubgraph().addLeafs(leafs);
+            getSubgraph().addLeafs(leafs);
+        } //else: if we dont add the subgraph then we dont want the leafs either
     }
-    
+
     protected void setSubGraph(Graph subg) {
         m_subgraph = subg;
     }
-    
+
     /**
      * A deep clone.
      *
@@ -125,7 +132,7 @@ public abstract class Acceptor {
         }
         return dup;
     }
-    
+
     /**
      * The subgraph we are building with this acceptor.
      */

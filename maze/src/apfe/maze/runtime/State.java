@@ -53,10 +53,19 @@ public class State {
         return new State(m_lex, m_pos + 1);
     }
 
-    public Vertex<State> getNextVertex() {
+    public Vertex<State,Acceptor> getNextVertex() {
         return new Vertex<>(getNext());
     }
     
+    @Override
+    public boolean equals(Object obj) {
+        boolean eq = (obj != null) && (obj instanceof State);
+        if (eq) {
+            eq = ((State)obj).getPos() == getPos();
+        }
+        return eq;
+    }
+
     public final Scanner m_lex;
     public final int m_pos;
 }

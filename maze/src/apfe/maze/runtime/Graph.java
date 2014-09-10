@@ -41,28 +41,39 @@ public class Graph extends DiGraph<State, Acceptor> {
         super(st);
     }
 
-    public Graph(Vertex<State> st) {
+    public Graph(Vertex<State,Acceptor> st) {
         super(st);
     }
 
+    /**
+     * Create edge in existing graph.
+     * Add dest as leaf vertex, if it is a leaf node.
+     * <B>NOTE:</B> This implementation only checks if -edge>(dest) exists.
+     * It does not check if subtree rooted by edge exists.  It just checks
+     * one-level deep.
+     * @param src source vertex.
+     * @param dest dest vertex
+     * @param edge edge connecting src to dest.
+     * @return true if edge was added.
+     */
     @Override
-    public void addEdge(Vertex<State> src, Vertex<State> dest, Acceptor edge) {
+    public boolean addEdge(Vertex<State,Acceptor> src, Vertex<State,Acceptor> dest, Acceptor edge) {
         boolean add = (1 > src.getOutDegree());
         if (!add) {
-            add = true;
             Acceptor ea;
             for (Edge<State,Acceptor> exists : src.getOutGoingEdges()) {
-                ea = (Acceptor)exists.getData();
-                add = !(ea.getClass().getSimpleName().equals(edge.getClass().getSimpleName()))
-                        && (exists.getDest().getData().getPos() == dest.getData().getPos());
+                //dont add if we already have edge+dest
+                add = !(exists.getData().equals(edge) 
+                        && exists.getDest().getData().equals(dest.getData()));
                 if (!add) {
-                    break;
+                    //curious: if this is the case
+                    assert (exists.getDest().getOutDegree() == dest.getOutDegree());
+                    //assert dest.isLeaf(); //curious??
+                    return false;
                 }
             }
         }
-        if (add) {
-            super.addEdge(src, dest, edge);
-        }
+        return super.addEdge(src, dest, edge);
     }
 
     static {
@@ -78,9 +89,9 @@ public class Graph extends DiGraph<State, Acceptor> {
                 return s;
             }
         };
-        stPrintVertexName = new IPrintVertexName<State>() {
+        stPrintVertexName = new IPrintVertexName<State,Acceptor>() {
             @Override
-            public String getVertexName(Vertex<State> v) {
+            public String getVertexName(Vertex<State,Acceptor> v) {
                 return "";
             }
         };

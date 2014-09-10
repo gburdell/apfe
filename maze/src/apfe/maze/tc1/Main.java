@@ -21,24 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package apfe.maze.tc1;
 
-package apfe.maze.sv2009;
-import apfe.maze.runtime.Token;
-import java.util.ArrayList;
+import apfe.maze.runtime.Graph;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.tc1.generated.Grammar;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * The entire collection of Tokens from a Scanner.
+ *
  * @author gburdell
  */
-public class Tokens extends ArrayList<Token> {
-    public Tokens(SvScanner scanner) {
-        m_scanner = scanner;
+public class Main {
+
+    public static void main(String argv[]) {
+        Scanner lex;
+        Graph graph;
+        Grammar gram;
+        String gs;
+        for (String fn : argv) {
+            try {
+                lex = new Tc1Scanner(fn);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                continue;
+            }
+            lex.slurp();
+            graph = new Graph(lex);
+            gram = new Grammar();
+            graph = gram.accept(graph.getRoot());
+        }
     }
-    
-    public int slurp() {
-        //todo
-        return this.size();
-    }
-    
-    private final SvScanner m_scanner;
 }

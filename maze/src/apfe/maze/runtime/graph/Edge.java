@@ -32,7 +32,7 @@ package apfe.maze.runtime.graph;
  */
 public class Edge<V, E> {
 
-    public Edge(Vertex<V> src, Vertex<V> dest, E data) {
+    public Edge(Vertex<V,E> src, Vertex<V,E> dest, E data) {
         m_src = src;
         m_dest = dest;
         m_data = data;
@@ -42,22 +42,22 @@ public class Edge<V, E> {
         return m_data;
     }
     
-    public Vertex<V> getSrc() {
+    public Vertex<V,E> getSrc() {
         return m_src;
     }
     
-    public Vertex<V> getDest() {
+    public Vertex<V,E> getDest() {
         return m_dest;
     }
     
-    public void setSrc(Vertex<V> src) {
+    public void setSrc(Vertex<V,E> src) {
         if (null != src) {
             assert (null == m_src);
         }
         m_src = src;
     }
 
-    public void setDest(Vertex<V> dest) {
+    public void setDest(Vertex<V,E> dest) {
         if (null != dest) {
             assert (null == m_dest);
         }
@@ -65,6 +65,6 @@ public class Edge<V, E> {
     }
     
     private final E m_data;
-    private Vertex<V> m_src;
-    private Vertex<V> m_dest;
+    private Vertex<V,E> m_src;
+    private Vertex<V,E> m_dest;
 }

@@ -38,28 +38,28 @@ import java.util.Set;
  */
 public class DiGraph<V, E> {
 
-    public DiGraph(Vertex<V> root) {
+    public DiGraph(Vertex<V,E> root) {
         m_root = root;
     }
 
     public DiGraph(V root) {
-        this(new Vertex<V>(root));
+        this(new Vertex<V,E>(root));
     }
 
-    public Vertex<V> getRoot() {
+    public Vertex<V,E> getRoot() {
         return m_root;
     }
 
-    public int addLeafs(Iterable<Vertex<V>> leafs) {
+    public int addLeafs(Iterable<Vertex<V,E>> leafs) {
         if (null != leafs) {
-            for (Vertex leaf : leafs) {
+            for (Vertex<V,E> leaf : leafs) {
                 addLeaf(leaf);
             }
         }
         return leafCnt();
     }
 
-    private void addLeaf(Vertex<V> leaf) {
+    private void addLeaf(Vertex<V,E> leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }
@@ -73,8 +73,17 @@ public class DiGraph<V, E> {
         return (null != m_leafs) ? m_leafs.size() : 0;
     }
 
-    public void addEdge(Vertex<V> src, Vertex<V> dest, E data) {
-        Edge e = new Edge<>(src, dest, data);
+    /**
+     * Create edge in existing graph.
+     * Add dest as leaf vertex, if it is a leaf node.
+     * <B>NOTE:</B> This implementation does not check if edge already exists.
+     * @param src source vertex.
+     * @param dest dest vertex
+     * @param data edge connecting src to dest.
+     * @return true (since edge always added).
+     */
+    public boolean addEdge(Vertex<V,E> src, Vertex<V,E> dest, E data) {
+        Edge<V,E> e = new Edge<>(src, dest, data);
         src.addOutGoingEdge(e);
         dest.setIncomingEdge(e);
         //src can no longer be leaf
@@ -84,28 +93,29 @@ public class DiGraph<V, E> {
         if (dest.isLeaf()) {
             addLeaf(dest);
         }
+        return true;
     }
     
-    private boolean hasLeaf(Vertex v) {
+    private boolean hasLeaf(Vertex<V,E> v) {
         return (null != m_leafs) && m_leafs.contains(v);
     }
 
-    public Collection<Vertex<V>> getLeafs() {
+    public Collection<Vertex<V,E>> getLeafs() {
         return (null != m_leafs) ? m_leafs : null;
     }
 
-    public interface IVertexFilter<V> {
+    public interface IVertexFilter<V,E> {
         /**
          * Test if Vertex meets filter criteria.
          * @param v vertex to test.
          * @return true if v meets filter criteria.
          */
-        public boolean pass(Vertex<V> v);
+        public boolean pass(Vertex<V,E> v);
     }
     
-    public Collection<Vertex<V>> getLeafs(IVertexFilter<V> filter) {
-        List<Vertex<V>> r = new LinkedList<>();
-        for (Vertex<V> v : getLeafs()) {
+    public Collection<Vertex<V,E>> getLeafs(IVertexFilter<V,E> filter) {
+        List<Vertex<V,E>> r = new LinkedList<>();
+        for (Vertex<V,E> v : getLeafs()) {
             if (filter.pass(v)) {
                 r.add(v);
             }
@@ -113,9 +123,9 @@ public class DiGraph<V, E> {
         return r;
     }
     
-    private final Vertex<V> m_root;
+    private final Vertex<V,E> m_root;
 
-    private Set<Vertex<V>> m_leafs;
+    private Set<Vertex<V,E>> m_leafs;
 
     @Override
     public String toString() {
@@ -129,14 +139,14 @@ public class DiGraph<V, E> {
 
     private static final String NL = System.lineSeparator();
 
-    private void depthFirst(StringBuilder sb, Vertex<V> node) {
+    private void depthFirst(StringBuilder sb, Vertex<V,E> node) {
         if (null != node) {
             sb.append('(').append(stPrintVertexName.getVertexName(node))
                     .append(')');
             if (0 < node.getOutDegree()) {
                 String enm;
-                Vertex<V> dest;
-                for (Edge<V, E> edge : node.getOutGoingEdges()) {
+                Vertex<V,E> dest;
+                for (Edge<V,E> edge : node.getOutGoingEdges()) {
                     StringBuilder nsb = new StringBuilder(sb);
                     enm = stPrintEdgeName.getEdgeName(edge);
                     nsb.append('-').append(enm).append("->");
@@ -157,7 +167,7 @@ public class DiGraph<V, E> {
      *
      * @param <V> vertex type.
      */
-    public static interface IPrintVertexName<V> {
+    public static interface IPrintVertexName<V,E> {
 
         /**
          * Get vertex name to be used for printing graph.
@@ -165,7 +175,7 @@ public class DiGraph<V, E> {
          * @param v vertex instance to print.
          * @return vertex name.
          */
-        public String getVertexName(Vertex<V> v);
+        public String getVertexName(Vertex<V,E> v);
     }
 
     /**
