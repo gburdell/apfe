@@ -1,9 +1,19 @@
 FLEX ?= jflex
-TARGET ?= SvScanner.java
+TARGET1 ?= SvScanner.java
+TARGET2 ?= generated/Grammar.java
+GENERATE ?= /home/gburdell/projects/apfe/bin/generate
 
-${TARGET}: sv2009.flex
+.PHONY: all
+all: ${TARGET1} ${TARGET2} ;
+
+${TARGET1}: sv2009.flex
 	${FLEX} --nobak ${<}
 
 .PHONY: clean
 clean:
-	-rm -f ${TARGET}
+	-rm -f ${TARGET1}
+	-rm -rf generated
+
+${TARGET2}: sv2009.peg base.java.tmpl generate.props.txt
+	${GENERATE} sv2009.peg generate.props.txt > generate.log
+	tail generate.log

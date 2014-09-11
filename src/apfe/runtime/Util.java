@@ -100,7 +100,6 @@ public class Util {
     }
 
     public static class Pair<T1, T2> {
-
         public Pair() {
         }
 

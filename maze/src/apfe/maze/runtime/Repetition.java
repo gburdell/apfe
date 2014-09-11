@@ -59,24 +59,45 @@ public class Repetition extends Acceptor {
         return new Repetition(m_rep.create(), m_oneOrMore);
     }
 
+    private static class Candidate
+            extends Util.Triplet<Vertex<State,Acceptor>, Acceptor, Graph> {
+        public Candidate(Vertex<State, Acceptor> src, Acceptor edge, Graph subg) {
+            super(src, edge, subg);
+        }
+    }
+
+    /**
+     * Go through leafs of subgs to check if leaf State has advanced past the
+     * last iteration of hasAcceptedToken.
+     *
+     * @param cands collection of candidate subgraphs.
+     * @return true if at least one of these candidates has accepted a new token.
+     */
+    private boolean hasAcceptedToken(Collection<Candidate> cands) {
+        return true;//TODO
+    }
+
+    private Vertex<State, Acceptor> m_lastState;
+    
     @Override
     protected boolean acceptImpl() {
         int acceptedCnt = 0;
         boolean matched = true;
         Graph subg;
-        Vertex<State,Acceptor> dest;
-        Collection<Vertex<State,Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
-        List<Vertex<State,Acceptor>> nextSrcs;
+        Vertex<State, Acceptor> dest;
+        Collection<Vertex<State, Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
+        m_lastState = getSubgraphRoot();
+        List<Vertex<State, Acceptor>> nextSrcs;
         Acceptor edge, nullEdge;
         while (matched) {
             nextSrcs = null;
             matched = false;
             edge = m_rep.create();
-            for (Vertex<State,Acceptor> src : srcs) {
+            for (Vertex<State, Acceptor> src : srcs) {
                 subg = edge.accept(src);
                 //Add an empty/epsilon edge the first time iff. 0-or-more.
                 //Then only add if we will accept
-                if ((!m_oneOrMore && (0 == acceptedCnt)) 
+                if ((!m_oneOrMore && (0 == acceptedCnt))
                         || ((null != subg) && (0 < acceptedCnt))) {
                     dest = new Vertex<>(src);
                     nullEdge = new Optional.Epsilon();
@@ -99,10 +120,10 @@ public class Repetition extends Acceptor {
         return (!m_oneOrMore || (0 < acceptedCnt));
     }
 
-    private static class LeafFilter implements Graph.IVertexFilter<State,Acceptor> {
+    private static class LeafFilter implements Graph.IVertexFilter<State, Acceptor> {
 
         @Override
-        public boolean pass(Vertex<State,Acceptor> v) {
+        public boolean pass(Vertex<State, Acceptor> v) {
             return true;//!(Optional.incomingEdgeIsEpsilon(v));
         }
 

@@ -35,7 +35,21 @@ import java.util.List;
  * @author gburdell
  */
 public class Util {
+    public static class Triplet<T1, T2, T3> {
+        public Triplet() {
+        }
 
+        public Triplet(T1 a1, T2 a2, T3 a3) {
+            e1 = a1;
+            e2 = a2;
+            e3 = a3;
+        }
+        public T1 e1;
+        public T2 e2;
+        public T3 e3;
+    }
+
+ 
     public static <T> Queue<T> arrayAsQueue(T ar[]) {
         Queue<T> asQ = new ArrayDeque<>(Arrays.asList(ar));
         return asQ;
