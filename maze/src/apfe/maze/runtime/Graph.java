@@ -59,7 +59,7 @@ public class Graph extends DiGraph<State, Acceptor> {
     @Override
     public boolean addEdge(Vertex<State,Acceptor> src, Vertex<State,Acceptor> dest, Acceptor edge) {
         boolean add = (1 > src.getOutDegree());
-        if (!add) {
+        if (false) {//(!add) {
             Acceptor ea;
             for (Edge<State,Acceptor> exists : src.getOutGoingEdges()) {
                 //dont add if we already have edge+dest
@@ -92,7 +92,7 @@ public class Graph extends DiGraph<State, Acceptor> {
         stPrintVertexName = new IPrintVertexName<State,Acceptor>() {
             @Override
             public String getVertexName(Vertex<State,Acceptor> v) {
-                return "";
+                return Integer.toString(v.getData().getPos());
             }
         };
     }

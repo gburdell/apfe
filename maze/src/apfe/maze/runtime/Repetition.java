@@ -86,14 +86,15 @@ public class Repetition extends Acceptor {
                     //String dbg = subg.toString();
                     addEdge(src, edge, subg);
                     //dbg = getSubgraph().toString();
-                    nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs(stFilter));
+                    //nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs(stFilter));
                     matched = true;
                 }
             }
             if (matched) {
                 acceptedCnt++;
+                srcs = Util.addToList(null, getSubgraph().getLeafs(stFilter));
             }
-            srcs = nextSrcs;
+            //srcs = nextSrcs;
         }
         return (!m_oneOrMore || (0 < acceptedCnt));
     }
@@ -102,7 +103,7 @@ public class Repetition extends Acceptor {
 
         @Override
         public boolean pass(Vertex<State,Acceptor> v) {
-            return !(Optional.incomingEdgeIsEpsilon(v));
+            return true;//!(Optional.incomingEdgeIsEpsilon(v));
         }
 
     }

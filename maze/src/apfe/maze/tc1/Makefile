@@ -1,7 +1,7 @@
 FLEX ?= jflex
-TARGET ?= SvScanner.java
+TARGET ?= Tc1Scanner.java
 
-SvScanner.java: sv2009.flex
+${TARGET}: tc1.flex
 	${FLEX} --nobak ${<}
 
 .PHONY: clean
