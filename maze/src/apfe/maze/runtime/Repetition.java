@@ -25,6 +25,7 @@ package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -60,62 +61,103 @@ public class Repetition extends Acceptor {
     }
 
     private static class Candidate
-            extends Util.Triplet<Vertex<State,Acceptor>, Acceptor, Graph> {
+            extends Util.Triplet<Vertex<State, Acceptor>, Acceptor, Graph> {
+
         public Candidate(Vertex<State, Acceptor> src, Acceptor edge, Graph subg) {
             super(src, edge, subg);
+        }
+
+        public Vertex<State, Acceptor> getSrc() {
+            return e1;
+        }
+
+        public Acceptor getEdge() {
+            return e2;
+        }
+
+        public Graph getSubGraph() {
+            return e3;
         }
     }
 
     /**
      * Go through leafs of subgs to check if leaf State has advanced past the
-     * last iteration of hasAcceptedToken.
+     * last iteration of hasChangedState.
      *
      * @param cands collection of candidate subgraphs.
-     * @return true if at least one of these candidates has accepted a new token.
+     * @return true if at least one of these candidates has accepted a new
+     * token.
      */
-    private boolean hasAcceptedToken(Collection<Candidate> cands) {
-        return true;//TODO
+    private boolean hasChangedState(Collection<Candidate> cands) {
+        if ((null == cands) || cands.isEmpty()) {
+            return false;
+        }
+        int lastPos = m_lastPos;
+        Collection<Vertex<State, Acceptor>> leafs;
+        for (Candidate cand : cands) {
+            leafs = cand.getSubGraph().getLeafs();
+            for (Vertex<State, Acceptor> v : leafs) {
+                if ((null != v) && (v.getData().getPos() > lastPos)) {
+                    lastPos = v.getData().getPos();
+                }
+            }
+        }
+        assert (lastPos >= m_lastPos);  //we dont go backwards
+        final boolean hasChanged = (lastPos > m_lastPos);
+        m_lastPos = lastPos;
+        return hasChanged;
     }
 
-    private Vertex<State, Acceptor> m_lastState;
-    
+    /**
+     * Track last (farthest) State from invocation of acceptImpl to last
+     * iteration of hasAdvancedState.
+     */
+    private int m_lastPos;
+
+    private void addEpsilonEdge(Vertex<State, Acceptor> src) {
+        //add empty edge
+        Vertex<State, Acceptor> dest = new Vertex<>(src);
+        Acceptor nullEdge = new Optional.Epsilon();
+        getSubgraph().addEdge(src, dest, nullEdge);
+    }
+
     @Override
     protected boolean acceptImpl() {
         int acceptedCnt = 0;
         boolean matched = true;
         Graph subg;
-        Vertex<State, Acceptor> dest;
         Collection<Vertex<State, Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
-        m_lastState = getSubgraphRoot();
-        List<Vertex<State, Acceptor>> nextSrcs;
-        Acceptor edge, nullEdge;
+        m_lastPos = getSubgraphRoot().getData().getPos();
+        List<Candidate> cands;
+        Acceptor edge;
+        if (!m_oneOrMore) {
+            //if 0(or more), we always add an epsilon edge
+            addEpsilonEdge(getSubgraphRoot());
+        }
         while (matched) {
-            nextSrcs = null;
-            matched = false;
             edge = m_rep.create();
+            cands = new LinkedList<>();
             for (Vertex<State, Acceptor> src : srcs) {
                 subg = edge.accept(src);
-                //Add an empty/epsilon edge the first time iff. 0-or-more.
-                //Then only add if we will accept
-                if ((!m_oneOrMore && (0 == acceptedCnt))
-                        || ((null != subg) && (0 < acceptedCnt))) {
-                    dest = new Vertex<>(src);
-                    nullEdge = new Optional.Epsilon();
-                    getSubgraph().addEdge(src, dest, nullEdge);
-                }
+                //build up candidates
                 if (null != subg) {
-                    //String dbg = subg.toString();
-                    addEdge(src, edge, subg);
-                    //dbg = getSubgraph().toString();
-                    //nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs(stFilter));
-                    matched = true;
+                    cands.add(new Candidate(src, edge, subg));
                 }
             }
+            matched = hasChangedState(cands);
             if (matched) {
+                for (Candidate cand : cands) {
+                    if (0 < acceptedCnt) { // for 1(or more), wait until after 1st
+                        //add empty edge
+                        addEpsilonEdge(cand.getSrc());
+                    }
+                    subg = cand.getSubGraph();
+                    assert (null != subg);
+                    addEdge(cand.getSrc(), cand.getEdge(), subg);
+                }
+                srcs = getSubgraph().getLeafs();
                 acceptedCnt++;
-                srcs = Util.addToList(null, getSubgraph().getLeafs(stFilter));
             }
-            //srcs = nextSrcs;
         }
         return (!m_oneOrMore || (0 < acceptedCnt));
     }
