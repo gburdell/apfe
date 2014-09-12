@@ -42,6 +42,7 @@ public class Main {
         Grammar gram;
         String gs;
         for (String fn : argv) {
+            System.out.println(fn+": processing ...");
             try {
                 lex = new Tc1Scanner(fn);
             } catch (FileNotFoundException ex) {
@@ -52,6 +53,9 @@ public class Main {
             graph = new Graph(lex);
             gram = new Grammar();
             graph = gram.accept(graph.getRoot());
+            if (null != graph) {
+                System.out.println(fn+": graph returns:\n"+graph.toString());
+            }
         }
     }
 }

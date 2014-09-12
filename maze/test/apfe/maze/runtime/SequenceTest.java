@@ -88,15 +88,31 @@ public class SequenceTest {
 
         @Override
         protected boolean acceptImpl() {
+            // A pathological tc (B...B)? A+
+            Sequence pathological;
+            {
+                final int n = 25;
+                Acceptor bt[] = new Acceptor[n];
+                for (int i = 0; i < n;) {
+                    bt[i++] = new Optional(new Terminal(B));
+                }
+                pathological = new Sequence(new Sequence(bt),
+                        new Repetition(new Terminal(A), true));
+            }
+
             Alternates a1 = new Alternates(
+                    /*
                     new Repetition(new Terminal(A)),
-                    new Sequence(new Terminal(A), new Repetition(new Sequence(new Terminal(A), new Optional(new Terminal(D)))))
-                    //,
-                    //new Sequence(new Terminal(A), new Terminal(A), new Optional(new Terminal(C)), new Optional(new Terminal(D))),
-                    //new Sequence(new Terminal(A), new Repetition(new Terminal(A), true)),
-                    //new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Optional(new Terminal(C))),
-                    //new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Terminal(C)),
-                    //new Sequence(new Optional(new Terminal(B)), new Repetition(new Terminal(A), true))
+                    new Sequence(new Terminal(A), new Repetition(new Sequence(new Terminal(A), new Optional(new Terminal(D))))),
+                    //a sequence which fails after AA
+                    new Sequence(new Terminal(A), new Terminal(A), new Optional(new Terminal(C)), new Optional(new Terminal(D))),
+                    new Sequence(new Terminal(A), new Repetition(new Terminal(A), true)),
+                    new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Optional(new Terminal(C))),
+                    new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Terminal(C)),
+                    new Sequence(new Optional(new Terminal(B)), new Repetition(new Terminal(A), true))
+                    ,
+                    */
+                    pathological
             );
             Graph subg = a1.accept(getSubgraph().getRoot());
             boolean ok = (null != subg);
