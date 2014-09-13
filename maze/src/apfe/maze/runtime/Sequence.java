@@ -24,6 +24,7 @@
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
+import apfe.maze.sv2009.ITokenCodes;
 import java.util.Collection;
 import java.util.List;
 

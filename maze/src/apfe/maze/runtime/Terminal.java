@@ -74,6 +74,10 @@ public class Terminal extends Acceptor {
         return m_matched;
     }
 
+    public int getTokCode() {
+        return m_tokCode;
+    }
+    
     private final int m_tokCode;
     private Token m_matched;
 }

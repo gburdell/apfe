@@ -41,29 +41,30 @@ public class Graph extends DiGraph<State, Acceptor> {
         super(st);
     }
 
-    public Graph(Vertex<State,Acceptor> st) {
+    public Graph(Vertex<State, Acceptor> st) {
         super(st);
     }
 
     /**
-     * Create edge in existing graph.
-     * Add dest as leaf vertex, if it is a leaf node.
-     * <B>NOTE:</B> This implementation only checks if -edge>(dest) exists.
-     * It does not check if subtree rooted by edge exists.  It just checks
-     * one-level deep.
+     * Create edge in existing graph. Add dest as leaf vertex, if it is a leaf
+     * node.
+     * <B>NOTE:</B> This implementation only checks if -edge>(dest) exists. It
+     * does not check if subtree rooted by edge exists. It just checks one-level
+     * deep.
+     *
      * @param src source vertex.
      * @param dest dest vertex
      * @param edge edge connecting src to dest.
      * @return true if edge was added.
      */
     @Override
-    public boolean addEdge(Vertex<State,Acceptor> src, Vertex<State,Acceptor> dest, Acceptor edge) {
+    public boolean addEdge(Vertex<State, Acceptor> src, Vertex<State, Acceptor> dest, Acceptor edge) {
         boolean add = (1 > src.getOutDegree());
         if (false) {//(!add) {
             Acceptor ea;
-            for (Edge<State,Acceptor> exists : src.getOutGoingEdges()) {
+            for (Edge<State, Acceptor> exists : src.getOutGoingEdges()) {
                 //dont add if we already have edge+dest
-                add = !(exists.getData().equals(edge) 
+                add = !(exists.getData().equals(edge)
                         && exists.getDest().getData().equals(dest.getData()));
                 if (!add) {
                     //curious: if this is the case
@@ -82,16 +83,21 @@ public class Graph extends DiGraph<State, Acceptor> {
             public String getEdgeName(Edge<State, Acceptor> e) {
                 String s;
                 if (e.getData() instanceof Terminal) {
-                    s = "'" + ((Terminal) e.getData()).getMatched().getText() + "'";
+                    Terminal asTerm = (Terminal) e.getData();
+                    if (asTerm.getTokCode() != Token.EOF) {
+                        s = "'" + ((Terminal) e.getData()).getMatched().getText() + "'";
+                    } else {
+                        s = "'<EOF>'";
+                    }
                 } else {
                     s = e.getData().getClass().getSimpleName();
                 }
                 return s;
             }
         };
-        stPrintVertexName = new IPrintVertexName<State,Acceptor>() {
+        stPrintVertexName = new IPrintVertexName<State, Acceptor>() {
             @Override
-            public String getVertexName(Vertex<State,Acceptor> v) {
+            public String getVertexName(Vertex<State, Acceptor> v) {
                 return Integer.toString(v.getData().getPos());
             }
         };

@@ -96,11 +96,14 @@ public abstract class Acceptor {
         Vertex<State, Acceptor> dest = subg.getRoot(), v;
         Collection<Vertex<State, Acceptor>> leafs;
         if (edge instanceof Terminal) {
-            //just grab the leaf/dest node so we dont get -term->o-term->
-            assert (1 == dest.getOutDegree());
-            //leaf node: but with incoming edge, so just grab state.
-            v = dest.getOutGoingEdges().get(0).getDest();
-            dest = new Vertex<>(v.getData());
+            Terminal asTerm = (Terminal) edge;
+            if (asTerm.getTokCode() != Token.EOF) {
+                //just grab the leaf/dest node so we dont get -term->o-term->
+                assert (1 == dest.getOutDegree());
+                //leaf node: but with incoming edge, so just grab state.
+                v = dest.getOutGoingEdges().get(0).getDest();
+                dest = new Vertex<>(v.getData());
+            }
             if (getSubgraph().addEdge(src, dest, edge)) {
                 leafs = Util.asCollection(dest);
                 assert (1 >= leafs.size());

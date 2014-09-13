@@ -114,7 +114,8 @@ public class SequenceTest {
                     */
                     pathological
             );
-            Graph subg = a1.accept(getSubgraph().getRoot());
+            Sequence s1 = new Sequence(a1, new Terminal(EOF));
+            Graph subg = s1.accept(getSubgraph().getRoot());
             boolean ok = (null != subg);
             if (ok) {
                 //addEdge(getSubgraphRoot(), this, subg);
