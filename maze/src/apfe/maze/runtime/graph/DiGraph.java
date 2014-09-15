@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A directed graph with time-efficient leaf detection.
+ * A directed graph.
  *
  * @author gburdell
  * @param <V> vertex data type.
@@ -129,17 +129,15 @@ public class DiGraph<V, E> {
 
     @Override
     public String toString() {
-        m_str = new StringBuilder();
+        StringBuilder lstr = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        depthFirst(sb, m_root);
-        return m_str.toString();
+        depthFirst(lstr, sb, m_root);
+        return lstr.toString();
     }
 
-    private StringBuilder m_str;
+    public static final String NL = System.lineSeparator();
 
-    private static final String NL = System.lineSeparator();
-
-    private void depthFirst(StringBuilder sb, Vertex<V,E> node) {
+    public static<V,E> void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex<V,E> node) {
         if (null != node) {
             sb.append('(').append(stPrintVertexName.getVertexName(node))
                     .append(')');
@@ -152,9 +150,9 @@ public class DiGraph<V, E> {
                     nsb.append('-').append(enm).append("->");
                     dest = edge.getDest();
                     if (null != dest) {
-                        depthFirst(nsb, dest);
+                        depthFirst(lstr, nsb, dest);
                         if (dest.isLeaf()) {
-                            m_str.append(nsb).append(NL);
+                            lstr.append(nsb).append(NL);
                         }
                     }
                 }

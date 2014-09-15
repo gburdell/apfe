@@ -27,6 +27,7 @@ import apfe.maze.runtime.graph.Vertex;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * An Acceptor with repetition semantics.
@@ -127,13 +128,12 @@ public class Repetition extends Acceptor {
         boolean matched = true;
         Graph subg;
         Collection<Vertex<State, Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
+        //keep track of vertex where we accepted.
+        Stack<Vertex<State, Acceptor>> acceptedSrcs = new Stack<>();
         m_lastPos = getSubgraphRoot().getData().getPos();
         List<Candidate> cands;
         Acceptor edge;
-        if (!m_oneOrMore) {
-            //if 0(or more), we always add an epsilon edge
-            addEpsilonEdge(getSubgraphRoot());
-        }
+        Vertex<State, Acceptor> accSrc;
         while (matched) {
             edge = m_rep.create();
             cands = new LinkedList<>();
@@ -147,17 +147,26 @@ public class Repetition extends Acceptor {
             matched = hasChangedState(cands);
             if (matched) {
                 for (Candidate cand : cands) {
-                    if (0 < acceptedCnt) { // for 1(or more), wait until after 1st
-                        //add empty edge
-                        addEpsilonEdge(cand.getSrc());
-                    }
                     subg = cand.getSubGraph();
                     assert (null != subg);
-                    addEdge(cand.getSrc(), cand.getEdge(), subg);
+                    accSrc = cand.getSrc();
+                    addEdge(accSrc, cand.getEdge(), subg);
+                    acceptedSrcs.push(accSrc);
                 }
                 srcs = getSubgraph().getLeafs();
                 acceptedCnt++;
             }
+        }
+        //Add epsilon edges from accepted.
+        //If zeroOrMore and accepted one, we hav epsilon on root
+        if (!m_oneOrMore && (0 < acceptedSrcs.size())) {
+            //no epsilon on the first one if oneOrMore.
+            acceptedSrcs.push(getSubgraphRoot());
+        }
+        //process all but the last one
+        while (1 < acceptedSrcs.size()) {
+            accSrc = acceptedSrcs.pop();
+            addEpsilonEdge(accSrc);
         }
         return (!m_oneOrMore || (0 < acceptedCnt));
     }
