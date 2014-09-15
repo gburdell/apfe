@@ -5,7 +5,7 @@ Grammar : source_text
 
 source_text : 
 MODULE_K module_identifier list_of_ports? SEMI
-	//bodys
+	/*bodys*/
 	ENDMODULE_K 
 	EOF
 ;
