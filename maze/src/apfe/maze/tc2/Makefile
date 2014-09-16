@@ -11,7 +11,7 @@ ${TARGET1}: tc2.flex
 
 .PHONY: clean
 clean:
-	-rm -f ${TARGET}
+	-rm -f ${TARGET1}
 	-rm -rf generated
 
 ${TARGET2}: tc2.peg base.java.tmpl generate.props.txt

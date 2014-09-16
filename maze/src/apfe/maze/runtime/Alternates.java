@@ -54,16 +54,12 @@ public class Alternates extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         Graph subg;
-        Vertex<State,Acceptor> src = getSubgraphRoot(), dest = null;
+        Vertex<State,Acceptor> src = getSubgraphRoot();
         int cnt = 0;
         for (Acceptor acc : m_alts) {
             subg = acc.accept(src);
             if (null != subg) {
-                //String dbg = subg.toString();
-                dest = subg.getRoot();
-                //dbg = getSubgraph().toString();
                 addEdge(src, acc, subg);
-                //dbg = getSubgraph().toString();
                 cnt++;
             }
         }

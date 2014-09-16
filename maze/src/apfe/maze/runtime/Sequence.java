@@ -57,7 +57,6 @@ public class Sequence extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         Graph subg;
-        Vertex<State,Acceptor> dest = null;
         Collection<Vertex<State,Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
         List<Vertex<State,Acceptor>> nextSrcs;
         boolean anyAccepted;
@@ -67,11 +66,7 @@ public class Sequence extends Acceptor {
             for (Vertex<State,Acceptor> src : srcs) {
                 subg = edge.accept(src);
                 if (null != subg) {
-                    //String dbg = subg.toString();
-                    dest = subg.getRoot();
-                    //dbg = getSubgraph().toString();
                     addEdge(src, edge, subg);
-                    //dbg = getSubgraph().toString();
                     nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs());
                     anyAccepted = true;
                 }
