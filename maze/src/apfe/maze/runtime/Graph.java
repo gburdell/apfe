@@ -60,7 +60,7 @@ public class Graph extends DiGraph<State, Acceptor> {
     @Override
     public boolean addEdge(Vertex<State, Acceptor> src, Vertex<State, Acceptor> dest, Acceptor edge) {
         boolean add = (1 > src.getOutDegree());
-        if (false) {//(!add) {
+        if (!add) {
             Acceptor ea;
             for (Edge<State, Acceptor> exists : src.getOutGoingEdges()) {
                 //dont add if we already have edge+dest
