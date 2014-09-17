@@ -23,6 +23,7 @@
  */
 package apfe.maze.runtime.graph;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,42 +31,32 @@ import java.util.List;
  * A vertex with one incoming edge and many outgoing edge.
  *
  * @author gburdell
- * @param <V> vertex data type.
- * @param <E> edge data type.
  */
-public class Vertex<V,E> {
+public abstract class VertexBase implements Comparator<VertexBase> {
 
-    /**
-     * Only dup state.
-     * @param v vertex state to dup.
-     */
-    public Vertex(Vertex<V,E> v) {
-        this(v.m_data);
+    protected VertexBase() {
     }
 
-    public Vertex(V dat) {
-        m_data = dat;
-    }
+    public abstract String getVertexName();
 
-    public V getData() {
-        return m_data;
-    }
-
-    public void setIncomingEdge(Edge<V,E> in) {
+    @Override
+    public abstract boolean equals(Object to);
+    
+    public void setIncomingEdge(EdgeBase in) {
         if (null != m_incoming) {
             throw new RuntimeException("Incoming edge already set");
         }
         m_incoming = in;
     }
 
-    public void addOutGoingEdge(Edge<V,E> out) {
+    public void addOutGoingEdge(EdgeBase out) {
         if (null == m_outgoing) {
             m_outgoing = new LinkedList<>();
         }
         m_outgoing.add(out);
     }
-    
-    public Edge<V,E> getIncomingEdge() {
+
+    public EdgeBase getIncomingEdge() {
         return m_incoming;
     }
 
@@ -81,32 +72,10 @@ public class Vertex<V,E> {
         return (0 == getOutDegree());
     }
 
-    public List<Edge<V,E>> getOutGoingEdges() {
+    public List<EdgeBase> getOutGoingEdges() {
         return (0 < getOutDegree()) ? m_outgoing : null;
     }
 
-    /**
-     * Remove outgoing edges from this vertex and return them.
-     *
-     * @return outgoing edges (source vertex is set null).
-     */
-    public List<Edge<V,E>> rmOutGoingEdges() {
-        if (0 == getOutDegree()) {
-            return null;
-        }
-        List<Edge<V,E>> outs = new LinkedList<>();
-        Vertex<V,E> v;
-        for (Edge<V,E> e : getOutGoingEdges()) {
-            assert (this == e.getSrc());
-            e.setSrc(null);
-            outs.add(e);
-        }
-        m_outgoing = null;
-        return outs;
-    }
-
-    private final V m_data;
-    private Edge<V,E> m_incoming;
-    private List<Edge<V,E>> m_outgoing;
-
+    private EdgeBase m_incoming;
+    private List<EdgeBase> m_outgoing;
 }

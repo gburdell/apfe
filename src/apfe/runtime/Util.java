@@ -96,6 +96,7 @@ public class Util {
 
     @SuppressWarnings("unchecked")
     public static <T> T downCast(Object o) {
+        assert (null != o);
         return (T) o;
     }
 

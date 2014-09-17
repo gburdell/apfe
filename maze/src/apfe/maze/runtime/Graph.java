@@ -24,14 +24,99 @@
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.DiGraph;
-import apfe.maze.runtime.graph.Edge;
-import apfe.maze.runtime.graph.Vertex;
+import apfe.maze.runtime.graph.EdgeBase;
+import apfe.maze.runtime.graph.VertexBase;
+import static apfe.runtime.Util.downCast;
 
 /**
  *
  * @author gburdell
  */
-public class Graph extends DiGraph<State, Acceptor> {
+public class Graph extends DiGraph {
+    private static <T> boolean isNull(T ele[]) {
+        return (null == ele[0]) && (null == ele[1]);
+    }
+    /**
+     * The Vertex (aka node).
+     */
+    public static class V extends VertexBase {
+
+        public V(State data) {
+            m_data = data;
+        }
+
+        public State getData() {
+            return m_data;
+        }
+
+        @Override
+        public String getVertexName() {
+            return Integer.toString(getData().getPos());
+        }
+
+        @Override
+        public int compare(VertexBase o1, VertexBase o2) {
+            V asV[] = {downCast(o1), downCast(o2)};
+            State states[] = {asV[0].getData(), asV[1].getData()};
+            if (isNull(states)) {
+                return 0;
+            }
+            return (states[0].getPos() == states[1].getPos()) ? 0
+                    : ((states[0].getPos() < states[1].getPos()) ? -1 : 1);
+        }
+
+        @Override
+        public boolean equals(Object to) {
+            V asV = downCast(to);
+            State states[] = {getData(), asV.getData()};
+            if (isNull(states)) {
+                return true;
+            }
+            return (states[0].getPos() == states[1].getPos());
+        }
+
+        private final State m_data;
+    }
+
+    private static class E extends EdgeBase {
+
+        public E(V src, Acceptor edge, V dest) {
+            super(src, dest);
+            m_data = edge;
+        }
+
+        public Acceptor getData() {
+            return m_data;
+        }
+
+        @Override
+        public boolean equals(Object to) {
+            E asE = downCast(to);
+            Acceptor edges[] = {getData(), asE.getData()};
+            if (isNull(edges)) {
+                return true;
+            }
+            return (edges[0].getEdgeTypeId() == edges[1].getEdgeTypeId());
+        }
+
+        @Override
+        public String getEdgeName() {
+            return getData().toString();
+        }
+
+        @Override
+        public int compare(EdgeBase o1, EdgeBase o2) {
+            E asE[] = {downCast(o1), downCast(o2)};
+            Acceptor edges[] = {asE[0].getData(), asE[1].getData()};
+            if (isNull(edges)) {
+                return 0;
+            }
+            return (edges[0].getEdgeTypeId()== edges[1].getEdgeTypeId()) ? 0
+                    : ((edges[0].getEdgeTypeId() < edges[1].getEdgeTypeId()) ? -1 : 1);
+        }
+
+        private final Acceptor m_data;
+    }
 
     public Graph(Scanner lex) {
         this(new State(lex, 0));

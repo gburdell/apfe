@@ -36,33 +36,27 @@ import java.util.Stack;
  * A directed graph.
  *
  * @author gburdell
- * @param <V> vertex data type.
- * @param <E> edge data type.
  */
-public abstract class DiGraph<V, E extends Comparator> {
+public abstract class DiGraph {
 
-    public DiGraph(Vertex<V, E> root) {
+    public DiGraph(VertexBase root) {
         m_root = root;
     }
 
-    public DiGraph(V root) {
-        this(new Vertex<V, E>(root));
-    }
-
-    public Vertex<V, E> getRoot() {
+    public VertexBase getRoot() {
         return m_root;
     }
 
-    public int addLeafs(Iterable<Vertex<V, E>> leafs) {
+    public int addLeafs(Iterable<VertexBase> leafs) {
         if (null != leafs) {
-            for (Vertex<V, E> leaf : leafs) {
+            for (VertexBase leaf : leafs) {
                 addLeaf(leaf);
             }
         }
         return leafCnt();
     }
 
-    private void addLeaf(Vertex<V, E> leaf) {
+    private void addLeaf(VertexBase leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }
@@ -81,15 +75,13 @@ public abstract class DiGraph<V, E extends Comparator> {
      * node.
      * <B>NOTE:</B> This implementation does not check if edge already exists.
      *
-     * @param src source vertex.
-     * @param dest dest vertex
-     * @param data edge connecting src to dest.
+     * @param edge edge with [src, dest] already.
      * @return true (since edge always added).
      */
-    public boolean addEdge(Vertex<V, E> src, Vertex<V, E> dest, E data) {
-        Edge<V, E> e = new Edge<>(src, dest, data);
-        src.addOutGoingEdge(e);
-        dest.setIncomingEdge(e);
+    public boolean addEdge(EdgeBase edge) {
+        VertexBase src = edge.getSrc(), dest = edge.getDest();
+        src.addOutGoingEdge(edge);
+        dest.setIncomingEdge(edge);
         //src can no longer be leaf
         if (hasLeaf(src)) {
             m_leafs.remove(src);
@@ -100,38 +92,17 @@ public abstract class DiGraph<V, E extends Comparator> {
         return true;
     }
 
-    private boolean hasLeaf(Vertex<V, E> v) {
+    private boolean hasLeaf(VertexBase v) {
         return (null != m_leafs) && m_leafs.contains(v);
     }
 
-    public Collection<Vertex<V, E>> getLeafs() {
+    public Collection<VertexBase> getLeafs() {
         return (null != m_leafs) ? m_leafs : null;
     }
 
-    public interface IVertexFilter<V, E> {
+    private final VertexBase m_root;
 
-        /**
-         * Test if Vertex meets filter criteria.
-         *
-         * @param v vertex to test.
-         * @return true if v meets filter criteria.
-         */
-        public boolean pass(Vertex<V, E> v);
-    }
-
-    public Collection<Vertex<V, E>> getLeafs(IVertexFilter<V, E> filter) {
-        List<Vertex<V, E>> r = new LinkedList<>();
-        for (Vertex<V, E> v : getLeafs()) {
-            if (filter.pass(v)) {
-                r.add(v);
-            }
-        }
-        return r;
-    }
-
-    private final Vertex<V, E> m_root;
-
-    private Set<Vertex<V, E>> m_leafs;
+    private Set<VertexBase> m_leafs;
 
     @Override
     public String toString() {
@@ -143,16 +114,16 @@ public abstract class DiGraph<V, E extends Comparator> {
 
     public static final String NL = System.lineSeparator();
 
-    public static <V, E> void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex<V, E> node) {
+    public static void depthFirst(StringBuilder lstr, StringBuilder sb, VertexBase node) {
         if (null != node) {
-            sb.append('(').append(stPrintVertexName.getVertexName(node))
+            sb.append('(').append(node.getVertexName())
                     .append(')');
             if (0 < node.getOutDegree()) {
                 String enm;
-                Vertex<V, E> dest;
-                for (Edge<V, E> edge : node.getOutGoingEdges()) {
+                VertexBase dest;
+                for (EdgeBase edge : node.getOutGoingEdges()) {
                     StringBuilder nsb = new StringBuilder(sb);
-                    enm = stPrintEdgeName.getEdgeName(edge);
+                    enm = edge.getEdgeName();
                     nsb.append('-').append(enm).append("->");
                     dest = edge.getDest();
                     if (null != dest) {
@@ -169,16 +140,14 @@ public abstract class DiGraph<V, E extends Comparator> {
     /**
      * Test if 2 subgraphs are isomorphic.
      *
-     * @param <V> vertex type.
-     * @param <E> edge type.
      * @param g1 root of graph 1.
      * @param g2 root of graph 2.
      * @return true if g1 and g2 isomorphic. Incoming edges are not considered
      * part of g1 nor g2.
      */
-    public static <V, E extends Comparator> boolean isomorphic(Vertex<V, E> g1, Vertex<V, E> g2) {
+    public static boolean isomorphic(VertexBase g1, VertexBase g2) {
         assert (null != g1) && (null != g2);
-        if (! g1.getData().equals(g2.getData())) {
+        if (0 != g1.compare(g1, g2)) {
             return false;
         }
         if (g1.getOutDegree() != g2.getOutDegree()) {
@@ -188,13 +157,13 @@ public abstract class DiGraph<V, E extends Comparator> {
             return true;
         }
         //use 1st one to use as comparator
-        Comparator comp = g1.getOutGoingEdges().get(0).getData();
-        Edge<V,E> g1SortedEdges[] = sort(g1.getOutGoingEdges(), comp),
-                g2SortedEdges[] = sort(g2.getOutGoingEdges(), comp);
+        EdgeBase comp = g1.getOutGoingEdges().get(0);
+        EdgeBase g1SortedEdges[] = Util.sort(g1.getOutGoingEdges(), comp),
+                g2SortedEdges[] = Util.sort(g2.getOutGoingEdges(), comp);
         assert (g1SortedEdges.length == g2SortedEdges.length);
         //At this point we have same number of sorted edges.
         //We'll process in order and keep their dests for next round
-        Stack<Vertex<V,E>> g1Vx = new Stack<>(),
+        Stack<VertexBase> g1Vx = new Stack<>(),
                 g2Vx = new Stack<>();
         for (int i = 0; i < g1SortedEdges.length; i++) {
             if (!g1SortedEdges[i].equals(g2SortedEdges[i])) {
@@ -216,70 +185,13 @@ public abstract class DiGraph<V, E extends Comparator> {
         if (g1Vx.size() != g2Vx.size()) {
             return false;
         }
-        while (! g1Vx.empty()) {
+        while (!g1Vx.empty()) {
             g1 = g1Vx.pop();
             g2 = g2Vx.pop();
-            if (! isomorphic(g1, g2)) {
+            if (!isomorphic(g1, g2)) {
                 return false;
             }
         }
         return true;
     }
-    
-    private static <V,E> Edge<V,E>[] sort(List<Edge<V,E>> edges, Comparator comp) {
-        return Util.sort(edges, comp);
-    }
-
-    /**
-     * Define interface for getting vertex name during DiGraph.toString().
-     *
-     * @param <V> vertex type.
-     * @param <E> edge type.
-     */
-    public static interface IPrintVertexName<V, E> {
-
-        /**
-         * Get vertex name to be used for printing graph.
-         *
-         * @param v vertex instance to print.
-         * @return vertex name.
-         */
-        public String getVertexName(Vertex<V, E> v);
-    }
-
-    /**
-     * Define interface for getting edge name during DiGraph.toString().
-     *
-     * @param <V> vertex type.
-     * @param <E> edge type.
-     */
-    public static interface IPrintEdgeName<V, E> {
-
-        /**
-         * Get edge name to be used for printing graph.
-         *
-         * @param e edge instance to print.
-         * @return edge name.
-         */
-        public String getEdgeName(Edge<V, E> e);
-    }
-
-    protected static IPrintVertexName stPrintVertexName = new IPrintVertexName() {
-
-        @Override
-        public String getVertexName(Vertex v) {
-            return v.toString();
-        }
-
-    };
-
-    protected static IPrintEdgeName stPrintEdgeName = new IPrintEdgeName() {
-
-        @Override
-        public String getEdgeName(Edge e) {
-            return e.toString();
-        }
-
-    };
-
 }

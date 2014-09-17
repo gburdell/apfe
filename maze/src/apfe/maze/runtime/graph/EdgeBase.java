@@ -23,48 +23,47 @@
  */
 package apfe.maze.runtime.graph;
 
+import java.util.Comparator;
+
 /**
  * A directed edge from source to dest.
  *
  * @author gburdell
- * @param <V> vertex data type.
- * @param <E> edge data type.
- */
-public class Edge<V, E> {
+  */
+public abstract class EdgeBase implements Comparator<EdgeBase> {
 
-    public Edge(Vertex<V,E> src, Vertex<V,E> dest, E data) {
+    protected EdgeBase(VertexBase src, VertexBase dest) {
         m_src = src;
         m_dest = dest;
-        m_data = data;
     }
 
-    public E getData() {
-        return m_data;
-    }
+    public abstract String getEdgeName();
     
-    public Vertex<V,E> getSrc() {
+    @Override
+    public abstract boolean equals(Object to);
+    
+    public VertexBase getSrc() {
         return m_src;
     }
     
-    public Vertex<V,E> getDest() {
+    public VertexBase getDest() {
         return m_dest;
     }
     
-    public void setSrc(Vertex<V,E> src) {
+    public void setSrc(VertexBase src) {
         if (null != src) {
             assert (null == m_src);
         }
         m_src = src;
     }
 
-    public void setDest(Vertex<V,E> dest) {
+    public void setDest(VertexBase dest) {
         if (null != dest) {
             assert (null == m_dest);
         }
         m_dest = dest;
     }
     
-    private final E m_data;
-    private Vertex<V,E> m_src;
-    private Vertex<V,E> m_dest;
+    private VertexBase m_src;
+    private VertexBase m_dest;
 }
