@@ -184,4 +184,12 @@ public class Repetition extends Acceptor {
 
     private final Acceptor m_rep;
     private final boolean m_oneOrMore;
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
+
 }

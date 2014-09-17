@@ -38,6 +38,13 @@ public @11@ class @2@ extends @3@ implements NonTerminal, ITokenCodes {
         return new @2@();
     }
 
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
+
 @6.3@
 	//Begin Listener
 	@Override

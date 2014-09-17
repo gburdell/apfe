@@ -24,7 +24,6 @@
 package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
-import apfe.maze.sv2009.ITokenCodes;
 import java.util.Collection;
 import java.util.List;
 
@@ -57,13 +56,13 @@ public class Sequence extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         Graph subg;
-        Collection<Vertex<State,Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
-        List<Vertex<State,Acceptor>> nextSrcs;
+        Collection<Vertex<State, Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
+        List<Vertex<State, Acceptor>> nextSrcs;
         boolean anyAccepted;
         for (Acceptor edge : m_eles) {
             nextSrcs = null;
             anyAccepted = false;
-            for (Vertex<State,Acceptor> src : srcs) {
+            for (Vertex<State, Acceptor> src : srcs) {
                 subg = edge.accept(src);
                 if (null != subg) {
                     addEdge(src, edge, subg);
@@ -80,4 +79,12 @@ public class Sequence extends Acceptor {
     }
 
     private final Acceptor m_eles[];
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
+
 }

@@ -25,12 +25,13 @@ package apfe.maze.runtime;
 
 import apfe.maze.runtime.graph.Vertex;
 import java.util.Collection;
+import java.util.Comparator;
 
 /**
  *
  * @author gburdell
  */
-public abstract class Acceptor {
+public abstract class Acceptor implements Comparator {
 
     protected Acceptor() {
 
@@ -75,13 +76,10 @@ public abstract class Acceptor {
         return Class.class.getSimpleName();
     }
 
+    @Override
     public boolean equals(Object obj) {
-        boolean eq = (null != obj) && (obj instanceof Acceptor);
-        if (eq) {
-            String objNm = obj.getClass().getSimpleName();
-            String thisNm = getClass().getSimpleName();
-            eq = thisNm.equals(objNm);
-        }
+        boolean eq = (null != obj) && (obj instanceof Acceptor)
+                && (getEdgeTypeId() == ((Acceptor)obj).getEdgeTypeId());
         return eq;
     }
 
@@ -140,4 +138,23 @@ public abstract class Acceptor {
      * The subgraph we are building with this acceptor.
      */
     private Graph m_subgraph;
+    
+    /**
+     * We'll assign a unique id for each edge type derived from Acceptor.
+     */
+    private static int stEdgeTypeId = 0;
+    
+    protected static int getNextEdgeTypeId() {
+        return ++stEdgeTypeId;
+    }
+    
+    public abstract int getEdgeTypeId();
+
+    @Override
+    public int compare(Object o1, Object o2) {
+        assert (null != o1) && (null != o2);
+        Acceptor e1 = (Acceptor)o1, e2 = (Acceptor)o2;
+        return (e1.getEdgeTypeId() == e2.getEdgeTypeId()) ? 0
+                : ((e1.getEdgeTypeId() < e2.getEdgeTypeId()) ? -1 : 1);
+    }
 }

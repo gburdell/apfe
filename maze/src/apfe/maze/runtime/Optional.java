@@ -49,8 +49,8 @@ public class Optional extends Acceptor {
 
     @Override
     protected boolean acceptImpl() {
-        Vertex<State,Acceptor> dest = new Vertex<>(getSubgraphRoot());
-        Vertex<State,Acceptor> src = getSubgraphRoot();
+        Vertex<State, Acceptor> dest = new Vertex<>(getSubgraphRoot());
+        Vertex<State, Acceptor> src = getSubgraphRoot();
         //always accept nothing.
         getSubgraph().addEdge(src, dest, new Epsilon());
         Graph subg = m_opt.accept(getSubgraphRoot());
@@ -60,14 +60,14 @@ public class Optional extends Acceptor {
         return true;
     }
 
-    public static boolean incomingEdgeIsEpsilon(Vertex<State,Acceptor> v) {
+    public static boolean incomingEdgeIsEpsilon(Vertex<State, Acceptor> v) {
         if ((null == v) || (0 == v.getInDegree())) {
             return false;
         }
-        Edge<State,Acceptor> in = v.getIncomingEdge();
+        Edge<State, Acceptor> in = v.getIncomingEdge();
         return ((null != in) && (in.getData() instanceof Epsilon));
     }
-    
+
     private final Acceptor m_opt;
 
     /**
@@ -84,6 +84,21 @@ public class Optional extends Acceptor {
         protected boolean acceptImpl() {
             return true;
         }
+
+        @Override
+        public int getEdgeTypeId() {
+            return stEdgeTypeId;
+        }
+
+        private static final int stEdgeTypeId = getNextEdgeTypeId();
+
     }
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
 
 }

@@ -73,6 +73,13 @@ public class SequenceTest {
             m_lex = lex;
         }
 
+        @Override
+        public int getEdgeTypeId() {
+            return stEdgeTypeId;
+        }
+
+        private static final int stEdgeTypeId = getNextEdgeTypeId();
+
         public Graph run() {
             Graph g = new Graph(m_lex);
             g = accept(g.getRoot());
@@ -102,16 +109,16 @@ public class SequenceTest {
 
             Alternates a1 = new Alternates(
                     /*
-                    new Repetition(new Terminal(A)),
-                    new Sequence(new Terminal(A), new Repetition(new Sequence(new Terminal(A), new Optional(new Terminal(D))))),
-                    //a sequence which fails after AA
-                    new Sequence(new Terminal(A), new Terminal(A), new Optional(new Terminal(C)), new Optional(new Terminal(D))),
-                    new Sequence(new Terminal(A), new Repetition(new Terminal(A), true)),
-                    new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Optional(new Terminal(C))),
-                    new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Terminal(C)),
-                    new Sequence(new Optional(new Terminal(B)), new Repetition(new Terminal(A), true))
-                    ,
-                    */
+                     new Repetition(new Terminal(A)),
+                     new Sequence(new Terminal(A), new Repetition(new Sequence(new Terminal(A), new Optional(new Terminal(D))))),
+                     //a sequence which fails after AA
+                     new Sequence(new Terminal(A), new Terminal(A), new Optional(new Terminal(C)), new Optional(new Terminal(D))),
+                     new Sequence(new Terminal(A), new Repetition(new Terminal(A), true)),
+                     new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Optional(new Terminal(C))),
+                     new Sequence(new Terminal(A), new Repetition(new Terminal(A), true), new Terminal(C)),
+                     new Sequence(new Optional(new Terminal(B)), new Repetition(new Terminal(A), true))
+                     ,
+                     */
                     pathological
             );
             Sequence s1 = new Sequence(a1, new Terminal(EOF));

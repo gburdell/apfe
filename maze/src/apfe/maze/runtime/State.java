@@ -48,21 +48,19 @@ public class State {
     public int getPos() {
         return m_pos;
     }
-    
+
     public State getNext() {
         return new State(m_lex, m_pos + 1);
     }
 
-    public Vertex<State,Acceptor> getNextVertex() {
+    public Vertex<State, Acceptor> getNextVertex() {
         return new Vertex<>(getNext());
     }
-    
+
     @Override
     public boolean equals(Object obj) {
-        boolean eq = (obj != null) && (obj instanceof State);
-        if (eq) {
-            eq = ((State)obj).getPos() == getPos();
-        }
+        boolean eq = (obj != null)
+                && (((State) obj).getPos() == getPos());
         return eq;
     }
 

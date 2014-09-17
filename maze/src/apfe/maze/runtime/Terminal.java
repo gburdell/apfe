@@ -55,11 +55,11 @@ public class Terminal extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         final boolean match = (m_tokCode == getToken().getCode());
-        Vertex<State,Acceptor> src = getSubgraphRoot();
+        Vertex<State, Acceptor> src = getSubgraphRoot();
         if ((m_tokCode == getToken().getCode())
                 && !src.getData().getToken().isEOF()) { //dont repeat EOF
             m_matched = getToken();
-            Vertex<State,Acceptor> dest = src.getData().getNextVertex();
+            Vertex<State, Acceptor> dest = src.getData().getNextVertex();
             getSubgraph().addEdge(src, dest, this);
         }
         return match;
@@ -77,7 +77,15 @@ public class Terminal extends Acceptor {
     public int getTokCode() {
         return m_tokCode;
     }
-    
+
     private final int m_tokCode;
     private Token m_matched;
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
+
 }

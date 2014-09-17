@@ -27,6 +27,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,8 +56,10 @@ public class Util {
         return asQ;
     }
     
-    public static <T> Collection<T> asCollection(T... eles) {
-        return Arrays.asList(eles);
+    public static <T> Collection<T> asCollection(T ele) {
+        List<T> list = new LinkedList<>();
+        list.add(ele);
+        return list;
     }
     
     public static <T> List<T> addToList(List<T> to, Collection<T> items) {
@@ -67,5 +70,19 @@ public class Util {
             to.addAll(items);
         }
         return to;
+    }
+    
+    /**
+     * Sort list and return as array.
+     * @param <T> array type.
+     * @param l list to sort.
+     * @param comp comparator which imposes ordering over T.
+     * @return sorted list as array.
+     */
+    public static <T> T[] sort(List<T> l, Comparator<T> comp) {
+        assert null != l;
+        T ar[] = (T[])l.toArray();
+        Arrays.sort(ar, comp);
+        return ar;
     }
 }

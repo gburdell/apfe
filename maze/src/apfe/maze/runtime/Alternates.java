@@ -54,7 +54,7 @@ public class Alternates extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         Graph subg;
-        Vertex<State,Acceptor> src = getSubgraphRoot();
+        Vertex<State, Acceptor> src = getSubgraphRoot();
         int cnt = 0;
         for (Acceptor acc : m_alts) {
             subg = acc.accept(src);
@@ -67,4 +67,11 @@ public class Alternates extends Acceptor {
     }
 
     private final Acceptor m_alts[];
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
 }
