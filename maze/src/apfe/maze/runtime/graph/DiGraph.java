@@ -27,8 +27,6 @@ import apfe.maze.runtime.Util;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -39,24 +37,24 @@ import java.util.Stack;
  */
 public abstract class DiGraph {
 
-    public DiGraph(VertexBase root) {
+    protected DiGraph(Vertex root) {
         m_root = root;
     }
 
-    public VertexBase getRoot() {
+    protected Vertex getRoot() {
         return m_root;
     }
 
-    public int addLeafs(Iterable<VertexBase> leafs) {
+    public int addLeafs(Iterable<Vertex> leafs) {
         if (null != leafs) {
-            for (VertexBase leaf : leafs) {
+            for (Vertex leaf : leafs) {
                 addLeaf(leaf);
             }
         }
         return leafCnt();
     }
 
-    private void addLeaf(VertexBase leaf) {
+    private void addLeaf(Vertex leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }
@@ -71,15 +69,12 @@ public abstract class DiGraph {
     }
 
     /**
-     * Create edge in existing graph. Add dest as leaf vertex, if it is a leaf
-     * node.
-     * <B>NOTE:</B> This implementation does not check if edge already exists.
-     *
+     * Create edge (unconditionally) in existing graph.
+     * 
      * @param edge edge with [src, dest] already.
-     * @return true (since edge always added).
      */
-    public boolean addEdge(EdgeBase edge) {
-        VertexBase src = edge.getSrc(), dest = edge.getDest();
+    private void addEdge(Edge edge) {
+        Vertex src = edge.getSrc(), dest = edge.getDest();
         src.addOutGoingEdge(edge);
         dest.setIncomingEdge(edge);
         //src can no longer be leaf
@@ -89,20 +84,45 @@ public abstract class DiGraph {
         if (dest.isLeaf()) {
             addLeaf(dest);
         }
+    }
+
+    /**
+     * Add edge to this graph iff. it does not already exist.
+     *
+     * @param src source vertex.
+     * @param edge edge from src to dest.
+     * @param dest destination vertex.
+     * @return true if this edge is added; else false since edge already exists.
+     */
+    public boolean addEdge(Vertex src, Edge edge, Vertex dest) {
+        if (0 < src.getOutDegree()) {
+            //look for any matching edges
+            for (Edge existingEdge : src.getOutGoingEdges()) {
+                if (existingEdge.equals(edge)) {
+                    //i fmatch: then grab deest vertex
+                    Vertex existingDest = existingEdge.getDest();
+                    assert 1 == existingDest.getInDegree();
+                    if (isomorphic(existingDest, dest)) {
+                        return false;
+                    }
+                }
+            }
+        } //else: src is a leaf.
+        addEdge(edge.addVertices(src, dest));
         return true;
     }
 
-    private boolean hasLeaf(VertexBase v) {
+    private boolean hasLeaf(Vertex v) {
         return (null != m_leafs) && m_leafs.contains(v);
     }
 
-    public Collection<VertexBase> getLeafs() {
+    public Collection<Vertex> getLeafs() {
         return (null != m_leafs) ? m_leafs : null;
     }
 
-    private final VertexBase m_root;
+    private final Vertex m_root;
 
-    private Set<VertexBase> m_leafs;
+    private Set<Vertex> m_leafs;
 
     @Override
     public String toString() {
@@ -114,14 +134,14 @@ public abstract class DiGraph {
 
     public static final String NL = System.lineSeparator();
 
-    public static void depthFirst(StringBuilder lstr, StringBuilder sb, VertexBase node) {
+    public static void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex node) {
         if (null != node) {
             sb.append('(').append(node.getVertexName())
                     .append(')');
             if (0 < node.getOutDegree()) {
                 String enm;
-                VertexBase dest;
-                for (EdgeBase edge : node.getOutGoingEdges()) {
+                Vertex dest;
+                for (Edge edge : node.getOutGoingEdges()) {
                     StringBuilder nsb = new StringBuilder(sb);
                     enm = edge.getEdgeName();
                     nsb.append('-').append(enm).append("->");
@@ -145,9 +165,10 @@ public abstract class DiGraph {
      * @return true if g1 and g2 isomorphic. Incoming edges are not considered
      * part of g1 nor g2.
      */
-    public static boolean isomorphic(VertexBase g1, VertexBase g2) {
+    public static boolean isomorphic(Vertex g1, Vertex g2) {
         assert (null != g1) && (null != g2);
-        if (0 != g1.compare(g1, g2)) {
+        final Comparator<Vertex> vcomp = g1.getComparator();
+        if (0 != g1.getComparator().compare(g1, g2)) {
             return false;
         }
         if (g1.getOutDegree() != g2.getOutDegree()) {
@@ -156,14 +177,14 @@ public abstract class DiGraph {
         if (0 == g1.getOutDegree()) {
             return true;
         }
-        //use 1st one to use as comparator
-        EdgeBase comp = g1.getOutGoingEdges().get(0);
-        EdgeBase g1SortedEdges[] = Util.sort(g1.getOutGoingEdges(), comp),
-                g2SortedEdges[] = Util.sort(g2.getOutGoingEdges(), comp);
+        //use 1st one as comparator
+        final Comparator<Edge> ecomp = g1.getOutGoingEdges().get(0).getComparator();
+        Edge g1SortedEdges[] = Util.sort(g1.getOutGoingEdges(), ecomp),
+                g2SortedEdges[] = Util.sort(g2.getOutGoingEdges(), ecomp);
         assert (g1SortedEdges.length == g2SortedEdges.length);
         //At this point we have same number of sorted edges.
         //We'll process in order and keep their dests for next round
-        Stack<VertexBase> g1Vx = new Stack<>(),
+        Stack<Vertex> g1Vx = new Stack<>(),
                 g2Vx = new Stack<>();
         for (int i = 0; i < g1SortedEdges.length; i++) {
             if (!g1SortedEdges[i].equals(g2SortedEdges[i])) {

@@ -23,15 +23,13 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Vertex;
 import java.util.Collection;
-import java.util.Comparator;
 
 /**
  *
  * @author gburdell
  */
-public abstract class Acceptor implements Comparator {
+public abstract class Acceptor {
 
     protected Acceptor() {
 
@@ -149,12 +147,4 @@ public abstract class Acceptor implements Comparator {
     }
     
     public abstract int getEdgeTypeId();
-
-    @Override
-    public int compare(Object o1, Object o2) {
-        assert (null != o1) && (null != o2);
-        Acceptor e1 = (Acceptor)o1, e2 = (Acceptor)o2;
-        return (e1.getEdgeTypeId() == e2.getEdgeTypeId()) ? 0
-                : ((e1.getEdgeTypeId() < e2.getEdgeTypeId()) ? -1 : 1);
-    }
 }
