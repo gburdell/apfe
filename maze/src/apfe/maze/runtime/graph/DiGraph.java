@@ -179,8 +179,8 @@ public abstract class DiGraph {
         }
         //use 1st one as comparator
         final Comparator<Edge> ecomp = g1.getOutGoingEdges().get(0).getComparator();
-        Edge g1SortedEdges[] = Util.sort(g1.getOutGoingEdges(), ecomp),
-                g2SortedEdges[] = Util.sort(g2.getOutGoingEdges(), ecomp);
+        Edge g1SortedEdges[] = Util.sort(Edge.class, g1.getOutGoingEdges(), ecomp),
+                g2SortedEdges[] = Util.sort(Edge.class, g2.getOutGoingEdges(), ecomp);
         assert (g1SortedEdges.length == g2SortedEdges.length);
         //At this point we have same number of sorted edges.
         //We'll process in order and keep their dests for next round

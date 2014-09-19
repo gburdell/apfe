@@ -23,6 +23,7 @@
  */
 package apfe.maze.runtime;
 
+import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Arrays;
@@ -75,13 +76,15 @@ public class Util {
     /**
      * Sort list and return as array.
      * @param <T> array type.
+     * @param cls Class of T.
      * @param l list to sort.
      * @param comp comparator which imposes ordering over T.
      * @return sorted list as array.
      */
-    public static <T> T[] sort(List<T> l, Comparator<T> comp) {
+    public static <T> T[] sort(Class<T> cls, List<? extends T> l, Comparator<T> comp) {
         assert null != l;
-        T ar[] = (T[])l.toArray();
+        T ar[] = (T[]) Array.newInstance(cls, l.size());
+        l.toArray(ar);
         Arrays.sort(ar, comp);
         return ar;
     }
