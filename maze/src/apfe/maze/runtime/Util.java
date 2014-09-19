@@ -62,7 +62,7 @@ public class Util {
         return list;
     }
     
-    public static <T> List<T> addToList(List<T> to, Collection<T> items) {
+    public static <T> List<T> addToList(List<T> to, Collection<? extends T> items) {
         if ((null != items) && (null == to)) {
             to = new LinkedList<>();
         }

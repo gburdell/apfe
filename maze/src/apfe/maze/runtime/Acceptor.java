@@ -24,6 +24,8 @@
 package apfe.maze.runtime;
 
 import java.util.Collection;
+import apfe.maze.runtime.graph.Vertex;
+import apfe.maze.runtime.Graph.V;
 
 /**
  *
@@ -48,9 +50,9 @@ public abstract class Acceptor {
      * @param start root vertex which is duped as root of subgraph.
      * @return subgraph if accepted else null.
      */
-    public Graph accept(Vertex<State, Acceptor> start) {
+    public Graph accept(V start) {
         //Duplicate data but not edges.
-        m_subgraph = new Graph(new Vertex<State, Acceptor>(start.getData()));
+        m_subgraph = new Graph(new V(start.getData()));
         final boolean match = acceptImpl();
         return match ? m_subgraph : null;
     }
@@ -61,7 +63,7 @@ public abstract class Acceptor {
         return getSubgraphRoot().getData().getToken();
     }
 
-    protected Vertex<State, Acceptor> getSubgraphRoot() {
+    protected V getSubgraphRoot() {
         return getSubgraph().getRoot();
     }
 
@@ -74,13 +76,6 @@ public abstract class Acceptor {
         return Class.class.getSimpleName();
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        boolean eq = (null != obj) && (obj instanceof Acceptor)
-                && (getEdgeTypeId() == ((Acceptor)obj).getEdgeTypeId());
-        return eq;
-    }
-
     /**
      * Add (accepted) edge to this subgraph.
      *
@@ -88,20 +83,20 @@ public abstract class Acceptor {
      * @param edge edge to add.
      * @param subg subg vertex (root of subgraph to add).
      */
-    protected void addEdge(Vertex<State, Acceptor> src, Acceptor edge, Graph subg) {
-        Vertex<State, Acceptor> dest = subg.getRoot(), v;
-        Collection<Vertex<State, Acceptor>> leafs;
+    protected void addEdge(V src, Acceptor edge, Graph subg) {
+        V dest = subg.getRoot(), v;
+        Collection<? extends Vertex> leafs;
         if (edge instanceof Terminal) {
             Terminal asTerm = (Terminal) edge;
             if (asTerm.getTokCode() != Token.EOF) {
                 //just grab the leaf/dest node so we dont get -term->o-term->
                 assert (1 == dest.getOutDegree());
                 //leaf node: but with incoming edge, so just grab state.
-                v = dest.getOutGoingEdges().get(0).getDest();
-                dest = new Vertex<>(v.getData());
+                v = dest.getFirstDest();
+                dest = new V(v.getData());
             }
             if (getSubgraph().addEdge(src, dest, edge)) {
-                leafs = Util.asCollection(dest);
+                leafs = Util.<Vertex>asCollection(dest);
                 assert (1 >= leafs.size());
                 getSubgraph().addLeafs(leafs);
             }
@@ -136,15 +131,15 @@ public abstract class Acceptor {
      * The subgraph we are building with this acceptor.
      */
     private Graph m_subgraph;
-    
+
     /**
      * We'll assign a unique id for each edge type derived from Acceptor.
      */
     private static int stEdgeTypeId = 0;
-    
+
     protected static int getNextEdgeTypeId() {
         return ++stEdgeTypeId;
     }
-    
+
     public abstract int getEdgeTypeId();
 }

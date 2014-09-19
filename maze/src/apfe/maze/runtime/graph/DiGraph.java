@@ -45,7 +45,7 @@ public abstract class DiGraph {
         return m_root;
     }
 
-    public int addLeafs(Iterable<Vertex> leafs) {
+    public int addLeafs(Iterable<? extends Vertex> leafs) {
         if (null != leafs) {
             for (Vertex leaf : leafs) {
                 addLeaf(leaf);
@@ -116,7 +116,7 @@ public abstract class DiGraph {
         return (null != m_leafs) && m_leafs.contains(v);
     }
 
-    public Collection<Vertex> getLeafs() {
+    public Collection<? extends Vertex> getLeafs() {
         return (null != m_leafs) ? m_leafs : null;
     }
 

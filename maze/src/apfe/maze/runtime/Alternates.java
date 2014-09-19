@@ -23,7 +23,7 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Vertex;
+import apfe.maze.runtime.Graph.V;
 
 /**
  * A sequence of one or more AcceptorBase.
@@ -54,7 +54,7 @@ public class Alternates extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         Graph subg;
-        Vertex<State, Acceptor> src = getSubgraphRoot();
+        V src = getSubgraphRoot();
         int cnt = 0;
         for (Acceptor acc : m_alts) {
             subg = acc.accept(src);

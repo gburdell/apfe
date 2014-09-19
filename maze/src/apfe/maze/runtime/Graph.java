@@ -35,8 +35,18 @@ import java.util.Comparator;
  */
 public class Graph extends DiGraph {
 
+    @Override
+    public V getRoot() {
+        return downCast(super.getRoot());
+    }
+
     private static <T> boolean isNull(T ele[]) {
         return (null == ele[0]) && (null == ele[1]);
+    }
+
+    public boolean addEdge(V src, V dest, Acceptor edge) {
+        E realEdge = new E(edge);
+        return addEdge(src, realEdge, dest);
     }
 
     /**
@@ -46,6 +56,18 @@ public class Graph extends DiGraph {
 
         public V(State data) {
             m_data = data;
+        }
+
+        public V(V root) {
+            this(root.getData());
+        }
+
+        public V getDestVertex(int ix) {
+            return downCast(getOutGoingEdges().get(ix).getDest());
+        }
+
+        public V getFirstDest() {
+            return getDestVertex(0);
         }
 
         public State getData() {
@@ -94,7 +116,7 @@ public class Graph extends DiGraph {
         };
     }
 
-    private static class E extends Edge {
+    public static class E extends Edge {
 
         public E(Acceptor edge) {
             m_data = edge;

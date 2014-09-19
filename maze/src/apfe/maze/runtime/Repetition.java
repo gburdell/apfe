@@ -23,7 +23,9 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.Graph.V;
 import apfe.maze.runtime.graph.Vertex;
+import static apfe.runtime.Util.downCast;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,13 +64,13 @@ public class Repetition extends Acceptor {
     }
 
     private static class Candidate
-            extends Util.Triplet<Vertex<State, Acceptor>, Acceptor, Graph> {
+            extends Util.Triplet<V, Acceptor, Graph> {
 
-        public Candidate(Vertex<State, Acceptor> src, Acceptor edge, Graph subg) {
+        public Candidate(V src, Acceptor edge, Graph subg) {
             super(src, edge, subg);
         }
 
-        public Vertex<State, Acceptor> getSrc() {
+        public V getSrc() {
             return e1;
         }
 
@@ -94,10 +96,12 @@ public class Repetition extends Acceptor {
             return false;
         }
         int lastPos = m_lastPos;
-        Collection<Vertex<State, Acceptor>> leafs;
+        Collection<? extends Vertex> leafs;
+        V v;
         for (Candidate cand : cands) {
             leafs = cand.getSubGraph().getLeafs();
-            for (Vertex<State, Acceptor> v : leafs) {
+            for (Vertex vx : leafs) {
+                v = downCast(vx);
                 if ((null != v) && (v.getData().getPos() > lastPos)) {
                     lastPos = v.getData().getPos();
                 }
@@ -115,9 +119,9 @@ public class Repetition extends Acceptor {
      */
     private int m_lastPos;
 
-    private void addEpsilonEdge(Vertex<State, Acceptor> src) {
+    private void addEpsilonEdge(V src) {
         //add empty edge
-        Vertex<State, Acceptor> dest = new Vertex<>(src);
+        V dest = new V(src);
         Acceptor nullEdge = new Optional.Epsilon();
         getSubgraph().addEdge(src, dest, nullEdge);
     }
@@ -127,21 +131,22 @@ public class Repetition extends Acceptor {
         int acceptedCnt = 0;
         boolean matched = true;
         Graph subg;
-        Collection<Vertex<State, Acceptor>> srcs = Util.asCollection(getSubgraphRoot());
+        Collection<? extends Vertex> srcs = Util.asCollection(getSubgraphRoot());
         //keep track of vertex where we accepted.
-        Stack<Vertex<State, Acceptor>> acceptedSrcs = new Stack<>();
+        Stack<V> acceptedSrcs = new Stack<>();
         m_lastPos = getSubgraphRoot().getData().getPos();
         List<Candidate> cands;
         Acceptor edge;
-        Vertex<State, Acceptor> accSrc;
+        V accSrc;
         while (matched) {
             edge = m_rep.create();
             cands = new LinkedList<>();
-            for (Vertex<State, Acceptor> src : srcs) {
-                subg = edge.accept(src);
+            for (Vertex src : srcs) {
+                accSrc = downCast(src);
+                subg = edge.accept(accSrc);
                 //build up candidates
                 if (null != subg) {
-                    cands.add(new Candidate(src, edge, subg));
+                    cands.add(new Candidate(accSrc, edge, subg));
                 }
             }
             matched = hasChangedState(cands);
@@ -170,17 +175,6 @@ public class Repetition extends Acceptor {
         }
         return (!m_oneOrMore || (0 < acceptedCnt));
     }
-
-    private static class LeafFilter implements Graph.IVertexFilter<State, Acceptor> {
-
-        @Override
-        public boolean pass(Vertex<State, Acceptor> v) {
-            return true;//!(Optional.incomingEdgeIsEpsilon(v));
-        }
-
-    }
-
-    private static final LeafFilter stFilter = new LeafFilter();
 
     private final Acceptor m_rep;
     private final boolean m_oneOrMore;

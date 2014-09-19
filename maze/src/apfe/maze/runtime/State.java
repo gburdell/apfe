@@ -23,7 +23,7 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Vertex;
+import apfe.maze.runtime.Graph.V;
 
 /**
  * Encapsulate start position of Scanner/Lexer.
@@ -53,15 +53,20 @@ public class State {
         return new State(m_lex, m_pos + 1);
     }
 
-    public Vertex<State, Acceptor> getNextVertex() {
-        return new Vertex<>(getNext());
+    public V getNextVertex() {
+        return new V(getNext());
     }
 
     @Override
     public boolean equals(Object obj) {
-        boolean eq = (obj != null)
-                && (((State) obj).getPos() == getPos());
+        assert (obj instanceof State);
+        boolean eq = (((State) obj).getPos() == getPos());
         return eq;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
     public final Scanner m_lex;

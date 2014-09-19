@@ -23,8 +23,10 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.Graph.E;
+import apfe.maze.runtime.Graph.V;
 import apfe.maze.runtime.graph.Edge;
-import apfe.maze.runtime.graph.Vertex;
+import static apfe.runtime.Util.downCast;
 
 /**
  * An Acceptor with optional semantics.
@@ -49,8 +51,8 @@ public class Optional extends Acceptor {
 
     @Override
     protected boolean acceptImpl() {
-        Vertex<State, Acceptor> dest = new Vertex<>(getSubgraphRoot());
-        Vertex<State, Acceptor> src = getSubgraphRoot();
+        V dest = new V(getSubgraphRoot());
+        V src = getSubgraphRoot();
         //always accept nothing.
         getSubgraph().addEdge(src, dest, new Epsilon());
         Graph subg = m_opt.accept(getSubgraphRoot());
@@ -60,11 +62,11 @@ public class Optional extends Acceptor {
         return true;
     }
 
-    public static boolean incomingEdgeIsEpsilon(Vertex<State, Acceptor> v) {
+    public static boolean incomingEdgeIsEpsilon(V v) {
         if ((null == v) || (0 == v.getInDegree())) {
             return false;
         }
-        Edge<State, Acceptor> in = v.getIncomingEdge();
+        E in = downCast(v.getIncomingEdge());
         return ((null != in) && (in.getData() instanceof Epsilon));
     }
 
