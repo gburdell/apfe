@@ -35,6 +35,33 @@ import java.util.Comparator;
  */
 public class Graph extends DiGraph {
 
+    /**
+     * Create graph rooted at the lexer start position.
+     *
+     * @param lex root lexer.
+     */
+    public Graph(Scanner lex) {
+        this(new State(lex, 0));
+    }
+
+    /**
+     * Create graph rooted at specified state.
+     *
+     * @param st root state.
+     */
+    public Graph(State st) {
+        this(new V(st));
+    }
+
+    /**
+     * Create graph which is rooted at specified vertex.
+     *
+     * @param vtx root vertex.
+     */
+    public Graph(V vtx) {
+        super(vtx);
+    }
+
     @Override
     public V getRoot() {
         return downCast(super.getRoot());
@@ -90,6 +117,14 @@ public class Graph extends DiGraph {
             return (states[0].getPos() == states[1].getPos());
         }
 
+        /**
+         * Since the Vertex hashcode is used as key for leafs: we want to make
+         * sure these are unique by actual instance (default hashcode). That is:
+         * Vertices should not have same hashcode even if they refer to same
+         * lexer state.
+         *
+         * @return instance-specific hashcode.
+         */
         @Override
         public int hashCode() {
             return super.hashCode();
@@ -99,7 +134,7 @@ public class Graph extends DiGraph {
 
         @Override
         public Comparator<Vertex> getComparator() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            return stCompare;
         }
 
         private static final Comparator<Vertex> stCompare = new Comparator<Vertex>() {
@@ -134,7 +169,8 @@ public class Graph extends DiGraph {
             if (isNull(edges)) {
                 return true;
             }
-            return (edges[0].getEdgeTypeId() == edges[1].getEdgeTypeId());
+            final boolean eq = (edges[0].getEdgeTypeId() == edges[1].getEdgeTypeId());
+            return eq;
         }
 
         @Override
@@ -144,7 +180,18 @@ public class Graph extends DiGraph {
 
         @Override
         public String getEdgeName() {
-            return getData().toString();
+            String s;
+            if (getData() instanceof Terminal) {
+                Terminal asTerm = downCast(getData());
+                if (asTerm.getTokCode() != Token.EOF) {
+                    s = "'" + asTerm.getMatched().getText() + "'";
+                } else {
+                    s = "'<EOF>'";
+                }
+            } else {
+                s = getData().getClass().getSimpleName();
+            }
+            return s;
         }
 
         private final Acceptor m_data;
@@ -168,30 +215,4 @@ public class Graph extends DiGraph {
         };
     }
 
-    /**
-     * Create graph rooted at the lexer start position.
-     *
-     * @param lex root lexer.
-     */
-    public Graph(Scanner lex) {
-        this(new State(lex, 0));
-    }
-
-    /**
-     * Create graph rooted at specified state.
-     *
-     * @param st root state.
-     */
-    public Graph(State st) {
-        this(new V(st));
-    }
-
-    /**
-     * Create graph which is rooted at specified vertex.
-     *
-     * @param vtx root vertex.
-     */
-    public Graph(V vtx) {
-        super(vtx);
-    }
 }
