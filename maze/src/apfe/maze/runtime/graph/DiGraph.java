@@ -54,7 +54,7 @@ public abstract class DiGraph {
         return leafCnt();
     }
 
-    private void addLeaf(Vertex leaf) {
+    public void addLeaf(Vertex leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }

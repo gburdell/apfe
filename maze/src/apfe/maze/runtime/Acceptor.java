@@ -86,7 +86,7 @@ public abstract class Acceptor {
     protected void addEdge(V src, Acceptor edge, Graph subg) {
         V dest = subg.getRoot(), v;
         Collection<? extends Vertex> leafs;
-        if (edge instanceof Terminal) {
+        if (edge.getEdgeTypeId() == Terminal.stEdgeTypeId) {
             Terminal asTerm = (Terminal) edge;
             if (asTerm.getTokCode() != Token.EOF) {
                 //just grab the leaf/dest node so we dont get -term->o-term->

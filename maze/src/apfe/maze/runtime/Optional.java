@@ -101,6 +101,6 @@ public class Optional extends Acceptor {
         return stEdgeTypeId;
     }
 
-    private static final int stEdgeTypeId = getNextEdgeTypeId();
+    /*package*/ static final int stEdgeTypeId = getNextEdgeTypeId();
 
 }

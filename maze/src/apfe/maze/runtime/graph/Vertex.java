@@ -23,6 +23,7 @@
  */
 package apfe.maze.runtime.graph;
 
+import static apfe.maze.runtime.graph.DiGraph.depthFirst;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,7 +39,7 @@ public abstract class Vertex {
     }
 
     public abstract String getVertexName();
-    
+
     public abstract Comparator<Vertex> getComparator();
 
     @Override
@@ -48,7 +49,7 @@ public abstract class Vertex {
     public int hashCode() {
         return super.hashCode();
     }
-    
+
     public void setIncomingEdge(Edge in) {
         if (null != m_incoming) {
             throw new RuntimeException("Incoming edge already set");
@@ -81,6 +82,14 @@ public abstract class Vertex {
 
     public List<Edge> getOutGoingEdges() {
         return (0 < getOutDegree()) ? m_outgoing : null;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder lstr = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
+        depthFirst(lstr, sb, this);
+        return lstr.toString();
     }
 
     private Edge m_incoming;
