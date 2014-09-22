@@ -25,7 +25,6 @@ package apfe.maze.runtime;
 
 import apfe.maze.runtime.Graph.E;
 import apfe.maze.runtime.Graph.V;
-import apfe.maze.runtime.graph.Edge;
 import static apfe.runtime.Util.downCast;
 
 /**
@@ -53,8 +52,8 @@ public class Optional extends Acceptor {
     protected boolean acceptImpl() {
         V dest = new V(getSubgraphRoot());
         V src = getSubgraphRoot();
-        //always accept nothing.
-        getSubgraph().addEdge(src, dest, new Epsilon());
+            //always accept nothing.
+            getSubgraph().addEdge(src, dest, new Epsilon());
         Graph subg = m_opt.accept(getSubgraphRoot());
         if (null != subg) {
             addEdge(src, m_opt, subg);
