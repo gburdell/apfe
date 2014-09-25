@@ -27,7 +27,6 @@ import apfe.maze.runtime.Graph.V;
 import apfe.maze.runtime.graph.Vertex;
 import static apfe.runtime.Util.downCast;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * A sequence of one or more AcceptorBase.
@@ -58,26 +57,23 @@ public class Sequence extends Acceptor {
     @Override
     protected boolean acceptImpl() {
         Graph subg;
-        Collection<? extends Vertex> srcs = Util.asCollection(getSubgraphRoot());
-        List<Vertex> nextSrcs;
+        Collection<? extends Vertex> srcs;
         V vsrc;
         boolean anyAccepted;
         for (Acceptor edge : m_eles) {
-            nextSrcs = null;
             anyAccepted = false;
+            srcs = Util.toList(getSubgraph().getLeafs());
             for (Vertex src : srcs) {
                 vsrc = downCast(src);
                 subg = edge.accept(vsrc);
                 if (null != subg) {
                     addEdge(vsrc, edge, subg);
-                    nextSrcs = Util.addToList(nextSrcs, getSubgraph().getLeafs());
                     anyAccepted = true;
                 }
             }
             if (!anyAccepted) {
                 return false;
             }
-            srcs = nextSrcs;
         }
         return true;
     }

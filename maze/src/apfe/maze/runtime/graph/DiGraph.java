@@ -39,6 +39,9 @@ public abstract class DiGraph {
 
     protected DiGraph(Vertex root) {
         m_root = root;
+        if (m_root.isLeaf()) {
+            addLeaf(m_root);
+        }
     }
 
     protected Vertex getRoot() {
@@ -54,7 +57,7 @@ public abstract class DiGraph {
         return leafCnt();
     }
 
-    public void addLeaf(Vertex leaf) {
+    public final void addLeaf(Vertex leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }

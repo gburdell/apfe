@@ -8,9 +8,10 @@ source_text :
 	EOF
 ;
 
-a: A_K A_K A_K ;
-b: B_K* ;
-c: C_K;
+a: A_K? A_K A_K ;
+b: B_K? ;
+//c: C_K?;
+c: C_K*;
 
 
 A_K.

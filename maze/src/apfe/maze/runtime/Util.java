@@ -37,7 +37,9 @@ import java.util.List;
  * @author gburdell
  */
 public class Util {
+
     public static class Triplet<T1, T2, T3> {
+
         public Triplet() {
         }
 
@@ -51,18 +53,21 @@ public class Util {
         public T3 e3;
     }
 
- 
     public static <T> Queue<T> arrayAsQueue(T ar[]) {
         Queue<T> asQ = new ArrayDeque<>(Arrays.asList(ar));
         return asQ;
     }
-    
+
     public static <T> Collection<T> asCollection(T ele) {
         List<T> list = new LinkedList<>();
         list.add(ele);
         return list;
     }
-    
+
+    public static <T> List<T> toList(Collection<? extends T> items) {
+        return addToList(null, items);
+    }
+
     public static <T> List<T> addToList(List<T> to, Collection<? extends T> items) {
         if ((null != items) && (null == to)) {
             to = new LinkedList<>();
@@ -72,9 +77,10 @@ public class Util {
         }
         return to;
     }
-    
+
     /**
      * Sort list and return as array.
+     *
      * @param <T> array type.
      * @param cls Class of T.
      * @param l list to sort.

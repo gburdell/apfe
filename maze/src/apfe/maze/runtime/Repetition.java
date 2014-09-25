@@ -131,7 +131,7 @@ public class Repetition extends Acceptor {
         int acceptedCnt = 0;
         boolean matched = true;
         Graph subg;
-        Collection<? extends Vertex> srcs = Util.asCollection(getSubgraphRoot());
+        Collection<? extends Vertex> srcs;
         //keep track of vertex where we accepted.
         Stack<V> acceptedSrcs = new Stack<>();
         m_lastPos = getSubgraphRoot().getData().getPos();
@@ -141,6 +141,7 @@ public class Repetition extends Acceptor {
         while (matched) {
             edge = m_rep.create();
             cands = new LinkedList<>();
+            srcs = Util.toList(getSubgraph().getLeafs());
             for (Vertex src : srcs) {
                 accSrc = downCast(src);
                 subg = edge.accept(accSrc);
@@ -158,7 +159,6 @@ public class Repetition extends Acceptor {
                     addEdge(accSrc, cand.getEdge(), subg);
                     acceptedSrcs.push(accSrc);
                 }
-                srcs = getSubgraph().getLeafs();
                 acceptedCnt++;
             }
         }
