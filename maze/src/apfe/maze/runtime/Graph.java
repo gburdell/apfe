@@ -130,7 +130,13 @@ public class Graph extends DiGraph {
             return super.hashCode();
         }
 
-        private final State m_data;
+        @Override
+        public void clear() {
+            m_data = null;
+            super.clear();
+        }
+        
+        private State m_data;
 
         @Override
         public Comparator<Vertex> getComparator() {

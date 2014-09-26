@@ -24,7 +24,9 @@
 package apfe.maze.runtime.graph;
 
 import static apfe.maze.runtime.graph.DiGraph.depthFirst;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,6 +57,10 @@ public abstract class Vertex {
             throw new RuntimeException("Incoming edge already set");
         }
         m_incoming = in;
+    }
+
+    public void clearIncomingEdge() {
+        m_incoming = null;
     }
 
     public void addOutGoingEdge(Edge out) {
@@ -92,6 +98,37 @@ public abstract class Vertex {
         return lstr.toString();
     }
 
+    protected void clear() {
+        m_incoming = null;
+        m_outgoing = null;
+    }
+
+    /**
+     * Add leafs found from this vertex.
+     *
+     * @param leafs existing leaf set.
+     * @return existing leafs and any new ones added.
+     */
+    public Collection<Vertex> addLeafs(Collection<Vertex> leafs) {
+        if (isLeaf()) {
+            if (leafs.contains(this)) {
+                leafs.add(this);
+            }
+        } else {
+            for (Edge edge : getOutGoingEdges()) {
+                Vertex vx = edge.getDest();
+                if (null != vx) {
+                    leafs = vx.addLeafs(leafs);
+                }
+            }
+        }
+        return leafs;
+    }
+
+    public Collection<Vertex> findLeafs() {
+        return addLeafs(new HashSet<Vertex>());
+    }
+    
     private Edge m_incoming;
     private List<Edge> m_outgoing;
 }

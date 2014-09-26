@@ -26,6 +26,8 @@ package apfe.maze.runtime;
 import java.util.Collection;
 import apfe.maze.runtime.graph.Vertex;
 import apfe.maze.runtime.Graph.V;
+import apfe.maze.runtime.graph.Edge;
+import static apfe.runtime.Util.downCast;
 
 /**
  *
@@ -86,7 +88,8 @@ public abstract class Acceptor {
     protected void addEdge(V src, Acceptor edge, Graph subg) {
         V dest = subg.getRoot(), v;
         Collection<? extends Vertex> leafs;
-        if (edge.getEdgeTypeId() == Terminal.stEdgeTypeId) {
+        final int edgeTypeId = edge.getEdgeTypeId();
+        if (edgeTypeId == Terminal.stEdgeTypeId) {
             Terminal asTerm = (Terminal) edge;
             if (asTerm.getTokCode() != Token.EOF) {
                 //just grab the leaf/dest node so we dont get -term->o-term->
@@ -96,17 +99,58 @@ public abstract class Acceptor {
                 dest = new V(v.getData());
             }
             if (getSubgraph().addEdge(src, dest, edge)) {
+                //TODO: this assert/check that adding Terminal does not
+                //need explicit add of leafs
                 leafs = Util.<Vertex>asCollection(dest);
                 assert (1 >= leafs.size());
+                int before = getSubgraph().getLeafs().size();
+                getSubgraph().addLeafs(leafs);
+                int after = getSubgraph().getLeafs().size();
+                assert before == after;
+            }
+        } else if (edgeTypeId == Optional.stEdgeTypeId
+                || edgeTypeId == Repetition.stEdgeTypeId) {
+            /*
+             * Handle case: (src)->Optional->(dest)...
+             */
+            collapse(src, dest);
+        } else {
+            if (getSubgraph().addEdge(src, dest, edge)) {
+                //we only add leafs if we took the subgraph
+                leafs = subg.getLeafs();
                 getSubgraph().addLeafs(leafs);
             }
-        } else if (getSubgraph().addEdge(src, dest, edge)) {
-            //we only add leafs if we took the subgraph
-            leafs = subg.getLeafs();
-            getSubgraph().addLeafs(leafs);
         } //else: if we dont add the subgraph then we dont want the leafs either
     }
 
+    /**
+     * Move the dest outgoing edges to src.
+     * dest becomes an orphan afterwards.
+     * @param src source vertex.
+     * @param dest dest vertex.
+     */
+    private void collapse(V src, V dest) {
+        assert (null != src && null != dest);
+        assert src.getData().equals(dest.getData());
+        assert (1 > dest.getInDegree());
+        V nextDest;
+        for (Edge edge : dest.getOutGoingEdges()) {
+            nextDest = downCast(edge.getDest());
+            nextDest.clearIncomingEdge();
+            edge.clear();
+            if (getSubgraph().addEdge(src, edge, nextDest)) {
+                /*
+                 * NOTE:
+                 * Since we might not add this edge (isomorphism),
+                 * then we cannot blindly just add all the leafs of 'subg'.
+                 * This is a very expensive operation here.
+                 */
+                getSubgraph().addLeafs(nextDest.findLeafs());
+            }
+        }
+        dest.clear();
+    }
+    
     protected void setSubGraph(Graph subg) {
         m_subgraph = subg;
     }

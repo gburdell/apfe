@@ -48,6 +48,11 @@ public abstract class DiGraph {
         return m_root;
     }
 
+    public boolean isEmpty() {
+        return (null == getRoot())
+                || ((1 > getRoot().getInDegree()) && (1 > getRoot().getOutDegree()));
+    }
+
     public int addLeafs(Iterable<? extends Vertex> leafs) {
         if (null != leafs) {
             for (Vertex leaf : leafs) {
@@ -73,7 +78,7 @@ public abstract class DiGraph {
 
     /**
      * Create edge (unconditionally) in existing graph.
-     * 
+     *
      * @param edge edge with [src, dest] already.
      */
     private void addEdge(Edge edge) {
@@ -102,7 +107,7 @@ public abstract class DiGraph {
             //look for any matching edges
             for (Edge existingEdge : src.getOutGoingEdges()) {
                 if (existingEdge.equals(edge)) {
-                    //i fmatch: then grab deest vertex
+                    //if match: then grab dest vertex
                     Vertex existingDest = existingEdge.getDest();
                     assert 1 == existingDest.getInDegree();
                     if (isomorphic(existingDest, dest)) {

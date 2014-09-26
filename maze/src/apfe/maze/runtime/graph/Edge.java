@@ -54,9 +54,14 @@ public abstract class Edge {
      */
     public Edge addVertices(Vertex src, Vertex dest) {
         assert ((null == getSrc()) && (null == getDest()));
-        m_src = src;
-        m_dest = dest;
+        setSrc(src);
+        setDest(dest);
         return this;
+    }
+
+    public void clear() {
+        setDest(null);
+        setSrc(null);
     }
 
     @Override
