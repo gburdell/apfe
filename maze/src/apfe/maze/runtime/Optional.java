@@ -50,10 +50,9 @@ public class Optional extends Acceptor {
 
     @Override
     protected boolean acceptImpl() {
-        V dest = new V(getSubgraphRoot());
         V src = getSubgraphRoot();
         //always accept nothing.
-        getSubgraph().addEdge(src, dest, new Epsilon());
+        addEpsilonEdge(getSubgraph(), src);
         Graph subg = m_opt.accept(getSubgraphRoot());
         if (null != subg) {
             addEdge(src, m_opt, subg);
@@ -61,6 +60,12 @@ public class Optional extends Acceptor {
         return true;
     }
 
+    public static void addEpsilonEdge(Graph subg, V src) {
+        if (! incomingEdgeIsEpsilon(src)) {
+            V dest = new V(src);subg.addEdge(src, dest, new Epsilon());
+        }
+    }
+    
     public static boolean incomingEdgeIsEpsilon(V v) {
         if ((null == v) || (0 == v.getInDegree())) {
             return false;

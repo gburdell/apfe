@@ -121,9 +121,7 @@ public class Repetition extends Acceptor {
 
     private void addEpsilonEdge(V src) {
         //add empty edge
-        V dest = new V(src);
-        Acceptor nullEdge = new Optional.Epsilon();
-        getSubgraph().addEdge(src, dest, nullEdge);
+        Optional.addEpsilonEdge(getSubgraph(), src);
     }
 
     @Override

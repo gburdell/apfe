@@ -86,6 +86,9 @@ public abstract class Acceptor {
      * @param subg subg vertex (root of subgraph to add).
      */
     protected void addEdge(V src, Acceptor edge, Graph subg) {
+        if (subg.isEmpty()) {
+            return;
+        }
         V dest = subg.getRoot(), v;
         Collection<? extends Vertex> leafs;
         final int edgeTypeId = edge.getEdgeTypeId();
