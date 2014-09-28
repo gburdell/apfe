@@ -53,7 +53,7 @@ public abstract class DiGraph {
                 || ((1 > getRoot().getInDegree()) && (1 > getRoot().getOutDegree()));
     }
 
-    public int addLeafs(Iterable<? extends Vertex> leafs) {
+    protected int addLeafs(Iterable<? extends Vertex> leafs) {
         if (null != leafs) {
             for (Vertex leaf : leafs) {
                 addLeaf(leaf);
@@ -62,7 +62,7 @@ public abstract class DiGraph {
         return leafCnt();
     }
 
-    public final void addLeaf(Vertex leaf) {
+    protected final void addLeaf(Vertex leaf) {
         if (null == m_leafs) {
             m_leafs = new HashSet<>();
         }
@@ -102,7 +102,7 @@ public abstract class DiGraph {
      * @param dest destination vertex.
      * @return true if this edge is added; else false since edge already exists.
      */
-    public boolean addEdge(Vertex src, Edge edge, Vertex dest) {
+    protected boolean addEdge(Vertex src, Edge edge, Vertex dest) {
         if (0 < src.getOutDegree()) {
             //look for any matching edges
             for (Edge existingEdge : src.getOutGoingEdges()) {
@@ -121,13 +121,17 @@ public abstract class DiGraph {
     }
 
     private boolean hasLeaf(Vertex v) {
-        return (null != m_leafs) && m_leafs.contains(v);
+        return hasLeafs() && m_leafs.contains(v);
     }
 
-    public Collection<? extends Vertex> getLeafs() {
-        return (null != m_leafs) ? m_leafs : null;
+    protected Collection<? extends Vertex> getLeafs() {
+        return hasLeafs() ? m_leafs : null;
     }
 
+    protected boolean hasLeafs() {
+        return (null != m_leafs) && !m_leafs.isEmpty();
+    }
+    
     private final Vertex m_root;
 
     private Set<Vertex> m_leafs;

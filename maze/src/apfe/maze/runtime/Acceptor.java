@@ -109,9 +109,9 @@ public abstract class Acceptor {
                 //need explicit add of leafs
                 leafs = Util.<Vertex>asCollection(dest);
                 assert (1 >= leafs.size());
-                int before = getSubgraph().getLeafs().size();
+                int before = getSubgraph().getLeafsAndEpsilons().size();
                 getSubgraph().addLeafs(leafs);
-                int after = getSubgraph().getLeafs().size();
+                int after = getSubgraph().getLeafsAndEpsilons().size();
                 assert before == after;
             }
         } else if (edgeTypeId == Optional.stEdgeTypeId
@@ -123,7 +123,7 @@ public abstract class Acceptor {
         } else {
             if (getSubgraph().addEdge(src, dest, edge)) {
                 //we only add leafs if we took the subgraph
-                leafs = subg.getLeafs();
+                leafs = subg.getLeafsAndEpsilons();
                 getSubgraph().addLeafs(leafs);
             }
         } //else: if we dont add the subgraph then we dont want the leafs either

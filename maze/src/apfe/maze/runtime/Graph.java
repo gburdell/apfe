@@ -27,7 +27,12 @@ import apfe.maze.runtime.graph.DiGraph;
 import apfe.maze.runtime.graph.Edge;
 import apfe.maze.runtime.graph.Vertex;
 import static apfe.runtime.Util.downCast;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -67,6 +72,43 @@ public class Graph extends DiGraph {
         return downCast(super.getRoot());
     }
 
+    public int addLeafsAndEpsilons(Iterable<? extends Vertex> leafs) {
+        if (null != leafs) {
+            for (Vertex leaf : leafs) {
+                if (leaf.isLeaf()) {
+                    addLeaf(leaf);
+                } else {
+                    addEpsilon(leaf);
+                }
+            }
+        }
+        return leafCnt();
+    }
+
+    public Collection<? extends Vertex> getLeafsAndEpsilons() {
+        if ((null == m_epsilons) || m_epsilons.isEmpty()) {
+            return super.getLeafs();
+        }
+        List<V> all = new LinkedList(hasLeafs() ? super.getLeafs() : stEmpty);
+        all.addAll(m_epsilons);
+        return all;
+    }
+
+    private static final Collection<? extends Vertex> stEmpty = new LinkedList();
+
+    public void addEpsilon(V vx) {
+        if (null == m_epsilons) {
+            m_epsilons = new HashSet<>();
+        }
+        if (!hasEpsilon(vx)) {
+            m_epsilons.add(vx);
+        }
+    }
+
+    public boolean hasEpsilon(V vx) {
+        return (null != m_epsilons) && m_epsilons.contains(vx);
+    }
+
     private static <T> boolean isNull(T ele[]) {
         return (null == ele[0]) && (null == ele[1]);
     }
@@ -75,6 +117,21 @@ public class Graph extends DiGraph {
         E realEdge = new E(edge);
         return addEdge(src, realEdge, dest);
     }
+
+    /**
+     * Add edge to this graph iff. it does not already exist.
+     *
+     * @param src source vertex.
+     * @param edge edge from src to dest.
+     * @param dest destination vertex.
+     * @return true if this edge is added; else false since edge already exists.
+     */
+    @Override
+    public boolean addEdge(Vertex src, Edge edge, Vertex dest) {
+        return super.addEdge(src, edge, dest);
+    }
+
+    private Set<V> m_epsilons;
 
     /**
      * The Vertex (aka node).
@@ -135,7 +192,7 @@ public class Graph extends DiGraph {
             m_data = null;
             super.clear();
         }
-        
+
         private State m_data;
 
         @Override
