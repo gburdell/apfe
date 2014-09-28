@@ -25,6 +25,7 @@ package apfe.maze.runtime;
 
 import apfe.maze.runtime.Graph.E;
 import apfe.maze.runtime.Graph.V;
+import apfe.maze.runtime.graph.Edge;
 import static apfe.runtime.Util.downCast;
 
 /**
@@ -61,19 +62,28 @@ public class Optional extends Acceptor {
     }
 
     public static void addEpsilonEdge(Graph subg, V src) {
-        if (! incomingEdgeIsEpsilon(src)) {
-            V dest = new V(src);subg.addEdge(src, dest, new Epsilon());
+        if (!incomingEdgeIsEpsilon(src)) {
+            V dest = new V(src);
+            subg.addEdge(src, dest, new Epsilon());
         }
     }
-    
+
     public static boolean incomingEdgeIsEpsilon(V v) {
         if ((null == v) || (0 == v.getInDegree())) {
             return false;
         }
-        E in = downCast(v.getIncomingEdge());
-        return ((null != in) && (in.getData().getEdgeTypeId() == Epsilon.stEdgeTypeId));
+        return edgeIsEpsilon(v.getIncomingEdge());
     }
 
+    public static boolean edgeIsEpsilon(Edge edge) {
+        E in = downCast(edge);
+        return ((null != in) && (in.getData().getEdgeTypeId() == Epsilon.stEdgeTypeId));        
+    }
+    
+    public static boolean edgeIsEpsilonLeaf(Edge edge) {
+        return  edge.getDest().isLeaf() && edgeIsEpsilon(edge);
+    }
+    
     private final Acceptor m_opt;
 
     /**

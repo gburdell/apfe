@@ -145,6 +145,7 @@ public abstract class DiGraph {
     public static void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex node) {
         if (null != node) {
             sb.append('(').append(node.getVertexName())
+                    //.append("-0x").append(Integer.toHexString(node.hashCode()))
                     .append(')');
             if (0 < node.getOutDegree()) {
                 String enm;

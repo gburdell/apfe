@@ -23,9 +23,11 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.Graph.E;
 import java.util.Collection;
 import apfe.maze.runtime.graph.Vertex;
 import apfe.maze.runtime.Graph.V;
+import static apfe.maze.runtime.Optional.incomingEdgeIsEpsilon;
 import apfe.maze.runtime.graph.Edge;
 import static apfe.runtime.Util.downCast;
 
@@ -86,7 +88,8 @@ public abstract class Acceptor {
      * @param subg subg vertex (root of subgraph to add).
      */
     protected void addEdge(V src, Acceptor edge, Graph subg) {
-        if (subg.isEmpty()) {
+        subg = reduce(src, subg);
+        if ((null == subg) || subg.isEmpty()) {
             return;
         }
         V dest = subg.getRoot(), v;
@@ -127,8 +130,39 @@ public abstract class Acceptor {
     }
 
     /**
-     * Move the dest outgoing edges to src.
-     * dest becomes an orphan afterwards.
+     * Return reduced graph: 1) subg has one epsilon edge and src is leaf. or 2)
+     * subg incoming is epsilon and subg contains outgoing epsilon edge which is
+     * leaf.
+     *
+     * @param src source vertex to add to subg.
+     * @param subg subgraph to add to src.
+     * @return modified subg.
+     */
+    private static Graph reduce(V src, Graph subg) {
+        assert (null != src);
+        assert (null != subg);
+        V root = subg.getRoot();
+        assert (null != root);
+        if (src.isLeaf() && (1 == root.getOutDegree())) {
+            Edge edge = root.getOutGoingEdges().get(0);
+            if (Optional.edgeIsEpsilonLeaf(edge)) {
+                return null;
+            }
+        } /*else if (incomingEdgeIsEpsilon(src) && (0 < root.getOutDegree())) {
+            boolean todo = false;
+            for (Edge edge : root.getOutGoingEdges()) {
+                if (Optional.edgeIsEpsilonLeaf(edge)) {
+                    //TODO: remove edge
+                    todo = true;
+                }
+            }
+        }*/
+        return subg;
+    }
+
+    /**
+     * Move the dest outgoing edges to src. dest becomes an orphan afterwards.
+     *
      * @param src source vertex.
      * @param dest dest vertex.
      */
@@ -153,7 +187,7 @@ public abstract class Acceptor {
         }
         dest.clear();
     }
-    
+
     protected void setSubGraph(Graph subg) {
         m_subgraph = subg;
     }
