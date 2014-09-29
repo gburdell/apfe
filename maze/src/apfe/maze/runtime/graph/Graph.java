@@ -92,9 +92,9 @@ public class Graph {
         } else {
             mark = mark.setEpsilon();
         }
-        addMark(vx, mark);        
+        addMark(vx, mark);
     }
-    
+
     public Vertex getRoot() {
         return m_root;
     }
@@ -118,9 +118,7 @@ public class Graph {
         if (null == m_marks) {
             m_marks = new MarkSet();
         }
-        if (!hasMark(vx)) {
-            m_marks.put(vx, mark);
-        }
+        m_marks.put(vx, mark);
     }
 
     public int markCnt() {
@@ -136,8 +134,7 @@ public class Graph {
         Vertex src = edge.getSrc(), dest = edge.getDest();
         EMark mark = getMark(src);
         if ((null != mark) && src.isLeaf()) {
-            assert !mark.isEpsilon();
-            m_marks.remove(src);
+            resetLeaf(src);
         }
         src.addOutGoingEdge(edge);
         dest.setIncomingEdge(edge);
@@ -177,7 +174,7 @@ public class Graph {
     public boolean isEpsilonMark(Vertex vx) {
         return hasMark(vx) && getMark(vx).isEpsilon();
     }
-    
+
     private EMark getMark(Vertex vx) {
         return hasMarks() ? m_marks.get(vx) : null;
     }
@@ -187,7 +184,7 @@ public class Graph {
             m_marks.remove(vx);
         }
     }
-    
+
     private boolean hasMark(Vertex v) {
         return hasMarks() && m_marks.containsKey(v);
     }
@@ -199,29 +196,58 @@ public class Graph {
     public Collection<Vertex> getMarkedVertices() {
         return hasMarks() ? getMarks().keySet() : null;
     }
-    
+
     private boolean hasMarks() {
         return (null != m_marks) && !m_marks.isEmpty();
     }
 
+    private void resetLeaf(Vertex vx) {
+        EMark mark = getMark(vx).resetLeaf();
+        if (null == mark) {
+            m_marks.remove(vx);
+        } else {
+            addMark(vx, mark);
+        }
+    }
+    
     private final Vertex m_root;
 
     public static enum EMark {
+
         LEAF, EPSILON, BOTH;
+
         public static EMark eLeaf() {
             return LEAF;
-        } 
+        }
+
         public static EMark eEpsilon() {
             return EPSILON;
         }
+
+        public boolean isLeaf() {
+            return equals(LEAF) || equals(BOTH);
+        }
+
         public boolean isEpsilon() {
             return equals(EPSILON) || equals(BOTH);
         }
+
         public EMark setLeaf() {
             return equals(EPSILON) ? BOTH : LEAF;
         }
+
         public EMark setEpsilon() {
             return equals(LEAF) ? BOTH : EPSILON;
+        }
+
+        public EMark resetLeaf() {
+            assert isLeaf();
+            return isEpsilon() ? EPSILON : null;
+        }
+        
+        public EMark resetEpsilon() {
+            assert isEpsilon() && !isLeaf();
+            return null;
         }
     }
 
