@@ -23,7 +23,7 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.Graph.V;
+import apfe.maze.runtime.graph.Vertex;
 
 /**
  * Encapsulate start position of Scanner/Lexer.
@@ -41,6 +41,11 @@ public class State {
         m_pos = pos;
     }
 
+    @Override
+    public String toString() {
+        return "(" + m_pos + ")";
+    }
+
     public Token getToken() {
         return m_lex.get(getPos());
     }
@@ -53,8 +58,8 @@ public class State {
         return new State(m_lex, m_pos + 1);
     }
 
-    public V getNextVertex() {
-        return new V(getNext());
+    public Vertex getNextVertex() {
+        return new Vertex(getNext());
     }
 
     @Override

@@ -23,6 +23,11 @@
  */
 package apfe.maze.runtime.graph;
 
+import apfe.maze.runtime.Acceptor;
+import apfe.maze.runtime.Terminal;
+import apfe.maze.runtime.Token;
+import static apfe.maze.runtime.Util.isNull;
+import static apfe.runtime.Util.downCast;
 import java.util.Comparator;
 
 /**
@@ -30,20 +35,13 @@ import java.util.Comparator;
  *
  * @author gburdell
  */
-public abstract class Edge {
+public class Edge {
 
-    protected Edge(Vertex src, Vertex dest) {
+    public Edge(Acceptor edge, Vertex src, Vertex dest) {
+        m_data = edge;
         m_src = src;
         m_dest = dest;
     }
-
-    protected Edge() {
-        this(null, null);
-    }
-
-    public abstract String getEdgeName();
-
-    public abstract Comparator<Edge> getComparator();
 
     /**
      * Add vertices to edge, assuming they are currently null.
@@ -63,9 +61,6 @@ public abstract class Edge {
         setDest(null);
         setSrc(null);
     }
-
-    @Override
-    public abstract boolean equals(Object to);
 
     @Override
     public int hashCode() {
@@ -94,6 +89,58 @@ public abstract class Edge {
         m_dest = dest;
     }
 
+    public Edge(Acceptor edge) {
+        this(edge, null, null);
+    }
+
+    public Acceptor getData() {
+        return m_data;
+    }
+
+    @Override
+    public boolean equals(Object to) {
+        assert (to instanceof Edge);
+        Edge asE = downCast(to);
+        Acceptor edges[] = {getData(), asE.getData()};
+        if (isNull(edges)) {
+            return true;
+        }
+        final boolean eq = (edges[0].getEdgeTypeId() == edges[1].getEdgeTypeId());
+        return eq;
+    }
+
+        public String getEdgeName() {
+        String s;
+        if (getData() instanceof Terminal) {
+            Terminal asTerm = downCast(getData());
+            if (asTerm.getTokCode() != Token.EOF) {
+                s = "'" + asTerm.getMatched().getText() + "'";
+            } else {
+                s = "'<EOF>'";
+            }
+        } else {
+            s = getData().getClass().getSimpleName();
+        }
+        return s;
+    }
+
+        public Comparator<Edge> getComparator() {
+        return stCompare;
+    }
+
+    private static final Comparator<Edge> stCompare = new Comparator<Edge>() {
+        @Override
+        public int compare(Edge o1, Edge o2) {
+            Edge asE[] = new Edge[]{o1, o2};
+            Acceptor edges[] = {asE[0].getData(), asE[1].getData()};
+            if (isNull(edges)) {
+                return 0;
+            }
+            return (edges[0].getEdgeTypeId() == edges[1].getEdgeTypeId()) ? 0
+                    : ((edges[0].getEdgeTypeId() < edges[1].getEdgeTypeId()) ? -1 : 1);
+        }
+    };
     private Vertex m_src;
     private Vertex m_dest;
+    private final Acceptor m_data;
 }

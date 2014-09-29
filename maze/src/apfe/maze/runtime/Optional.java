@@ -23,10 +23,8 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.Graph.E;
-import apfe.maze.runtime.Graph.V;
-import apfe.maze.runtime.graph.Edge;
-import static apfe.runtime.Util.downCast;
+import apfe.maze.runtime.graph.Graph;
+import apfe.maze.runtime.graph.Vertex;
 
 /**
  * An Acceptor with optional semantics.
@@ -51,9 +49,9 @@ public class Optional extends Acceptor {
 
     @Override
     protected boolean acceptImpl() {
-        V src = getSubgraphRoot();
+        Vertex src = getSubgraphRoot();
         //always accept nothing.
-        addEpsilonEdge(getSubgraph(), src);
+        getSubgraph().addEpsilon(src);
         Graph subg = m_opt.accept(getSubgraphRoot());
         if (null != subg) {
             addEdge(src, m_opt, subg);
@@ -61,55 +59,8 @@ public class Optional extends Acceptor {
         return true;
     }
 
-    public static void addEpsilonEdge(Graph subg, V src) {
-        if (!incomingEdgeIsEpsilon(src)) {
-            V dest = new V(src);
-            subg.addEdge(src, dest, new Epsilon());
-        }
-    }
-
-    public static boolean incomingEdgeIsEpsilon(V v) {
-        if ((null == v) || (0 == v.getInDegree())) {
-            return false;
-        }
-        return edgeIsEpsilon(v.getIncomingEdge());
-    }
-
-    public static boolean edgeIsEpsilon(Edge edge) {
-        E in = downCast(edge);
-        return ((null != in) && (in.getData().getEdgeTypeId() == Epsilon.stEdgeTypeId));        
-    }
-    
-    public static boolean edgeIsEpsilonLeaf(Edge edge) {
-        return  edge.getDest().isLeaf() && edgeIsEpsilon(edge);
-    }
-    
     private final Acceptor m_opt;
-
-    /**
-     * Edge which consumes nothing.
-     */
-    public static class Epsilon extends Acceptor {
-
-        @Override
-        public Acceptor create() {
-            return new Epsilon();
-        }
-
-        @Override
-        protected boolean acceptImpl() {
-            return true;
-        }
-
-        @Override
-        public int getEdgeTypeId() {
-            return stEdgeTypeId;
-        }
-
-        private static final int stEdgeTypeId = getNextEdgeTypeId();
-
-    }
-
+    
     @Override
     public int getEdgeTypeId() {
         return stEdgeTypeId;

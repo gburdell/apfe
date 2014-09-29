@@ -23,7 +23,10 @@
  */
 package apfe.maze.runtime.graph;
 
-import static apfe.maze.runtime.graph.DiGraph.depthFirst;
+import apfe.maze.runtime.State;
+import static apfe.maze.runtime.Util.isNull;
+import static apfe.maze.runtime.graph.Graph.depthFirst;
+import static apfe.runtime.Util.downCast;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -35,18 +38,50 @@ import java.util.List;
  *
  * @author gburdell
  */
-public abstract class Vertex {
+public class Vertex {
 
-    protected Vertex() {
+    public Vertex(State data) {
+        m_data = data;
     }
 
-    public abstract String getVertexName();
+    public Vertex(Vertex root) {
+        this(root.getData());
+    }
 
-    public abstract Comparator<Vertex> getComparator();
+    public String getVertexName() {
+        return Integer.toString(getData().getPos());
+    }
+
+    public Vertex getDestVertex(int ix) {
+        return getOutGoingEdges().get(ix).getDest();
+    }
+
+    public Vertex getFirstDest() {
+        return getDestVertex(0);
+    }
+
+    public State getData() {
+        return m_data;
+    }
 
     @Override
-    public abstract boolean equals(Object to);
+    public boolean equals(Object to) {
+        assert (to instanceof Vertex);
+        Vertex asVx = downCast(to);
+        State states[] = {getData(), asVx.getData()};
+        if (isNull(states)) {
+            return true;
+        }
+        return (states[0].getPos() == states[1].getPos());
+    }
 
+    /**
+     * Since the Vertex hashcode is used as key for leafs: we want to make sure
+     * these are unique by actual instance (default hashcode). That is: Vertices
+     * should not have same hashcode even if they refer to same lexer state.
+     *
+     * @return instance-specific hashcode.
+     */
     @Override
     public int hashCode() {
         return super.hashCode();
@@ -98,9 +133,10 @@ public abstract class Vertex {
         return lstr.toString();
     }
 
-    protected void clear() {
+    public void clear() {
         m_incoming = null;
         m_outgoing = null;
+        m_data = null;
     }
 
     /**
@@ -128,7 +164,25 @@ public abstract class Vertex {
     public Collection<Vertex> findLeafs() {
         return addLeafs(new HashSet<Vertex>());
     }
-    
+
+    public Comparator<Vertex> getComparator() {
+        return stCompare;
+    }
+
+    private static final Comparator<Vertex> stCompare = new Comparator<Vertex>() {
+        @Override
+        public int compare(Vertex o1, Vertex o2) {
+            Vertex asV[] = {downCast(o1), downCast(o2)};
+            State states[] = {asV[0].getData(), asV[1].getData()};
+            if (isNull(states)) {
+                return 0;
+            }
+            return (states[0].getPos() == states[1].getPos()) ? 0
+                    : ((states[0].getPos() < states[1].getPos()) ? -1 : 1);
+        }
+    };
+
+    private State m_data;
     private Edge m_incoming;
     private List<Edge> m_outgoing;
 }

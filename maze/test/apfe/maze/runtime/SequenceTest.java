@@ -23,6 +23,7 @@
  */
 package apfe.maze.runtime;
 
+import apfe.maze.runtime.graph.Graph;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

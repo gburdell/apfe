@@ -23,7 +23,7 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.Graph.V;
+import apfe.maze.runtime.graph.Graph;
 import apfe.maze.runtime.graph.Vertex;
 import static apfe.runtime.Util.downCast;
 import java.util.Collection;
@@ -64,13 +64,13 @@ public class Repetition extends Acceptor {
     }
 
     private static class Candidate
-            extends Util.Triplet<V, Acceptor, Graph> {
+            extends Util.Triplet<Vertex, Acceptor, Graph> {
 
-        public Candidate(V src, Acceptor edge, Graph subg) {
+        public Candidate(Vertex src, Acceptor edge, Graph subg) {
             super(src, edge, subg);
         }
 
-        public V getSrc() {
+        public Vertex getSrc() {
             return e1;
         }
 
@@ -96,14 +96,12 @@ public class Repetition extends Acceptor {
             return false;
         }
         int lastPos = m_lastPos;
-        Collection<? extends Vertex> leafs;
-        V v;
+        Collection<Vertex> leafs;
         for (Candidate cand : cands) {
-            leafs = cand.getSubGraph().getLeafs();
+            leafs = cand.getSubGraph().getMarkedVertices();
             for (Vertex vx : leafs) {
-                v = downCast(vx);
-                if ((null != v) && (v.getData().getPos() > lastPos)) {
-                    lastPos = v.getData().getPos();
+                if ((null != vx) && (vx.getData().getPos() > lastPos)) {
+                    lastPos = vx.getData().getPos();
                 }
             }
         }
@@ -119,9 +117,8 @@ public class Repetition extends Acceptor {
      */
     private int m_lastPos;
 
-    private void addEpsilonEdge(V src) {
-        //add empty edge
-        Optional.addEpsilonEdge(getSubgraph(), src);
+    private void addEpsilonEdge(Vertex src) {
+        getSubgraph().addEpsilon(src);
     }
 
     @Override
@@ -131,21 +128,20 @@ public class Repetition extends Acceptor {
         Graph subg;
         Collection<? extends Vertex> srcs;
         //keep track of vertex where we accepted.
-        Stack<V> acceptedSrcs = new Stack<>();
+        Stack<Vertex> acceptedSrcs = new Stack<>();
         m_lastPos = getSubgraphRoot().getData().getPos();
         List<Candidate> cands;
         Acceptor edge;
-        V accSrc;
+        Vertex accSrc;
         while (matched) {
             edge = m_rep.create();
             cands = new LinkedList<>();
-            srcs = Util.toList(getSubgraph().getLeafs());
+            srcs = Util.toList(getSubgraph().getMarkedVertices());
             for (Vertex src : srcs) {
-                accSrc = downCast(src);
-                subg = edge.accept(accSrc);
+                subg = edge.accept(src);
                 //build up candidates
                 if (null != subg) {
-                    cands.add(new Candidate(accSrc, edge, subg));
+                    cands.add(new Candidate(src, edge, subg));
                 }
             }
             matched = hasChangedState(cands);

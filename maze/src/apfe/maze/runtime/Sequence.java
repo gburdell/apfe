@@ -23,7 +23,7 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.Graph.V;
+import apfe.maze.runtime.graph.Graph;
 import apfe.maze.runtime.graph.Vertex;
 import static apfe.runtime.Util.downCast;
 import java.util.Collection;
@@ -58,11 +58,11 @@ public class Sequence extends Acceptor {
     protected boolean acceptImpl() {
         Graph subg;
         Collection<? extends Vertex> srcs;
-        V vsrc;
+        Vertex vsrc;
         boolean anyAccepted;
         for (Acceptor edge : m_eles) {
             anyAccepted = false;
-            srcs = Util.toList(getSubgraph().getLeafs());
+            srcs = Util.toList(getSubgraph().getMarkedVertices());
             for (Vertex src : srcs) {
                 vsrc = downCast(src);
                 subg = edge.accept(vsrc);

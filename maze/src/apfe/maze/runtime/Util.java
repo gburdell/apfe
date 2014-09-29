@@ -94,4 +94,14 @@ public class Util {
         Arrays.sort(ar, comp);
         return ar;
     }
+
+    public static <T> boolean isNull(T eles[]) {
+        for (T ele : eles) {
+            if (null != ele) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -23,12 +23,10 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.Graph.E;
 import java.util.Collection;
 import apfe.maze.runtime.graph.Vertex;
-import apfe.maze.runtime.Graph.V;
-import static apfe.maze.runtime.Optional.incomingEdgeIsEpsilon;
 import apfe.maze.runtime.graph.Edge;
+import apfe.maze.runtime.graph.Graph;
 import static apfe.runtime.Util.downCast;
 
 /**
@@ -54,9 +52,9 @@ public abstract class Acceptor {
      * @param start root vertex which is duped as root of subgraph.
      * @return subgraph if accepted else null.
      */
-    public Graph accept(V start) {
+    public Graph accept(Vertex start) {
         //Duplicate data but not edges.
-        m_subgraph = new Graph(new V(start.getData()));
+        m_subgraph = new Graph(start.getData());
         final boolean match = acceptImpl();
         return match ? m_subgraph : null;
     }
@@ -67,7 +65,7 @@ public abstract class Acceptor {
         return getSubgraphRoot().getData().getToken();
     }
 
-    protected V getSubgraphRoot() {
+    protected Vertex getSubgraphRoot() {
         return getSubgraph().getRoot();
     }
 
@@ -87,13 +85,18 @@ public abstract class Acceptor {
      * @param edge edge to add.
      * @param subg subg vertex (root of subgraph to add).
      */
-    protected void addEdge(V src, Acceptor edge, Graph subg) {
-        subg = reduce(src, subg);
+    protected void addEdge(Vertex src, Acceptor edge, Graph subg) {
         if ((null == subg) || subg.isEmpty()) {
             return;
         }
-        V dest = subg.getRoot(), v;
-        Collection<? extends Vertex> leafs;
+        Vertex dest = subg.getRoot(), v;
+        {
+            //Look for degenerate case of dest is epsilon and is leaf
+            if (dest.isLeaf() && subg.isEpsilonMark(dest)) {
+                getSubgraph().addEpsilon(src);
+                return;
+            }
+        }
         final int edgeTypeId = edge.getEdgeTypeId();
         if (edgeTypeId == Terminal.stEdgeTypeId) {
             Terminal asTerm = (Terminal) edge;
@@ -102,62 +105,24 @@ public abstract class Acceptor {
                 assert (1 == dest.getOutDegree());
                 //leaf node: but with incoming edge, so just grab state.
                 v = dest.getFirstDest();
-                dest = new V(v.getData());
+                dest = new Vertex(v.getData());
             }
             if (getSubgraph().addEdge(src, dest, edge)) {
-                //TODO: this assert/check that adding Terminal does not
-                //need explicit add of leafs
-                leafs = Util.<Vertex>asCollection(dest);
-                assert (1 >= leafs.size());
-                int before = getSubgraph().getLeafsAndEpsilons().size();
-                getSubgraph().addLeafs(leafs);
-                int after = getSubgraph().getLeafsAndEpsilons().size();
-                assert before == after;
+                getSubgraph().addMarks(subg.getMarks());
             }
         } else if (edgeTypeId == Optional.stEdgeTypeId
                 || edgeTypeId == Repetition.stEdgeTypeId) {
             /*
-             * Handle case: (src)->Optional->(dest)...
+             * Handle case: (src)->Optional/Repetition->(dest)...
              */
-            collapse(src, dest);
+            collapse(src, subg);
         } else {
+            assert (edge instanceof NonTerminal);
             if (getSubgraph().addEdge(src, dest, edge)) {
-                //we only add leafs if we took the subgraph
-                leafs = subg.getLeafsAndEpsilons();
-                getSubgraph().addLeafs(leafs);
+                //we only add marks if we took the subgraph
+                getSubgraph().addMarks(subg.getMarks());
             }
         } //else: if we dont add the subgraph then we dont want the leafs either
-    }
-
-    /**
-     * Return reduced graph: 1) subg has one epsilon edge and src is leaf. or 2)
-     * subg incoming is epsilon and subg contains outgoing epsilon edge which is
-     * leaf.
-     *
-     * @param src source vertex to add to subg.
-     * @param subg subgraph to add to src.
-     * @return modified subg.
-     */
-    private static Graph reduce(V src, Graph subg) {
-        assert (null != src);
-        assert (null != subg);
-        V root = subg.getRoot();
-        assert (null != root);
-        if (src.isLeaf() && (1 == root.getOutDegree())) {
-            Edge edge = root.getOutGoingEdges().get(0);
-            if (Optional.edgeIsEpsilonLeaf(edge)) {
-                return null;
-            }
-        } /*else if (incomingEdgeIsEpsilon(src) && (0 < root.getOutDegree())) {
-            boolean todo = false;
-            for (Edge edge : root.getOutGoingEdges()) {
-                if (Optional.edgeIsEpsilonLeaf(edge)) {
-                    //TODO: remove edge
-                    todo = true;
-                }
-            }
-        }*/
-        return subg;
     }
 
     /**
@@ -166,23 +131,29 @@ public abstract class Acceptor {
      * @param src source vertex.
      * @param dest dest vertex.
      */
-    private void collapse(V src, V dest) {
+    private void collapse(Vertex src, Graph subg) {
+        Vertex nextDest, dest = subg.getRoot();
         assert (null != src && null != dest);
         assert src.getData().equals(dest.getData());
         assert (1 > dest.getInDegree());
-        V nextDest;
+        //we're gonna erase the dest, at least grab if epsilon.
+        if (subg.isEpsilonMark(dest)) {
+            getSubgraph().addEpsilon(src);
+            subg.removeMark(dest);
+        }
         for (Edge edge : dest.getOutGoingEdges()) {
-            nextDest = downCast(edge.getDest());
+            nextDest = edge.getDest();
             nextDest.clearIncomingEdge();
             edge.clear();
             if (getSubgraph().addEdge(src, edge, nextDest)) {
                 /*
                  * NOTE:
-                 * Since we might not add this edge (isomorphism),
-                 * then we cannot blindly just add all the leafs of 'subg'.
-                 * This is a very expensive operation here.
+                 * If we don't add edge, then there are some vertex/marks
+                 * we wont want?
+                 * Perhaps this is why we just want to carry mark info on
+                 * the vertex itself.
                  */
-                getSubgraph().addLeafs(nextDest.findLeafs());
+                getSubgraph().addMarks(subg.getMarks());
             }
         }
         dest.clear();

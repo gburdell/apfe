@@ -23,7 +23,7 @@
  */
 package apfe.maze.tc1;
 
-import apfe.maze.runtime.Graph;
+import apfe.maze.runtime.graph.Graph;
 import apfe.maze.runtime.Scanner;
 import apfe.maze.tc1.generated.Grammar;
 import java.io.FileNotFoundException;

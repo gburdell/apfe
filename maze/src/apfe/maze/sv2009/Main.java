@@ -23,7 +23,7 @@
  */
 package apfe.maze.sv2009;
 
-import apfe.maze.runtime.Graph;
+import apfe.maze.runtime.graph.Graph;
 import apfe.maze.runtime.Scanner;
 import apfe.maze.sv2009.generated.Grammar;
 import java.io.FileNotFoundException;

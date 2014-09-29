@@ -1,0 +1,7 @@
+#!/bin/csh -f
+
+foreach i (sv2009  tc1  tc2)
+	pushd $i
+	make clean && make
+	popd
+end

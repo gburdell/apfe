@@ -23,28 +23,79 @@
  */
 package apfe.maze.runtime.graph;
 
+import apfe.maze.runtime.Acceptor;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.runtime.State;
 import apfe.maze.runtime.Util;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.Stack;
 
 /**
- * A directed graph.
+ * A directed graph with marked vertices.
  *
  * @author gburdell
  */
-public abstract class DiGraph {
+public class Graph {
 
-    protected DiGraph(Vertex root) {
+    /**
+     * Create graph rooted at the lexer start position.
+     *
+     * @param lex root lexer.
+     */
+    public Graph(Scanner lex) {
+        this(new State(lex, 0));
+    }
+
+    /**
+     * Create graph rooted at specified state.
+     *
+     * @param st root state.
+     */
+    public Graph(State st) {
+        this(new Vertex(st));
+    }
+
+    public boolean addEdge(Vertex src, Vertex dest, Acceptor edge) {
+        Edge realEdge = new Edge(edge);
+        return addEdge(src, realEdge, dest);
+    }
+
+    /**
+     * Create graph which is rooted at specified vertex.
+     *
+     * @param root root vertex.
+     */
+    public Graph(Vertex root) {
         m_root = root;
         if (m_root.isLeaf()) {
             addLeaf(m_root);
         }
     }
 
-    protected Vertex getRoot() {
+    private void addLeaf(Vertex vx) {
+        assert vx.isLeaf();
+        EMark mark = getMark(vx);
+        if (mark == null) {
+            mark = EMark.eLeaf();
+        } else {
+            mark = mark.setLeaf();
+        }
+        addMark(vx, mark);
+    }
+
+    public void addEpsilon(Vertex vx) {
+        EMark mark = getMark(vx);
+        if (mark == null) {
+            mark = EMark.eEpsilon();
+        } else {
+            mark = mark.setEpsilon();
+        }
+        addMark(vx, mark);        
+    }
+    
+    public Vertex getRoot() {
         return m_root;
     }
 
@@ -53,27 +104,27 @@ public abstract class DiGraph {
                 || ((1 > getRoot().getInDegree()) && (1 > getRoot().getOutDegree()));
     }
 
-    protected int addLeafs(Iterable<? extends Vertex> leafs) {
-        if (null != leafs) {
-            for (Vertex leaf : leafs) {
-                addLeaf(leaf);
+    public int addMarks(MarkSet marks) {
+        if ((null != marks) && (!marks.isEmpty())) {
+            if (null == m_marks) {
+                m_marks = new MarkSet();
             }
+            m_marks.putAll(marks);
         }
-        return leafCnt();
+        return markCnt();
     }
 
-    protected final void addLeaf(Vertex leaf) {
-        if (null == m_leafs) {
-            m_leafs = new HashSet<>();
+    private void addMark(Vertex vx, EMark mark) {
+        if (null == m_marks) {
+            m_marks = new MarkSet();
         }
-        assert leaf.isLeaf();
-        if (!hasLeaf(leaf)) {
-            m_leafs.add(leaf);
+        if (!hasMark(vx)) {
+            m_marks.put(vx, mark);
         }
     }
 
-    public int leafCnt() {
-        return (null != m_leafs) ? m_leafs.size() : 0;
+    public int markCnt() {
+        return (null != m_marks) ? m_marks.size() : 0;
     }
 
     /**
@@ -83,12 +134,13 @@ public abstract class DiGraph {
      */
     private void addEdge(Edge edge) {
         Vertex src = edge.getSrc(), dest = edge.getDest();
+        EMark mark = getMark(src);
+        if ((null != mark) && src.isLeaf()) {
+            assert !mark.isEpsilon();
+            m_marks.remove(src);
+        }
         src.addOutGoingEdge(edge);
         dest.setIncomingEdge(edge);
-        //src can no longer be leaf
-        if (hasLeaf(src)) {
-            m_leafs.remove(src);
-        }
         if (dest.isLeaf()) {
             addLeaf(dest);
         }
@@ -102,39 +154,85 @@ public abstract class DiGraph {
      * @param dest destination vertex.
      * @return true if this edge is added; else false since edge already exists.
      */
-    protected boolean addEdge(Vertex src, Edge edge, Vertex dest) {
-        if (0 < src.getOutDegree()) {
-            //look for any matching edges
-            for (Edge existingEdge : src.getOutGoingEdges()) {
-                if (existingEdge.equals(edge)) {
-                    //if match: then grab dest vertex
-                    Vertex existingDest = existingEdge.getDest();
-                    assert 1 == existingDest.getInDegree();
-                    if (isomorphic(existingDest, dest)) {
-                        return false;
+    public boolean addEdge(Vertex src, Edge edge, Vertex dest) {
+        if (false) {    //skip for now.
+            if (0 < src.getOutDegree()) {
+                //look for any matching edges
+                for (Edge existingEdge : src.getOutGoingEdges()) {
+                    if (existingEdge.equals(edge)) {
+                        //if match: then grab dest vertex
+                        Vertex existingDest = existingEdge.getDest();
+                        assert 1 == existingDest.getInDegree();
+                        if (isomorphic(existingDest, dest)) {
+                            return false;
+                        }
                     }
                 }
-            }
-        } //else: src is a leaf.
+            } //else: src is a leaf.
+        }
         addEdge(edge.addVertices(src, dest));
         return true;
     }
 
-    private boolean hasLeaf(Vertex v) {
-        return hasLeafs() && m_leafs.contains(v);
-    }
-
-    protected Collection<? extends Vertex> getLeafs() {
-        return hasLeafs() ? m_leafs : null;
-    }
-
-    protected boolean hasLeafs() {
-        return (null != m_leafs) && !m_leafs.isEmpty();
+    public boolean isEpsilonMark(Vertex vx) {
+        return hasMark(vx) && getMark(vx).isEpsilon();
     }
     
+    private EMark getMark(Vertex vx) {
+        return hasMarks() ? m_marks.get(vx) : null;
+    }
+
+    public void removeMark(Vertex vx) {
+        if (hasMark(vx)) {
+            m_marks.remove(vx);
+        }
+    }
+    
+    private boolean hasMark(Vertex v) {
+        return hasMarks() && m_marks.containsKey(v);
+    }
+
+    public MarkSet getMarks() {
+        return hasMarks() ? m_marks : null;
+    }
+
+    public Collection<Vertex> getMarkedVertices() {
+        return hasMarks() ? getMarks().keySet() : null;
+    }
+    
+    private boolean hasMarks() {
+        return (null != m_marks) && !m_marks.isEmpty();
+    }
+
     private final Vertex m_root;
 
-    private Set<Vertex> m_leafs;
+    public static enum EMark {
+        LEAF, EPSILON, BOTH;
+        public static EMark eLeaf() {
+            return LEAF;
+        } 
+        public static EMark eEpsilon() {
+            return EPSILON;
+        }
+        public boolean isEpsilon() {
+            return equals(EPSILON) || equals(BOTH);
+        }
+        public EMark setLeaf() {
+            return equals(EPSILON) ? BOTH : LEAF;
+        }
+        public EMark setEpsilon() {
+            return equals(LEAF) ? BOTH : EPSILON;
+        }
+    }
+
+    public static class MarkSet extends HashMap<Vertex, EMark> {
+    }
+
+    /**
+     * Map of Vertex to mark type. Use of map here may be superfluous: but helps
+     * debugging for now.
+     */
+    private MarkSet m_marks;
 
     @Override
     public String toString() {
@@ -148,9 +246,7 @@ public abstract class DiGraph {
 
     public static void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex node) {
         if (null != node) {
-            sb.append('(').append(node.getVertexName())
-                    //.append("-0x").append(Integer.toHexString(node.hashCode()))
-                    .append(')');
+            sb.append('(').append(node.getVertexName()).append(')');
             if (0 < node.getOutDegree()) {
                 String enm;
                 Vertex dest;
@@ -171,7 +267,10 @@ public abstract class DiGraph {
     }
 
     /**
-     * Test if 2 subgraphs are isomorphic.
+     * ***********************************************
+     * TODO: consider epsilon marks!!
+     * *********************************************** Test if 2 subgraphs are
+     * isomorphic.
      *
      * @param g1 root of graph 1.
      * @param g2 root of graph 2.
