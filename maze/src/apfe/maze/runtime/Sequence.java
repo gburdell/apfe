@@ -58,16 +58,14 @@ public class Sequence extends Acceptor {
     protected boolean acceptImpl() {
         Graph subg;
         Collection<? extends Vertex> srcs;
-        Vertex vsrc;
         boolean anyAccepted;
         for (Acceptor edge : m_eles) {
             anyAccepted = false;
             srcs = Util.toList(getSubgraph().getMarkedVertices());
             for (Vertex src : srcs) {
-                vsrc = downCast(src);
-                subg = edge.accept(vsrc);
+                subg = edge.accept(src);
                 if (null != subg) {
-                    addEdge(vsrc, edge, subg);
+                    addEdge(src, edge, subg);
                     anyAccepted = true;
                 }
             }

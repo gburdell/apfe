@@ -133,8 +133,15 @@ public class Graph {
     private void addEdge(Edge edge) {
         Vertex src = edge.getSrc(), dest = edge.getDest();
         EMark mark = getMark(src);
-        if ((null != mark) && src.isLeaf()) {
-            resetLeaf(src);
+        if (null != mark) {
+            if (src.isLeaf()) {
+                assert mark.isLeaf();
+                resetLeaf(src);
+            } else {
+                assert mark.isEpsilon();
+                assert !mark.isLeaf();
+                removeMark(src);
+            }
         }
         src.addOutGoingEdge(edge);
         dest.setIncomingEdge(edge);
@@ -209,7 +216,7 @@ public class Graph {
             addMark(vx, mark);
         }
     }
-    
+
     private final Vertex m_root;
 
     public static enum EMark {
@@ -244,7 +251,7 @@ public class Graph {
             assert isLeaf();
             return isEpsilon() ? EPSILON : null;
         }
-        
+
         public EMark resetEpsilon() {
             assert isEpsilon() && !isLeaf();
             return null;
@@ -264,15 +271,32 @@ public class Graph {
     public String toString() {
         StringBuilder lstr = new StringBuilder();
         StringBuilder sb = new StringBuilder();
-        depthFirst(lstr, sb, m_root);
+        depthFirst(lstr, sb, m_root, this);
         return lstr.toString();
     }
 
     public static final String NL = System.lineSeparator();
 
     public static void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex node) {
+        depthFirst(lstr, sb, node, null);
+    }
+
+    public static void depthFirst(StringBuilder lstr, StringBuilder sb, Vertex node,
+            Graph g) {
         if (null != node) {
-            sb.append('(').append(node.getVertexName()).append(')');
+            sb.append('(').append(node.getVertexName());
+            if (null != g) {
+                EMark mark = g.getMark(node);
+                if (null != mark) {
+                    if (mark.isEpsilon()) {
+                        sb.append("?");
+                    }
+                    if (mark.isLeaf()) {
+                        sb.append(".");
+                    }
+                }
+            }
+            sb.append(')');
             if (0 < node.getOutDegree()) {
                 String enm;
                 Vertex dest;
@@ -282,7 +306,7 @@ public class Graph {
                     nsb.append('-').append(enm).append("->");
                     dest = edge.getDest();
                     if (null != dest) {
-                        depthFirst(lstr, nsb, dest);
+                        depthFirst(lstr, nsb, dest, g);
                         if (dest.isLeaf()) {
                             lstr.append(nsb).append(NL);
                         }

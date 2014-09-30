@@ -86,7 +86,7 @@ public abstract class Acceptor {
      * @param subg subg vertex (root of subgraph to add).
      */
     protected void addEdge(Vertex src, Acceptor edge, Graph subg) {
-        if ((null == subg) || subg.isEmpty()) {
+        if (null == subg) {
             return;
         }
         Vertex dest = subg.getRoot(), v;
@@ -105,7 +105,9 @@ public abstract class Acceptor {
                 assert (1 == dest.getOutDegree());
                 //leaf node: but with incoming edge, so just grab state.
                 v = dest.getFirstDest();
+                assert v.isLeaf();
                 dest = new Vertex(v.getData());
+                subg.removeMark(v);
             }
             if (getSubgraph().addEdge(src, dest, edge)) {
                 getSubgraph().addMarks(subg.getMarks());
