@@ -143,19 +143,21 @@ public abstract class Acceptor {
             getSubgraph().addEpsilon(src);
             subg.removeMark(dest);
         }
-        for (Edge edge : dest.getOutGoingEdges()) {
-            nextDest = edge.getDest();
-            nextDest.clearIncomingEdge();
-            edge.clear();
-            if (getSubgraph().addEdge(src, edge, nextDest)) {
-                /*
-                 * NOTE:
-                 * If we don't add edge, then there are some vertex/marks
-                 * we wont want?
-                 * Perhaps this is why we just want to carry mark info on
-                 * the vertex itself.
-                 */
-                getSubgraph().addMarks(subg.getMarks());
+        if (!dest.isLeaf()) {
+            for (Edge edge : dest.getOutGoingEdges()) {
+                nextDest = edge.getDest();
+                nextDest.clearIncomingEdge();
+                edge.clear();
+                if (getSubgraph().addEdge(src, edge, nextDest)) {
+                    /*
+                     * NOTE:
+                     * If we don't add edge, then there are some vertex/marks
+                     * we wont want?
+                     * Perhaps this is why we just want to carry mark info on
+                     * the vertex itself.
+                     */
+                    getSubgraph().addMarks(subg.getMarks());
+                }
             }
         }
         dest.clear();
