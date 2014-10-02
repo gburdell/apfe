@@ -135,7 +135,7 @@ public class Graph {
         EMark mark = getMark(src);
         if (null != mark) {
             if (src.isLeaf()) {
-                assert mark.isLeaf();
+                //assert mark.isLeaf();
                 resetLeaf(src);
             } else {
                 assert mark.isEpsilon();
@@ -248,7 +248,7 @@ public class Graph {
         }
 
         public EMark resetLeaf() {
-            assert isLeaf();
+            //assert isLeaf();
             return isEpsilon() ? EPSILON : null;
         }
 
@@ -296,6 +296,7 @@ public class Graph {
                     }
                 }
             }
+            //sb.append("-0x").append(Integer.toString(node.hashCode(), 16));
             sb.append(')');
             if (0 < node.getOutDegree()) {
                 String enm;
@@ -319,7 +320,8 @@ public class Graph {
     /**
      * ***********************************************
      * TODO: consider epsilon marks!!
-     * *********************************************** Test if 2 subgraphs are
+     * *********************************************** 
+     * Test if 2 subgraphs are
      * isomorphic.
      *
      * @param g1 root of graph 1.

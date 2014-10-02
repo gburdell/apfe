@@ -112,14 +112,12 @@ public abstract class Acceptor {
             if (getSubgraph().addEdge(src, dest, edge)) {
                 getSubgraph().addMarks(subg.getMarks());
             }
-        } else if (edgeTypeId == Optional.stEdgeTypeId
-                || edgeTypeId == Repetition.stEdgeTypeId) {
+        } else if (! (edge instanceof NonTerminal)) {
             /*
-             * Handle case: (src)->Optional/Repetition->(dest)...
+             * Handle case: (src)->Optional/Repetition/...->(dest)...
              */
             collapse(src, subg);
-        } else {
-            assert (edge instanceof NonTerminal);
+        } else {//NonTerminal
             if (getSubgraph().addEdge(src, dest, edge)) {
                 //we only add marks if we took the subgraph
                 getSubgraph().addMarks(subg.getMarks());

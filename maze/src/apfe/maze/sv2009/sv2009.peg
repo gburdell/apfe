@@ -566,7 +566,7 @@ integer_atom_type signing?
 | integer_vector_type signing? packed_dimension?
 | type_identifier packed_dimension?
 
-enum_name_declaration : enum_identifier (LBRACK NUMBER (COLON NUMBER)? RBRACK)? (EQ constant_expression)?
+enum_name_declaration : enum_identifier (LBRACK number (COLON number)? RBRACK)? (EQ constant_expression)?
 
 class_scope : class_type COLON2
 
@@ -628,8 +628,7 @@ delay2 :
 
 delay_value :
   W1STEP_K //1step
-| NUMBER
-| UNSIGNED_NUMBER
+| number
 | ps_identifier
 | TIME_LITERAL
 
@@ -1425,7 +1424,7 @@ sequential_body : ( udp_initial_statement )? TABLE_K sequential_entry ( sequenti
 
 udp_initial_statement : INITIAL_K output_port_identifier EQ init_val SEMI
 
-init_val : NUMBER; //("1'" [bB] [01xX]) | [01]
+init_val : number; //("1'" [bB] [01xX]) | [01]
 
 sequential_entry : seq_input_list COLON current_state COLON next_state SEMI
 
@@ -1441,9 +1440,9 @@ current_state : level_symbol
 
 next_state : output_symbol | MINUS
 
-output_symbol : NUMBER; //[01xX]
+output_symbol : number; //[01xX]
 
-level_symbol : NUMBER | IDENT; //[01xX?bB]
+level_symbol : number | IDENT; //[01xX?bB]
 
 edge_symbol : IDENT | STAR; //[rRfFpPnN*]
 
@@ -1807,7 +1806,7 @@ clocking_drive : clockvar_expression LT_EQ ( cycle_delay )? expression
 
 cycle_delay :
   POUND2 LPAREN expression RPAREN
-| POUND2 NUMBER
+| POUND2 number
 | POUND2 identifier
 
 clockvar : hierarchical_identifier
@@ -1826,7 +1825,7 @@ rs_production_list :
 | rs_prod ( rs_prod )*
 
 weight_specification :
-NUMBER
+number
 | ps_identifier
 | LPAREN expression RPAREN
 
@@ -2096,7 +2095,7 @@ scalar_timing_check_condition :
 | expression NOT_EQ2 scalar_constant
 | TILDE? expression
 
-scalar_constant : NUMBER; //('1'? [bB])? [01]
+scalar_constant : number; //('1'? [bB])? [01]
 
 //A.8 Expressions
 //A.8.1 Concatenations
@@ -2380,7 +2379,7 @@ module_path_primary :
 | module_path_concatenation
 // | function_subroutine_call
 | subroutine_call
-| NUMBER
+| number
 | identifier
 
 primary :
@@ -2408,7 +2407,7 @@ range_expression :
 expression
 | part_select_range
 
-primary_literal : NUMBER | TIME_LITERAL | UNBASED_UNSIZED_LITERAL | STRING_LITERAL
+primary_literal : number | TIME_LITERAL | UNBASED_UNSIZED_LITERAL | STRING_LITERAL
 
 implicit_class_handle : THIS_K | SUPER_K | THIS_K DOT SUPER_K
 
@@ -2699,6 +2698,11 @@ extern_tf_declaration :
 EXTERN_K method_prototype SEMI
 | EXTERN_K FORKJOIN_K task_prototype SEMI
 ;	//need semi so tokens dont get grabbed 
+
+number :
+NUMBER
+| UNSIGNED_NUMBER
+;
 
 ACCEPT_ON_K.
 ALIAS_K.

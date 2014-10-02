@@ -83,6 +83,6 @@ public class Sequence extends Acceptor {
         return stEdgeTypeId;
     }
 
-    private static final int stEdgeTypeId = getNextEdgeTypeId();
+    public static final int stEdgeTypeId = getNextEdgeTypeId();
 
 }
