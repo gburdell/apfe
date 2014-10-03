@@ -21,48 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime.graph;
+package apfe.mazex.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
-import static apfe.maze.runtime.Util.*;
+import java.util.ArrayList;
 
 /**
  *
  * @author gburdell
  */
-public class Vertex {
+public abstract class Scanner extends ArrayList<Token> {
 
-    public Vertex() {
-    }
+    public abstract boolean isEOF();
 
-    public void addIncoming(Edge ele) {
-        m_incoming = add(m_incoming, ele);
-    }
+    public abstract Token nextToken();
 
-    public void addOutgoing(Edge ele) {
-        m_outgoing = add(m_incoming, ele);
-    }
-
-    public int getInDegree() {
-        return getDegree(m_incoming);
-    }
-    
-   public int getOutDegree() {
-        return getDegree(m_outgoing);
-    }
-    
-    private static int getDegree(List<Edge> coll) {
-        return (isNull(coll)) ? 0 : coll.size();
-    }
-    
-    private static List<Edge> add(List<Edge> to, Edge ele) {
-        if (isNull(to)) {
-            to = new LinkedList<>();
+    public int slurp() {
+        Token tok;
+        while (!isEOF()) {
+            tok = nextToken();
+            super.add(tok);
         }
-        to.add(ele);
-        return to;
+        return super.size();
     }
-
-    private List<Edge> m_incoming, m_outgoing;
 }

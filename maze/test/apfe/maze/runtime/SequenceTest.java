@@ -23,7 +23,16 @@
  */
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Graph;
+import apfe.mazex.runtime.Scanner;
+import apfe.mazex.runtime.Terminal;
+import apfe.mazex.runtime.Sequence;
+import apfe.mazex.runtime.Repetition;
+import apfe.mazex.runtime.Acceptor;
+import apfe.mazex.runtime.NonTerminal;
+import apfe.mazex.runtime.Alternates;
+import apfe.mazex.runtime.Optional;
+import apfe.mazex.runtime.Token;
+import apfe.mazex.runtime.graph.Graph;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

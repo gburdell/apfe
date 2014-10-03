@@ -21,48 +21,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime.graph;
+package apfe.mazex.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
-import static apfe.maze.runtime.Util.*;
+import apfe.mazex.runtime.graph.Graph;
+import apfe.mazex.runtime.graph.Vertex;
+
 
 /**
+ * A sequence of one or more AcceptorBase.
  *
  * @author gburdell
  */
-public class Vertex {
+public class Alternates extends Acceptor {
 
-    public Vertex() {
-    }
-
-    public void addIncoming(Edge ele) {
-        m_incoming = add(m_incoming, ele);
-    }
-
-    public void addOutgoing(Edge ele) {
-        m_outgoing = add(m_incoming, ele);
+    /**
+     * Acceptor with alternative semantics.
+     *
+     * @param alts series of alternatives.
+     */
+    public Alternates(Acceptor... alts) {
+        m_alts = alts;
     }
 
-    public int getInDegree() {
-        return getDegree(m_incoming);
+    @Override
+    public Acceptor create() {
+        return new Alternates(deepClone(m_alts));
     }
-    
-   public int getOutDegree() {
-        return getDegree(m_outgoing);
-    }
-    
-    private static int getDegree(List<Edge> coll) {
-        return (isNull(coll)) ? 0 : coll.size();
-    }
-    
-    private static List<Edge> add(List<Edge> to, Edge ele) {
-        if (isNull(to)) {
-            to = new LinkedList<>();
+
+    /**
+     * Attempt to match alternatives and build into this subgraph.
+     *
+     * @return true if any accepted, else false.
+     */
+    @Override
+    protected boolean acceptImpl() {
+        Graph subg;
+        Vertex src = getSubgraphRoot();
+        int cnt = 0;
+        for (Acceptor acc : m_alts) {
+            subg = acc.accept(src);
+            if (null != subg) {
+                addEdge(src, acc, subg);
+                cnt++;
+            }
         }
-        to.add(ele);
-        return to;
+        return (0 < cnt);
     }
 
-    private List<Edge> m_incoming, m_outgoing;
+    private final Acceptor m_alts[];
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
 }

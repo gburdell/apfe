@@ -21,48 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime.graph;
+package apfe.mazex.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
-import static apfe.maze.runtime.Util.*;
+import apfe.mazex.runtime.graph.Graph;
+import apfe.mazex.runtime.graph.Vertex;
 
 /**
+ * An Acceptor with optional semantics.
  *
  * @author gburdell
  */
-public class Vertex {
+public class Optional extends Acceptor {
 
-    public Vertex() {
-    }
-
-    public void addIncoming(Edge ele) {
-        m_incoming = add(m_incoming, ele);
-    }
-
-    public void addOutgoing(Edge ele) {
-        m_outgoing = add(m_incoming, ele);
+    /**
+     * Optionally accept.
+     *
+     * @param opt element to optionally accept.
+     */
+    public Optional(Acceptor opt) {
+        m_opt = opt;
     }
 
-    public int getInDegree() {
-        return getDegree(m_incoming);
+    @Override
+    public Acceptor create() {
+        return new Optional(m_opt.create());
     }
-    
-   public int getOutDegree() {
-        return getDegree(m_outgoing);
-    }
-    
-    private static int getDegree(List<Edge> coll) {
-        return (isNull(coll)) ? 0 : coll.size();
-    }
-    
-    private static List<Edge> add(List<Edge> to, Edge ele) {
-        if (isNull(to)) {
-            to = new LinkedList<>();
+
+    @Override
+    protected boolean acceptImpl() {
+        Vertex src = getSubgraphRoot();
+        //always accept nothing.
+        getSubgraph().addEpsilon(src);
+        Graph subg = m_opt.accept(getSubgraphRoot());
+        if (null != subg) {
+            addEdge(src, m_opt, subg);
         }
-        to.add(ele);
-        return to;
+        return true;
     }
 
-    private List<Edge> m_incoming, m_outgoing;
+    private final Acceptor m_opt;
+    
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    /*package*/ static final int stEdgeTypeId = getNextEdgeTypeId();
+
 }

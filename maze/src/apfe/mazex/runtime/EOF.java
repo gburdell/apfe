@@ -21,48 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime.graph;
-
-import java.util.LinkedList;
-import java.util.List;
-import static apfe.maze.runtime.Util.*;
+package apfe.mazex.runtime;
 
 /**
+ * A single token.
  *
  * @author gburdell
  */
-public class Vertex {
+public class EOF extends Terminal {
 
-    public Vertex() {
-    }
-
-    public void addIncoming(Edge ele) {
-        m_incoming = add(m_incoming, ele);
-    }
-
-    public void addOutgoing(Edge ele) {
-        m_outgoing = add(m_incoming, ele);
+    /**
+     * Accept EOF.
+     */
+    public EOF() {
+        super(Token.EOF);
     }
 
-    public int getInDegree() {
-        return getDegree(m_incoming);
+    @Override
+    public Acceptor create() {
+        return new EOF();
     }
-    
-   public int getOutDegree() {
-        return getDegree(m_outgoing);
-    }
-    
-    private static int getDegree(List<Edge> coll) {
-        return (isNull(coll)) ? 0 : coll.size();
-    }
-    
-    private static List<Edge> add(List<Edge> to, Edge ele) {
-        if (isNull(to)) {
-            to = new LinkedList<>();
-        }
-        to.add(ele);
-        return to;
-    }
-
-    private List<Edge> m_incoming, m_outgoing;
 }

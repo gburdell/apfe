@@ -21,48 +21,59 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime.graph;
+package apfe.mazex.runtime;
 
-import java.util.LinkedList;
-import java.util.List;
-import static apfe.maze.runtime.Util.*;
+import apfe.mazex.runtime.graph.Vertex;
 
 /**
- *
- * @author gburdell
+ * Encapsulate start position of Scanner/Lexer.
  */
-public class Vertex {
+public class State {
 
-    public Vertex() {
-    }
-
-    public void addIncoming(Edge ele) {
-        m_incoming = add(m_incoming, ele);
-    }
-
-    public void addOutgoing(Edge ele) {
-        m_outgoing = add(m_incoming, ele);
-    }
-
-    public int getInDegree() {
-        return getDegree(m_incoming);
-    }
-    
-   public int getOutDegree() {
-        return getDegree(m_outgoing);
-    }
-    
-    private static int getDegree(List<Edge> coll) {
-        return (isNull(coll)) ? 0 : coll.size();
-    }
-    
-    private static List<Edge> add(List<Edge> to, Edge ele) {
-        if (isNull(to)) {
-            to = new LinkedList<>();
-        }
-        to.add(ele);
-        return to;
+    /**
+     * Capture (start) lexer position.
+     *
+     * @param lex Scanner/lexer.
+     * @param pos start position.
+     */
+    public State(Scanner lex, int pos) {
+        m_lex = lex;
+        m_pos = pos;
     }
 
-    private List<Edge> m_incoming, m_outgoing;
+    @Override
+    public String toString() {
+        return "(" + m_pos + ")";
+    }
+
+    public Token getToken() {
+        return m_lex.get(getPos());
+    }
+
+    public int getPos() {
+        return m_pos;
+    }
+
+    public State getNext() {
+        return new State(m_lex, m_pos + 1);
+    }
+
+    public Vertex getNextVertex() {
+        return new Vertex(getNext());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        assert (obj instanceof State);
+        boolean eq = (((State) obj).getPos() == getPos());
+        return eq;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    public final Scanner m_lex;
+    public final int m_pos;
 }
