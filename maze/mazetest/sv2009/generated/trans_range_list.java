@@ -1,0 +1,58 @@
+
+package apfe.maze.sv2009.generated ;
+
+
+import apfe.maze.runtime.Graph;
+import apfe.maze.runtime.*;
+import apfe.maze.sv2009.*;
+
+
+
+public  class trans_range_list extends Acceptor implements NonTerminal, ITokenCodes {
+
+    public trans_range_list() {
+    }
+
+    @Override
+    protected boolean acceptImpl() {
+		Acceptor matcher = new Alternates(new Sequence(new trans_item(),
+new Terminal(LBRACK),
+new Terminal(STAR),
+new repeat_range(),
+new Terminal(RBRACK)),
+new Sequence(new trans_item(),
+new Terminal(LBRACK),
+new Terminal(MINUS_GT),
+new repeat_range(),
+new Terminal(RBRACK)),
+new Sequence(new trans_item(),
+new Terminal(LBRACK),
+new Terminal(EQ),
+new repeat_range(),
+new Terminal(RBRACK)),
+new trans_item()) ;
+        Graph subg = matcher.accept(getSubgraphRoot());
+        boolean match = (null != subg);
+        if (match) {
+            setSubGraph(subg);
+        }
+
+        return match;
+    }
+ 
+    @Override
+    public trans_range_list create() {
+        return new trans_range_list();
+    }
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
+
+
+}
+
+

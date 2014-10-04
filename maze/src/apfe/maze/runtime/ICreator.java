@@ -21,20 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
-import apfe.maze.runtime.graph.Vertex;
-
 /**
- * 
+ *
  * @author gburdell
  */
 public interface ICreator {
-    /**
-     * Create maze from start.
-     * @param start start/incoming vertex.
-     * @return created maze segment.
-     */
-    public ICreator create(Vertex start);
+    public MazeElement createMazeElement(Vertex start);
 }
