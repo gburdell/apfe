@@ -21,29 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
+import java.util.LinkedList;
+
 /**
- * The rat wanders through the maze carrying Scanner state and current Path.
- * 
+ * Path of viable edges.
+ *
  * @author gburdell
  */
-public abstract class Rat {
-    /**
-     * Peek at next available token.
-     * @return token next available token.
-     */
-    public abstract Token peek();
+public class Path extends LinkedList<Edge> {
+    public Path(Path r) {
+        super(r);
+    }
     
-    /**
-     * At alternatives and repetitions, we're gonna clone the little rodents.
-     * 
-     * @return another rat with identical state. 
-     */
     @Override
-    public abstract Rat clone();
-    
-    private State   m_scanner;
-    private Path    m_path;
+    public Path clone() {
+        return new Path(this);
+    }
 }

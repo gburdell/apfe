@@ -21,29 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
+import java.util.ArrayList;
+
 /**
- * The rat wanders through the maze carrying Scanner state and current Path.
- * 
+ *
  * @author gburdell
  */
-public abstract class Rat {
-    /**
-     * Peek at next available token.
-     * @return token next available token.
-     */
-    public abstract Token peek();
-    
-    /**
-     * At alternatives and repetitions, we're gonna clone the little rodents.
-     * 
-     * @return another rat with identical state. 
-     */
-    @Override
-    public abstract Rat clone();
-    
-    private State   m_scanner;
-    private Path    m_path;
+public abstract class Scanner extends ArrayList<Token> {
+
+    public abstract boolean isEOF();
+
+    public abstract Token nextToken();
+
+    public int slurp() {
+        Token tok;
+        while (!isEOF()) {
+            tok = nextToken();
+            super.add(tok);
+        }
+        return super.size();
+    }
 }

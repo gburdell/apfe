@@ -21,29 +21,70 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
 /**
- * The rat wanders through the maze carrying Scanner state and current Path.
- * 
- * @author gburdell
+ * Encapsulate start position of Scanner/Lexer.
  */
-public abstract class Rat {
+public class State {
+
     /**
-     * Peek at next available token.
-     * @return token next available token.
+     * Capture (start) lexer position.
+     *
+     * @param lex Scanner/lexer.
+     * @param pos start position.
      */
-    public abstract Token peek();
+    public State(Scanner lex, int pos) {
+        m_lex = lex;
+        m_pos = pos;
+    }
+
+    public State(State r) {
+        this(r.m_lex, r.m_pos);
+    }
     
-    /**
-     * At alternatives and repetitions, we're gonna clone the little rodents.
-     * 
-     * @return another rat with identical state. 
-     */
     @Override
-    public abstract Rat clone();
+    public State clone() {
+        return new State(this);
+    }
     
-    private State   m_scanner;
-    private Path    m_path;
+    @Override
+    public String toString() {
+        return "(" + m_pos + ")";
+    }
+
+    public Token peek() {
+        return m_lex.get(getPos());
+    }
+
+    public int getPos() {
+        return m_pos;
+    }
+
+    /**
+     * Return current token and advance (not past EOF).
+     * @return current/peek token.
+     */
+    public Token accept() {
+        Token curr = peek();
+        if (getPos() < m_lex.size()) {
+            m_pos++;
+        }
+        return curr;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        assert (obj instanceof State);
+        boolean eq = (((State) obj).getPos() == getPos());
+        return eq;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    public final Scanner m_lex;
+    public int m_pos;
 }
