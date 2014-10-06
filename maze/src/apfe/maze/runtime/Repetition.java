@@ -23,24 +23,38 @@
  */
 package apfe.maze.runtime;
 
+import static apfe.maze.runtime.RunMaze.addRat;
 import static apfe.maze.runtime.Util.isNull;
 
 /**
- * Add edge and Vertex which represents sequence: [c1, c2, ..., ci].
- * A rat can only pass through this edge if all ci.canPassThough.
  * @author gburdell
  */
-public class Sequence extends Edge implements ICreator {
+public class Repetition extends Edge implements ICreator {
 
-    public Sequence(ICreator... eles) {
-        m_eles = eles;
+    /**
+     * Star closure (0 or more elements).
+     * @param opt repeated element.
+     */
+    public Repetition(ICreator opt) {
+        this(opt, false);
     }
 
-    private final ICreator m_eles[];
-    
     /**
-     * The start Vertex of the internal sub-path which models
-     * the sequence path.
+     * 0/1 or more elements.
+     * @param opt repeated element.
+     * @param oneOrMore true for one or more repeated elements (else 0 or more).
+     */
+    public Repetition(ICreator opt, boolean oneOrMore) {
+        m_opt = opt;
+        m_isOneOrMore = oneOrMore;
+    }
+
+    private final ICreator m_opt;
+    private final boolean m_isOneOrMore;
+
+    /**
+     * The start Vertex of the internal sub-path which models the optional/taken
+     * path.
      */
     private Vertex m_subPathStart;
 
@@ -49,32 +63,31 @@ public class Sequence extends Edge implements ICreator {
         //We create a subpath
         assert isNull(m_subPathStart);
         m_subPathStart = new Vertex();
-        Vertex vx = m_subPathStart;
-        MazeElement last;
-        //chain in series
-        for (ICreator ele : m_eles) {
-            last = ele.createMazeElement(vx);
-            vx = last.getEndpoint();
-        }
+        MazeElement unused = m_opt.createMazeElement(m_subPathStart);
         //The single/outside edge is exposed
         addVertices(start, new Vertex());
         return new MazeElement(getDest()) {
         };
     }
 
+    /**
+     * Continue to take elements, while state changes and launch another rat
+     * down a bypass path after each successful iteration.
+     *
+     * @param visitor our curious little rat.
+     * @return true if edge can be taken. Side effect: we start another rat down
+     * the bypass path.
+     */
     @Override
     public boolean canPassThrough(Rat visitor) {
-        Edge edge;
-        Vertex vx = m_subPathStart;
-        while (0 < vx.getOutDegree()) {
-            assert (1 == vx.getOutDegree());
-            edge = vx.getOutGoingEdges().get(0);
-            if (! edge.canPassThrough(visitor)) {
-                return false;
-            }
-            visitor.addEdge(edge);
-            vx = edge.getDest();
+        {   //add bypass before we process (since visitor state could be updated)
+            addRat(addPassThough(visitor.clone()));
         }
-        return true;
+        Edge edge = m_subPathStart.getOutGoingEdges().get(0);
+        boolean canPass = edge.canPassThrough(visitor);
+        if (canPass) {
+            visitor.addEdge(edge);
+        }
+        return canPass;
     }
 }

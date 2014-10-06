@@ -24,53 +24,12 @@
 
 package apfe.maze.runtime;
 
+import java.util.LinkedList;
+
 /**
- * The rat wanders through the maze carrying Scanner state and current Path.
+ * Queue of rats.
  * 
  * @author gburdell
  */
-public class Rat {
-    public Rat(Scanner scanner) {
-        m_state = new State(scanner, 0);
-        m_path = new Path();
-    }
-    /**
-     * Peek at next available token.
-     * @return token next available token.
-     */
-    public Token peek() {
-        return m_state.peek();
-    }
-    
-    public void advance() {
-        m_state.advance();
-    }
-    
-    /**
-     * At alternatives and repetitions, we're gonna clone the little rodents.
-     * 
-     * @return another rat with identical state. 
-     */
-    @Override
-    public Rat clone() {
-        return new Rat(this);
-    }
-    
-    private Rat(Rat r) {
-        m_state = r.m_state.clone();
-        m_path = r.m_path.clone();
-    }
-    
-    public void destroy() {
-        m_state = null;
-        m_path.clear();
-    }
-    
-    public Rat addEdge(Edge e) {
-        m_path.add(e);
-        return this;
-    }
-    
-    private State   m_state;
-    private Path    m_path;
+public class RatQueue extends LinkedList<Rat> {
 }

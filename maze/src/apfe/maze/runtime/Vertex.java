@@ -28,7 +28,8 @@ import java.util.List;
 import static apfe.maze.runtime.Util.*;
 
 /**
- *
+ * A Vertex with (only) outgoing edges.
+ * 
  * @author gburdell
  */
 public class Vertex {
@@ -36,16 +37,8 @@ public class Vertex {
     public Vertex() {
     }
 
-    public void addIncoming(Edge ele) {
-        m_incoming = add(m_incoming, ele);
-    }
-
     public void addOutgoing(Edge ele) {
-        m_outgoing = add(m_incoming, ele);
-    }
-
-    public int getInDegree() {
-        return getDegree(m_incoming);
+        m_outgoing = add(m_outgoing, ele);
     }
 
     public int getOutDegree() {
@@ -68,5 +61,5 @@ public class Vertex {
         return to;
     }
 
-    private List<Edge> m_incoming, m_outgoing;
+    private List<Edge> m_outgoing;
 }

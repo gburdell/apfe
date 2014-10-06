@@ -35,6 +35,17 @@ public abstract class Terminal extends Edge implements ICreator {
      return visitor.peek().getCode() == stTokenCode;
      }
      */
+    protected abstract int getTokCode();
+
+    @Override
+    public boolean canPassThrough(Rat visitor) {
+        if (getTokCode() != visitor.peek().getCode()) {
+            return false;
+        }
+        visitor.addEdge(this);
+        visitor.advance();
+        return true;
+    }
 
     @Override
     public MazeElement createMazeElement(Vertex start) {

@@ -31,10 +31,14 @@ import java.util.LinkedList;
  * @author gburdell
  */
 public class Path extends LinkedList<Edge> {
+
     public Path(Path r) {
         super(r);
     }
-    
+
+    public Path() {
+    }
+
     @Override
     public Path clone() {
         return new Path(this);

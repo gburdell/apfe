@@ -23,69 +23,41 @@
  */
 package apfe.maze.runtime;
 
+import java.util.Queue;
+
 /**
- * Encapsulate start position of Scanner/Lexer.
+ * Start with one rat which enters maze.
+ *
+ * @author gburdell
  */
-public class State {
-
-    /**
-     * Capture (start) lexer position.
-     *
-     * @param lex Scanner/lexer.
-     * @param pos start position.
-     */
-    public State(Scanner lex, int pos) {
-        m_lex = lex;
-        m_pos = pos;
-    }
-
-    public State(State r) {
-        this(r.m_lex, r.m_pos);
+public class RunMaze {
+    private static RunMaze stTheOne;
+    
+    public static void start(Scanner start) {
+        assert Util.isNull(stTheOne);
+        stTheOne = new RunMaze(start);
     }
     
-    @Override
-    public State clone() {
-        return new State(this);
+    public static RunMaze getTheOne() {
+        return stTheOne;
     }
     
-    @Override
-    public String toString() {
-        return "(" + m_pos + ")";
-    }
-
-    public Token peek() {
-        return m_lex.get(getPos());
-    }
-
-    public int getPos() {
-        return m_pos;
-    }
-
-    /**
-     * Advance to next token (but not past lastPos).
-     */
-    public void advance() {
-        if (getPos() < m_lex.size()) {
-            m_pos++;
-        }
+    public static void addRat(Rat rat) {
+        getTheOne().getRunningQ().add(rat);
     }
     
-    public boolean isEOF() {
-        return peek().isEOF();
+    private RunMaze(Scanner start) {
+        Rat rat0 = new Rat(start);
+        addRat(rat0);
+    }
+    
+    public final Queue getRunningQ() {
+        return m_running;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        assert (obj instanceof State);
-        boolean eq = (((State) obj).getPos() == getPos());
-        return eq;
+    public final Queue getFinishQ() {
+        return m_finished;
     }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    public final Scanner m_lex;
-    public int m_pos;
+    
+    private final RatQueue m_running = new RatQueue(), m_finished = new RatQueue();
 }

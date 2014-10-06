@@ -23,10 +23,10 @@
  */
 package apfe.maze.runtime;
 
+import static apfe.maze.runtime.RunMaze.addRat;
 import static apfe.maze.runtime.Util.isNull;
 
 /**
- *
  * @author gburdell
  */
 public class Optional extends Edge implements ICreator {
@@ -36,9 +36,10 @@ public class Optional extends Edge implements ICreator {
     }
 
     private final ICreator m_opt;
+
     /**
-     * The start Vertex of the internal sub-path which models
-     * the optional/taken path.
+     * The start Vertex of the internal sub-path which models the optional/taken
+     * path.
      */
     private Vertex m_subPathStart;
 
@@ -47,7 +48,7 @@ public class Optional extends Edge implements ICreator {
         //We create a subpath
         assert isNull(m_subPathStart);
         m_subPathStart = new Vertex();
-        MazeElement last = m_opt.createMazeElement(m_subPathStart);
+        MazeElement unused = m_opt.createMazeElement(m_subPathStart);
         //The single/outside edge is exposed
         addVertices(start, new Vertex());
         return new MazeElement(getDest()) {
@@ -55,28 +56,22 @@ public class Optional extends Edge implements ICreator {
     }
 
     /**
-     * Explore 2 paths: 1) where we take edge and
-     * 2) where we skip edge altogether (with another rat).
+     * Explore 2 paths: 1) where we take edge and 2) where we skip edge
+     * altogether (with another rat).
+     *
      * @param visitor our curious little rat.
-     * @return true if edge can be taken.  Side effect: we start another rat
-     * down the bypass path.
+     * @return true if edge can be taken. Side effect: we start another rat down
+     * the bypass path.
      */
     @Override
     public boolean canPassThrough(Rat visitor) {
-        assert (1 > m_subPathStart.getInDegree());
+        {   //add bypass before we process (since visitor state could be updated)
+           addRat(addPassThough(visitor.clone()));
+        }
         Edge edge = m_subPathStart.getOutGoingEdges().get(0);
-        /*
-        We'll assert simple model now: but possible this can be a repeated edge?
-        But, perhaps it's subpath/repeated nature hidden w/in Edge implementor?
-        */
-        assert (1 == edge.getDest().getInDegree());
         boolean canPass = edge.canPassThrough(visitor);
-        {
-            //TODO: start alternative path
-            Rat newRat = visitor.clone();
-            //TODO: our new Rat collects info that we bypassed this edge
-            //or just gets a special edge (in its path/memory) that we
-            //bypassed this one.
+        if (canPass) {
+            visitor.addEdge(edge);
         }
         return canPass;
     }

@@ -23,38 +23,34 @@
  */
 package apfe.maze.runtime;
 
+import static apfe.maze.runtime.RunMaze.addRat;
 import static apfe.maze.runtime.Util.isNull;
+import java.util.List;
 
 /**
- * Add edge and Vertex which represents sequence: [c1, c2, ..., ci].
- * A rat can only pass through this edge if all ci.canPassThough.
  * @author gburdell
  */
-public class Sequence extends Edge implements ICreator {
+public class Alternates extends Edge implements ICreator {
 
-    public Sequence(ICreator... eles) {
+    public Alternates(ICreator... eles) {
         m_eles = eles;
     }
 
     private final ICreator m_eles[];
-    
+
     /**
-     * The start Vertex of the internal sub-path which models
-     * the sequence path.
+     * The start Vertex of the internal sub-path which models the alternative
+     * path.
      */
     private Vertex m_subPathStart;
 
     @Override
     public MazeElement createMazeElement(Vertex start) {
-        //We create a subpath
+        //We create a subpath with alternates
         assert isNull(m_subPathStart);
         m_subPathStart = new Vertex();
-        Vertex vx = m_subPathStart;
-        MazeElement last;
-        //chain in series
         for (ICreator ele : m_eles) {
-            last = ele.createMazeElement(vx);
-            vx = last.getEndpoint();
+            ele.createMazeElement(m_subPathStart);
         }
         //The single/outside edge is exposed
         addVertices(start, new Vertex());
@@ -65,16 +61,25 @@ public class Sequence extends Edge implements ICreator {
     @Override
     public boolean canPassThrough(Rat visitor) {
         Edge edge;
-        Vertex vx = m_subPathStart;
-        while (0 < vx.getOutDegree()) {
-            assert (1 == vx.getOutDegree());
-            edge = vx.getOutGoingEdges().get(0);
-            if (! edge.canPassThrough(visitor)) {
-                return false;
+        boolean canPass;
+        final List<Edge> edges = m_subPathStart.getOutGoingEdges();
+        //explore alternatives with new rats
+        for (int i = 1; i < edges.size(); i++) {
+            Rat newRat = visitor.clone();
+            edge = edges.get(i);
+            canPass = edge.canPassThrough(newRat);
+            if (canPass) {
+                addRat(addPassThough(newRat));
+            } else {
+                newRat.destroy();   //get rid of path
             }
-            visitor.addEdge(edge);
-            vx = edge.getDest();
         }
-        return true;
+        //do 1st alternate with original
+        edge = edges.get(0);
+        canPass = edge.canPassThrough(visitor);
+        if (canPass) {
+            visitor.addEdge(edge);
+        }
+        return canPass;
     }
 }

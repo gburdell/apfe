@@ -40,20 +40,9 @@ public abstract class Edge {
     }
 
     final public void addVertices(Vertex src, Vertex dest) {
-        assert isNull(m_from);
         assert isNull(m_to);
-        m_from = src;
+        src.addOutgoing(this);
         m_to = dest;
-        addEdge();
-    }
-
-    private void addEdge() {
-        m_from.addOutgoing(this);
-        m_to.addIncoming(this);
-    }
-
-    public Vertex getSrc() {
-        return m_from;
     }
 
     public Vertex getDest() {
@@ -61,12 +50,52 @@ public abstract class Edge {
     }
 
     /**
-     * Check if the little rodent can pass through this edge.
-     * If so, the rat's state is possibly updated (i.e., consume token).
+     * Check if the little rodent can pass through this edge. If so, the rat's
+     * state is possibly updated (i.e., consume token).
+     *
      * @param visitor out little rodent wandering the maze.
-     * @return true if rat can pass this edge (and update its state, if applicable).
+     * @return true if rat can pass this edge (and update its state, if
+     * applicable).
      */
     public abstract boolean canPassThrough(Rat visitor);
 
-    private Vertex m_from, m_to;
+    /**
+     * Indicate edge is a pass through (i.e. cannot trigger event).
+     *
+     * @return true if pass-throug- edge.
+     */
+    public boolean isPassThrough() {
+        return false;
+    }
+
+    private Vertex m_to;
+
+    /**
+     * Add passthrough edge to exit vertex of this submaze.
+     * @param rat rat payload/path to update.
+     * @param src edge source.
+     * @return updated rat.
+     */
+    protected Rat addPassThough(Rat rat, Vertex src) {
+        Edge edge = new PassThough();
+        edge.addVertices(src, getDest());
+        return rat.addEdge(edge);
+    }
+
+    protected Rat addPassThough(Rat rat) {
+        return addPassThough(rat, null);
+    }
+
+    public static class PassThough extends Edge {
+
+        @Override
+        public boolean canPassThrough(Rat visitor) {
+            return true;
+        }
+
+        @Override
+        public boolean isPassThrough() {
+            return true;
+        }
+    }
 }
