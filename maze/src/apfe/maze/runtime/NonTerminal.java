@@ -23,36 +23,23 @@
  */
 package apfe.maze.runtime;
 
-import static apfe.maze.runtime.RunMaze.addRat;
-import static apfe.maze.runtime.Util.isNull;
-import java.util.List;
-
 /**
+ * Base class for a NonTerminal.
+ *
  * @author gburdell
  */
-public class Alternates extends Edge implements ICreator {
+public abstract class NonTerminal extends Edge implements ICreator {
 
-    public Alternates(ICreator... eles) {
-        m_eles = eles;
+    protected NonTerminal(ICreator ele) {
+        m_ele = ele;
     }
 
-    private final ICreator m_eles[];
-
-    /**
-     * The start Vertex of the internal sub-path which models the alternative
-     * path.
-     */
-    private Vertex m_subPathStart;
-
+    private final ICreator m_ele;
+    
     @Override
     public MazeElement createMazeElement(Vertex start) {
-        //We create a subpath with alternates
-        assert isNull(m_subPathStart);
-        m_subPathStart = new Vertex();
-        for (ICreator ele : m_eles) {
-            ele.createMazeElement(m_subPathStart);
-        }
-        //The single/outside edge is exposed
+        //add enter edge
+        //The single outside edge is exposed.
         addVertices(start, new Vertex());
         return new MazeElement(getDest()) {
         };
@@ -60,26 +47,11 @@ public class Alternates extends Edge implements ICreator {
 
     @Override
     public boolean canPassThrough(Rat visitor) {
-        Edge edge;
-        boolean canPass;
-        final List<Edge> edges = m_subPathStart.getOutGoingEdges();
-        //explore alternatives with new rats
-        for (int i = 1; i < edges.size(); i++) {
-            Rat newRat = visitor.clone();
-            edge = edges.get(i);
-            canPass = edge.canPassThrough(newRat);
-            if (canPass) {
-                addRat(addPassThrough(newRat));
-            } else {
-                newRat.destroy();   //get rid of path
-            }
+        if (getTokCode() != visitor.peek().getCode()) {
+            return false;
         }
-        //do 1st alternate with original
-        edge = edges.get(0);
-        canPass = edge.canPassThrough(visitor);
-        if (canPass) {
-            visitor.addEdge(edge);
-        }
-        return canPass;
+        visitor.addEdge(this);
+        visitor.advance();
+        return true;
     }
 }

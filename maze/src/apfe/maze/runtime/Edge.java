@@ -72,21 +72,22 @@ public abstract class Edge {
 
     /**
      * Add passthrough edge to exit vertex of this submaze.
+     *
      * @param rat rat payload/path to update.
      * @param src edge source.
      * @return updated rat.
      */
-    protected Rat addPassThough(Rat rat, Vertex src) {
-        Edge edge = new PassThough();
+    protected Rat addPassThrough(Rat rat, Vertex src) {
+        Edge edge = new PassThrough();
         edge.addVertices(src, getDest());
         return rat.addEdge(edge);
     }
 
-    protected Rat addPassThough(Rat rat) {
-        return addPassThough(rat, null);
+    protected Rat addPassThrough(Rat rat) {
+        return addPassThrough(rat, null);
     }
 
-    public static class PassThough extends Edge {
+    public static class PassThrough extends Edge {
 
         @Override
         public boolean canPassThrough(Rat visitor) {
@@ -98,4 +99,40 @@ public abstract class Edge {
             return true;
         }
     }
+
+    /**
+     * Edge which triggers event.
+     */
+    public static class Event extends PassThrough {
+        public static enum EType {
+            eEnter, eExit
+        }
+        protected Event(EType type, Class cls) {
+            m_type = type;
+            m_cls = cls;
+        }
+        private final EType m_type;
+        private final Class m_cls;
+    }
+    
+    /**
+     * Edge which enters nonterminal. 
+     * TODO: use for event triggers.
+     */
+    public static class Enter extends Event {
+        public Enter(Class cls) {
+            super(EType.eEnter, cls);
+        }
+    }
+
+    /**
+     * Edge which exits nonterminal. 
+     * TODO: use for event triggers.
+     */
+    public static class Exit extends Event {
+        public Exit(Class cls) {
+            super(EType.eExit, cls);
+        }
+    }
+
 }

@@ -64,6 +64,22 @@ public class SequenceTest {
     }
 
     public static class ScannerTest extends Scanner {
+
+        public ScannerTest() {
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("B", A_Term.stCode));            
+            add(Token.create("C", A_Term.stCode));
+            add(Token.create("<EOF>", Token.EOF));
+        }
+        @Override
+        public boolean isEOF() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Token nextToken() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
         
     }
 

@@ -81,7 +81,7 @@ public class Repetition extends Edge implements ICreator {
     @Override
     public boolean canPassThrough(Rat visitor) {
         {   //add bypass before we process (since visitor state could be updated)
-            addRat(addPassThough(visitor.clone()));
+            addRat(addPassThrough(visitor.clone()));
         }
         Edge edge = m_subPathStart.getOutGoingEdges().get(0);
         boolean canPass = edge.canPassThrough(visitor);
