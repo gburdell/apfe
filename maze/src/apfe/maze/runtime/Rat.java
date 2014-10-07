@@ -41,15 +41,19 @@ public class Rat {
      * @return token next available token.
      */
     public Token peek() {
-        return m_state.peek();
+        return getState().peek();
     }
     
     public int peekCode() {
         return peek().getCode();
     }
     
+    public State getState() {
+        return m_state;
+    }
+    
     public Token advance() {
-        return m_state.advance();
+        return getState().advance();
     }
 
     

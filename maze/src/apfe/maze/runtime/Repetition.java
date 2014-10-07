@@ -30,35 +30,58 @@ import static apfe.maze.runtime.Util.isNull;
  * @author gburdell
  */
 public class Repetition implements Acceptor {
-
+    public static enum EAlgo {
+        eExhaustive
+    }
     /**
      * Star closure (0 or more elements).
      * @param opt repeated element.
      */
     public Repetition(Acceptor opt) {
-        this(opt, false);
+        this(opt, false, EAlgo.eExhaustive);
     }
 
     /**
      * 0/1 or more elements.
      * @param opt repeated element.
      * @param oneOrMore true for one or more repeated elements (else 0 or more).
+     * @param algorithm tune acceptor algorithm.
      */
-    public Repetition(Acceptor opt, boolean oneOrMore) {
+    public Repetition(Acceptor opt, boolean oneOrMore, EAlgo algorithm) {
         m_opt = opt;
         m_isOneOrMore = oneOrMore;
+        m_algorithm = algorithm;
     }
 
     private final Acceptor m_opt;
     private final boolean m_isOneOrMore;
+    private final EAlgo m_algorithm;
 
     /**
      * If ele*, then return true (unconditionally) and launch new rats
      * after each repetition which passes (so long as state changes).
      * If ele+, then return true if at least 1 accepted; then launch new rats...
+     * @param visitor rat will be updated with the longest sequence which
+     * was accepted.  New rats will be launched
      */
     @Override
     public boolean accept(Rat visitor) {
+        //only implemented this one so far.
+        //TODO: add some interface for algo so we cn plug-n-play.
+        assert (EAlgo.eExhaustive == m_algorithm);
+        boolean ok;
+        State prevState = null;
+        int acceptedCnt = 0;
+        RatQueue newRats = new RatQueue();
+        while (ok = m_opt.accept(visitor)) {
+            if ((null != prevState) && prevState.equals(visitor.getState())) {
+                break;  //state has not advanced
+            }
+            acceptedCnt++;
+            prevState = visitor.getState();
+            
+            newRats.add(new Rat(visitor, m_opt));
+        }
         return true;
     }
 }
