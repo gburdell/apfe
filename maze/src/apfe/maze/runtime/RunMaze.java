@@ -59,5 +59,5 @@ public class RunMaze {
         return m_finished;
     }
     
-    private final RatQueue m_running = new RatQueue(), m_finished = new RatQueue();
+    private final RatsNest m_running = new RatsNest(), m_finished = new RatsNest();
 }

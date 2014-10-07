@@ -27,9 +27,9 @@ package apfe.maze.runtime;
 import java.util.LinkedList;
 
 /**
- * Queue of rats.
+ * Collection of rats.
  * 
  * @author gburdell
  */
-public class RatQueue extends LinkedList<Rat> {
+public class RatsNest extends LinkedList<Rat> {
 }

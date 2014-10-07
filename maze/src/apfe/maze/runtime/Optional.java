@@ -30,7 +30,7 @@ import static apfe.maze.runtime.RunMaze.addNewRat;
  * continue down the optional acceptor.
  * @author gburdell
  */
-public class Optional implements Acceptor {
+public class Optional extends Acceptor {
 
     public Optional(Acceptor opt) {
         m_opt = opt;

@@ -27,7 +27,7 @@ package apfe.maze.runtime;
  * An acceptor which succeeds only if the sequence of acceptors succeeds.
  * @author gburdell
  */
-public class Sequence implements Acceptor {
+public class Sequence extends Acceptor {
 
     public Sequence(Acceptor... eles) {
         m_eles = eles;

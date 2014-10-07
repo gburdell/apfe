@@ -56,6 +56,14 @@ public class Rat {
         return getState().advance();
     }
 
+    public Rat(Rat r) {
+        this(r, null);
+    }
+        
+    @Override
+    public Rat clone() {
+        return new Rat(this);
+    }
     
     public Rat(Rat r, Acceptor start) {
         m_state = r.m_state.clone();

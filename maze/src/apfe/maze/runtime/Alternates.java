@@ -23,12 +23,10 @@
  */
 package apfe.maze.runtime;
 
-import static apfe.maze.runtime.RunMaze.addNewRat;
-
 /**
  * @author gburdell
  */
-public class Alternates implements Acceptor {
+public class Alternates extends Acceptor {
 
     public Alternates(Acceptor... alts) {
         m_alts = alts;
@@ -36,13 +34,20 @@ public class Alternates implements Acceptor {
 
     private final Acceptor m_alts[];
 
+    /**
+     * 1-to-n processing: i.e., each rat creates n new rats (1 for each alternate).
+     * @param rats
+     * @return 
+     */
     @Override
-    public boolean accept(Rat visitor) {
-        //explore other alternatives with new rats
-        for (int i = 1; i < m_alts.length; i++) {
-            addNewRat(visitor, m_alts[i]);
+    public RatsNest accept(RatsNest rats) {
+        RatsNest rval = new RatsNest();
+        return rval;
+    }
+
+    private RatsNest accept(RatsNest rval, Rat rat) {
+        for (Acceptor acc : m_alts) {
         }
-        //do 1st alternate with original
-        return m_alts[0].accept(visitor);
+        return rval;
     }
 }

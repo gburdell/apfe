@@ -28,12 +28,36 @@ package apfe.maze.runtime;
  *
  * @author gburdell
  */
-public interface Acceptor {
+public abstract class Acceptor {
+
     /**
-     * If subclass can accept the rat visitor, then it will also load
-     * up its path with the series of acceptors along the way.
+     * If subclass can accept the rat visitor, then it will also load up its
+     * path with the series of acceptors along the way.
+     *
      * @param visitor rat visitor.
      * @return true if visitor is accepted (and its payload updated).
      */
-    public boolean accept(Rat visitor);
+    public boolean accept(Rat visitor) {
+        throw new UnsupportedOperationException("Should never happen.");
+    }
+
+    /**
+     * Default implementation for processing multiple rats. This is suitable for
+     * 1-to-1 (i.e., 1 in, 1 out) processing.
+     * <B>NOTE: Rats which are not accepted are destroyed here.</B>
+     *
+     * @param rats set of rats to process.
+     * @return new set of (updated) rats.
+     */
+    public RatsNest accept(RatsNest rats) {
+        RatsNest rvals = new RatsNest();
+        for (Rat rat : rats) {
+            if (accept(rat)) {
+                rvals.add(rat.clone()); //new generation
+            } else {
+                rat.destroy();
+            }
+        }
+        return rvals;
+    }
 }

@@ -30,7 +30,7 @@ package apfe.maze.runtime;
  *
  * @author gburdell
  */
-public abstract class Terminal implements Acceptor {
+public abstract class Terminal extends Acceptor {
 
     protected abstract int getTokCode();
 

@@ -28,7 +28,7 @@ package apfe.maze.runtime;
  *
  * @author gburdell
  */
-public abstract class NonTerminal implements Acceptor {
+public abstract class NonTerminal extends Acceptor {
 
     protected NonTerminal(Acceptor start) {
         m_start = start;

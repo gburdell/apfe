@@ -29,7 +29,7 @@ import static apfe.maze.runtime.Util.isNull;
 /**
  * @author gburdell
  */
-public class Repetition implements Acceptor {
+public class Repetition extends Acceptor {
     public static enum EAlgo {
         eExhaustive
     }
@@ -72,7 +72,7 @@ public class Repetition implements Acceptor {
         boolean ok;
         State prevState = null;
         int acceptedCnt = 0;
-        RatQueue newRats = new RatQueue();
+        RatsNest newRats = new RatsNest();
         while (ok = m_opt.accept(visitor)) {
             if ((null != prevState) && prevState.equals(visitor.getState())) {
                 break;  //state has not advanced
