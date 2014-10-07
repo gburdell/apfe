@@ -28,30 +28,35 @@ package apfe.maze.runtime;
  *
  * @author gburdell
  */
-public abstract class NonTerminal extends Edge implements ICreator {
+public abstract class NonTerminal implements Acceptor {
 
-    protected NonTerminal(ICreator ele) {
-        m_ele = ele;
+    protected NonTerminal(Acceptor start) {
+        m_start = start;
     }
 
-    private final ICreator m_ele;
-    
+    private final Acceptor m_start;
+
     @Override
-    public MazeElement createMazeElement(Vertex start) {
-        //Defer enter exit to canPassThrough()
-        //The single outside edge is exposed.
-        addVertices(start, new Vertex());
-        return new MazeElement(getDest()) {
+    public boolean accept(Rat visitor) {
+        visitor.addAccepted(new Ele(Ele.EType.eEnter));
+        final boolean ok = m_start.accept(visitor);
+        if (ok) {
+            visitor.addAccepted(new Ele(Ele.EType.eExit));
+        }
+        return ok;
+    }
+
+    public static class Ele implements Path.Ele {
+
+        public static enum EType {
+
+            eEnter, eExit
         };
+
+        public Ele(EType type) {
+            m_type = type;
+        }
+        public final EType m_type;
     }
 
-    @Override
-    public boolean canPassThrough(Rat visitor) {
-        Edge edge = new Edge.Enter(this.getClass());
-        visitor.addEdge(edge);
-        //We'll create the maze-element entry edge on the fly
-        Vertex vx = 
-        return true;
-    }
-    
 }

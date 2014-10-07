@@ -63,11 +63,14 @@ public class State {
 
     /**
      * Advance to next token (but not past lastPos).
+     * @return current token (before advance).
      */
-    public void advance() {
+    public Token advance() {
+        Token curr = peek();
         if (getPos() < m_lex.size()) {
             m_pos++;
         }
+        return curr;
     }
     
     public boolean isEOF() {

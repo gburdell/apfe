@@ -23,58 +23,26 @@
  */
 package apfe.maze.runtime;
 
-import static apfe.maze.runtime.Util.isNull;
-
 /**
- * Add edge and Vertex which represents sequence: [c1, c2, ..., ci].
- * A rat can only pass through this edge if all ci.canPassThough.
+ * An acceptor which succeeds only if the sequence of acceptors succeeds.
  * @author gburdell
  */
-public class Sequence extends Edge implements ICreator {
+public class Sequence implements Acceptor {
 
-    public Sequence(ICreator... eles) {
+    public Sequence(Acceptor... eles) {
         m_eles = eles;
     }
 
-    private final ICreator m_eles[];
-    
-    /**
-     * The start Vertex of the internal sub-path which models
-     * the sequence path.
-     */
-    private Vertex m_subPathStart;
+    private final Acceptor m_eles[];
 
     @Override
-    public MazeElement createMazeElement(Vertex start) {
-        //We create a subpath
-        assert isNull(m_subPathStart);
-        m_subPathStart = new Vertex();
-        Vertex vx = m_subPathStart;
-        MazeElement last;
-        //chain in series
-        for (ICreator ele : m_eles) {
-            last = ele.createMazeElement(vx);
-            vx = last.getEndpoint();
-        }
-        //The single/outside edge is exposed
-        addVertices(start, new Vertex());
-        return new MazeElement(getDest()) {
-        };
-    }
-
-    @Override
-    public boolean canPassThrough(Rat visitor) {
-        Edge edge;
-        Vertex vx = m_subPathStart;
-        while (0 < vx.getOutDegree()) {
-            assert (1 == vx.getOutDegree());
-            edge = vx.getOutGoingEdges().get(0);
-            if (! edge.canPassThrough(visitor)) {
+    public boolean accept(Rat visitor) {
+        for (Acceptor acc : m_eles) {
+            if (!acc.accept(visitor)) {
                 return false;
             }
-            visitor.addEdge(edge);
-            vx = edge.getDest();
         }
         return true;
     }
+
 }

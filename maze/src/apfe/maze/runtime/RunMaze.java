@@ -33,22 +33,22 @@ import java.util.Queue;
 public class RunMaze {
     private static RunMaze stTheOne;
     
-    public static void start(Scanner start) {
-        assert Util.isNull(stTheOne);
-        stTheOne = new RunMaze(start);
+    public static void start(Scanner scanner, Acceptor start) {
+        assert Util.isNull(getTheOne());
+        stTheOne = new RunMaze(scanner, start);
     }
     
     public static RunMaze getTheOne() {
         return stTheOne;
     }
     
-    public static void addRat(Rat rat) {
-        getTheOne().getRunningQ().add(rat);
+    public static void addNewRat(Rat clone, Acceptor start) {
+        getTheOne().getRunningQ().add(new Rat(clone, start));
     }
     
-    private RunMaze(Scanner start) {
-        Rat rat0 = new Rat(start);
-        addRat(rat0);
+    private RunMaze(Scanner scanner, Acceptor start) {
+        Rat rat0 = new Rat(scanner, start);
+        m_running.add(rat0);
     }
     
     public final Queue getRunningQ() {

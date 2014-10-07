@@ -23,19 +23,19 @@
  */
 package apfe.maze.runtime;
 
-import static apfe.maze.runtime.RunMaze.addRat;
+import static apfe.maze.runtime.RunMaze.addNewRat;
 import static apfe.maze.runtime.Util.isNull;
 
 /**
  * @author gburdell
  */
-public class Repetition extends Edge implements ICreator {
+public class Repetition implements Acceptor {
 
     /**
      * Star closure (0 or more elements).
      * @param opt repeated element.
      */
-    public Repetition(ICreator opt) {
+    public Repetition(Acceptor opt) {
         this(opt, false);
     }
 
@@ -44,50 +44,21 @@ public class Repetition extends Edge implements ICreator {
      * @param opt repeated element.
      * @param oneOrMore true for one or more repeated elements (else 0 or more).
      */
-    public Repetition(ICreator opt, boolean oneOrMore) {
+    public Repetition(Acceptor opt, boolean oneOrMore) {
         m_opt = opt;
         m_isOneOrMore = oneOrMore;
     }
 
-    private final ICreator m_opt;
+    private final Acceptor m_opt;
     private final boolean m_isOneOrMore;
 
     /**
-     * The start Vertex of the internal sub-path which models the optional/taken
-     * path.
-     */
-    private Vertex m_subPathStart;
-
-    @Override
-    public MazeElement createMazeElement(Vertex start) {
-        //We create a subpath
-        assert isNull(m_subPathStart);
-        m_subPathStart = new Vertex();
-        MazeElement unused = m_opt.createMazeElement(m_subPathStart);
-        //The single/outside edge is exposed
-        addVertices(start, new Vertex());
-        return new MazeElement(getDest()) {
-        };
-    }
-
-    /**
-     * Continue to take elements, while state changes and launch another rat
-     * down a bypass path after each successful iteration.
-     *
-     * @param visitor our curious little rat.
-     * @return true if edge can be taken. Side effect: we start another rat down
-     * the bypass path.
+     * If ele*, then return true (unconditionally) and launch new rats
+     * after each repetition which passes (so long as state changes).
+     * If ele+, then return true if at least 1 accepted; then launch new rats...
      */
     @Override
-    public boolean canPassThrough(Rat visitor) {
-        {   //add bypass before we process (since visitor state could be updated)
-            addRat(addPassThrough(visitor.clone()));
-        }
-        Edge edge = m_subPathStart.getOutGoingEdges().get(0);
-        boolean canPass = edge.canPassThrough(visitor);
-        if (canPass) {
-            visitor.addEdge(edge);
-        }
-        return canPass;
+    public boolean accept(Rat visitor) {
+        return true;
     }
 }

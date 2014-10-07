@@ -25,33 +25,35 @@ package apfe.maze.runtime;
 
 /**
  * Base class for a Terminal.
+ * There is no state associated with this object so static view of maze can
+ * be built.
  *
  * @author gburdell
  */
-public abstract class Terminal extends Edge implements ICreator {
-    /*
-     @Override
-     public boolean canPassThrough(Rat visitor) {
-     return visitor.peek().getCode() == stTokenCode;
-     }
-     */
+public abstract class Terminal implements Acceptor {
+
     protected abstract int getTokCode();
 
+    /**
+     * Test if rat's next token is terminal which matches the one from subclass
+     * getTokCode(). If so, we add this to payload.
+     *
+     * @param visitor rat visitor.
+     * @return true if visitor;s next token matches this one; else false.
+     */
     @Override
-    public boolean canPassThrough(Rat visitor) {
-        if (getTokCode() != visitor.peek().getCode()) {
+    public boolean accept(Rat visitor) {
+        if (getTokCode() != visitor.peekCode()) {
             return false;
         }
-        visitor.addEdge(this);
-        visitor.advance();
+        visitor.addAccepted(new Ele(visitor.advance()));
         return true;
     }
 
-    @Override
-    public MazeElement createMazeElement(Vertex start) {
-        addVertices(start, new Vertex());
-        return new MazeElement(getDest()) {
-        };
+    public static class Ele implements Path.Ele {
+        public Ele(Token tok) {
+            m_accepted = tok;
+        }
+        private final Token m_accepted;
     }
-
 }

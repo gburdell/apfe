@@ -26,11 +26,11 @@ package apfe.maze.runtime;
 import java.util.LinkedList;
 
 /**
- * Path of viable edges.
+ * Path of Ele thus far.
  *
  * @author gburdell
  */
-public class Path extends LinkedList<Edge> {
+public class Path extends LinkedList<Path.Ele> {
 
     public Path(Path r) {
         super(r);
@@ -39,8 +39,19 @@ public class Path extends LinkedList<Edge> {
     public Path() {
     }
 
+    /**
+     * Return a deep copy of this Path.
+     *
+     * @return deep copy of this path.
+     */
     @Override
     public Path clone() {
         return new Path(this);
+    }
+
+    /**
+     * Acceptors add Ele to the Path.
+     */
+    public static interface Ele {
     }
 }

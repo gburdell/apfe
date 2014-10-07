@@ -21,21 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
 /**
+ * Base class of Terminals and Nonterminals alike.
  *
  * @author gburdell
  */
-public class Graph {
-    public Graph() {
-        m_root = new Vertex();
-    }
-    
-    public Vertex getRoot() {
-        return m_root;
-    }
-    
-    private final Vertex    m_root;
+public interface Acceptor {
+    /**
+     * If subclass can accept the rat visitor, then it will also load
+     * up its path with the series of acceptors along the way.
+     * @param visitor rat visitor.
+     * @return true if visitor is accepted (and its payload updated).
+     */
+    public boolean accept(Rat visitor);
 }

@@ -23,56 +23,27 @@
  */
 package apfe.maze.runtime;
 
-import static apfe.maze.runtime.RunMaze.addRat;
-import static apfe.maze.runtime.Util.isNull;
+import static apfe.maze.runtime.RunMaze.addNewRat;
 
 /**
+ * An acceptor which always is true; but, it also launches another rat which
+ * continue down the optional acceptor.
  * @author gburdell
  */
-public class Optional extends Edge implements ICreator {
+public class Optional implements Acceptor {
 
-    public Optional(ICreator opt) {
+    public Optional(Acceptor opt) {
         m_opt = opt;
     }
 
-    private final ICreator m_opt;
-
-    /**
-     * The start Vertex of the internal sub-path which models the optional/taken
-     * path.
-     */
-    private Vertex m_subPathStart;
+    private final Acceptor m_opt;
 
     @Override
-    public MazeElement createMazeElement(Vertex start) {
-        //We create a subpath
-        assert isNull(m_subPathStart);
-        m_subPathStart = new Vertex();
-        MazeElement unused = m_opt.createMazeElement(m_subPathStart);
-        //The single/outside edge is exposed
-        addVertices(start, new Vertex());
-        return new MazeElement(getDest()) {
-        };
+    public boolean accept(Rat visitor) {
+        //Add new rat which will continue with the option.
+        addNewRat(visitor, m_opt);
+        return true;
     }
 
-    /**
-     * Explore 2 paths: 1) where we take edge and 2) where we skip edge
-     * altogether (with another rat).
-     *
-     * @param visitor our curious little rat.
-     * @return true if edge can be taken. Side effect: we start another rat down
-     * the bypass path.
-     */
-    @Override
-    public boolean canPassThrough(Rat visitor) {
-        {   //add bypass before we process (since visitor state could be updated)
-           addRat(addPassThrough(visitor.clone()));
-        }
-        Edge edge = m_subPathStart.getOutGoingEdges().get(0);
-        boolean canPass = edge.canPassThrough(visitor);
-        if (canPass) {
-            visitor.addEdge(edge);
-        }
-        return canPass;
-    }
+    
 }
