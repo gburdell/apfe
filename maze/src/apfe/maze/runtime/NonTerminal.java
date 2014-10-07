@@ -38,7 +38,7 @@ public abstract class NonTerminal extends Edge implements ICreator {
     
     @Override
     public MazeElement createMazeElement(Vertex start) {
-        //add enter edge
+        //Defer enter exit to canPassThrough()
         //The single outside edge is exposed.
         addVertices(start, new Vertex());
         return new MazeElement(getDest()) {
@@ -47,11 +47,11 @@ public abstract class NonTerminal extends Edge implements ICreator {
 
     @Override
     public boolean canPassThrough(Rat visitor) {
-        if (getTokCode() != visitor.peek().getCode()) {
-            return false;
-        }
-        visitor.addEdge(this);
-        visitor.advance();
+        Edge edge = new Edge.Enter(this.getClass());
+        visitor.addEdge(edge);
+        //We'll create the maze-element entry edge on the fly
+        Vertex vx = 
         return true;
     }
+    
 }
