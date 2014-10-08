@@ -38,17 +38,23 @@ public abstract class Terminal extends Acceptor {
      * Test if rat's next token is terminal which matches the one from subclass
      * getTokCode(). If so, we add this to payload.
      *
-     * @param visitor rat visitor.
-     * @return true if visitor;s next token matches this one; else false.
+     * @param rats collection of rats.
+     * @return updated set of rats which accepted this terminal.
      */
     @Override
-    public boolean accept(Rat visitor) {
-        if (getTokCode() != visitor.peekCode()) {
-            return false;
+    public RatsNest accept(RatsNest rats) {
+        RatsNest rvals = new RatsNest();
+        for (Rat rat : rats) {
+            if (getTokCode() == rat.peekCode()) {
+                rat = rat.clone();
+                rat.addAccepted(new Ele(rat.advance()));
+                rvals.add(rat);
+            }
         }
-        visitor.addAccepted(new Ele(visitor.advance()));
-        return true;
+        return rvals;
     }
+    
+    
 
     public static class Ele implements Path.Ele {
         public Ele(Token tok) {

@@ -36,16 +36,21 @@ public abstract class NonTerminal extends Acceptor {
 
     private final Acceptor m_start;
 
-    @Override
-    public boolean accept(Rat visitor) {
-        visitor.addAccepted(new Ele(Ele.EType.eEnter));
-        final boolean ok = m_start.accept(visitor);
-        if (ok) {
-            visitor.addAccepted(new Ele(Ele.EType.eExit));
+     @Override
+    public RatsNest accept(RatsNest rats) {
+        //dup, since were gonna unconditionally modify
+        RatsNest dups = rats.clone();
+        for (Rat rat : dups) {
+            rat.addAccepted(new Ele(Ele.EType.eEnter));
         }
-        return ok;
+        RatsNest outs = m_start.accept(rats);
+        for (Rat rat : outs) {
+            rat.addAccepted(new Ele(Ele.EType.eExit));
+        }
+        return outs;
     }
 
+    
     public static class Ele implements Path.Ele {
 
         public static enum EType {

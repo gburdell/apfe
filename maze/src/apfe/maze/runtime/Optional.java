@@ -23,8 +23,6 @@
  */
 package apfe.maze.runtime;
 
-import static apfe.maze.runtime.RunMaze.addNewRat;
-
 /**
  * An acceptor which always is true; but, it also launches another rat which
  * continue down the optional acceptor.
@@ -35,15 +33,14 @@ public class Optional extends Acceptor {
     public Optional(Acceptor opt) {
         m_opt = opt;
     }
-
+    
     private final Acceptor m_opt;
 
     @Override
-    public boolean accept(Rat visitor) {
-        //Add new rat which will continue with the option.
-        addNewRat(visitor, m_opt);
-        return true;
+    public RatsNest accept(RatsNest rats) {
+        RatsNest rval = rats.clone();     //feedthru
+        rval.addAll(m_opt.accept(rats));
+        return rval;
     }
-
-    
+ 
 }

@@ -36,13 +36,14 @@ public class Sequence extends Acceptor {
     private final Acceptor m_eles[];
 
     @Override
-    public boolean accept(Rat visitor) {
+    public RatsNest accept(RatsNest rats) {
+        RatsNest ins = rats.clone();
+        RatsNest outs = null;
         for (Acceptor acc : m_eles) {
-            if (!acc.accept(visitor)) {
-                return false;
-            }
+            outs = acc.accept(ins);
+            ins = outs;
         }
-        return true;
+        return (null != outs) ? outs : new RatsNest();
     }
 
 }

@@ -32,4 +32,15 @@ import java.util.LinkedList;
  * @author gburdell
  */
 public class RatsNest extends LinkedList<Rat> {
+    private RatsNest(RatsNest rats) {
+        for (Rat rat : rats) {
+            add(rat.clone());
+        }
+    }
+    public RatsNest() {
+    }
+    @Override
+    public RatsNest clone() {
+        return new RatsNest(this);
+    }
 }

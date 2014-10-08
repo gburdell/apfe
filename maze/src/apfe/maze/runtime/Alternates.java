@@ -42,12 +42,11 @@ public class Alternates extends Acceptor {
     @Override
     public RatsNest accept(RatsNest rats) {
         RatsNest rval = new RatsNest();
-        return rval;
-    }
-
-    private RatsNest accept(RatsNest rval, Rat rat) {
         for (Acceptor acc : m_alts) {
+            rval.addAll(acc.accept(rats));
         }
+        //TODO: remove duplicates
+        //TODO: do we need to explicitly destroy() the incoming rats?
         return rval;
     }
 }
