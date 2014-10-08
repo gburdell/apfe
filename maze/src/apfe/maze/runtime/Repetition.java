@@ -64,8 +64,8 @@ public class Repetition extends Acceptor {
      * each repetition which passes (so long as state changes). If ele+, then
      * return true if at least 1 accepted; then launch new rats...
      *
-     * @param rats rat will be updated with the longest sequence which was
-     * accepted. New rats will be launched
+     * @param rats 
+     * @return all possible paths
      */
     @Override
     public RatsNest accept(RatsNest rats) {
@@ -73,19 +73,10 @@ public class Repetition extends Acceptor {
         //only implemented this one so far.
         //TODO: add some interface for algo so we cn plug-n-play.
         assert (EAlgo.eExhaustive == m_algorithm);
-        boolean ok;
-        State prevState = null;
-        int acceptedCnt = 0;
-        RatsNest newRats = new RatsNest();
-        while (ok = m_opt.accept(visitor)) {
-            if ((null != prevState) && prevState.equals(visitor.getState())) {
-                break;  //state has not advanced
-            }
-            acceptedCnt++;
-            prevState = visitor.getState();
-
-            newRats.add(new Rat(visitor, m_opt));
+        for (Rat rat : rats) {
+            rval = accept(rval, rat);
         }
+        //TODO: handle correct return for ele+ and ele*
         return rval;
     }
 
@@ -93,25 +84,26 @@ public class Repetition extends Acceptor {
      * Process one rat at a time.
      *
      * @param rvals cumulative return vals.
-     * @param rat the one rat to process.
+     * @param rat1 the one rat to process.
      * @return inputs rvals with possibly more rats.
      */
-    private RatsNest accept(RatsNest rvals, Rat rat) {
+    private RatsNest accept(RatsNest rvals, Rat rat1) {
         if (!m_isOneOrMore) {
-            rvals.add(rat.clone()); //passthru
+            rvals.add(rat1.clone()); //passthru
         }
         int acceptedCnt = 0;
-        while (true) {
-            RatsNest iter = filter(rat.getState(), m_opt.accept(rat));
-            if (iter.isEmpty()) {
-                break;
+        RatsNest ins, outs = new RatsNest(rat1);
+        while (! outs.isEmpty()) {
+            ins = outs.clone();
+            outs = new RatsNest();
+            for (Rat rat : ins) {
+                RatsNest iter = filter(rat.getState(), m_opt.accept(rat));
+                if (!iter.isEmpty()) {
+                    acceptedCnt++;
+                    outs.addAll(iter);
+                    rvals.addAll(iter.clone());
+                }
             }
-            acceptedCnt++;
-            rvals.addAll(iter);
-            //TODO: process iter.
-            //Not recursive: since cnt will not be updated.
-            //dont add cnt to object state, since we will be static instance
-            //use iter = iter.clone() and process inside while(true)...
         }
         return rvals;
     }

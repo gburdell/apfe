@@ -39,6 +39,13 @@ public class RatsNest extends LinkedList<Rat> {
     }
     public RatsNest() {
     }
+    /**
+     * Create new nest with one rat: not cloned.
+     * @param rat add this rat.
+     */
+    public RatsNest(Rat rat) {
+        add(rat);
+    }
     @Override
     public RatsNest clone() {
         return new RatsNest(this);
