@@ -39,11 +39,11 @@ public abstract class NonTerminal extends Acceptor {
      @Override
     public RatsNest accept(RatsNest rats) {
         //dup, since were gonna unconditionally modify
-        RatsNest dups = rats.clone();
-        for (Rat rat : dups) {
+        RatsNest outs = rats.clone();
+        for (Rat rat : outs) {
             rat.addAccepted(new Ele(Ele.EType.eEnter));
         }
-        RatsNest outs = m_start.accept(rats);
+        outs = m_start.accept(outs);
         for (Rat rat : outs) {
             rat.addAccepted(new Ele(Ele.EType.eExit));
         }

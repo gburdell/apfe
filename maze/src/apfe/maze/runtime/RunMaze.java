@@ -33,31 +33,27 @@ import java.util.Queue;
 public class RunMaze {
     private static RunMaze stTheOne;
     
-    public static void start(Scanner scanner, Acceptor start) {
+    public static int run(Scanner scanner, Acceptor start) {
         assert Util.isNull(getTheOne());
         stTheOne = new RunMaze(scanner, start);
+        return getTheOne().run();
     }
     
     public static RunMaze getTheOne() {
         return stTheOne;
     }
     
-    public static void addNewRat(Rat clone, Acceptor start) {
-        getTheOne().getRunningQ().add(new Rat(clone, start));
-    }
-    
     private RunMaze(Scanner scanner, Acceptor start) {
-        Rat rat0 = new Rat(scanner, start);
-        m_running.add(rat0);
+        m_rat0 = new Rat(scanner);
+        m_start = start;
     }
     
-    public final Queue getRunningQ() {
-        return m_running;
-    }
-
-    public final Queue getFinishQ() {
-        return m_finished;
+    private int run() {
+        m_done = m_start.accept(m_rat0);
+        return m_done.size();
     }
     
-    private final RatsNest m_running = new RatsNest(), m_finished = new RatsNest();
+    private final Acceptor  m_start;
+    private final Rat       m_rat0;
+    private RatsNest        m_done;
 }

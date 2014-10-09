@@ -31,8 +31,7 @@ import static org.junit.Assert.*;
  *
  * @author gburdell
  */
-public class SequenceTest {
-
+public class NonTerminalTest {
     public static class A_Term extends Terminal {
 
         @Override
@@ -41,6 +40,7 @@ public class SequenceTest {
         }
 
         public static final int stCode = 1;
+        public static final A_Term stTheOne = new A_Term();
     }
 
     public static class B_Term extends Terminal {
@@ -51,6 +51,7 @@ public class SequenceTest {
         }
 
         public static final int stCode = 2;
+        public static final B_Term stTheOne = new B_Term();
     }
 
     public static class C_Term extends Terminal {
@@ -61,16 +62,32 @@ public class SequenceTest {
         }
 
         public static final int stCode = 3;
+        public static final C_Term stTheOne = new C_Term();
+    }
+
+    public static class Grammar extends NonTerminal {
+
+        private Grammar(Acceptor nonTerm) {
+            super(nonTerm);
+        }
+        public static final Grammar stTheOne;
+
+        static {
+            stTheOne = new Grammar(
+                    new Sequence(A_Term.stTheOne, B_Term.stTheOne, C_Term.stTheOne)
+            );
+        }
     }
 
     public static class ScannerTest extends Scanner {
 
         public ScannerTest() {
             add(Token.create("A", A_Term.stCode));
-            add(Token.create("B", A_Term.stCode));            
+            add(Token.create("B", A_Term.stCode));
             add(Token.create("C", A_Term.stCode));
-            add(Token.create("<EOF>", Token.EOF));
+            //add(Token.create("<EOF>", Token.EOF));
         }
+
         @Override
         public boolean isEOF() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -80,37 +97,18 @@ public class SequenceTest {
         public Token nextToken() {
             throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
-        
+
     }
 
     /**
-     * Test of createMazeElement method, of class Sequence.
+     * Test of accept method, of class NonTerminal.
      */
     @Test
-    public void testCreateMazeElement() {
-        System.out.println("createMazeElement");
-        Vertex start = null;
-        Sequence instance = null;
-        MazeElement expResult = null;
-        MazeElement result = instance.createMazeElement(start);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of canPassThrough method, of class Sequence.
-     */
-    @Test
-    public void testCanPassThrough() {
-        System.out.println("canPassThrough");
-        Rat visitor = null;
-        Sequence instance = null;
-        boolean expResult = false;
-        boolean result = instance.canPassThrough(visitor);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testAccept() {
+        System.out.println("accept");
+        Scanner scanner = new ScannerTest();
+        int n = RunMaze.run(scanner, Grammar.stTheOne);
+        assertTrue(0 < n);
     }
 
 }

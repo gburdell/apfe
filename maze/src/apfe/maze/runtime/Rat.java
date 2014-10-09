@@ -30,11 +30,10 @@ package apfe.maze.runtime;
  * @author gburdell
  */
 public class Rat {
-    public Rat(Scanner scanner, Acceptor start) {
+    public Rat(Scanner scanner) {
         m_state = new State(scanner, 0);
         m_path = new Path();
-        m_start = start;
-    }
+     }
     
     /**
      * Peek at next available token.
@@ -56,26 +55,20 @@ public class Rat {
         return getState().advance();
     }
 
-    public Rat(Rat r) {
-        this(r, null);
-    }
-        
     @Override
     public Rat clone() {
         return new Rat(this);
     }
     
-    public Rat(Rat r, Acceptor start) {
+    public Rat(Rat r) {
         m_state = r.m_state.clone();
         m_path = r.m_path.clone();
-        m_start = start;
-    }
+     }
     
     public void destroy() {
         m_state = null;
         m_path.clear();
         m_path = null;
-        m_start = null;
     }
     
     public Rat addAccepted(Path.Ele acc) {
@@ -85,5 +78,4 @@ public class Rat {
     
     private State       m_state;
     private Path        m_path;
-    private Acceptor    m_start;
 }
