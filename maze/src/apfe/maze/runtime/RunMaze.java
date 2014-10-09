@@ -31,28 +31,24 @@ import java.util.Queue;
  * @author gburdell
  */
 public class RunMaze {
-    private static RunMaze stTheOne;
-    
-    public static int run(Scanner scanner, Acceptor start) {
-        assert Util.isNull(getTheOne());
-        stTheOne = new RunMaze(scanner, start);
-        return getTheOne().run();
-    }
-    
-    public static RunMaze getTheOne() {
-        return stTheOne;
-    }
-    
     private RunMaze(Scanner scanner, Acceptor start) {
         m_rat0 = new Rat(scanner);
         m_start = start;
     }
     
-    private int run() {
+    private void run() {
         m_done = m_start.accept(m_rat0);
-        return m_done.size();
     }
     
+    public static RunMaze runMaze(Scanner scanner, Acceptor start) {
+        RunMaze maze = new RunMaze(scanner, start);
+        maze.run();
+        return maze;
+    }
+    
+    public RatsNest getDone() {
+        return m_done;
+    }
     private final Acceptor  m_start;
     private final Rat       m_rat0;
     private RatsNest        m_done;

@@ -23,7 +23,6 @@
  */
 package apfe.maze.runtime;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -32,6 +31,7 @@ import static org.junit.Assert.*;
  * @author gburdell
  */
 public class NonTerminalTest {
+
     public static class A_Term extends Terminal {
 
         @Override
@@ -79,12 +79,27 @@ public class NonTerminalTest {
         }
     }
 
+    public static class Grammar2 extends NonTerminal {
+
+        private Grammar2(Acceptor nonTerm) {
+            super(nonTerm);
+        }
+        public static final Grammar2 stTheOne;
+
+        static {
+            stTheOne = new Grammar2(
+                    new Sequence(A_Term.stTheOne,
+                            new Optional(B_Term.stTheOne), C_Term.stTheOne)
+            );
+        }
+    }
+
     public static class ScannerTest extends Scanner {
 
         public ScannerTest() {
             add(Token.create("A", A_Term.stCode));
-            add(Token.create("B", A_Term.stCode));
-            add(Token.create("C", A_Term.stCode));
+            add(Token.create("B", B_Term.stCode));
+            add(Token.create("C", C_Term.stCode));
             //add(Token.create("<EOF>", Token.EOF));
         }
 
@@ -107,8 +122,14 @@ public class NonTerminalTest {
     public void testAccept() {
         System.out.println("accept");
         Scanner scanner = new ScannerTest();
-        int n = RunMaze.run(scanner, Grammar.stTheOne);
-        assertTrue(0 < n);
+        {
+            int n = RunMaze.runMaze(scanner, Grammar.stTheOne).getDone().size();
+            assertTrue(0 < n);
+        }
+        {
+            int n = RunMaze.runMaze(scanner, Grammar2.stTheOne).getDone().size();
+            assertTrue(0 < n);
+        }
     }
 
 }
