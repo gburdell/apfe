@@ -65,6 +65,17 @@ public class NonTerminalTest {
         public static final C_Term stTheOne = new C_Term();
     }
 
+    public static class D_Term extends Terminal {
+
+        @Override
+        protected int getTokCode() {
+            return stCode;
+        }
+
+        public static final int stCode = 4;
+        public static final D_Term stTheOne = new D_Term();
+    }
+
     public static class Grammar extends NonTerminal {
 
         private Grammar(Acceptor nonTerm) {
@@ -88,6 +99,87 @@ public class NonTerminalTest {
 
         static {
             stTheOne = new Grammar2(
+                    new Sequence(A_Term.stTheOne,
+                            new Optional(B_Term.stTheOne), C_Term.stTheOne)
+            );
+        }
+    }
+
+    /*
+     source_text : 
+     a b c d
+     EOF
+     ;
+     d: e*
+
+     */
+    public static class Grammar3 extends NonTerminal {
+
+        private static class a extends NonTerminal {
+
+            //a: A_K? A_K A_K ;
+            public a() {
+                super(new Sequence(new Optional(A_Term.stTheOne),
+                        A_Term.stTheOne, A_Term.stTheOne));
+            }
+
+        }
+
+        private static class b extends NonTerminal {
+
+            //     b: B_K? ;
+            public b() {
+                super(new Optional(B_Term.stTheOne));
+            }
+
+        }
+
+        private static class c extends NonTerminal {
+
+            //c: C_K?;  <<<do this first
+            //c: C_K*;
+            public c() {
+                super(new Optional(C_Term.stTheOne));
+            }
+
+        }
+
+        private static class d extends NonTerminal {
+
+            //d: e*;
+            public d() {
+                super(new Repetition(new e()));
+            }
+
+        }
+
+        private static class e extends NonTerminal {
+
+            //     e: A_K+ | B_K* | C_K? | D_K+ ;
+            public e() {
+                super(stAlts);
+            }
+
+            private static final Acceptor a1, a2, a3, a4;
+            private static final Alternates stAlts;
+
+            static {
+                a1 = new Repetition(A_Term.stTheOne, true);
+                a2 = new Repetition(B_Term.stTheOne);
+                a3 = new Optional(C_Term.stTheOne);
+                a4 = new Repetition(D_Term.stTheOne, true);
+                stAlts = new Alternates(a1, a2, a3, a4);
+            }
+
+        }
+
+        private Grammar3(Acceptor nonTerm) {
+            super(nonTerm);
+        }
+        public static final Grammar3 stTheOne;
+
+        static {
+            stTheOne = new Grammar3(
                     new Sequence(A_Term.stTheOne,
                             new Optional(B_Term.stTheOne), C_Term.stTheOne)
             );

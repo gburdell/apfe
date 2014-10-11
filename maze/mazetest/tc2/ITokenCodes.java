@@ -21,54 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime;
+package apfe.maze.tc2;
 
 /**
- * Base class for a NonTerminal.
  *
  * @author gburdell
  */
-public abstract class NonTerminal extends Acceptor {
-
-    protected NonTerminal(Acceptor start) {
-        m_start = start;
-    }
-
-    private final Acceptor m_start;
-
-     @Override
-    public RatsNest accept(RatsNest rats) {
-        //dup, since were gonna unconditionally modify
-        RatsNest outs = rats.clone();
-        for (Rat rat : outs) {
-            rat.addAccepted(new Ele(Ele.EType.eEnter));
-        }
-        outs = m_start.accept(outs);
-        for (Rat rat : outs) {
-            rat.addAccepted(new Ele(Ele.EType.eExit));
-        }
-        return outs;
-    }
-
-    
-    public static class Ele implements Path.Ele {
-
-        public static enum EType {
-
-            eEnter, eExit
-        };
-
-        public Ele(EType type) {
-            m_type = type;
-        }
-
-        @Override
-        public String toString() {
-            return this.getClass().getSimpleName() + "-" + m_type.toString();
-        }
-        
-        
-        public final EType m_type;
-    }
-
+public interface ITokenCodes {
+	public static final int A_K = 1 ;
+	public static final int B_K = 2 ;
+	public static final int C_K = 3 ;
+	public static final int D_K = 4 ;
 }

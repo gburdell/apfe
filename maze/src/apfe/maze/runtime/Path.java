@@ -53,5 +53,7 @@ public class Path extends LinkedList<Path.Ele> {
      * Acceptors add Ele to the Path.
      */
     public static interface Ele {
+        @Override
+        public String toString();
     }
 }

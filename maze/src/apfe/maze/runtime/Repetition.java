@@ -39,9 +39,13 @@ public class Repetition extends Acceptor {
      * @param opt repeated element.
      */
     public Repetition(Acceptor opt) {
-        this(opt, false, EAlgo.eExhaustive);
+        this(opt, false);
     }
 
+    public Repetition(Acceptor opt, boolean oneOrMore) {
+        this(opt, oneOrMore, EAlgo.eExhaustive);
+    }
+    
     /**
      * 0/1 or more elements.
      *

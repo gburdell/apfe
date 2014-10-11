@@ -1,3 +1,141 @@
+package apfe.maze.sv2009;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.runtime.Token;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+
+%%
+
+%public
+%class SvScanner
+%extends    Scanner
+%implements ITokenCodes
+%unicode
+%line
+%column
+%function xnextToken
+%type Token
+
+%{
+  private final StringBuilder string = new StringBuilder();
+
+  private static String stFileName = "?";
+
+  public static void setFileName(String fn) {
+  	stFileName = fn;
+  }
+
+  public static String getFileName() {
+  	return stFileName;
+  }
+
+  private Token create(int id, String text) {
+  	  	return new Token(stFileName, yyline+1, yycolumn+1, text, id);
+  }
+
+  private Token create(int id) {
+  	  	return create(id, yytext());
+  }
+
+  private void ticLine() {
+  	String ss = yytext();
+  }
+
+  public SvScanner(String fn) throws FileNotFoundException {
+	this(new FileReader(fn));
+    setFileName(fn);
+  }
+
+  //TODO: derive from RuntimeException to pass back to parser
+  private void error(String msg) {
+      StringBuilder sb = new StringBuilder("Error: ");
+      sb.append(getFileName()).append(':').append(yyline+1).append(':')
+              .append(yycolumn+1).append(": ").append(msg)
+              .append(": ").append(yytext());
+      throw new RuntimeException(sb.toString());
+  }
+
+    @Override
+    public Token nextToken() {
+        try {
+            return xnextToken();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+  
+  public boolean isEOF() {
+  	return zzAtEOF;
+	}
+%}
+
+/* main character classes */
+LineTerminator = \r|\n|\r\n
+InputCharacter = [^\r\n]
+
+Space = [ \t\f]
+WhiteSpace = {LineTerminator} | {Space}
+
+/* comments */
+Comment = ("/*" ~"*/") | {EndOfLineComment}
+EndOfLineComment = "//" {InputCharacter}* {LineTerminator}?
+
+/* identifiers */
+IDENT = [a-zA-Z_][a-zA-Z_0-9$]*
+ESC_IDENT = \\ ~{WhiteSpace}
+SYSTEM_IDENT = "$" {IDENT}
+
+/*No whitespace between number and unit*/
+TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {TimeUnit}
+TimeUnit = [munpf]? "s"
+
+TicLine = "`line" {Space}+ [0-9]+ {Space}+ \" [^\"]+ \" {Space}+ [0-2]
+TimeScale = "`timescale" {Space}+ {TIME_LITERAL} {Space}* "/" {Space}* {TIME_LITERAL}
+
+OctDigit = [0-7]
+HexDigit = [0-9a-fA-F]
+NonZeroUnsignedNumber = [1-9][_0-9]*
+UnsignedNumber        = [0-9][_0-9]*
+RealNumber = {UnsignedNumber} '.' {UnsignedNumber} ([eE] [+-]? {UnsignedNumber})?
+FixedPointNumber = {UnsignedNumber} '.' {UnsignedNumber}
+BinaryValue = [01xXzZ?][01xXzZ?_]* 
+OctalValue = [0-7xXzZ?][0-7xXzZ?_]*
+HexValue = [0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]*
+DecimalBase = \' [sS]? [dD] {Space}*
+BinaryBase = \' [sS]? [bB] {Space}*
+OctalBase = \' [sS]? [oO] {Space}*
+HexBase = \' [sS]? [hH] {Space}*
+UNBASED_UNSIZED_LITERAL = \' {Space}* [01xXzZ?]
+Size = {NonZeroUnsignedNumber} {Space}*
+
+//A.8.7 Numbers
+UNSIGNED_NUMBER = {UnsignedNumber}
+NUMBER = {IntegralNumber} | {RealNumber}
+
+IntegralNumber = {Size}? ({OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber})
+
+DecimalNumber = {DecimalBase}? ({UnsignedNumber} | ([xXzZ?] '_'*))
+
+BinaryNumber = {BinaryBase} {BinaryValue}
+
+OctalNumber = {OctalBase} {OctalValue}
+
+HexNumber = {HexBase} {HexValue}
+
+/* string and character literals */
+StringCharacter = [^\r\n\"\\]
+
+%state STRING
+
+%%
+
+<YYINITIAL> {
+    {WhiteSpace}+ |
+	{Comment}     |
+    {TimeScale}   { /* ignore */ }
+
+	//{insert 'create'
 	"accept_on" {return create(ACCEPT_ON_K);}
 	"alias" {return create(ALIAS_K);}
 	"always_comb" {return create(ALWAYS_COMB_K);}
@@ -353,3 +491,36 @@
 	{TIME_LITERAL} {return create(TIME_LITERAL);}
 	{SYSTEM_IDENT} {return create(SYSTEM_IDENT);}
 	"'" {return create(SQUOTE);}
+	//create}
+
+  	{TicLine}	{ ticLine(); }
+
+  /* string literal */
+  \"                             { yybegin(STRING); string.setLength(0); }
+}
+
+<STRING> {
+  \"                             { yybegin(YYINITIAL); return create(STRING_LITERAL, string.toString()); }
+  
+  {StringCharacter}+             { string.append( yytext() ); }
+  
+  /* escape sequences */
+  "\\b"                          { string.append( '\b' ); }
+  "\\t"                          { string.append( '\t' ); }
+  "\\n"                          { string.append( '\n' ); }
+  "\\f"                          { string.append( '\f' ); }
+  "\\r"                          { string.append( '\r' ); }
+  "\\\""                         { string.append( '\"' ); }
+  "\\'"                          { string.append( '\'' ); }
+  "\\\\"                         { string.append( '\\' ); }
+  \\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8); string.append( val ); }
+  \\h{HexDigit}?{HexDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),16); string.append( val ); }
+  
+  /* error cases */
+  \\.                            { error("Illegal escape sequence"); }
+  {LineTerminator}               { error("Unterminated string at end of line"); }
+}
+
+/* error fallback */
+[^]                              { error("Illegal character"); }
+<<EOF>>                          { return create(Token.EOF);  }

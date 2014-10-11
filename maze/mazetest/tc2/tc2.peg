@@ -1,0 +1,22 @@
+//Maze grammar
+
+Grammar : source_text
+;
+
+source_text : 
+	a b c d
+	EOF
+;
+
+a: A_K? A_K A_K ;
+b: B_K? ;
+//c: C_K?;
+c: C_K*;
+d: e*
+e: A_K+ | B_K* | C_K? | D_K+ ;
+
+
+A_K.
+B_K.
+C_K.
+D_K.

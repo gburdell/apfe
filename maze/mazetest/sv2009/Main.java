@@ -21,54 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.runtime;
+package apfe.maze.sv2009;
+
+import apfe.maze.runtime.graph.Graph;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.sv2009.generated.Grammar;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Base class for a NonTerminal.
  *
  * @author gburdell
  */
-public abstract class NonTerminal extends Acceptor {
+public class Main {
 
-    protected NonTerminal(Acceptor start) {
-        m_start = start;
+    public static void main(String argv[]) {
+        Scanner lex;
+        Graph graph;
+        Grammar gram;
+        String gs;
+        for (String fn : argv) {
+            try {
+                lex = new SvScanner(fn);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                continue;
+            }
+            lex.slurp();
+            graph = new Graph(lex);
+            gram = new Grammar();
+            graph = gram.accept(graph.getRoot());
+        }
     }
-
-    private final Acceptor m_start;
-
-     @Override
-    public RatsNest accept(RatsNest rats) {
-        //dup, since were gonna unconditionally modify
-        RatsNest outs = rats.clone();
-        for (Rat rat : outs) {
-            rat.addAccepted(new Ele(Ele.EType.eEnter));
-        }
-        outs = m_start.accept(outs);
-        for (Rat rat : outs) {
-            rat.addAccepted(new Ele(Ele.EType.eExit));
-        }
-        return outs;
-    }
-
-    
-    public static class Ele implements Path.Ele {
-
-        public static enum EType {
-
-            eEnter, eExit
-        };
-
-        public Ele(EType type) {
-            m_type = type;
-        }
-
-        @Override
-        public String toString() {
-            return this.getClass().getSimpleName() + "-" + m_type.toString();
-        }
-        
-        
-        public final EType m_type;
-    }
-
 }

@@ -1,0 +1,68 @@
+@9@
+package @1@ ;
+
+@6.1@
+import java.util.List;
+import java.util.LinkedList;
+@6.1@
+import apfe.maze.runtime.*;
+import apfe.maze.runtime.graph.*;
+import apfe.maze.tc1.*;
+@9@
+
+@10@
+public @11@ class @2@ extends @3@ implements NonTerminal, ITokenCodes {
+
+    public @2@() {
+    }
+
+    @Override
+    protected boolean acceptImpl() {
+		Acceptor matcher = @8@ ;
+        Graph subg = matcher.accept(getSubgraphRoot());
+        boolean match = (null != subg);
+        if (match) {
+            setSubGraph(subg);
+        }
+@6.2@
+        if (match && (null != getListeners())) {
+            for (Listener cb : getListeners()) {
+                cb.onAccept(accepted);
+            }
+        }
+@6.2@
+        return match;
+    }
+ 
+    @Override
+    public @2@ create() {
+        return new @2@();
+    }
+
+    @Override
+    public int getEdgeTypeId() {
+        return stEdgeTypeId;
+    }
+
+    private static final int stEdgeTypeId = getNextEdgeTypeId();
+
+@6.3@
+	//Begin Listener
+	@Override
+	public void addListener(final Listener listener) {
+		if (null == stListeners) {
+			stListeners = new LinkedList<>();
+		}
+		stListeners.add(listener);
+	}
+
+	@Override
+    protected Iterable<Listener> getListeners() {
+		return stListeners;
+	}
+
+	private static List<Listener> stListeners;
+	//End Listener
+@6.3@
+}
+@10@

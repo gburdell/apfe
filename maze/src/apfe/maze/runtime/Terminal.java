@@ -60,6 +60,12 @@ public abstract class Terminal extends Acceptor {
         public Ele(Token tok) {
             m_accepted = tok;
         }
+
+        @Override
+        public String toString() {
+            return m_accepted.getText();
+        }
+        
         private final Token m_accepted;
     }
 }
