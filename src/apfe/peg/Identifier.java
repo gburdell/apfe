@@ -30,6 +30,7 @@ import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
+import java.util.regex.Pattern;
 
 public class Identifier extends Acceptor implements GenJava.IGen {
 
@@ -40,7 +41,11 @@ public class Identifier extends Acceptor implements GenJava.IGen {
     public GenJava genJava(GenJava j) {
         String s;
         if (Main.stGenMaze) {
-            s = getId() + ".OaO"; 
+            if (Pattern.matches("[A-Z][A-Z0-9_]*", getId())) {
+                s = getId() + "_tok.OaO";
+            } else {
+                s = getId() + ".OaO";
+            }
         } else {
             s = "new " + GenJava.getClsNm(getId()) + "()";
         }
@@ -65,11 +70,11 @@ public class Identifier extends Acceptor implements GenJava.IGen {
     public String toString() {
         return m_literal;
     }
-    
+
     public String getId() {
         return m_literal;
     }
-    
+
     private String m_literal;
 
     @Override

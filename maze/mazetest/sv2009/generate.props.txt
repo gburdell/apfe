@@ -13,10 +13,10 @@ outputDir: ./generated
 packageName: apfe.maze.sv2009.generated
 
 # Base class for non-left-recursive
-baseCls: Acceptor
+baseCls: nil
 
 # Base class for left-recursive
-lrBaseCls: LeftRecursiveAcceptor
+lrBaseCls: nil
 
 # Template for non-left-recursive class
 baseJavaTemplate: base.java.tmpl
@@ -29,8 +29,7 @@ dlrBaseJavaTemplate: dlrbase.java.tmpl
 genListeners: false
 
 # Generate memoize
-genMemoize: true
-#genMemoize: false
+genMemoize: false
 
 # Generated class names use CamelCase
 #genClsAsCamelCase: true

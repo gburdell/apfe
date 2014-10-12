@@ -20,13 +20,12 @@ import apfe.maze.runtime;
 
 public class @CLASS@ extends NonTerminal implements ITokenCodes {
 
-	private @CLASS@(Acceptor nonTerm) {
-		super(nonTerm);
-	}
-	public static final @CLASS@ OaO;	//One and Only
-	static {
-		//OaO = new @CLASS@( new Sequence(A_Term.OaO, B_Term.OaO, C_Term.OaO));
-		OaO = new @CLASS@( @EXPR@ );
-	}
+    private @CLASS@(Acceptor nonTerm) {
+        super(nonTerm);
+    }
+    public static final @CLASS@ OaO;    //One and Only
+    static {
+        OaO = new @CLASS@( @EXPR@ );
+    }
 }
 @NONTERMINAL@

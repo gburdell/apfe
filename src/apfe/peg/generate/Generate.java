@@ -205,7 +205,8 @@ public class Generate {
                     defn.isToken() ? "@TERMINAL@" : "@NONTERMINAL@");
             if (defn.isToken()) {
                 //Terminal
-                String tokCode = nm.toUpperCase() + "_K";
+                String tokCode = nm;
+                clsNm = clsNm + "_tok";
                 contents = GenJava.replaceSpecd(contents,
                         "@PACKAGE@", m_pkgNm,
                         "@CLASS@", clsNm,
