@@ -24,9 +24,8 @@
 package apfe.maze.runtime;
 
 /**
- * Base class for a Terminal.
- * There is no state associated with this object so static view of maze can
- * be built.
+ * Base class for a Terminal. There is no state associated with this object so
+ * static view of maze can be built.
  *
  * @author gburdell
  */
@@ -53,10 +52,20 @@ public abstract class Terminal extends Acceptor {
         }
         return rvals;
     }
-    
-    
+
+    public static final class EOF extends Terminal {
+
+        @Override
+        protected int getTokCode() {
+            return Token.EOF;
+        }
+        
+        public static final Terminal stTheOne = new EOF();
+
+    }
 
     public static class Ele implements Path.Ele {
+
         public Ele(Token tok) {
             m_accepted = tok;
         }
@@ -65,7 +74,7 @@ public abstract class Terminal extends Acceptor {
         public String toString() {
             return m_accepted.getText();
         }
-        
+
         private final Token m_accepted;
     }
 }

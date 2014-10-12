@@ -136,10 +136,9 @@ public class NonTerminalTest {
 
         private static class c extends NonTerminal {
 
-            //c: C_K?;  <<<do this first
             //c: C_K*;
             public c() {
-                super(new Optional(C_Term.stTheOne));
+                super(new Repetition(C_Term.stTheOne));
             }
 
         }
@@ -180,10 +179,42 @@ public class NonTerminalTest {
 
         static {
             stTheOne = new Grammar3(
-                    new Sequence(A_Term.stTheOne,
-                            new Optional(B_Term.stTheOne), C_Term.stTheOne)
+                    new Sequence(new a(), new b(), new c(), new d(),
+                            Terminal.EOF.stTheOne)
             );
         }
+    }
+
+    public static class ScannerTest2 extends Scanner {
+
+        public ScannerTest2() {
+            //AAACCAABBDDAA
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("C", C_Term.stCode));
+            add(Token.create("C", C_Term.stCode));
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("B", B_Term.stCode));
+            add(Token.create("B", B_Term.stCode));
+            add(Token.create("D", D_Term.stCode));
+            add(Token.create("D", D_Term.stCode));
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("A", A_Term.stCode));
+            add(Token.create("<EOF>", Token.EOF));
+        }
+
+        @Override
+        public boolean isEOF() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public Token nextToken() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
     }
 
     public static class ScannerTest extends Scanner {
@@ -213,14 +244,20 @@ public class NonTerminalTest {
     @Test
     public void testAccept() {
         System.out.println("accept");
-        Scanner scanner = new ScannerTest();
         {
+            Scanner scanner = new ScannerTest();
             int n = RunMaze.runMaze(scanner, Grammar.stTheOne).getDone().size();
             assertTrue(0 < n);
         }
         {
+            Scanner scanner = new ScannerTest();
             int n = RunMaze.runMaze(scanner, Grammar2.stTheOne).getDone().size();
             assertTrue(0 < n);
+        }
+        {
+            Scanner scanner = new ScannerTest2();
+            RatsNest paths = RunMaze.runMaze(scanner, Grammar3.stTheOne).getDone();
+            assertFalse(paths.isEmpty());
         }
     }
 

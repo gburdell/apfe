@@ -21,36 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package apfe.maze.runtime;
 
 /**
  * The rat wanders through the maze carrying Scanner state and current Path.
- * 
+ *
  * @author gburdell
  */
 public class Rat {
+
     public Rat(Scanner scanner) {
         m_state = new State(scanner, 0);
         m_path = new Path();
-     }
-    
+    }
+
     /**
      * Peek at next available token.
+     *
      * @return token next available token.
      */
     public Token peek() {
         return getState().peek();
     }
-    
+
     public int peekCode() {
         return peek().getCode();
     }
-    
+
     public State getState() {
         return m_state;
     }
-    
+
     public Token advance() {
         return getState().advance();
     }
@@ -59,23 +60,28 @@ public class Rat {
     public Rat clone() {
         return new Rat(this);
     }
-    
+
     public Rat(Rat r) {
         m_state = r.m_state.clone();
         m_path = r.m_path.clone();
-     }
-    
+    }
+
     public void destroy() {
         m_state = null;
         m_path.clear();
         m_path = null;
     }
-    
+
     public Rat addAccepted(Path.Ele acc) {
         m_path.add(acc);
         return this;
     }
-    
-    private State       m_state;
-    private Path        m_path;
+
+    @Override
+    public String toString() {
+        return m_state.toString() + ": " + m_path.toString();
+    }
+
+    private State m_state;
+    private Path m_path;
 }

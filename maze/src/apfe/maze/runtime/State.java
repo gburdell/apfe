@@ -67,7 +67,7 @@ public class State {
      */
     public Token advance() {
         Token curr = peek();
-        if (getPos() < m_lex.size()) {
+        if (getPos() < m_lex.size()-1) {
             m_pos++;
         }
         return curr;

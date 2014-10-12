@@ -50,4 +50,13 @@ public class RatsNest extends LinkedList<Rat> {
     public RatsNest clone() {
         return new RatsNest(this);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Rat rat : this) {
+            sb.append(rat.toString()).append(Util.NL);
+        }
+        return sb.toString();
+    }    
 }

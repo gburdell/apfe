@@ -32,4 +32,6 @@ public class Util {
     public static boolean isNull(Object ele) {
         return (null == ele);
     }
+    
+    public static final String NL = System.lineSeparator();
 }
