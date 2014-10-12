@@ -30,7 +30,6 @@ import apfe.runtime.CharBuffer.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
-import java.util.regex.Pattern;
 
 public class Identifier extends Acceptor implements GenJava.IGen {
 
@@ -40,9 +39,8 @@ public class Identifier extends Acceptor implements GenJava.IGen {
     @Override
     public GenJava genJava(GenJava j) {
         String s;
-        //If were in maze and all [A-Z][A-Z0-9_]* then we're a Terminal
-        if (Main.stGenMaze && Main.isToken(getId())) {
-            s = "new Terminal(" + getId() + ")"; 
+        if (Main.stGenMaze) {
+            s = getId() + ".OaO"; 
         } else {
             s = "new " + GenJava.getClsNm(getId()) + "()";
         }

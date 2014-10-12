@@ -76,8 +76,13 @@ public class Template {
         return tmpl.substring(begIx, endIx);
     }
 
+    public static String substring(final String tmpl, final String beg) {
+        return substring(tmpl, beg, beg);
+    }
+
     /**
      * Delete substrings delimited by marks.
+     *
      * @param ss string containing marks.
      * @param marks begin/end marks.
      * @return remainder of ss after marked substrings are removed.
@@ -94,9 +99,10 @@ public class Template {
         }
         return rval.toString();
     }
-    
+
     /**
      * Either remove substring between marks or null out marks.
+     *
      * @param keep if true: null marks; else remove substring between marks.
      * @param tmpl template/string to modify.
      * @param marks unique marks which appear in pairs in tmpl.

@@ -77,7 +77,11 @@ public class Generate {
         m_baseTmpl = prepTmpl(m_baseTmpl);
         m_dlrBaseTmpl = prepTmpl(m_dlrBaseTmpl);
         if (m_topLevelCls.isEmpty()) {
-            generateSeparate();
+            if (Main.stGenMaze) {
+                generateSeparateMaze();
+            } else {
+                generateSeparate();
+            }
         } else {
             Util.assertFalse(Main.stGenMaze, "generateOne() not supported for maze yet");
             generateOne();
@@ -181,6 +185,48 @@ public class Generate {
             fos.println("}");
         } catch (Exception ex) {
             errorAndExit("FILE-1", outf.toString());
+        }
+    }
+
+    private void generateSeparateMaze() {
+        String baseNm, clsNm;
+        GenJava matcher;
+        for (Definition defn : m_anz.getDefnByName().values()) {
+            if (null == defn) {
+                continue;
+            }
+            final String nm = defn.getId().getId();
+            if (nm.equals("EOL") || nm.equals("EOF")) {
+                continue;
+            }
+            Util.assertFalse(defn.isExtCls(), nm + ": definition has external class");
+            clsNm = GenJava.getClsNm(nm);
+            String contents = Template.substring(m_baseTmpl,
+                    defn.isToken() ? "@TERMINAL@" : "@NONTERMINAL@");
+            if (defn.isToken()) {
+                //Terminal
+                String tokCode = nm.toUpperCase() + "_K";
+                contents = GenJava.replaceSpecd(contents,
+                        "@PACKAGE@", m_pkgNm,
+                        "@CLASS@", clsNm,
+                        "@TOKCODE@", tokCode
+                );
+            } else {
+                //NonTerminal
+                matcher = new GenJava();
+                matcher = defn.getExpr().genJava(matcher);
+                contents = GenJava.replaceSpecd(contents,
+                        "@PACKAGE@", m_pkgNm,
+                        "@CLASS@", clsNm,
+                        "@EXPR@", matcher.toString()
+                );
+            }
+            final File outf = new File(m_outputDir, clsNm + ".java");
+            try (PrintStream fos = new PrintStream(new FileOutputStream(outf))) {
+                fos.println(contents);
+            } catch (Exception ex) {
+                errorAndExit("FILE-1", outf.toString());
+            }
         }
     }
 
