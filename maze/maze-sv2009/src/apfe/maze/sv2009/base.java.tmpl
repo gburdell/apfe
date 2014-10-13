@@ -18,9 +18,13 @@ public class @CLASS@ extends Terminal implements ITokenCodes {
 @NONTERMINAL@
 package @PACKAGE@ ;
 import apfe.maze.runtime.*;
-import apfe.maze.sv2009.ITokenCodes;
 
-public class @CLASS@ extends NonTerminal implements ITokenCodes {
+public class @CLASS@ extends NonTerminal {
+	//for debug
+	@Override
+	public RatsNest accept(RatsNest rats) {
+		return super.accept(rats);
+	}
 
     private @CLASS@(Acceptor nonTerm) {
         super(nonTerm);

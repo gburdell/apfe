@@ -60,7 +60,7 @@ public abstract class Terminal extends Acceptor {
             return Token.EOF;
         }
         
-        public static final Terminal stTheOne = new EOF();
+        public static final Terminal OaO = new EOF();
 
     }
 

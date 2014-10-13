@@ -206,7 +206,6 @@ public class Generate {
             if (defn.isToken()) {
                 //Terminal
                 String tokCode = nm;
-                clsNm = clsNm + "_tok";
                 contents = GenJava.replaceSpecd(contents,
                         "@PACKAGE@", m_pkgNm,
                         "@CLASS@", clsNm,
