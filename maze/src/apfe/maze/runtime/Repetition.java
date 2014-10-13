@@ -80,7 +80,6 @@ public class Repetition extends Acceptor {
         for (Rat rat : rats) {
             rval = accept(rval, rat);
         }
-        //TODO: handle correct return for ele+ and ele*
         return rval;
     }
 

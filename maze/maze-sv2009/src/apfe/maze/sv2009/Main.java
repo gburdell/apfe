@@ -23,7 +23,8 @@
  */
 package apfe.maze.sv2009;
 
-import apfe.maze.runtime.graph.Graph;
+import apfe.maze.runtime.RatsNest;
+import apfe.maze.runtime.RunMaze;
 import apfe.maze.runtime.Scanner;
 import apfe.maze.sv2009.generated.Grammar;
 import java.io.FileNotFoundException;
@@ -38,9 +39,7 @@ public class Main {
 
     public static void main(String argv[]) {
         Scanner lex;
-        Graph graph;
-        Grammar gram;
-        String gs;
+        RatsNest outs;
         for (String fn : argv) {
             try {
                 lex = new SvScanner(fn);
@@ -49,9 +48,8 @@ public class Main {
                 continue;
             }
             lex.slurp();
-            graph = new Graph(lex);
-            gram = new Grammar();
-            graph = gram.accept(graph.getRoot());
+            outs = RunMaze.runMaze(lex, Grammar.OaO).getDone();
+            int n = outs.size();
         }
     }
 }

@@ -85,7 +85,9 @@ public class NonTerminalTest {
 
         static {
             stTheOne = new Grammar(
-                    new Sequence(A_Term.stTheOne, B_Term.stTheOne, C_Term.stTheOne)
+                    new Sequence(A_Term.stTheOne, B_Term.stTheOne, C_Term.stTheOne, 
+                    new Alternates(new Repetition(A_Term.stTheOne, true),
+                            new Repetition(B_Term.stTheOne)))
             );
         }
     }
@@ -246,8 +248,8 @@ public class NonTerminalTest {
         System.out.println("accept");
         {
             Scanner scanner = new ScannerTest();
-            int n = RunMaze.runMaze(scanner, Grammar.stTheOne).getDone().size();
-            assertTrue(0 < n);
+            RatsNest paths = RunMaze.runMaze(scanner, Grammar.stTheOne).getDone();
+            assertFalse(paths.isEmpty());
         }
         {
             Scanner scanner = new ScannerTest();

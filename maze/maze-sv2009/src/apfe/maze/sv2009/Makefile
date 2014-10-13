@@ -12,8 +12,10 @@ ${TARGET1}: sv2009.flex
 .PHONY: clean
 clean:
 	-rm -f ${TARGET1}
+	-rm -f generate.log
 	-rm -rf generated
 
 ${TARGET2}: sv2009.peg base.java.tmpl generate.props.txt
+	-rm -f generate.log
 	${GENERATE} sv2009.peg generate.props.txt > generate.log
 	tail generate.log
