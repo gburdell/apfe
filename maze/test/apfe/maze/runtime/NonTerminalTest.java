@@ -182,7 +182,7 @@ public class NonTerminalTest {
         static {
             stTheOne = new Grammar3(
                     new Sequence(new a(), new b(), new c(), new d(),
-                            Terminal.EOF.OaO)
+                            Terminal.EOF.OaO())
             );
         }
     }

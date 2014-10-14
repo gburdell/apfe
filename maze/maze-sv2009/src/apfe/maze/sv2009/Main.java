@@ -48,7 +48,7 @@ public class Main {
                 continue;
             }
             lex.slurp();
-            outs = RunMaze.runMaze(lex, Grammar.OaO).getDone();
+            outs = RunMaze.runMaze(lex, Grammar.OaO()).getDone();
             int n = outs.size();
         }
     }

@@ -40,7 +40,7 @@ public class Identifier extends Acceptor implements GenJava.IGen {
     public GenJava genJava(GenJava j) {
         String s;
         if (Main.stGenMaze) {
-            s = getId() + ".OaO";
+            s = getId() + ".OaO()";
             if (getId().equals("EOF")) {
                 s = "Terminal." + s;
             }

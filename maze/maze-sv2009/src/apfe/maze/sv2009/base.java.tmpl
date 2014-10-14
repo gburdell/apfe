@@ -10,8 +10,13 @@ public class @CLASS@ extends Terminal implements ITokenCodes {
         return stCode;
     }
 
+	public static @CLASS@ OaO() {
+		assert null != stOaO;
+		return stOaO;
+	}
+
     public static final int stCode = @TOKCODE@ ;
-    public static final @CLASS@ OaO = new @CLASS@();
+    private static final @CLASS@ stOaO = new @CLASS@();
 }
 @TERMINAL@
 
@@ -20,18 +25,24 @@ package @PACKAGE@ ;
 import apfe.maze.runtime.*;
 
 public class @CLASS@ extends NonTerminal {
+	public static @CLASS@ OaO() {
+		if (null == stOaO) {
+			stOaO = new @CLASS@ ();
+			assert null != stOaO;
+		}
+		return stOaO;
+	}
+
 	//for debug
 	@Override
 	public RatsNest accept(RatsNest rats) {
 		return super.accept(rats);
 	}
 
-    private @CLASS@(Acceptor nonTerm) {
-        super(nonTerm);
+    private @CLASS@() {
+        super( @EXPR@ );
     }
-    public static final @CLASS@ OaO;    //One and Only
-    static {
-        OaO = new @CLASS@( @EXPR@ );
-    }
+
+    private static @CLASS@ stOaO;    //One and Only
 }
 @NONTERMINAL@
