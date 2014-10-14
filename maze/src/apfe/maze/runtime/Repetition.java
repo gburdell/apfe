@@ -100,7 +100,7 @@ public class Repetition extends Acceptor {
             ins = outs.clone();
             outs = new RatsNest();
             for (Rat rat : ins) {
-                RatsNest iter = filter(rat.getState(), m_opt.accept(rat));
+                RatsNest iter = filter(rat.getState(), m_opt.getAcceptor().accept(rat));
                 if (!iter.isEmpty()) {
                     acceptedCnt++;
                     outs.addAll(iter);

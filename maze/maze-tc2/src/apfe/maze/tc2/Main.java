@@ -21,59 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.mazex.runtime;
+package apfe.maze.tc2;
 
-import apfe.mazex.runtime.graph.Vertex;
+import apfe.maze.runtime.RatsNest;
+import apfe.maze.runtime.RunMaze;
+import apfe.maze.runtime.Scanner;
+import apfe.maze.tc2.generated.Grammar;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Encapsulate start position of Scanner/Lexer.
+ *
+ * @author gburdell
  */
-public class State {
+public class Main {
 
-    /**
-     * Capture (start) lexer position.
-     *
-     * @param lex Scanner/lexer.
-     * @param pos start position.
-     */
-    public State(Scanner lex, int pos) {
-        m_lex = lex;
-        m_pos = pos;
+    public static void main(String argv[]) {
+        Scanner lex;
+        RatsNest outs;
+        for (String fn : argv) {
+            try {
+                lex = new Tc2Scanner(fn);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                continue;
+            }
+            lex.slurp();
+            outs = RunMaze.runMaze(lex, Grammar.OaO()).getDone();
+            int n = outs.size();
+        }
     }
-
-    @Override
-    public String toString() {
-        return "(" + m_pos + ")";
-    }
-
-    public Token getToken() {
-        return m_lex.get(getPos());
-    }
-
-    public int getPos() {
-        return m_pos;
-    }
-
-    public State getNext() {
-        return new State(m_lex, m_pos + 1);
-    }
-
-    public Vertex getNextVertex() {
-        return new Vertex(getNext());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        assert (obj instanceof State);
-        boolean eq = (((State) obj).getPos() == getPos());
-        return eq;
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    public final Scanner m_lex;
-    public final int m_pos;
 }

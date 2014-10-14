@@ -39,7 +39,7 @@ public class Optional extends Acceptor {
     @Override
     public RatsNest accept(RatsNest rats) {
         RatsNest rval = rats.clone();     //feedthru
-        rval.addAll(m_opt.accept(rats));
+        rval.addAll(m_opt.getAcceptor().accept(rats));
         return rval;
     }
  

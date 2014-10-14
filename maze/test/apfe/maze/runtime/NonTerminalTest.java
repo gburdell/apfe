@@ -39,8 +39,11 @@ public class NonTerminalTest {
             return stCode;
         }
 
-        public static final int stCode = 1;
-        public static final A_Term stTheOne = new A_Term();
+        public static Terminal OaO() {
+            return stTheOne;
+        }
+        private static final int stCode = 1;
+        private static final A_Term stTheOne = new A_Term();
     }
 
     public static class B_Term extends Terminal {
@@ -50,8 +53,12 @@ public class NonTerminalTest {
             return stCode;
         }
 
-        public static final int stCode = 2;
-        public static final B_Term stTheOne = new B_Term();
+        public static Terminal OaO() {
+            return stTheOne;
+        }
+
+        private static final int stCode = 2;
+        private static final B_Term stTheOne = new B_Term();
     }
 
     public static class C_Term extends Terminal {
@@ -61,8 +68,12 @@ public class NonTerminalTest {
             return stCode;
         }
 
-        public static final int stCode = 3;
-        public static final C_Term stTheOne = new C_Term();
+        public static Terminal OaO() {
+            return stTheOne;
+        }
+
+        private static final int stCode = 3;
+        private static final C_Term stTheOne = new C_Term();
     }
 
     public static class D_Term extends Terminal {
@@ -72,38 +83,51 @@ public class NonTerminalTest {
             return stCode;
         }
 
-        public static final int stCode = 4;
-        public static final D_Term stTheOne = new D_Term();
+        public static Terminal OaO() {
+            return stTheOne;
+        }
+
+        private static final int stCode = 4;
+        private static final D_Term stTheOne = new D_Term();
     }
 
     public static class Grammar extends NonTerminal {
 
-        private Grammar(Acceptor nonTerm) {
-            super(nonTerm);
-        }
-        public static final Grammar stTheOne;
+        private static final Grammar stTheOne = new Grammar();
+        private static Acceptor stAcc;
 
-        static {
-            stTheOne = new Grammar(
-                    new Sequence(A_Term.stTheOne, B_Term.stTheOne, C_Term.stTheOne, 
-                    new Alternates(new Repetition(A_Term.stTheOne, true),
-                            new Repetition(B_Term.stTheOne)))
-            );
+        public static Grammar OaO() {
+            return stTheOne;
         }
+
+        @Override
+        public Acceptor getAcceptor() {
+            if (null == stAcc) {
+                stAcc = new Sequence(A_Term.OaO(), B_Term.OaO(), C_Term.OaO(),
+                        new Alternates(new Repetition(A_Term.OaO(), true),
+                                new Repetition(B_Term.OaO())));
+            }
+            return stAcc;
+        }
+
     }
 
     public static class Grammar2 extends NonTerminal {
 
-        private Grammar2(Acceptor nonTerm) {
-            super(nonTerm);
-        }
-        public static final Grammar2 stTheOne;
+        private static final Grammar stTheOne = new Grammar();
+        private static Acceptor stAcc;
 
-        static {
-            stTheOne = new Grammar2(
-                    new Sequence(A_Term.stTheOne,
-                            new Optional(B_Term.stTheOne), C_Term.stTheOne)
-            );
+        public static Grammar OaO() {
+            return stTheOne;
+        }
+
+        @Override
+        public Acceptor getAcceptor() {
+            if (null == stAcc) {
+                stAcc = new Sequence(A_Term.OaO(),
+                        new Optional(B_Term.OaO()), C_Term.OaO());
+            }
+            return stAcc;
         }
     }
 
@@ -117,75 +141,122 @@ public class NonTerminalTest {
      */
     public static class Grammar3 extends NonTerminal {
 
+        //a: A_K? A_K A_K ;
         private static class a extends NonTerminal {
 
-            //a: A_K? A_K A_K ;
-            public a() {
-                super(new Sequence(new Optional(A_Term.stTheOne),
-                        A_Term.stTheOne, A_Term.stTheOne));
+            private static final a stTheOne = new a();
+            private static Acceptor stAcc;
+
+            public static a OaO() {
+                return stTheOne;
             }
 
+            @Override
+            public Acceptor getAcceptor() {
+                if (null == stAcc) {
+                    stAcc = new Sequence(new Optional(A_Term.OaO()),
+                            A_Term.OaO(), A_Term.OaO());
+                }
+                return stAcc;
+            }
         }
 
+        //     b: B_K? ;
         private static class b extends NonTerminal {
 
-            //     b: B_K? ;
-            public b() {
-                super(new Optional(B_Term.stTheOne));
+            private static final b stTheOne = new b();
+            private static Acceptor stAcc;
+
+            public static b OaO() {
+                return stTheOne;
             }
 
+            @Override
+            public Acceptor getAcceptor() {
+                if (null == stAcc) {
+                    stAcc = new Optional(B_Term.OaO());
+                }
+                return stAcc;
+            }
         }
 
         private static class c extends NonTerminal {
 
-            //c: C_K*;
-            public c() {
-                super(new Repetition(C_Term.stTheOne));
+            private static final c stTheOne = new c();
+            private static Acceptor stAcc;
+
+            public static c OaO() {
+                return stTheOne;
             }
 
+            @Override
+            public Acceptor getAcceptor() {
+                if (null == stAcc) {
+                    stAcc = new Repetition(C_Term.OaO());
+                }
+                return stAcc;
+            }
         }
 
+        //d: e*;
         private static class d extends NonTerminal {
 
-            //d: e*;
-            public d() {
-                super(new Repetition(new e()));
+            private static final d stTheOne = new d();
+            private static Acceptor stAcc;
+
+            public static d OaO() {
+                return stTheOne;
             }
 
+            @Override
+            public Acceptor getAcceptor() {
+                if (null == stAcc) {
+                    stAcc = new Repetition(e.OaO());
+                }
+                return stAcc;
+            }
         }
 
+        //     e: A_K+ | B_K* | C_K? | D_K+ ;
         private static class e extends NonTerminal {
 
-            //     e: A_K+ | B_K* | C_K? | D_K+ ;
-            public e() {
-                super(stAlts);
+            private static final e stTheOne = new e();
+            private static Acceptor stAcc;
+
+            public static e OaO() {
+                return stTheOne;
             }
 
-            private static final Acceptor a1, a2, a3, a4;
-            private static final Alternates stAlts;
-
-            static {
-                a1 = new Repetition(A_Term.stTheOne, true);
-                a2 = new Repetition(B_Term.stTheOne);
-                a3 = new Optional(C_Term.stTheOne);
-                a4 = new Repetition(D_Term.stTheOne, true);
-                stAlts = new Alternates(a1, a2, a3, a4);
+            @Override
+            public Acceptor getAcceptor() {
+                if (null == stAcc) {
+                    final Acceptor a1, a2, a3, a4;
+                    a1 = new Repetition(A_Term.OaO(), true);
+                    a2 = new Repetition(B_Term.OaO());
+                    a3 = new Optional(C_Term.OaO());
+                    a4 = new Repetition(D_Term.OaO(), true);
+                    stAcc = new Alternates(a1, a2, a3, a4);
+                }
+                return stAcc;
             }
-
         }
 
-        private Grammar3(Acceptor nonTerm) {
-            super(nonTerm);
-        }
-        public static final Grammar3 stTheOne;
+        private static final Grammar3 stTheOne = new Grammar3();
+        private static Acceptor stAcc;
 
-        static {
-            stTheOne = new Grammar3(
-                    new Sequence(new a(), new b(), new c(), new d(),
-                            Terminal.EOF.OaO())
-            );
+        public static Grammar3 OaO() {
+            return stTheOne;
         }
-    }
+        
+        @Override
+        public Acceptor getAcceptor() {
+            if (null == stAcc) {
+                stAcc = new Sequence(a.OaO(), b.OaO(), c.OaO(), d.OaO(),
+                Terminal.EOF.OaO());
+            }
+            return stAcc;
+        }
+     }
 
     public static class ScannerTest2 extends Scanner {
 

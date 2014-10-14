@@ -36,4 +36,8 @@ public abstract class Acceptor {
         ins.add(start);
         return accept(ins);
     }
+    
+    public Acceptor getAcceptor() {
+        return this;
+    }
 }

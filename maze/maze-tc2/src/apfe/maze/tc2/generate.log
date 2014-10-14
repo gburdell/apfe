@@ -1,0 +1,15 @@
+grammar:
+Grammar : source_text  ;
+ source_text : a EOF  ;
+ a : b A_K B_K  ;
+ b : C_K f  ;
+ f : D_K ( b 
+  |  A_K )  ;
+ A_K.
+ B_K.
+ C_K.
+ D_K.
+ 
+
+Warn : EOL: rule defined but not used.  (LINK-3)
+Info : Memoize hit rate: 31 / 1838 (1.69%)  (STAT-1)

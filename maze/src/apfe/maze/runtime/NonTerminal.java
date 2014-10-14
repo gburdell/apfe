@@ -30,27 +30,20 @@ package apfe.maze.runtime;
  */
 public abstract class NonTerminal extends Acceptor {
 
-    protected NonTerminal(Acceptor start) {
-        m_start = start;
-    }
-
-    private final Acceptor m_start;
-
-     @Override
+    @Override
     public RatsNest accept(RatsNest rats) {
         //dup, since were gonna unconditionally modify
         RatsNest outs = rats.clone();
         for (Rat rat : outs) {
             rat.addAccepted(new Ele(getClass(), Ele.EType.eEnter));
         }
-        outs = m_start.accept(outs);
+        outs = getAcceptor().accept(outs);
         for (Rat rat : outs) {
             rat.addAccepted(new Ele(getClass(), Ele.EType.eExit));
         }
         return outs;
     }
 
-    
     public static class Ele implements Path.Ele {
 
         public static enum EType {
@@ -65,10 +58,9 @@ public abstract class NonTerminal extends Acceptor {
 
         @Override
         public String toString() {
-            return m_nonTerm.getSimpleName()+ "-" + m_type.toString();
+            return m_nonTerm.getSimpleName() + "-" + m_type.toString();
         }
-        
-        
+
         public final EType m_type;
         public final Class m_nonTerm;
     }
