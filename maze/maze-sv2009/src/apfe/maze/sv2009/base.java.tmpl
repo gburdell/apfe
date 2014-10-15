@@ -26,23 +26,19 @@ import apfe.maze.runtime.*;
 
 public class @CLASS@ extends NonTerminal {
 	public static @CLASS@ OaO() {
-		if (null == stOaO) {
-			stOaO = new @CLASS@ ();
-			assert null != stOaO;
-		}
 		return stOaO;
 	}
 
-	//for debug
 	@Override
-	public RatsNest accept(RatsNest rats) {
-		return super.accept(rats);
+	public Acceptor getAcceptor() {
+		if (null == stAcc) {
+			stAcc = @EXPR@ ;
+			assert null != stAcc;
+		}
+		return stAcc;
 	}
 
-    private @CLASS@() {
-        super( @EXPR@ );
-    }
-
-    private static @CLASS@ stOaO;    //One and Only
+    private static final @CLASS@ stOaO = new @CLASS@(); //One and Only
+	private static Acceptor stAcc;
 }
 @NONTERMINAL@

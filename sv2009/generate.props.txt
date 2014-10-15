@@ -1,5 +1,7 @@
 # Specify default property values for generate.
 
+genMaze: false
+
 # Output directory for generated files.
 # Make sure to accomodate packageName.
 # E.g. if packageName is apfe.dsl.grammar, then

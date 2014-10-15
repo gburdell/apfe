@@ -21,37 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.maze.sv2009;
 
-import apfe.maze.runtime.RatsNest;
-import apfe.maze.runtime.RunMaze;
-import apfe.maze.runtime.Scanner;
-import apfe.maze.sv2009.generated.Grammar;
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+package antlr4.sv2009;
+import java.io.IOException;
+import org.antlr.v4.runtime.*;
 /**
  *
  * @author gburdell
  */
 public class Main {
-
-    public static void main(String argv[]) {
-        Scanner lex;
-        RatsNest outs;
-        for (String fn : argv) {
-            try {
-                lex = new SvScanner(fn);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-                continue;
-            }
-            lex.slurp();
-            outs = RunMaze.runMaze(lex, Grammar.OaO()).getDone();
-            int n = outs.size();
-            System.out.println("Return "+n+" alternatives:");
-            System.out.println(outs.toString());
-        }
+    public static void main(String argv[]) throws IOException {
+        ANTLRFileStream ins = new ANTLRFileStream(argv[0]);
+        Sv2009Lexer lexer = new Sv2009Lexer(ins);
+        CommonTokenStream toks = new CommonTokenStream(lexer);
+        Sv2009Parser parser = new Sv2009Parser(toks);
+        parser.source_text();
     }
 }

@@ -3515,7 +3515,7 @@ DS_INFO_K : 		'$info' ;
 DS_UNIT_K : 		'$unit' ;
 DS_ROOT_K : 		'$root' ;
 
-ESC_IDENT : '\\' (~(' '|'\t'|'\n'|'\r'|'\f'))+ (WS | NEWLINE) ;
+ESC_IDENT : '\\' (~(' '|'\t'|'\n'|'\r'|'\f'))+ WS ;
 
 IDENT : IdentStart IdentCont* ;
 IdentStart : [a-zA-Z_] ;
@@ -3534,6 +3534,5 @@ LINE_COMMENT : '//' .*? '\n' -> skip ;
 COMMENT : '/*' .*? '*/' -> skip ;
 
 //TODO: handle newlines
-NEWLINE : '\r'? '\n' ;
-WS : ([ \t\f])+ -> skip ;
+WS : ([ \t\f\r\n])+ -> channel(HIDDEN);
 
