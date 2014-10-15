@@ -37,7 +37,4 @@ public abstract class Acceptor {
         return accept(ins);
     }
     
-    public Acceptor getAcceptor() {
-        return this;
-    }
 }

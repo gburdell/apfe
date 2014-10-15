@@ -319,17 +319,17 @@ public class NonTerminalTest {
         System.out.println("accept");
         {
             Scanner scanner = new ScannerTest();
-            RatsNest paths = RunMaze.runMaze(scanner, Grammar.stTheOne).getDone();
+            RatsNest paths = RunMaze.runMaze(scanner, Grammar.OaO()).getDone();
             assertFalse(paths.isEmpty());
         }
         {
             Scanner scanner = new ScannerTest();
-            int n = RunMaze.runMaze(scanner, Grammar2.stTheOne).getDone().size();
-            assertTrue(0 < n);
+            RatsNest paths = RunMaze.runMaze(scanner, Grammar2.OaO()).getDone();
+            assertFalse(paths.isEmpty());
         }
         {
             Scanner scanner = new ScannerTest2();
-            RatsNest paths = RunMaze.runMaze(scanner, Grammar3.stTheOne).getDone();
+            RatsNest paths = RunMaze.runMaze(scanner, Grammar3.OaO()).getDone();
             assertFalse(paths.isEmpty());
         }
     }

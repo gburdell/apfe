@@ -30,6 +30,8 @@ package apfe.maze.runtime;
  */
 public abstract class NonTerminal extends Acceptor {
 
+    protected abstract Acceptor getAcceptor();
+    
     @Override
     public RatsNest accept(RatsNest rats) {
         //dup, since were gonna unconditionally modify

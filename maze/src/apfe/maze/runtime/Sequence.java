@@ -40,7 +40,10 @@ public class Sequence extends Acceptor {
         RatsNest ins = rats.clone();
         RatsNest outs = null;
         for (Acceptor acc : m_eles) {
-            outs = acc.getAcceptor().accept(ins);
+            outs = acc.accept(ins);
+            if ((null == outs) || outs.isEmpty()) {
+                break;
+            }
             ins = outs;
         }
         return (null != outs) ? outs : new RatsNest();

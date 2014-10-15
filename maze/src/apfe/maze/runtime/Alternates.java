@@ -43,7 +43,7 @@ public class Alternates extends Acceptor {
     public RatsNest accept(RatsNest rats) {
         RatsNest rval = new RatsNest();
         for (Acceptor acc : m_alts) {
-            rval.addAll(acc.getAcceptor().accept(rats));
+            rval.addAll(acc.accept(rats));
         }
         //TODO: remove duplicates
         //TODO: do we need to explicitly destroy() the incoming rats?
