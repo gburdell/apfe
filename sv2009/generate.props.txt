@@ -18,10 +18,10 @@ baseCls: Acceptor
 lrBaseCls: LeftRecursiveAcceptor
 
 # Template for non-left-recursive class
-baseJavaTemplate: baseTmpl.java
+baseJavaTemplate: base.java.tmpl
 
 # Template for left-recursive class
-dlrBaseJavaTemplate: dlrbaseTmpl.java
+dlrBaseJavaTemplate: dlrbase.java.tmpl
 
 # Generate listeners
 #genListeners: true
