@@ -1,12 +1,1 @@
-# Direct Left and right recursive
-
-Grammar <- Term
-Term <- Term '+' Term / Term '-' Term / Fact 
-
-#indirect left recursion
-#Fact <- Fact '*' Fact / Fact '/' Fact / Ternary / Prim 
-#Ternary <- Term '?' Term ':' Term
-Fact <- Fact '*' Fact / Fact '/' Fact / Prim 
-
-Prim <- '(' Term ')' / Int 
-Int <- [0-9]+
+term.ok.peg

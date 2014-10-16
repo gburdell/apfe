@@ -13,6 +13,12 @@ public  class Term extends LeftRecursiveAcceptor {
     public Term() {
     }
 
+	//Use for indirect left-recursion detection
+    @Override
+    public String getNonTermID() {
+        return getClass().getSimpleName();
+    }
+
     private Term(boolean isDRR) {
         super(isDRR);
     }

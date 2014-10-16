@@ -4,3 +4,7 @@ GOAL ?= Term.java
 
 ${GOAL}: ${DEPS}
 	${TOOL} term.peg generate.props.txt
+
+.PHONY: clean
+clean:
+	rm -f ${GOAL}

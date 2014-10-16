@@ -13,6 +13,12 @@ public  class Prim extends Acceptor {
     public Prim() {
     }
 
+	//Use for indirect left-recursion detection
+    @Override
+    public String getNonTermID() {
+        return getClass().getSimpleName();
+    }
+
     @Override
     protected boolean accepti() {
 		Acceptor matcher = new PrioritizedChoice(new PrioritizedChoice.Choices() {

@@ -18,6 +18,12 @@ public @11@ class @2@ extends @3@ {
     public @2@() {
     }
 
+	//Use for indirect left-recursion detection
+    @Override
+    public String getNonTermID() {
+        return getClass().getSimpleName();
+    }
+
     @Override
     protected boolean accepti() {
 		Acceptor matcher = @8@ ;

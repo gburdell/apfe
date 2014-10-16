@@ -13,6 +13,12 @@ public  class Fact extends LeftRecursiveAcceptor {
     public Fact() {
     }
 
+	//Use for indirect left-recursion detection
+    @Override
+    public String getNonTermID() {
+        return getClass().getSimpleName();
+    }
+
     private Fact(boolean isDRR) {
         super(isDRR);
     }
