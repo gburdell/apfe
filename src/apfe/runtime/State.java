@@ -98,7 +98,7 @@ public class State {
         return m_nonTermStk.pop();
     }
        
-    private CharBuffer m_buf;
+    private final CharBuffer m_buf;
     /**
      * Count (incr and decr) predicate depth.
      */
@@ -111,7 +111,7 @@ public class State {
      * non-term already.
      * For now, just stick with the stack.
      */
-    private Stack<String>   m_nonTermStk = new Stack<>();
+    private final Stack<String>   m_nonTermStk = new Stack<>();
     
     public int getStackDepth() {
         return m_nonTermStk.size();
