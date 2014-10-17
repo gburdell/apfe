@@ -2,6 +2,61 @@
 
 Grammar <- constant_primary
 
+mintypmax_expression <-
+  expression COLON expression COLON expression
+/ expression
+
+param_expression <- mintypmax_expression / data_type
+
+parameter_value_assignment <- POUND LPAREN ( list_of_parameter_assignments )? RPAREN
+
+list_of_parameter_assignments <-
+  named_parameter_assignment ( COMMA named_parameter_assignment )*
+/ ordered_parameter_assignment ( COMMA ordered_parameter_assignment )*
+
+ordered_parameter_assignment <- param_expression
+
+named_parameter_assignment <- DOT identifier LPAREN ( param_expression )? RPAREN
+
+concatenation <-
+LCURLY expression ( COMMA expression )* RCURLY
+
+constant_concatenation <- LCURLY constant_expression ( COMMA constant_expression )* RCURLY
+
+constant_multiple_concatenation <- LCURLY constant_expression constant_concatenation RCURLY
+
+module_path_concatenation <- LCURLY module_path_expression ( COMMA module_path_expression )* RCURLY
+
+module_path_multiple_concatenation <- LCURLY constant_expression module_path_concatenation RCURLY
+
+multiple_concatenation <- LCURLY expression concatenation RCURLY
+
+streaming_concatenation <- LCURLY stream_operator ( slice_size )? stream_concatenation RCURLY
+
+stream_operator <- GT2 / LT2
+
+slice_size <- simple_type / constant_expression
+
+stream_concatenation <- LCURLY stream_expression ( COMMA stream_expression )* RCURLY
+
+stream_expression <- expression ( WITH_K LBRACK array_range_expression RBRACK )?
+
+array_range_expression <-
+expression COLON expression
+/ expression PLUS_COLON expression
+/ expression MINUS_COLON expression
+/ expression
+
+empty_queue <- LCURLY RCURLY
+
+constant_expression <-
+  constant_expression QMARK ( attribute_instance )* constant_expression COLON constant_expression
+/ constant_expression binary_operator ( attribute_instance )* constant_expression
+/ unary_operator ( attribute_instance )* constant_primary
+/ constant_primary
+
+constant_mintypmax_expression <- constant_expression (COLON constant_expression COLON constant_expression)?
+
 //A.8.4 Primaries
 constant_primary <-
   constant_multiple_concatenation ( LBRACK constant_range_expression RBRACK )?
@@ -32,7 +87,7 @@ constant_indexed_range <-
 
 //An expanded form of constant_select to make more clear
 constant_select_A <-
-	(DOT identifier constant_bit_select_A)+ (LBRACK constant_part_select_range RBRACK)?
+  (DOT identifier constant_bit_select_A)+ (LBRACK constant_part_select_range RBRACK)?
 / DOT identifier (LBRACK constant_part_select_range RBRACK)?
 / constant_bit_select_A (LBRACK constant_part_select_range RBRACK)?
 
@@ -43,7 +98,7 @@ constant_bit_select   <- (LBRACK constant_expression RBRACK)*
 
 //An expanded form of select to make more clear
 select_A <-
-	(DOT identifier bit_select_A)+ (LBRACK part_select_range RBRACK)?
+  (DOT identifier bit_select_A)+ (LBRACK part_select_range RBRACK)?
 / DOT identifier (LBRACK part_select_range RBRACK)?
 / bit_select_A (LBRACK part_select_range RBRACK)?
 
@@ -53,18 +108,18 @@ bit_select_A <- (LBRACK expression RBRACK)+
 bit_select   <- (LBRACK expression RBRACK)*
 
 nonrange_select_A <- 
-	(DOT identifier bit_select_A)+ DOT identifier bit_select_A
+  (DOT identifier bit_select_A)+ DOT identifier bit_select_A
 / DOT identifier bit_select_A
 / bit_select_A
 
 nonrange_select <- nonrange_select_A
 
 hierarchical_identifier <- 
-	( DS_ROOT_K DOT )? 
-		(
-			(identifier constant_bit_select_A DOT)+ identifier
-		/	identifier
-		)
+  ( DS_ROOT_K DOT )? 
+    (
+      (identifier constant_bit_select_A DOT)+ identifier
+    / identifier
+    )
 
 module_path_primary <-
   LPAREN module_path_mintypmax_expression RPAREN
@@ -96,7 +151,7 @@ primary <-
 class_qualifier <- ( IDENT COLON2 )? ( implicit_class_handle DOT / class_scope )?
 
 range_expression <-
-	part_select_range
+  part_select_range
 / expression
 
 part_select_range <- constant_range / indexed_range
@@ -111,20 +166,83 @@ unsigned_number time_unit
 
 time_unit <- IDENT //s / ms / us / ns / ps / fs
 
-implicit_class_handle <- THIS_K / SUPER_K / THIS_K DOT SUPER_K
+implicit_class_handle <- 
+	THIS_K DOT SUPER_K
+/ THIS_K 
+/ SUPER_K 
 
-//TODO
-
-// constant_cast <-
-//casting_type SQUOTE LPAREN constant_expression RPAREN
+constant_cast <- casting_type SQUOTE LPAREN constant_expression RPAREN
 
 constant_let_expression <- let_expression
 
-cast <-
-//ILR{ casting_type 
-(simple_type / constant_primary / signing / STRING_K / CONST_K)
-//}
-	SQUOTE LPAREN expression RPAREN
+cast <- casting_type SQUOTE LPAREN expression RPAREN
+
+ps_or_hierarchical_net_identifier <- 
+	package_scope identifier 
+/ hierarchical_identifier
+
+unpacked_dimension <-
+LBRACK constant_range RBRACK
+/ LBRACK constant_expression RBRACK
+
+packed_dimension <-
+LBRACK constant_range RBRACK
+/ unsized_dimension
+
+unsized_dimension <- LBRACK RBRACK
+
+integer_vector_type <- BIT_K / LOGIC_K / REG_K
+
+integer_atom_type <- BYTE_K / SHORTINT_K / INT_K / LONGINT_K / INTEGER_K / TIME_K
+
+non_integer_type <- SHORTREAL_K / REAL_K / REALTIME_K
+
+signing <- SIGNED_K / UNSIGNED_K
+
+struct_union <- STRUCT_K / UNION_K TAGGED_K?
+
+class_scope <- class_type COLON2
+
+class_type <- ps_class_identifier parameter_value_assignment?  (COLON2 identifier parameter_value_assignment?)*
+
+ps_class_identifier <- ( package_scope )? identifier
+
+package_scope <-
+  identifier COLON2 !NEW_K
+/ DS_UNIT_K COLON2
+
+ps_covergroup_identifier <- ( package_scope )? identifier
+
+data_type <-
+integer_vector_type signing? packed_dimension*
+/ integer_atom_type signing?
+/ non_integer_type
+/ struct_union (PACKED_K signing? )? LCURLY struct_union_member struct_union_member* RCURLY packed_dimension*
+/ ENUM_K enum_base_type? LCURLY enum_name_declaration (COMMA enum_name_declaration)* RCURLY packed_dimension*
+/ STRING_K
+/ CHANDLE_K
+/ VIRTUAL_K INTERFACE_K? identifier
+/ (class_scope | package_scope)? identifier packed_dimension*
+/ class_type
+/ EVENT_K
+/ type_reference
+
+type_reference <-
+TYPE_K LPAREN expression RPAREN
+/ TYPE_K LPAREN data_type RPAREN
+
+ps_parameter_identifier <-
+  ( identifier ( LBRACK constant_expression RBRACK )? DOT )* identifier
+/ ( package_scope / class_scope )? identifier
+
+ps_type_identifier <- 
+	( LOCAL_K / package_scope )? identifier
+
+assignment_pattern_expression_type <-
+  ps_parameter_identifier
+/ ps_type_identifier
+/ integer_atom_type
+/ type_reference
 
 //A.8.5 Expression left-side values
 net_lvalue <-
@@ -261,9 +379,7 @@ attr_spec <- attr_name ( EQ constant_expression )?
 
 attr_name <- identifier
 
-
 //A.9.3 Identifiers
-//NOT USED: array_identifier <- identifier
 
 block_identifier <- identifier
 
@@ -313,8 +429,6 @@ hierarchical_block_identifier <- hierarchical_identifier
 
 hierarchical_event_identifier <- hierarchical_identifier
 
-hierarchical_net_identifier <- hierarchical_identifier
-
 hierarchical_parameter_identifier <- hierarchical_identifier
 
 hierarchical_property_identifier <- hierarchical_identifier
@@ -353,22 +467,11 @@ modport_identifier <- identifier
 
 module_identifier <- identifier
 
-net_identifier <- identifier
-
 output_port_identifier <- identifier
 
-package_identifier <- identifier
-
-package_scope <-
-package_identifier COLON2 !NEW_K
-//UNIT_K: $unit
-/ DS_UNIT_K COLON2
-
 func_package_scope <-
-package_identifier COLON2 !function_body_declaration_follow
+identifier COLON2 !function_body_declaration_follow
 / DS_UNIT_K COLON2
-
-parameter_identifier <- identifier
 
 port_identifier <- identifier
 
@@ -378,17 +481,12 @@ program_identifier <- identifier
 
 property_identifier <- identifier
 
-ps_class_identifier <- ( package_scope )? class_identifier
 func_ps_class_identifier <- ( func_package_scope )? class_identifier
-
-ps_covergroup_identifier <- ( package_scope )? covergroup_identifier
 
 ps_identifier <- ( package_scope )? identifier
 
 ps_or_hierarchical_array_identifier <-
 ( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_array_identifier
-
-ps_or_hierarchical_net_identifier <- ( package_scope )? net_identifier / hierarchical_net_identifier
 
 ps_or_hierarchical_property_identifier <-
 ( package_scope )? property_identifier
@@ -399,13 +497,6 @@ ps_or_hierarchical_sequence_identifier <-
 / hierarchical_sequence_identifier
 
 ps_or_hierarchical_tf_identifier <- ( package_scope )? tf_identifier / hierarchical_tf_identifier
-
-ps_parameter_identifier <-
-  ( generate_block_identifier ( LBRACK constant_expression RBRACK )? DOT )* parameter_identifier
-/ ( package_scope / class_scope )? parameter_identifier
-
-//LOCAL_K<- local::
-ps_type_identifier <- ( LOCAL_K / package_scope )? type_identifier
 
 sequence_identifier <- identifier
 
@@ -425,13 +516,9 @@ terminal_identifier <- identifier
 
 topmodule_identifier <- identifier
 
-type_identifier <- identifier
-
 udp_identifier <- identifier
 
 variable_identifier <- identifier
-
-generate_block_identifier <- IDENT
 
 extern_tf_declaration <- 
 EXTERN_K method_prototype SEMI
@@ -555,7 +642,7 @@ LET_K  <- Spacing   "let"  kwrdTail
 LIBLIST_K  <- Spacing   "liblist"  kwrdTail
 LIBRARY_K  <- Spacing   "library"  kwrdTail
 LOCALPARAM_K  <- Spacing   "localparam"  kwrdTail
-LOCAL_K  <- Spacing   "local"  kwrdTail
+LOCAL_K  <- Spacing   "local::"  kwrdTail
 LOGIC_K  <- Spacing   "logic"  kwrdTail
 LONGINT_K  <- Spacing   "longint"  kwrdTail
 MACROMODULE_K  <- Spacing   "macromodule"  kwrdTail
@@ -685,115 +772,115 @@ WITH_K  <- Spacing   "with"  kwrdTail
 WOR_K  <- Spacing   "wor"  kwrdTail
 XNOR_K  <- Spacing   "xnor"  kwrdTail
 XOR_K  <- Spacing   "xor"  kwrdTail
-W1STEP_K  <- Spacing   "1step" kwrdTail	//NOTE: actually not a keyword in LRM
+W1STEP_K  <- Spacing   "1step" kwrdTail //NOTE: actually not a keyword in LRM
 
 //Token definitions
 
-AND <- Spacing  				'&'		
-AND2 <- Spacing  				"&&"	
-AND3 <- Spacing  				"&&&"	
-AND_EQ <- Spacing  				"&="	
-AT <- Spacing  					'@'		
-AT2 <- Spacing  				"@@"	
-AT_STAR <- Spacing  			"@*"	
-BAR_EQ_GT <- Spacing  			"|=>"	
-BAR_MINUS_GT <- Spacing  		"|->"	
-COLON2 <- Spacing  				"::" 	
-COLON <- Spacing  				':'		
-COLON_DIV <- Spacing  			":/"	
-COLON_EQ <- Spacing  			":="	
-COMMA <- Spacing  				','		
-//changed to NUMBER <- Spacing   DIGIT_012:			'0'..'2'
-DIV <- Spacing  				'/'		
-DIV_EQ <- Spacing  				"/="	
-DOLLAR <- Spacing  				'$'		
-DOT <- Spacing  				'.'		
-DOT_STAR <- Spacing  			".*"	
-EQ2 <- Spacing  				"=="	 
-EQ2_QMARK <- Spacing  			"==?"	
-EQ3 <- Spacing  				"==="	
-EQ <- Spacing  					'='		
-EQ_GT <- Spacing  				"=>"	
-GT2 <- Spacing  				">>"	
-GT2_EQ <- Spacing  				">>="	
-GT3_EQ <- Spacing  				">>>="	
-GT <- Spacing  					'>'		 
-GT3 <- Spacing  				">>>"	
-GT_EQ <- Spacing  				">="	 
-LBRACK <- Spacing  				'['		
-LCURLY <- Spacing  				'{'		
-LPAREN <- Spacing  				'('		
-LPAREN_STAR <- Spacing  		"(*"	
-LT2 <- Spacing  				"<<"	
-LT2_EQ <- Spacing  				"<<="	
-LT3_EQ <- Spacing  				"<<<="	
-LT <- Spacing  					'<'		 
-LT3 <- Spacing  				"<<<"	
-LT_EQ <- Spacing  				"<="	 
-LT_MINUS_GT <- Spacing  		"<->"	
-MINUS2 <- Spacing  				"--"	 
-MINUS <- Spacing  				'-'		
-MINUS_COLON <- Spacing  		"-:"	
-MINUS_EQ <- Spacing  			"-="	
-MINUS_GT2 <- Spacing  			"->>"	
-MINUS_GT <- Spacing  			"->"	
-MOD <- Spacing  				'%'		 
-MOD_EQ <- Spacing  				"%="	
-NOT <- Spacing  				'!'		
-NOT_EQ2 <- Spacing  			"!=="	
-NOT_EQ <- Spacing  				"!="	 
-NOT_EQ_QMARK <- Spacing  		"!=?"	
-OR2 <- Spacing  				"||"	
-OR <- Spacing  					'|'		
-OR_EQ <- Spacing  				"|="	
-PLUS2 <- Spacing  				"++"	 
-PLUS <- Spacing  				'+'		 
-PLUS_COLON <- Spacing  			"+:"	
-PLUS_EQ <- Spacing  			"+="	
-POUND2 <- Spacing  				"##"	
-POUND <- Spacing  				'#'		
-POUND_EQ_POUND <- Spacing  		"#=#"	
-POUND_MINUS_POUND <- Spacing  	"#-#"	
-QMARK <- Spacing  				'?'		
-RBRACK <- Spacing  				']'		
-RCURLY <- Spacing  				'}'		
-RPAREN <- Spacing  				')'		
-SEMI <- Spacing  				';'		
-STAR2 <- Spacing  				"**"	 
-STAR <- Spacing  				'*'		
-STAR_COLON2_STAR <- Spacing  	"*::*"	
-STAR_EQ <- Spacing  			"*="	
-STAR_GT <- Spacing  			"*>"	
-STAR_RPAREN <- Spacing  		"*)"	
-TILDE <- Spacing  				'~'		
-TILDE_AND <- Spacing  			"~&"	
-TILDE_OR <- Spacing  			"~|"	
-TILDE_XOR <- Spacing  			"~^"	
-XOR <- Spacing  				'^'		
-XOR_EQ <- Spacing  				"^="	
-XOR_TILDE <- Spacing  			"^~"	
+AND <- Spacing          '&'   
+AND2 <- Spacing         "&&"  
+AND3 <- Spacing         "&&&" 
+AND_EQ <- Spacing         "&="  
+AT <- Spacing           '@'   
+AT2 <- Spacing          "@@"  
+AT_STAR <- Spacing        "@*"  
+BAR_EQ_GT <- Spacing        "|=>" 
+BAR_MINUS_GT <- Spacing     "|->" 
+COLON2 <- Spacing         "::"  
+COLON <- Spacing          ':'   
+COLON_DIV <- Spacing        ":/"  
+COLON_EQ <- Spacing       ":="  
+COMMA <- Spacing          ','   
+//changed to NUMBER <- Spacing   DIGIT_012:     '0'..'2'
+DIV <- Spacing          '/'   
+DIV_EQ <- Spacing         "/="  
+DOLLAR <- Spacing         '$'   
+DOT <- Spacing          '.'   
+DOT_STAR <- Spacing       ".*"  
+EQ2 <- Spacing          "=="   
+EQ2_QMARK <- Spacing        "==?" 
+EQ3 <- Spacing          "===" 
+EQ <- Spacing           '='   
+EQ_GT <- Spacing          "=>"  
+GT2 <- Spacing          ">>"  
+GT2_EQ <- Spacing         ">>=" 
+GT3_EQ <- Spacing         ">>>="  
+GT <- Spacing           '>'    
+GT3 <- Spacing          ">>>" 
+GT_EQ <- Spacing          ">="   
+LBRACK <- Spacing         '['   
+LCURLY <- Spacing         '{'   
+LPAREN <- Spacing         '('   
+LPAREN_STAR <- Spacing      "(*"  
+LT2 <- Spacing          "<<"  
+LT2_EQ <- Spacing         "<<=" 
+LT3_EQ <- Spacing         "<<<="  
+LT <- Spacing           '<'    
+LT3 <- Spacing          "<<<" 
+LT_EQ <- Spacing          "<="   
+LT_MINUS_GT <- Spacing      "<->" 
+MINUS2 <- Spacing         "--"   
+MINUS <- Spacing          '-'   
+MINUS_COLON <- Spacing      "-:"  
+MINUS_EQ <- Spacing       "-="  
+MINUS_GT2 <- Spacing        "->>" 
+MINUS_GT <- Spacing       "->"  
+MOD <- Spacing          '%'    
+MOD_EQ <- Spacing         "%="  
+NOT <- Spacing          '!'   
+NOT_EQ2 <- Spacing        "!==" 
+NOT_EQ <- Spacing         "!="   
+NOT_EQ_QMARK <- Spacing     "!=?" 
+OR2 <- Spacing          "||"  
+OR <- Spacing           '|'   
+OR_EQ <- Spacing          "|="  
+PLUS2 <- Spacing          "++"   
+PLUS <- Spacing         '+'    
+PLUS_COLON <- Spacing       "+:"  
+PLUS_EQ <- Spacing        "+="  
+POUND2 <- Spacing         "##"  
+POUND <- Spacing          '#'   
+POUND_EQ_POUND <- Spacing     "#=#" 
+POUND_MINUS_POUND <- Spacing    "#-#" 
+QMARK <- Spacing          '?'   
+RBRACK <- Spacing         ']'   
+RCURLY <- Spacing         '}'   
+RPAREN <- Spacing         ')'   
+SEMI <- Spacing         ';'   
+STAR2 <- Spacing          "**"   
+STAR <- Spacing         '*'   
+STAR_COLON2_STAR <- Spacing   "*::*"  
+STAR_EQ <- Spacing        "*="  
+STAR_GT <- Spacing        "*>"  
+STAR_RPAREN <- Spacing      "*)"  
+TILDE <- Spacing          '~'   
+TILDE_AND <- Spacing        "~&"  
+TILDE_OR <- Spacing       "~|"  
+TILDE_XOR <- Spacing        "~^"  
+XOR <- Spacing          '^'   
+XOR_EQ <- Spacing         "^="  
+XOR_TILDE <- Spacing        "^~"  
 
-SQUOTE <- Spacing  				"'"		
+SQUOTE <- Spacing         "'"   
 
-PATHPULSE_K <- Spacing  	"PATHPULSE$" kwrdTail
-DS_SETUP_K <- Spacing  		"$setup" kwrdTail
-DS_REMOVAL_K <- Spacing   	"$removal" kwrdTail
-DS_PERIOD_K <- Spacing  		"$period" kwrdTail
-DS_RECREM_K <- Spacing  		"$recrem" kwrdTail
-DS_SETUPHOLD_K <- Spacing  	"$setuphold" kwrdTail
-DS_RECOVERY_K <- Spacing  	"$recovery" kwrdTail
-DS_HOLD_K <- Spacing  		"$hold" kwrdTail
-DS_WIDTH_K <- Spacing  		"$width" kwrdTail
-DS_SKEW_K <- Spacing  		"$skew" kwrdTail
-DS_FULLSKEW_K <- Spacing  	"$fullskew" kwrdTail
-DS_TIMESKEW_K <- Spacing  	"$timeskew" kwrdTail
-DS_NOCHANGE_K <- Spacing  	"$nochange" kwrdTail
-DS_FATAL_K <- Spacing  		"$fatal" kwrdTail
-DS_ERROR_K <- Spacing  		"$error" kwrdTail
-DS_WARNING_K <- Spacing  		"$warning" kwrdTail
-DS_INFO_K <- Spacing  		"$info" kwrdTail
-DS_UNIT_K <- Spacing  		"$unit" kwrdTail
-DS_ROOT_K <- Spacing  		"$root" kwrdTail
+PATHPULSE_K <- Spacing    "PATHPULSE$" kwrdTail
+DS_SETUP_K <- Spacing     "$setup" kwrdTail
+DS_REMOVAL_K <- Spacing     "$removal" kwrdTail
+DS_PERIOD_K <- Spacing      "$period" kwrdTail
+DS_RECREM_K <- Spacing      "$recrem" kwrdTail
+DS_SETUPHOLD_K <- Spacing   "$setuphold" kwrdTail
+DS_RECOVERY_K <- Spacing    "$recovery" kwrdTail
+DS_HOLD_K <- Spacing      "$hold" kwrdTail
+DS_WIDTH_K <- Spacing     "$width" kwrdTail
+DS_SKEW_K <- Spacing      "$skew" kwrdTail
+DS_FULLSKEW_K <- Spacing    "$fullskew" kwrdTail
+DS_TIMESKEW_K <- Spacing    "$timeskew" kwrdTail
+DS_NOCHANGE_K <- Spacing    "$nochange" kwrdTail
+DS_FATAL_K <- Spacing     "$fatal" kwrdTail
+DS_ERROR_K <- Spacing     "$error" kwrdTail
+DS_WARNING_K <- Spacing     "$warning" kwrdTail
+DS_INFO_K <- Spacing      "$info" kwrdTail
+DS_UNIT_K <- Spacing      "$unit" kwrdTail
+DS_ROOT_K <- Spacing      "$root" kwrdTail
 
 ESC_IDENT  <- Spacing '\\' (!(' ' / '\r' / '\t' / EOL) .)+
         
