@@ -8,8 +8,7 @@ constant_primary <-
 / constant_concatenation ( LBRACK constant_range_expression RBRACK )?
 / LPAREN constant_mintypmax_expression RPAREN
 / ( package_scope / class_scope ) identifier
-/ identifier ( LBRACK constant_range_expression RBRACK )?
-/ identifier constant_select
+/ identifier ( LBRACK constant_range_expression RBRACK )
 / ps_parameter_identifier constant_select
 / primary_literal
 / constant_function_call
@@ -17,6 +16,7 @@ constant_primary <-
 / constant_cast
 / constant_assignment_pattern_expression
 / type_reference
+/ identifier constant_select
 
 constant_range_expression <-
   constant_part_select_range
@@ -30,30 +30,33 @@ constant_range <- constant_expression COLON constant_expression
 constant_indexed_range <-
   constant_expression (MINUS_COLON / PLUS_COLON) constant_expression
 
+//An expanded form of constant_select to make more clear
 constant_select_A <-
-	(DOT identifier constant_bit_select_A+
-		(LBRACK constant_part_select_range RBRACK?
-/ DOT identifier (LBRACK constant_part_select_range RBRACK?
-/ constant_bit_select_A (LBRACK constant_part_select_range RBRACK?
+	(DOT identifier constant_bit_select_A)+
+		(LBRACK constant_part_select_range RBRACK)?
+/ DOT identifier (LBRACK constant_part_select_range RBRACK)?
+/ constant_bit_select_A (LBRACK constant_part_select_range RBRACK)?
 
-//====TODO: continue expanding constant_select
+constant_select <- constant_select_A?
 
-constant_select <-
-	( ( DOT identifier constant_bit_select )* DOT identifier )? 
-		constant_bit_select
-		( LBRACK constant_part_select_range RBRACK )?
+constant_bit_select_A <- (LBRACK constant_expression RBRACK)+
+constant_bit_select   <- (LBRACK constant_expression RBRACK)*
 
-constant_bit_select_A <- ( LBRACK constant_expression RBRACK )+
-constant_bit_select <- ( LBRACK constant_expression RBRACK )*
+hierarchical_identifier <- 
+	( DS_ROOT_K DOT )? 
+		(
+			//need to disambiguate on follow identifier (which is first of repeat)
+			(identifier constant_bit_select_A DOT &(identifier constant_bit_select_A))+ identifier
+		/	identifier
+		)
 
-//====TODO: reduce above
+//TODO: resume here
 
 module_path_primary <-
   LPAREN module_path_mintypmax_expression RPAREN
 / module_path_multiple_concatenation
 / module_path_concatenation
-// / function_subroutine_call
-/ subroutine_call
+/ function_subroutine_call
 / number
 / identifier
 
@@ -61,8 +64,7 @@ primary <-
   multiple_concatenation ( LBRACK range_expression RBRACK )?
 / concatenation ( LBRACK range_expression RBRACK )?
 / empty_queue
-// / function_subroutine_call
-/ subroutine_call
+/ function_subroutine_call
 / let_expression
 / LPAREN mintypmax_expression RPAREN
 / cast
@@ -296,9 +298,6 @@ hierarchical_array_identifier <- hierarchical_identifier
 hierarchical_block_identifier <- hierarchical_identifier
 
 hierarchical_event_identifier <- hierarchical_identifier
-
-//TODO<- DS_ROOT_K: $root
-hierarchical_identifier <- ( DS_ROOT_K DOT )? ( identifier constant_bit_select DOT )* identifier
 
 hierarchical_net_identifier <- hierarchical_identifier
 
