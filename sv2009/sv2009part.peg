@@ -52,16 +52,17 @@ select <- select_A?
 bit_select_A <- (LBRACK expression RBRACK)+
 bit_select   <- (LBRACK expression RBRACK)*
 
-//TODO: resume here
-//nonrange_select looks alot like select and used only in 1 place
-********************
-nonrange_select <- ( ( DOT identifier bit_select )* DOT identifier )? bit_select
+nonrange_select_A <- 
+	(DOT identifier bit_select_A)+ DOT identifier bit_select_A
+/ DOT identifier bit_select_A
+/ bit_select_A
+
+nonrange_select <- nonrange_select_A
 
 hierarchical_identifier <- 
 	( DS_ROOT_K DOT )? 
 		(
-			//need to disambiguate on follow identifier (which is first of repeat)
-			(identifier constant_bit_select_A DOT &(identifier LBRACK))+ identifier
+			(identifier constant_bit_select_A DOT)+ identifier
 		/	identifier
 		)
 
@@ -87,15 +88,20 @@ primary <-
 / THIS_K
 / DOLLAR
 / NULL_K
-/ ( package_scope / class_qualifier )? hierarchical_identifier select
+/ ( package_scope / class_qualifier ) hierarchical_identifier select
+/ hierarchical_identifier select
 / primary_literal
 
 //LOCAL_COLON2<- local::
 class_qualifier <- ( IDENT COLON2 )? ( implicit_class_handle DOT / class_scope )?
 
 range_expression <-
-expression
-/ part_select_range
+	part_select_range
+/ expression
+
+part_select_range <- constant_range / indexed_range
+
+indexed_range <- expression (MINUS_COLON | PLUS_COLON) constant_expression
 
 primary_literal <- number / time_literal / unbased_unsized_literal / string_literal
 
@@ -107,6 +113,7 @@ time_unit <- IDENT //s / ms / us / ns / ps / fs
 
 implicit_class_handle <- THIS_K / SUPER_K / THIS_K DOT SUPER_K
 
+//TODO
 
 // constant_cast <-
 //casting_type SQUOTE LPAREN constant_expression RPAREN
