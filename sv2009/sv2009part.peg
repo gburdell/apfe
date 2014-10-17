@@ -32,8 +32,7 @@ constant_indexed_range <-
 
 //An expanded form of constant_select to make more clear
 constant_select_A <-
-	(DOT identifier constant_bit_select_A)+
-		(LBRACK constant_part_select_range RBRACK)?
+	(DOT identifier constant_bit_select_A)+ (LBRACK constant_part_select_range RBRACK)?
 / DOT identifier (LBRACK constant_part_select_range RBRACK)?
 / constant_bit_select_A (LBRACK constant_part_select_range RBRACK)?
 
@@ -42,15 +41,29 @@ constant_select <- constant_select_A?
 constant_bit_select_A <- (LBRACK constant_expression RBRACK)+
 constant_bit_select   <- (LBRACK constant_expression RBRACK)*
 
+//An expanded form of select to make more clear
+select_A <-
+	(DOT identifier bit_select_A)+ (LBRACK part_select_range RBRACK)?
+/ DOT identifier (LBRACK part_select_range RBRACK)?
+/ bit_select_A (LBRACK part_select_range RBRACK)?
+
+select <- select_A?
+
+bit_select_A <- (LBRACK expression RBRACK)+
+bit_select   <- (LBRACK expression RBRACK)*
+
+//TODO: resume here
+//nonrange_select looks alot like select and used only in 1 place
+********************
+nonrange_select <- ( ( DOT identifier bit_select )* DOT identifier )? bit_select
+
 hierarchical_identifier <- 
 	( DS_ROOT_K DOT )? 
 		(
 			//need to disambiguate on follow identifier (which is first of repeat)
-			(identifier constant_bit_select_A DOT &(identifier constant_bit_select_A))+ identifier
+			(identifier constant_bit_select_A DOT &(identifier LBRACK))+ identifier
 		/	identifier
 		)
-
-//TODO: resume here
 
 module_path_primary <-
   LPAREN module_path_mintypmax_expression RPAREN
@@ -93,12 +106,6 @@ unsigned_number time_unit
 time_unit <- IDENT //s / ms / us / ns / ps / fs
 
 implicit_class_handle <- THIS_K / SUPER_K / THIS_K DOT SUPER_K
-
-bit_select <- ( LBRACK expression RBRACK )*
-
-select <- ( ( DOT member_identifier bit_select )* DOT member_identifier )? bit_select ( LBRACK part_select_range RBRACK )?
-
-nonrange_select <- ( ( DOT member_identifier bit_select )* DOT member_identifier )? bit_select
 
 
 // constant_cast <-
