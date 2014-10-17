@@ -7,17 +7,44 @@ constant_primary <-
   constant_multiple_concatenation ( LBRACK constant_range_expression RBRACK )?
 / constant_concatenation ( LBRACK constant_range_expression RBRACK )?
 / LPAREN constant_mintypmax_expression RPAREN
+/ ( package_scope / class_scope ) identifier
 / identifier ( LBRACK constant_range_expression RBRACK )?
+/ identifier constant_select
 / ps_parameter_identifier constant_select
 / primary_literal
-/ identifier
-/ identifier constant_select
-/ ( package_scope / class_scope )? identifier
 / constant_function_call
 / constant_let_expression
 / constant_cast
 / constant_assignment_pattern_expression
 / type_reference
+
+constant_range_expression <-
+  constant_part_select_range
+/ constant_expression
+
+constant_part_select_range <-
+  constant_expression (COLON / MINUS_COLON / PLUS_COLON) constant_expression
+
+constant_range <- constant_expression COLON constant_expression
+
+constant_indexed_range <-
+  constant_expression (MINUS_COLON / PLUS_COLON) constant_expression
+
+constant_select_A <-
+	(DOT identifier constant_bit_select_A+
+		(LBRACK constant_part_select_range RBRACK?
+/ DOT identifier (LBRACK constant_part_select_range RBRACK?
+/ constant_bit_select_A (LBRACK constant_part_select_range RBRACK?
+
+//====TODO: continue expanding constant_select
+
+constant_select <-
+	( ( DOT identifier constant_bit_select )* DOT identifier )? 
+		constant_bit_select
+		( LBRACK constant_part_select_range RBRACK )?
+
+constant_bit_select_A <- ( LBRACK constant_expression RBRACK )+
+constant_bit_select <- ( LBRACK constant_expression RBRACK )*
 
 //====TODO: reduce above
 
@@ -71,11 +98,6 @@ select <- ( ( DOT member_identifier bit_select )* DOT member_identifier )? bit_s
 
 nonrange_select <- ( ( DOT member_identifier bit_select )* DOT member_identifier )? bit_select
 
-constant_bit_select <- ( LBRACK constant_expression RBRACK )*
-
-constant_select <-
-( ( DOT member_identifier constant_bit_select )* DOT member_identifier )? constant_bit_select
-	( LBRACK constant_part_select_range RBRACK )?
 
 // constant_cast <-
 //casting_type SQUOTE LPAREN constant_expression RPAREN
