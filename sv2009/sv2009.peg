@@ -13,68 +13,68 @@ module_declaration
 / config_declaration
 
 module_declaration <-
-module_ansi_header timeunits_declaration? non_port_module_item* ENDMODULE_K (COLON module_identifier)?
-/ module_nonansi_header timeunits_declaration? module_item* ENDMODULE_K (COLON module_identifier)?
-/ attribute_instance* module_keyword lifetime? module_identifier ( DOT_STAR ) SEMI 
-	timeunits_declaration? module_item* ENDMODULE_K (COLON module_identifier)?
+module_ansi_header timeunits_declaration? non_port_module_item* ENDMODULE_K (COLON identifier)?
+/ module_nonansi_header timeunits_declaration? module_item* ENDMODULE_K (COLON identifier)?
+/ attribute_instance* module_keyword lifetime? identifier ( DOT_STAR ) SEMI 
+	timeunits_declaration? module_item* ENDMODULE_K (COLON identifier)?
 / EXTERN_K module_nonansi_header
 / EXTERN_K module_ansi_header
 
 module_nonansi_header <-
-attribute_instance* module_keyword lifetime? module_identifier package_import_declaration* parameter_port_list? list_of_ports SEMI
+attribute_instance* module_keyword lifetime? identifier package_import_declaration* parameter_port_list? list_of_ports SEMI
 
 module_ansi_header <-
-attribute_instance* module_keyword lifetime? module_identifier package_import_declaration* parameter_port_list? 
+attribute_instance* module_keyword lifetime? identifier package_import_declaration* parameter_port_list? 
 	list_of_port_declarations? SEMI
 
 module_keyword <- MODULE_K / MACROMODULE_K
 
 interface_declaration <-
-interface_ansi_header timeunits_declaration? non_port_interface_item* ENDINTERFACE_K (COLON interface_identifier)?
-/ interface_nonansi_header timeunits_declaration? interface_item* ENDINTERFACE_K (COLON interface_identifier)?
-/ attribute_instance* INTERFACE_K interface_identifier ( DOT_STAR ) SEMI timeunits_declaration? interface_item* ENDINTERFACE_K 
-	(COLON interface_identifier)?
+interface_ansi_header timeunits_declaration? non_port_interface_item* ENDINTERFACE_K (COLON identifier)?
+/ interface_nonansi_header timeunits_declaration? interface_item* ENDINTERFACE_K (COLON identifier)?
+/ attribute_instance* INTERFACE_K identifier ( DOT_STAR ) SEMI timeunits_declaration? interface_item* ENDINTERFACE_K 
+	(COLON identifier)?
 / EXTERN_K interface_ansi_header
 / EXTERN_K interface_nonansi_header
 
 interface_nonansi_header <-
-attribute_instance* INTERFACE_K lifetime? interface_identifier package_import_declaration* parameter_port_list? 
+attribute_instance* INTERFACE_K lifetime? identifier package_import_declaration* parameter_port_list? 
 	list_of_ports SEMI
 
 interface_ansi_header <-
-attribute_instance* INTERFACE_K lifetime? interface_identifier package_import_declaration* parameter_port_list? 
+attribute_instance* INTERFACE_K lifetime? identifier package_import_declaration* parameter_port_list? 
 	list_of_port_declarations? SEMI
 
 program_declaration <-
-program_ansi_header timeunits_declaration? non_port_program_item* ENDPROGRAM_K (COLON program_identifier)?
-/ program_nonansi_header timeunits_declaration? program_item* ENDPROGRAM_K (COLON program_identifier)?
-/ attribute_instance* PROGRAM_K program_identifier ( DOT_STAR ) SEMI timeunits_declaration? program_item* ENDPROGRAM_K 
-	(COLON program_identifier)?
+program_ansi_header timeunits_declaration? non_port_program_item* ENDPROGRAM_K (COLON identifier)?
+/ program_nonansi_header timeunits_declaration? program_item* ENDPROGRAM_K (COLON identifier)?
+/ attribute_instance* PROGRAM_K identifier ( DOT_STAR ) SEMI timeunits_declaration? program_item* ENDPROGRAM_K 
+	(COLON identifier)?
 / EXTERN_K program_ansi_header
 / EXTERN_K program_nonansi_header
 
 program_nonansi_header <-
-attribute_instance* PROGRAM_K lifetime? program_identifier package_import_declaration* parameter_port_list? 
+attribute_instance* PROGRAM_K lifetime? identifier package_import_declaration* parameter_port_list? 
 	list_of_ports SEMI
 
 program_ansi_header <-
-attribute_instance* PROGRAM_K lifetime? program_identifier package_import_declaration* parameter_port_list? 
+attribute_instance* PROGRAM_K lifetime? identifier package_import_declaration* parameter_port_list? 
 	list_of_port_declarations? SEMI
 
 checker_declaration <-
-CHECKER_K checker_identifier (LPAREN checker_port_list? RPAREN)? SEMI checker_or_generate_item* ENDCHECKER_K 
-	(COLON checker_identifier)?
+CHECKER_K identifier (LPAREN checker_port_list? RPAREN)? SEMI checker_or_generate_item* ENDCHECKER_K 
+	(COLON identifier)?
 
 class_declaration <-
-VIRTUAL_K? CLASS_K lifetime? class_identifier parameter_port_list?  
+VIRTUAL_K? CLASS_K lifetime? identifier parameter_port_list?  
 	(EXTENDS_K class_type (LPAREN list_of_arguments RPAREN)? )? SEMI
 	class_item*
-	ENDCLASS_K (COLON class_identifier)?
+	ENDCLASS_K (COLON identifier)?
 
 package_declaration <-
-attribute_instance* PACKAGE_K lifetime? package_identifier SEMI
+attribute_instance* PACKAGE_K lifetime? identifier SEMI
 	timeunits_declaration? (attribute_instance* package_item)*
-	ENDPACKAGE_K (COLON package_identifier)?
+	ENDPACKAGE_K (COLON identifier)?
 
 timeunits_declaration <-
 TIMEUNIT_K time_literal SEMI TIMEPRECISION_K time_literal SEMI
@@ -106,7 +106,7 @@ attribute_instance* interface_port_declaration
 / attribute_instance* ref_declaration
 
 port <-
-DOT port_identifier LPAREN port_expression? RPAREN
+DOT identifier LPAREN port_expression? RPAREN
 / port_expression?
 
 port_expression <-
@@ -114,7 +114,7 @@ LCURLY port_reference (COMMA port_reference)* RCURLY
 / port_reference
 
 port_reference <-
-port_identifier constant_select
+identifier constant_select
 
 port_direction <- INPUT_K / OUTPUT_K / INOUT_K / REF_K
 
@@ -123,16 +123,16 @@ net_port_header <- port_direction? net_port_type
 variable_port_header <- port_direction? variable_port_type
 
 interface_port_header <-
-INTERFACE_K (DOT modport_identifier)?
-/ interface_identifier (DOT modport_identifier)?
+INTERFACE_K (DOT identifier)?
+/ identifier (DOT identifier)?
 
 ansi_port_declaration <-
 //since we dont track types, first(net_port_header)==ident which also matches
 //port_identifier.  Eeek, lots of ambiguities
-port_direction? port_identifier unpacked_dimension* ( EQ constant_expression )?
-/ (net_port_header / interface_port_header)? port_identifier unpacked_dimension* ( EQ constant_expression )?
-/ variable_port_header? port_identifier variable_dimension* (EQ constant_expression )?
-/ port_direction? DOT port_identifier LPAREN expression? RPAREN
+port_direction? identifier unpacked_dimension* ( EQ constant_expression )?
+/ (net_port_header / interface_port_header)? identifier unpacked_dimension* ( EQ constant_expression )?
+/ variable_port_header? identifier variable_dimension* (EQ constant_expression )?
+/ port_direction? DOT identifier LPAREN expression? RPAREN
 
 elaboration_system_task <-
 // $fatal $error $warning $info
@@ -173,7 +173,7 @@ module_or_generate_item_declaration <-
 package_or_generate_item_declaration
 / genvar_declaration
 / clocking_declaration
-/ DEFAULT_K CLOCKING_K clocking_identifier SEMI
+/ DEFAULT_K CLOCKING_K identifier SEMI
 / DEFAULT_K DISABLE_K IFF_K expression_or_dist SEMI
 
 non_port_module_item <-
@@ -193,8 +193,7 @@ BIND_K bind_target_scope (COLON bind_target_instance_list)? bind_instantiation S
 / BIND_K bind_target_instance bind_instantiation SEMI
 
 bind_target_scope <-
-module_identifier
-/ interface_identifier
+identifier
 
 bind_target_instance <-
 hierarchical_identifier constant_bit_select
@@ -211,10 +210,10 @@ program_instantiation
 
 //A.1.5 Configuration source text
 config_declaration <-
-CONFIG_K config_identifier SEMI (local_parameter_declaration SEMI)* design_statement config_rule_statement*
-	ENDCONFIG_K (COLON config_identifier)?
+CONFIG_K identifier SEMI (local_parameter_declaration SEMI)* design_statement config_rule_statement*
+	ENDCONFIG_K (COLON identifier)?
 
-design_statement <- DESIGN_K ((library_identifier DOT)? cell_identifier)* SEMI
+design_statement <- DESIGN_K ((identifier DOT)? identifier)* SEMI
 
 config_rule_statement <-
 default_clause liblist_clause SEMI
@@ -227,16 +226,16 @@ default_clause <- DEFAULT_K
 
 inst_clause <- INSTANCE_K inst_name
 
-inst_name <- topmodule_identifier (DOT instance_identifier)*
+inst_name <- identifier (DOT identifier)*
 
-cell_clause <- CELL_K (library_identifier DOT)? cell_identifier
+cell_clause <- CELL_K (identifier DOT)? identifier
 
-liblist_clause <- LIBLIST_K library_identifier*
+liblist_clause <- LIBLIST_K identifier*
 
 use_clause <- 
-  USE_K (library_identifier DOT)? cell_identifier named_parameter_assignment (COMMA named_parameter_assignment)* (COLON CONFIG_K)?
+  USE_K (identifier DOT)? identifier named_parameter_assignment (COMMA named_parameter_assignment)* (COLON CONFIG_K)?
 / USE_K named_parameter_assignment (COMMA named_parameter_assignment)* (COLON CONFIG_K)?
-/ USE_K (library_identifier DOT)? cell_identifier (COLON CONFIG_K)?
+/ USE_K (identifier DOT)? identifier (COLON CONFIG_K)?
 
 
 //A.1.6 Interface items
@@ -284,7 +283,7 @@ loop_generate_construct
 checker_port_list <- checker_port_item (COMMA checker_port_item)*
 
 checker_port_item <-
-attribute_instance* property_formal_type port_identifier variable_dimension* (EQ property_actual_arg)?
+attribute_instance* property_formal_type identifier variable_dimension* (EQ property_actual_arg)?
 
 checker_or_generate_item <-
 checker_or_generate_item_declaration
@@ -302,7 +301,7 @@ RAND_K? data_declaration
 / overload_declaration
 / genvar_declaration
 / clocking_declaration
-/ DEFAULT_K CLOCKING_K clocking_identifier SEMI
+/ DEFAULT_K CLOCKING_K identifier SEMI
 / DEFAULT_K DISABLE_K IFF_K expression_or_dist SEMI
 / SEMI
 
@@ -326,7 +325,7 @@ attribute_instance* class_property
 / SEMI
 
 class_property <-
-CONST_K class_item_qualifier* data_type const_identifier (EQ constant_expression)? SEMI
+CONST_K class_item_qualifier* data_type identifier (EQ constant_expression)? SEMI
 / property_qualifier* data_declaration
 
 class_method <-
@@ -372,7 +371,7 @@ FUNCTION_K class_scope? NEW_K (LPAREN tf_port_list? RPAREN)? SEMI
 	ENDFUNCTION_K (COLON NEW_K)?
 
 //A.1.10 Constraints
-constraint_declaration <- STATIC_K? CONSTRAINT_K constraint_identifier constraint_block
+constraint_declaration <- STATIC_K? CONSTRAINT_K identifier constraint_block
 
 constraint_block <- LCURLY constraint_block_item* RCURLY
 
@@ -402,12 +401,12 @@ dist_weight <-
 COLON_EQ expression
 / COLON_DIV expression
 
-constraint_prototype <- constraint_prototype_qualifier? STATIC_K? CONSTRAINT_K constraint_identifier SEMI
+constraint_prototype <- constraint_prototype_qualifier? STATIC_K? CONSTRAINT_K identifier SEMI
 
 constraint_prototype_qualifier <- EXTERN_K / PURE_K
 
 extern_constraint_declaration <-
-STATIC_K? CONSTRAINT_K class_scope constraint_identifier constraint_block
+STATIC_K? CONSTRAINT_K class_scope identifier constraint_block
 
 identifier_list <- identifier (COMMA identifier)*
 
@@ -483,8 +482,8 @@ OUTPUT_K list_of_port_identifiers
 / OUTPUT_K variable_port_type list_of_variable_port_identifiers
 
 interface_port_declaration <-
-interface_identifier list_of_interface_identifiers
-/ interface_identifier DOT modport_identifier list_of_interface_identifiers
+identifier list_of_interface_identifiers
+/ identifier DOT identifier list_of_interface_identifiers
 
 ref_declaration <- REF_K variable_port_type list_of_port_identifiers
 
@@ -499,8 +498,8 @@ package_import_declaration <-
 IMPORT_K package_import_item (COMMA package_import_item)* SEMI
 
 package_import_item <-
-package_identifier COLON2 identifier
-/ package_identifier COLON2 STAR
+identifier COLON2 identifier
+/ identifier COLON2 STAR
 
 package_export_declaration <-
 EXPORT_K STAR_COLON2_STAR SEMI
@@ -519,9 +518,9 @@ net_type (drive_strength / charge_strength)? (VECTORED_K / SCALARED_K)?
 	SEMI
 
 type_declaration <-
-  TYPEDEF_K interface_instance_identifier constant_bit_select DOT type_identifier type_identifier SEMI
-/ TYPEDEF_K data_type type_identifier variable_dimension* SEMI
-/ TYPEDEF_K (ENUM_K / STRUCT_K / UNION_K / CLASS_K)? type_identifier SEMI
+  TYPEDEF_K identifier constant_bit_select DOT identifier identifier SEMI
+/ TYPEDEF_K data_type identifier variable_dimension* SEMI
+/ TYPEDEF_K (ENUM_K / STRUCT_K / UNION_K / CLASS_K)? identifier SEMI
 
 lifetime <- STATIC_K / AUTOMATIC_K
 
@@ -537,11 +536,11 @@ data_type <-
 / ENUM_K enum_base_type? LCURLY enum_name_declaration (COMMA enum_name_declaration)* RCURLY packed_dimension*
 / STRING_K
 / CHANDLE_K
-/ VIRTUAL_K INTERFACE_K? interface_identifier (DOT modport_identifier)?
+/ VIRTUAL_K INTERFACE_K? identifier (DOT identifier)?
 / EVENT_K
 / type_reference
   //1st set: ident...
-/ (package_scope / class_scope)? type_identifier packed_dimension*
+/ (package_scope / class_scope)? identifier packed_dimension*
   //1st set: ident...
 / class_type
   //1st set: ident...
@@ -564,17 +563,17 @@ implicit_data_type <- signing? packed_dimension*
 enum_base_type <-
 integer_atom_type signing?
 / integer_vector_type signing? packed_dimension?
-/ type_identifier packed_dimension?
+/ identifier packed_dimension?
 
-enum_name_declaration <- enum_identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ constant_expression)?
+enum_name_declaration <- identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ constant_expression)?
 
 class_scope <- class_type COLON2
 func_class_scope <- func_class_type COLON2
 
 //TODO: need to rm ambiguity here on COLON2 identifier and punch through
 //to ps_class_identifier
-class_type <- ps_class_identifier parameter_value_assignment?  (COLON2 class_identifier parameter_value_assignment?)*
-func_class_type <- func_ps_class_identifier parameter_value_assignment?  (COLON2 !function_body_declaration_follow class_identifier parameter_value_assignment?)*
+class_type <- ps_class_identifier parameter_value_assignment?  (COLON2 identifier parameter_value_assignment?)*
+func_class_type <- func_ps_class_identifier parameter_value_assignment?  (COLON2 !function_body_declaration_follow identifier parameter_value_assignment?)*
 
 integer_type <- integer_vector_type / integer_atom_type
 
@@ -640,48 +639,47 @@ delay_value <-
 //A.2.3 Declaration lists
 list_of_defparam_assignments <- defparam_assignment (COMMA defparam_assignment)*
 
-list_of_genvar_identifiers <- genvar_identifier (COMMA genvar_identifier)*
+list_of_genvar_identifiers <- identifier (COMMA identifier)*
 
-list_of_interface_identifiers <- interface_identifier param_assignment* (COMMA interface_identifier param_assignment*)*
+list_of_interface_identifiers <- identifier param_assignment* (COMMA identifier param_assignment*)*
+list_of_port_identifiers      <- identifier param_assignment* (COMMA identifier param_assignment*)*
 
 list_of_net_decl_assignments <- net_decl_assignment (COMMA net_decl_assignment)*
 
 list_of_param_assignments <- param_assignment (COMMA param_assignment)*
 
-list_of_port_identifiers <- port_identifier param_assignment* (COMMA port_identifier param_assignment*)*
-
-list_of_udp_port_identifiers <- port_identifier (COMMA port_identifier)*
+list_of_udp_port_identifiers <- identifier (COMMA identifier)*
 
 list_of_specparam_assignments <- specparam_assignment (COMMA specparam_assignment)*
 
 list_of_tf_variable_identifiers <- 
-port_identifier variable_dimension* (EQ expression)?  (COMMA port_identifier variable_dimension* (EQ expression)?)*
+port_identifier variable_dimension* (EQ expression)?  (COMMA identifier variable_dimension* (EQ expression)?)*
 
 list_of_type_assignments <- type_assignment (COMMA type_assignment)*
 
 list_of_variable_decl_assignments <- variable_decl_assignment (COMMA variable_decl_assignment)*
 
-list_of_variable_identifiers <- variable_identifier variable_dimension* (COMMA variable_identifier variable_dimension*)*
+list_of_variable_identifiers <- identifier variable_dimension* (COMMA identifier variable_dimension*)*
 
 list_of_variable_port_identifiers <- 
-port_identifier variable_dimension* (EQ constant_expression)?  (COMMA port_identifier variable_dimension* (EQ constant_expression)?)*
+identifier variable_dimension* (EQ constant_expression)?  (COMMA identifier variable_dimension* (EQ constant_expression)?)*
 
 list_of_virtual_interface_decl <-
-variable_identifier (EQ interface_instance_identifier)?  (COMMA variable_identifier (EQ interface_instance_identifier)?)*
+identifier (EQ identifier)?  (COMMA identifier (EQ identifier)?)*
 
 //A.2.4 Declaration assignments
-defparam_assignment <- hierarchical_parameter_identifier EQ constant_mintypmax_expression
+defparam_assignment <- hierarchical_identifier EQ constant_mintypmax_expression
 
-net_decl_assignment <- net_identifier unpacked_dimension* (EQ expression)?
+net_decl_assignment <- identifier unpacked_dimension* (EQ expression)?
 
-param_assignment <- parameter_identifier unpacked_dimension* (EQ constant_param_expression)?
+param_assignment <- identifier unpacked_dimension* (EQ constant_param_expression)?
 
 specparam_assignment <-
-specparam_identifier EQ constant_mintypmax_expression
+identifier EQ constant_mintypmax_expression
 / pulse_control_specparam
 
 type_assignment <-
-type_identifier (EQ data_type)?
+identifier (EQ data_type)?
 
 pulse_control_specparam <-
 //PATHPULSE$
@@ -696,9 +694,9 @@ reject_limit_value <- limit_value
 limit_value <- constant_mintypmax_expression
 
 variable_decl_assignment <-
-  dynamic_array_variable_identifier unsized_dimension variable_dimension?  (EQ dynamic_array_new)?
-/ variable_identifier variable_dimension? (EQ expression)?
-/ class_variable_identifier (EQ class_new)?
+  identifier unsized_dimension variable_dimension?  (EQ dynamic_array_new)?
+/ identifier variable_dimension? (EQ expression)?
+/ identifier (EQ class_new)?
 
 class_new <- NEW_K (LPAREN list_of_arguments RPAREN / expression)?
 
@@ -734,27 +732,27 @@ data_type_or_void
 
 function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
-function_body_declaration_follow <- function_identifier (LPAREN / SEMI)
+function_body_declaration_follow <- identifier (LPAREN / SEMI)
 
 function_body_declaration <-
   function_data_type_or_implicit
-	( interface_identifier DOT / func_class_scope )? function_identifier LPAREN ( tf_port_list )? RPAREN SEMI
+	( identifier DOT / func_class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
 	( block_item_declaration )*
 	( function_statement_or_null )*
-	ENDFUNCTION_K ( COLON function_identifier )?
+	ENDFUNCTION_K ( COLON identifier )?
 / function_data_type_or_implicit
-	( interface_identifier DOT / func_class_scope )? function_identifier SEMI
+	( identifier DOT / func_class_scope )? identifier SEMI
 	( tf_item_declaration )*
 	( function_statement_or_null )*
-	ENDFUNCTION_K ( COLON function_identifier )?
+	ENDFUNCTION_K ( COLON identifier )?
 
-function_prototype <- FUNCTION_K data_type_or_void function_identifier LPAREN ( tf_port_list )? RPAREN
+function_prototype <- FUNCTION_K data_type_or_void identifier LPAREN ( tf_port_list )? RPAREN
 
 dpi_import_export <-
   IMPORT_K dpi_spec_string ( dpi_function_import_property )? ( c_identifier EQ )? dpi_function_proto SEMI
 / IMPORT_K dpi_spec_string ( dpi_task_import_property )? ( c_identifier EQ )? dpi_task_proto SEMI
-/ EXPORT_K dpi_spec_string ( c_identifier EQ )? FUNCTION_K function_identifier SEMI
-/ EXPORT_K dpi_spec_string ( c_identifier EQ )? TASK_K task_identifier SEMI
+/ EXPORT_K dpi_spec_string ( c_identifier EQ )? FUNCTION_K identifier SEMI
+/ EXPORT_K dpi_spec_string ( c_identifier EQ )? TASK_K identifier SEMI
 
 dpi_spec_string <- STRING //"DPI-C" / "DPI"
 
@@ -770,14 +768,14 @@ dpi_task_proto <- task_prototype
 task_declaration <- TASK_K ( lifetime )? task_body_declaration
 
 task_body_declaration <-
-  ( interface_identifier DOT / class_scope )? task_identifier LPAREN ( tf_port_list )? RPAREN SEMI
+  ( identifier DOT / class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
 	( block_item_declaration )*
 	( statement_or_null )*
-	ENDTASK_K ( COLON task_identifier )?
-/ ( interface_identifier DOT / class_scope )? task_identifier SEMI
+	ENDTASK_K ( COLON identifier )?
+/ ( identifier DOT / class_scope )? identifier SEMI
 	( tf_item_declaration )*
 	( statement_or_null )*
-	ENDTASK_K ( COLON task_identifier )?
+	ENDTASK_K ( COLON identifier )?
 
 tf_item_declaration <-
 block_item_declaration
@@ -787,13 +785,13 @@ tf_port_list <- tf_port_item ( COMMA tf_port_item )*
 
 tf_port_item <- 
 ( attribute_instance )* ( tf_port_direction )? ( VAR_K )? data_type_or_implicit 
-	( port_identifier ( variable_dimension )* ( EQ expression )? )?
+	( identifier ( variable_dimension )* ( EQ expression )? )?
 
 tf_port_direction <- port_direction / CONST_K REF_K
 
 tf_port_declaration <- ( attribute_instance )* tf_port_direction ( VAR_K )? data_type_or_implicit list_of_tf_variable_identifiers SEMI
 
-task_prototype <- TASK_K task_identifier LPAREN ( tf_port_list )? RPAREN
+task_prototype <- TASK_K identifier LPAREN ( tf_port_list )? RPAREN
 
 //A.2.8 Block item declarations
 block_item_declaration <-
@@ -804,7 +802,7 @@ block_item_declaration <-
 / ( attribute_instance )* overload_declaration
 
 overload_declaration <-
-BIND_K overload_operator FUNCTION_K data_type function_identifier LPAREN overload_proto_formals RPAREN SEMI
+BIND_K overload_operator FUNCTION_K data_type identifier LPAREN overload_proto_formals RPAREN SEMI
 
 overload_operator <- PLUS / PLUS2 / MINUS / MINUS2 / STAR / STAR2 / DIV / MOD / EQ2 / NOT_EQ / LT / LT_EQ / GT / GT_EQ / EQ
 
@@ -812,38 +810,38 @@ overload_proto_formals <- data_type (COMMA data_type)*
 
 //A.2.9 Interface declarations
 virtual_interface_declaration <-
-VIRTUAL_K ( INTERFACE_K )? interface_identifier ( parameter_value_assignment)? (DOT modport_identifier)?
+VIRTUAL_K ( INTERFACE_K )? identifier ( parameter_value_assignment)? (DOT identifier)?
 	list_of_virtual_interface_decl SEMI
 
 modport_declaration <- MODPORT_K modport_item ( COMMA modport_item )* SEMI
 
-modport_item <- modport_identifier LPAREN modport_ports_declaration ( COMMA modport_ports_declaration )* RPAREN
+modport_item <- identifier LPAREN modport_ports_declaration ( COMMA modport_ports_declaration )* RPAREN
 
 modport_ports_declaration <-
 ( attribute_instance )* modport_simple_ports_declaration
 / ( attribute_instance )* modport_tf_ports_declaration
 / ( attribute_instance )* modport_clocking_declaration
 
-modport_clocking_declaration <- CLOCKING_K clocking_identifier
+modport_clocking_declaration <- CLOCKING_K identifier
 
 modport_simple_ports_declaration <-
 port_direction modport_simple_port ( COMMA modport_simple_port )*
 
 modport_simple_port <-
-  DOT port_identifier LPAREN ( expression )? RPAREN
-/ port_identifier
+  DOT identifier LPAREN ( expression )? RPAREN
+/ identifier
 
 modport_tf_ports_declaration <- import_export modport_tf_port ( COMMA modport_tf_port )*
 
 modport_tf_port <-
 method_prototype
-/ tf_identifier
+/ identifier
 
 import_export <- IMPORT_K / EXPORT_K
 
 //A.2.10 Assertion declarations
 concurrent_assertion_item <-
-( block_identifier COLON )? concurrent_assertion_statement
+( identifier COLON )? concurrent_assertion_statement
 / checker_instantiation
 
 concurrent_assertion_statement <-
@@ -883,16 +881,16 @@ property_declaration
 / let_declaration
 
 property_declaration <-
-PROPERTY_K property_identifier ( LPAREN ( property_port_list )? RPAREN )? SEMI
+PROPERTY_K identifier ( LPAREN ( property_port_list )? RPAREN )? SEMI
 	( assertion_variable_declaration )*
 	property_statement_spec
-	ENDPROPERTY_K ( COLON property_identifier )?
+	ENDPROPERTY_K ( COLON identifier )?
 
 property_port_list <- property_port_item (COMMA property_port_item)*
 
 property_port_item <-
 ( attribute_instance )* ( LOCAL_K ( property_lvar_port_direction )? )? property_formal_type
-	port_identifier (variable_dimension)* ( EQ property_actual_arg )?
+	identifier (variable_dimension)* ( EQ property_actual_arg )?
 
 property_lvar_port_direction <- INPUT_K
 
@@ -950,16 +948,16 @@ property_expr OR_K property_expr
 / clocking_event property_expr
 
 sequence_declaration <-
-SEQUENCE_K sequence_identifier ( LPAREN ( sequence_port_list )? RPAREN )? SEMI
+SEQUENCE_K identifier ( LPAREN ( sequence_port_list )? RPAREN )? SEMI
 	( assertion_variable_declaration )*
 	sequence_expr SEMI
-	ENDSEQUENCE_K ( COLON sequence_identifier )?
+	ENDSEQUENCE_K ( COLON identifier )?
 
 sequence_port_list <- sequence_port_item (COMMA sequence_port_item)*
 
 sequence_port_item <-
 ( attribute_instance )* ( LOCAL_K ( sequence_lvar_port_direction )? )? sequence_formal_type
-	port_identifier (variable_dimension)* ( EQ sequence_actual_arg )?
+	identifier (variable_dimension)* ( EQ sequence_actual_arg )?
 
 sequence_lvar_port_direction <- INPUT_K / INOUT_K / OUTPUT_K
 
@@ -991,7 +989,7 @@ cycle_delay_range <-
 / POUND2 LBRACK PLUS RBRACK
 / POUND2 constant_primary
 
-sequence_method_call <- sequence_instance DOT method_identifier
+sequence_method_call <- sequence_instance DOT identifier
 
 sequence_match_item <-
 operator_assignment
@@ -1042,7 +1040,7 @@ let_identifier <- identifier
 
 let_port_list <- let_port_item (COMMA let_port_item)*
 
-let_port_item <- ( attribute_instance )* let_formal_type port_identifier ( variable_dimension )* ( EQ expression )?
+let_port_item <- ( attribute_instance )* let_formal_type identifier ( variable_dimension )* ( EQ expression )?
 
 let_formal_type <- data_type_or_implicit
 
@@ -1056,9 +1054,9 @@ let_actual_arg <- expression
 
 //A.2.11 Covergroup declarations
 covergroup_declaration <-
-COVERGROUP_K covergroup_identifier ( LPAREN ( tf_port_list )? RPAREN )? ( coverage_event )? SEMI
+COVERGROUP_K identifier ( LPAREN ( tf_port_list )? RPAREN )? ( coverage_event )? SEMI
 	( coverage_spec_or_option )*
-	ENDGROUP_K ( COLON covergroup_identifier )?
+	ENDGROUP_K ( COLON identifier )?
 
 coverage_spec_or_option <-
   (attribute_instance)* coverage_option SEMI
@@ -1066,9 +1064,9 @@ coverage_spec_or_option <-
 
 coverage_option <-
 //option
-IDENT DOT member_identifier EQ expression
+IDENT DOT identifier EQ expression
 //option_type
-/ IDENT DOT member_identifier EQ constant_expression
+/ IDENT DOT identifier EQ constant_expression
 
 coverage_spec <-
 cover_point
@@ -1085,11 +1083,10 @@ block_event_expression <-
 / END_K hierarchical_btf_identifier
 
 hierarchical_btf_identifier <-
-  hierarchical_identifier ( class_scope )? method_identifier
-/ hierarchical_tf_identifier
-/ hierarchical_block_identifier
+  hierarchical_identifier ( class_scope )? identifier
+/ hierarchical_identifier
 
-cover_point <- ( cover_point_identifier COLON )? COVERPOINT_K expression ( IFF_K LPAREN expression RPAREN )? bins_or_empty
+cover_point <- ( identifier COLON )? COVERPOINT_K expression ( IFF_K LPAREN expression RPAREN )? bins_or_empty
 
 bins_or_empty <-
 LCURLY (attribute_instance)* ( bins_or_options SEMI )* RCURLY
@@ -1097,11 +1094,11 @@ LCURLY (attribute_instance)* ( bins_or_options SEMI )* RCURLY
 
 bins_or_options <-
 coverage_option
-/ bins_keyword bin_identifier EQ DEFAULT_K SEQUENCE_K ( IFF_K LPAREN expression RPAREN )?
-/ ( WILDCARD_K )? bins_keyword bin_identifier ( LBRACK ( expression )? RBRACK )? EQ 
+/ bins_keyword identifier EQ DEFAULT_K SEQUENCE_K ( IFF_K LPAREN expression RPAREN )?
+/ ( WILDCARD_K )? bins_keyword identifier ( LBRACK ( expression )? RBRACK )? EQ 
 	LCURLY open_range_list RCURLY ( IFF_K LPAREN expression RPAREN )?
-/ ( WILDCARD_K )? bins_keyword bin_identifier ( RBRACK RBRACK )? EQ trans_list ( IFF_K LPAREN expression RPAREN )?
-/ bins_keyword bin_identifier ( LBRACK ( expression )? RBRACK )? EQ DEFAULT_K ( IFF_K LPAREN expression RPAREN )?
+/ ( WILDCARD_K )? bins_keyword identifier ( RBRACK RBRACK )? EQ trans_list ( IFF_K LPAREN expression RPAREN )?
+/ bins_keyword identifier ( LBRACK ( expression )? RBRACK )? EQ DEFAULT_K ( IFF_K LPAREN expression RPAREN )?
 
 bins_keyword<- BINS_K / ILLEGAL_BINS_K / IGNORE_BINS_K
 
@@ -1123,13 +1120,12 @@ repeat_range <-
   expression COLON expression
 / expression
 
-cover_cross <- ( cross_identifier COLON )? CROSS_K list_of_coverpoints ( IFF_K LPAREN expression RPAREN )? select_bins_or_empty
+cover_cross <- ( identifier COLON )? CROSS_K list_of_coverpoints ( IFF_K LPAREN expression RPAREN )? select_bins_or_empty
 
 list_of_coverpoints <- cross_item COMMA cross_item ( COMMA cross_item )*
 
 cross_item <-
-cover_point_identifier
-/ variable_identifier
+identifier
 
 select_bins_or_empty <-
 LCURLY ( bins_selection_or_option SEMI )* RCURLY
@@ -1139,7 +1135,7 @@ bins_selection_or_option <-
 ( attribute_instance )* coverage_option
 / ( attribute_instance )* bins_selection
 
-bins_selection <- bins_keyword bin_identifier EQ select_expression ( IFF_K LPAREN expression RPAREN )?
+bins_selection <- bins_keyword identifier EQ select_expression ( IFF_K LPAREN expression RPAREN )?
 
 select_expression <-
 select_expression AND2 select_expression
@@ -1151,8 +1147,8 @@ select_expression AND2 select_expression
 select_condition <- BINSOF_K LPAREN bins_expression RPAREN ( INTERSECT_K LCURLY open_range_list RCURLY )?
 
 bins_expression <-
-  cover_point_identifier ( DOT bin_identifier )?
-/ variable_identifier
+  identifier ( DOT identifier )?
+/ identifier
 
 open_range_list <- open_value_range ( COMMA open_value_range )*
 
@@ -1203,7 +1199,7 @@ pass_switchtype <- TRAN_K / RTRAN_K
 //A.4.1 Instantiation
 //A.4.1.1 Module instantiation
 module_instantiation <-
-module_identifier ( parameter_value_assignment )? hierarchical_instance ( COMMA hierarchical_instance )* SEMI
+identifier ( parameter_value_assignment )? hierarchical_instance ( COMMA hierarchical_instance )* SEMI
 
 parameter_value_assignment <- POUND LPAREN ( list_of_parameter_assignments )? RPAREN
 
@@ -1213,11 +1209,11 @@ list_of_parameter_assignments <-
 
 ordered_parameter_assignment <- param_expression
 
-named_parameter_assignment <- DOT parameter_identifier LPAREN ( param_expression )? RPAREN
+named_parameter_assignment <- DOT identifier LPAREN ( param_expression )? RPAREN
 
 hierarchical_instance <- name_of_instance LPAREN ( list_of_port_connections )? RPAREN
 
-name_of_instance <- instance_identifier ( unpacked_dimension )*
+name_of_instance <- identifier ( unpacked_dimension )*
 
 list_of_port_connections <-
   named_port_connection ( COMMA named_port_connection )*
@@ -1226,20 +1222,20 @@ list_of_port_connections <-
 ordered_port_connection <- ( attribute_instance )* ( expression )?
 
 named_port_connection <-
-( attribute_instance )* DOT port_identifier ( LPAREN ( expression )? RPAREN )?
+( attribute_instance )* DOT identifier ( LPAREN ( expression )? RPAREN )?
 / ( attribute_instance )* DOT_STAR
 
 //A.4.1.2 Interface instantiation
 interface_instantiation <-
-interface_identifier ( parameter_value_assignment )? hierarchical_instance ( COMMA hierarchical_instance )* SEMI
+identifier ( parameter_value_assignment )? hierarchical_instance ( COMMA hierarchical_instance )* SEMI
 
 //A.4.1.3 Program instantiation
 program_instantiation <-
-program_identifier ( parameter_value_assignment )? hierarchical_instance ( COMMA hierarchical_instance )* SEMI
+identifier ( parameter_value_assignment )? hierarchical_instance ( COMMA hierarchical_instance )* SEMI
 
 //A.4.1.4 Checker instantiation
 checker_instantiation <-
-checker_identifier name_of_instance LPAREN (list_of_checker_port_connections)? RPAREN SEMI
+identifier name_of_instance LPAREN (list_of_checker_port_connections)? RPAREN SEMI
 
 list_of_checker_port_connections <-
 ordered_checker_port_connection ( COMMA ordered_checker_port_connection )*
@@ -1248,7 +1244,7 @@ ordered_checker_port_connection ( COMMA ordered_checker_port_connection )*
 ordered_checker_port_connection <- ( attribute_instance )* ( property_actual_arg )?
 
 named_checker_port_connection <-
-( attribute_instance )* DOT port_identifier ( LPAREN ( property_actual_arg )? RPAREN )?
+( attribute_instance )* DOT identifier ( LPAREN ( property_actual_arg )? RPAREN )?
 / ( attribute_instance )* DOT_STAR
 
 //A.4.2 Generated instantiation
@@ -1260,12 +1256,12 @@ FOR_K LPAREN genvar_initialization SEMI genvar_expression SEMI genvar_iteration 
 generate_block
 
 genvar_initialization <-
-( GENVAR_K )? genvar_identifier EQ constant_expression
+( GENVAR_K )? identifier EQ constant_expression
 
 genvar_iteration <-
-genvar_identifier assignment_operator genvar_expression
-/ inc_or_dec_operator genvar_identifier
-/ genvar_identifier inc_or_dec_operator
+identifier assignment_operator genvar_expression
+/ inc_or_dec_operator identifier
+/ identifier inc_or_dec_operator
 
 conditional_generate_construct <-
 if_generate_construct
@@ -1282,9 +1278,9 @@ case_generate_item <-
 / constant_expression ( COMMA constant_expression )* COLON generate_block
 
 generate_block <-
-  ( generate_block_identifier COLON )? BEGIN_K ( COLON generate_block_identifier )?
+  ( identifier COLON )? BEGIN_K ( COLON identifier )?
 	( generate_item )*
-	END_K ( COLON generate_block_identifier )?
+	END_K ( COLON identifier )?
 / generate_item
 
 generate_item <-
@@ -1294,26 +1290,26 @@ module_or_generate_item
 
 //A.5 UDP declaration and instantiation
 //A.5.1 UDP declaration
-udp_nonansi_declaration <- ( attribute_instance )* PRIMITIVE_K udp_identifier LPAREN udp_port_list RPAREN SEMI
+udp_nonansi_declaration <- ( attribute_instance )* PRIMITIVE_K identifier LPAREN udp_port_list RPAREN SEMI
 
-udp_ansi_declaration <- ( attribute_instance )* PRIMITIVE_K udp_identifier LPAREN udp_declaration_port_list RPAREN SEMI
+udp_ansi_declaration <- ( attribute_instance )* PRIMITIVE_K identifier LPAREN udp_declaration_port_list RPAREN SEMI
 
 udp_declaration <-
   udp_ansi_declaration
 	udp_body
-	ENDPRIMITIVE_K ( COLON udp_identifier )?
+	ENDPRIMITIVE_K ( COLON identifier )?
 / udp_nonansi_declaration udp_port_declaration ( udp_port_declaration )*
 	udp_body
-	ENDPRIMITIVE_K ( COLON udp_identifier )?
+	ENDPRIMITIVE_K ( COLON identifier )?
 / EXTERN_K udp_ansi_declaration
 / EXTERN_K udp_nonansi_declaration
-/ ( attribute_instance )* PRIMITIVE_K udp_identifier LPAREN DOT_STAR RPAREN SEMI
+/ ( attribute_instance )* PRIMITIVE_K identifier LPAREN DOT_STAR RPAREN SEMI
 	( udp_port_declaration )*
 	udp_body
-	ENDPRIMITIVE_K ( COLON udp_identifier )?
+	ENDPRIMITIVE_K ( COLON identifier )?
 
 //A.5.2 UDP ports
-udp_port_list <- output_port_identifier COMMA input_port_identifier ( COMMA input_port_identifier )*
+udp_port_list <- identifier COMMA identifier ( COMMA identifier )*
 
 udp_declaration_port_list <- udp_output_declaration COMMA udp_input_declaration ( COMMA udp_input_declaration )*
 
@@ -1323,12 +1319,12 @@ udp_output_declaration SEMI
 / udp_reg_declaration SEMI
 
 udp_output_declaration <-
-  ( attribute_instance )* OUTPUT_K REG_K port_identifier ( EQ constant_expression )?
-/ ( attribute_instance )* OUTPUT_K port_identifier
+  ( attribute_instance )* OUTPUT_K REG_K identifier ( EQ constant_expression )?
+/ ( attribute_instance )* OUTPUT_K identifier
 
 udp_input_declaration <- ( attribute_instance )* INPUT_K list_of_udp_port_identifiers
 
-udp_reg_declaration <- ( attribute_instance )* REG_K variable_identifier
+udp_reg_declaration <- ( attribute_instance )* REG_K identifier
 
 //A.5.3 UDP body
 udp_body <- combinational_body / sequential_body
@@ -1339,7 +1335,7 @@ combinational_entry <- level_input_list COLON output_symbol SEMI
 
 sequential_body <- ( udp_initial_statement )? TABLE_K sequential_entry ( sequential_entry )* ENDTABLE_K
 
-udp_initial_statement <- INITIAL_K output_port_identifier EQ init_val SEMI
+udp_initial_statement <- INITIAL_K identifier EQ init_val SEMI
 
 init_val <- ("1'" [bB] [01xX]) / [01]
 
@@ -1364,7 +1360,7 @@ level_symbol <- [01xX?bB]
 edge_symbol <- [rRfFpPnN*]
 
 //A.5.4 UDP instantiation
-udp_instantiation <- udp_identifier ( drive_strength )? ( delay2 )? udp_instance ( COMMA udp_instance )* SEMI
+udp_instantiation <- identifier ( drive_strength )? ( delay2 )? udp_instance ( COMMA udp_instance )* SEMI
 
 udp_instance <- ( name_of_instance )? LPAREN output_terminal COMMA input_terminal ( COMMA input_terminal )* RPAREN
 
@@ -1397,7 +1393,7 @@ final_construct <- FINAL_K function_statement
 
 blocking_assignment <-
 variable_lvalue EQ delay_or_event_control expression
-/ ( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_variable_identifier select EQ class_new
+/ ( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_identifier select EQ class_new
 / nonrange_variable_lvalue EQ dynamic_array_new
 / operator_assignment
 
@@ -1425,10 +1421,10 @@ action_block <-
 / statement_or_null
 
 seq_block <-
-BEGIN_K ( COLON block_identifier )? ( block_item_declaration )* ( statement_or_null )* END_K ( COLON block_identifier )?
+BEGIN_K ( COLON identifier )? ( block_item_declaration )* ( statement_or_null )* END_K ( COLON identifier )?
 
 par_block <-
-FORK_K ( COLON block_identifier )? ( block_item_declaration )* ( statement_or_null )* join_keyword ( COLON block_identifier )?
+FORK_K ( COLON identifier )? ( block_item_declaration )* ( statement_or_null )* join_keyword ( COLON identifier )?
 
 join_keyword <- JOIN_K / JOIN_ANY_K / JOIN_NONE_K
 
@@ -1437,7 +1433,7 @@ statement_or_null <-
 statement
 / ( attribute_instance )* SEMI
 
-statement <- ( block_identifier COLON )? ( attribute_instance )* statement_item
+statement <- ( identifier COLON )? ( attribute_instance )* statement_item
 
 statement_item <-
 blocking_assignment SEMI
@@ -1467,7 +1463,7 @@ function_statement_or_null <-
 function_statement
 / ( attribute_instance )* SEMI
 
-variable_identifier_list <- variable_identifier ( COMMA variable_identifier )*
+variable_identifier_list <- identifier ( COMMA identifier )*
 
 //A.6.5 Timing control statements
 procedural_timing_control_statement <- procedural_timing_control statement_or_null
@@ -1485,7 +1481,7 @@ event_control <-
   AT LPAREN event_expression RPAREN
 / AT_STAR
 / AT LPAREN STAR RPAREN
-/ AT hierarchical_event_identifier
+/ AT hierarchical_identifier
 / AT ps_or_hierarchical_sequence_identifier
 
 event_expression <-
@@ -1511,13 +1507,12 @@ wait_statement <-
 / WAIT_K FORK_K SEMI
 
 event_trigger <-
-  MINUS_GT2 ( delay_or_event_control )? hierarchical_event_identifier SEMI
-/ MINUS_GT  hierarchical_event_identifier SEMI
+  MINUS_GT2 ( delay_or_event_control )? hierarchical_identifier SEMI
+/ MINUS_GT  hierarchical_identifier SEMI
 
 disable_statement <-
   DISABLE_K FORK_K SEMI
-/ DISABLE_K hierarchical_task_identifier SEMI
-/ DISABLE_K hierarchical_block_identifier SEMI
+/ DISABLE_K hierarchical_identifier SEMI
 
 //A.6.6 Conditional statements
 conditional_statement <-
@@ -1568,10 +1563,10 @@ randcase_item <- expression COLON statement_or_null
 //A.6.7.1 Patterns
 pattern <-
   DOT_STAR
-/ TAGGED_K member_identifier ( pattern )?
-/ SQUOTE LCURLY member_identifier COLON pattern ( COMMA member_identifier COLON pattern )* RCURLY
+/ TAGGED_K identifier ( pattern )?
+/ SQUOTE LCURLY identifier COLON pattern ( COMMA identifier COLON pattern )* RCURLY
 / SQUOTE LCURLY pattern ( COMMA pattern )* RCURLY
-/ DOT variable_identifier
+/ DOT identifier
 / constant_expression
 
 assignment_pattern <-
@@ -1580,7 +1575,7 @@ assignment_pattern <-
 / SQUOTE LCURLY constant_expression LCURLY expression ( COMMA expression )* RCURLY RCURLY
 / SQUOTE LCURLY expression ( COMMA expression )* RCURLY
 
-structure_pattern_key <- member_identifier / assignment_pattern_key
+structure_pattern_key <- identifier / assignment_pattern_key
 
 array_pattern_key <- constant_expression / assignment_pattern_key
 
@@ -1614,7 +1609,7 @@ list_of_variable_assignments
 / for_variable_declaration ( COMMA for_variable_declaration )*
 
 for_variable_declaration <-
-data_type variable_identifier EQ expression ( COMMA variable_identifier EQ expression )*
+data_type identifier EQ expression ( COMMA identifier EQ expression )*
 
 for_step <- for_step_assignment ( COMMA for_step_assignment )*
 
@@ -1624,7 +1619,7 @@ operator_assignment
 // / function_subroutine_call
 / subroutine_call
 
-loop_variables <- ( index_variable_identifier )? ( COMMA ( index_variable_identifier )? )*
+loop_variables <- ( identifier )? ( COMMA ( identifier )? )*
 
 //A.6.9 Subroutine call statements
 subroutine_call_statement <-
@@ -1639,7 +1634,7 @@ assertion_item <-
 concurrent_assertion_item
 / deferred_immediate_assertion_item
 
-deferred_immediate_assertion_item <- ( block_identifier COLON )? deferred_immediate_assertion_statement
+deferred_immediate_assertion_item <- ( identifier COLON )? deferred_immediate_assertion_statement
 
 procedural_assertion_statement <-
 concurrent_assertion_statement
@@ -1674,8 +1669,8 @@ deferred_immediate_cover_statement <- COVER_K POUND DIGIT LPAREN expression RPAR
 
 //A.6.11 Clocking block
 clocking_declaration <- 
-  GLOBAL_K CLOCKING_K ( clocking_identifier )? clocking_event SEMI ENDCLOCKING_K ( COLON clocking_identifier )?
-/ (DEFAULT_K)? CLOCKING_K ( clocking_identifier )? clocking_event SEMI ( clocking_item )* ENDCLOCKING_K ( COLON clocking_identifier )?
+  GLOBAL_K CLOCKING_K ( identifier )? clocking_event SEMI ENDCLOCKING_K ( COLON identifier )?
+/ (DEFAULT_K)? CLOCKING_K ( identifier )? clocking_event SEMI ( clocking_item )* ENDCLOCKING_K ( COLON identifier )?
 
 clocking_event <-
   AT LPAREN event_expression RPAREN
@@ -1699,7 +1694,7 @@ clocking_direction <-
 
 list_of_clocking_decl_assign <- clocking_decl_assign ( COMMA clocking_decl_assign )*
 
-clocking_decl_assign <- signal_identifier ( EQ expression )?
+clocking_decl_assign <- identifier ( EQ expression )?
 
 clocking_skew <-
 edge_identifier ( delay_control )?
@@ -1717,9 +1712,9 @@ clockvar <- hierarchical_identifier
 clockvar_expression <- clockvar select
 
 //A.6.12 Randsequence
-randsequence_statement <- RANDSEQUENCE_K LPAREN ( production_identifier )? RPAREN production ( production )* ENDSEQUENCE_K
+randsequence_statement <- RANDSEQUENCE_K LPAREN ( identifier )? RPAREN production ( production )* ENDSEQUENCE_K
 
-production <- ( data_type_or_void )? production_identifier ( LPAREN tf_port_list RPAREN )? COLON rs_rule ( OR rs_rule )* SEMI
+production <- ( data_type_or_void )? identifier ( LPAREN tf_port_list RPAREN )? COLON rs_rule ( OR rs_rule )* SEMI
 
 rs_rule <- rs_production_list ( COLON_EQ weight_specification ( rs_code_block )? )?
 
@@ -1741,7 +1736,7 @@ rs_prod <-
 / rs_case
 / production_item
 
-production_item <- production_identifier ( LPAREN list_of_arguments RPAREN )?
+production_item <- identifier ( LPAREN list_of_arguments RPAREN )?
 
 rs_if_else <- IF_K LPAREN expression RPAREN production_item ( ELSE_K production_item )?
 
@@ -1797,14 +1792,10 @@ specify_input_terminal_descriptor <- input_identifier ( LBRACK constant_range_ex
 specify_output_terminal_descriptor <- output_identifier ( LBRACK constant_range_expression RBRACK )?
 
 input_identifier <- 
-  interface_identifier DOT port_identifier
-/ input_port_identifier 
-/ inout_port_identifier 
+  identifier (DOT identifier)?
 
 output_identifier <- 
-  interface_identifier DOT port_identifier
-/ output_port_identifier 
-/ inout_port_identifier 
+  identifier (DOT identifier)?
 
 //A.7.4 Specify path delays
 path_delay_value <-
@@ -1945,15 +1936,15 @@ controlled_reference_event <- controlled_timing_check_event
 
 data_event <- timing_check_event
 
-delayed_data <- terminal_identifier (LBRACK constant_mintypmax_expression RBRACK)? // / terminal_identifier
+delayed_data <- identifier (LBRACK constant_mintypmax_expression RBRACK)? // / identifier
 
-delayed_reference <- terminal_identifier (LBRACK constant_mintypmax_expression RBRACK)?  // / terminal_identifier
+delayed_reference <- identifier (LBRACK constant_mintypmax_expression RBRACK)?  // / identifier
 
 end_edge_offset <- mintypmax_expression
 
 event_based_flag <- constant_expression
 
-notifier <- variable_identifier
+notifier <- identifier
 
 reference_event <- timing_check_event
 
@@ -2071,7 +2062,7 @@ list_of_arguments <-
 / ( expression )? ( COMMA ( expression )? )* ( COMMA DOT identifier LPAREN ( expression )? RPAREN )*
 
 method_call_body <-
-method_identifier ( attribute_instance )* ( LPAREN list_of_arguments RPAREN )?
+identifier ( attribute_instance )* ( LPAREN list_of_arguments RPAREN )?
 / built_in_method_call
 
 built_in_method_call <-
@@ -2087,7 +2078,7 @@ randomize_call <-
 RANDOMIZE_K ( attribute_instance )* ( LPAREN ( variable_identifier_list / NULL_K )? RPAREN )?
 	( WITH_K ( LPAREN ( identifier_list )? RPAREN )? constraint_block )?
 
-array_method_name <- method_identifier / UNIQUE_K / AND_K / OR_K / XOR_K
+array_method_name <- identifier / UNIQUE_K / AND_K / OR_K / XOR_K
 
 //A.8.3 Expressions
 inc_or_dec_expression <-
@@ -2148,7 +2139,7 @@ expression (MATCHES_K pattern)?  ( AND3 expression (MATCHES_K pattern)?)* QMARK 
 / tagged_union_expression
 / primary
 
-tagged_union_expression <- TAGGED_K member_identifier ( expression )?
+tagged_union_expression <- TAGGED_K identifier ( expression )?
 
 value_range <-
   LBRACK expression COLON expression RBRACK
@@ -2201,10 +2192,10 @@ constant_primary SQUOTE LPAREN constant_expression RPAREN
 // / function_subroutine_call
 / subroutine_call
 //}
-/ specparam_identifier ( LBRACK constant_range_expression RBRACK )?
+/ identifier ( LBRACK constant_range_expression RBRACK )?
 / ps_parameter_identifier constant_select
-/ genvar_identifier
-/ ( package_scope / class_scope )? enum_identifier
+/ identifier
+/ ( package_scope / class_scope )? identifier
 / constant_assignment_pattern_expression
 / type_reference
 / primary_literal
@@ -2255,14 +2246,14 @@ implicit_class_handle <- THIS_K / SUPER_K / THIS_K DOT SUPER_K
 
 bit_select <- ( LBRACK expression RBRACK )*
 
-select <- ( ( DOT member_identifier bit_select )* DOT member_identifier )? bit_select ( LBRACK part_select_range RBRACK )?
+select <- ( ( DOT identifier bit_select )* DOT identifier )? bit_select ( LBRACK part_select_range RBRACK )?
 
-nonrange_select <- ( ( DOT member_identifier bit_select )* DOT member_identifier )? bit_select
+nonrange_select <- ( ( DOT identifier bit_select )* DOT identifier )? bit_select
 
 constant_bit_select <- ( LBRACK constant_expression RBRACK )*
 
 constant_select <-
-( ( DOT member_identifier constant_bit_select )* DOT member_identifier )? constant_bit_select
+( ( DOT identifier constant_bit_select )* DOT identifier )? constant_bit_select
 	( LBRACK constant_part_select_range RBRACK )?
 
 // constant_cast <-
@@ -2284,11 +2275,11 @@ net_lvalue <-
 
 variable_lvalue <-
   LCURLY variable_lvalue ( COMMA variable_lvalue )* RCURLY
-/ ( implicit_class_handle DOT / package_scope )? hierarchical_variable_identifier select
+/ ( implicit_class_handle DOT / package_scope )? hierarchical_identifier select
 / ( assignment_pattern_expression_type )? assignment_pattern_variable_lvalue
 / streaming_concatenation
 
-nonrange_variable_lvalue <- ( implicit_class_handle DOT / package_scope )? hierarchical_variable_identifier nonrange_select
+nonrange_variable_lvalue <- ( implicit_class_handle DOT / package_scope )? hierarchical_identifier nonrange_select
 
 //A.8.6 Operators
 unary_operator <-
@@ -2413,178 +2404,56 @@ attr_name <- identifier
 
 
 //A.9.3 Identifiers
-//NOT USED: array_identifier <- identifier
-
-block_identifier <- identifier
-
-bin_identifier <- identifier
-
 c_identifier <- identifier //TODO<- ( a-zA-Z_ )? ( ( a-zA-Z0-9_ )? )*
-
-cell_identifier <- identifier
-
-checker_identifier <- identifier
-
-class_identifier <- identifier
-
-class_variable_identifier <- variable_identifier
-
-clocking_identifier <- identifier
-
-config_identifier <- identifier
-
-const_identifier <- identifier
-
-constraint_identifier <- identifier
-
-covergroup_identifier <- identifier
-
-//NOT USED: covergroup_variable_identifier <- variable_identifier
-
-cover_point_identifier <- identifier
-
-cross_identifier <- identifier
-
-dynamic_array_variable_identifier <- variable_identifier
-
-enum_identifier <- identifier
 
 escaped_identifier <- ESC_IDENT //TODO<- \ (any_ASCII_character_except_white_space)* white_space
 
-//NOT USED: formal_identifier <- identifier
-
-function_identifier <- identifier
-
-genvar_identifier <- identifier
-
-hierarchical_array_identifier <- hierarchical_identifier
-
-hierarchical_block_identifier <- hierarchical_identifier
-
-hierarchical_event_identifier <- hierarchical_identifier
-
-//TODO<- DS_ROOT_K: $root
 hierarchical_identifier <- ( DS_ROOT_K DOT )? ( identifier constant_bit_select DOT )* identifier
-
-hierarchical_net_identifier <- hierarchical_identifier
-
-hierarchical_parameter_identifier <- hierarchical_identifier
-
-hierarchical_property_identifier <- hierarchical_identifier
-
-hierarchical_sequence_identifier <- hierarchical_identifier
-
-hierarchical_task_identifier <- hierarchical_identifier
-
-hierarchical_tf_identifier <- hierarchical_identifier
-
-hierarchical_variable_identifier <- hierarchical_identifier
 
 identifier <-
 simple_identifier
 / escaped_identifier
 
-index_variable_identifier <- identifier
-
-interface_identifier <- identifier
-
-interface_instance_identifier <- identifier
-
-inout_port_identifier <- identifier
-
-input_port_identifier <- identifier
-
-instance_identifier <- identifier
-
-library_identifier <- identifier
-
-member_identifier <- identifier
-
-method_identifier <- identifier
-
-modport_identifier <- identifier
-
-module_identifier <- identifier
-
-net_identifier <- identifier
-
-output_port_identifier <- identifier
-
-package_identifier <- identifier
-
 package_scope <-
-package_identifier COLON2 !NEW_K
+identifier COLON2 !NEW_K
 //UNIT_K: $unit
 / DS_UNIT_K COLON2
 
 func_package_scope <-
-package_identifier COLON2 !function_body_declaration_follow
+identifier COLON2 !function_body_declaration_follow
 / DS_UNIT_K COLON2
 
-parameter_identifier <- identifier
+ps_class_identifier <- ( package_scope )? identifier
+func_ps_class_identifier <- ( func_package_scope )? identifier
 
-port_identifier <- identifier
-
-production_identifier <- identifier
-
-program_identifier <- identifier
-
-property_identifier <- identifier
-
-ps_class_identifier <- ( package_scope )? class_identifier
-func_ps_class_identifier <- ( func_package_scope )? class_identifier
-
-ps_covergroup_identifier <- ( package_scope )? covergroup_identifier
+ps_covergroup_identifier <- ( package_scope )? identifier
 
 ps_identifier <- ( package_scope )? identifier
 
 ps_or_hierarchical_array_identifier <-
-( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_array_identifier
+( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_identifier
 
-ps_or_hierarchical_net_identifier <- ( package_scope )? net_identifier / hierarchical_net_identifier
+ps_or_hierarchical_net_identifier <- ( package_scope )? identifier / hierarchical_identifier
 
 ps_or_hierarchical_property_identifier <-
-( package_scope )? property_identifier
-/ hierarchical_property_identifier
+( package_scope )? identifier
+/ hierarchical_identifier
 
 ps_or_hierarchical_sequence_identifier <-
-( package_scope )? sequence_identifier
-/ hierarchical_sequence_identifier
+( package_scope )? identifier
+/ hierarchical_identifier
 
-ps_or_hierarchical_tf_identifier <- ( package_scope )? tf_identifier / hierarchical_tf_identifier
+ps_or_hierarchical_tf_identifier <- ( package_scope )? identifier / hierarchical_identifier
 
 ps_parameter_identifier <-
-  ( generate_block_identifier ( LBRACK constant_expression RBRACK )? DOT )* parameter_identifier
-/ ( package_scope / class_scope )? parameter_identifier
+  ( identifier ( LBRACK constant_expression RBRACK )? DOT )* identifier
+/ ( package_scope / class_scope )? identifier
 
-//LOCAL_K<- local::
-ps_type_identifier <- ( LOCAL_K / package_scope )? type_identifier
-
-sequence_identifier <- identifier
-
-signal_identifier <- identifier
+ps_type_identifier <- ( LOCAL_K / package_scope )? identifier
 
 simple_identifier <- IDENT
 
-specparam_identifier <- identifier
-
 system_tf_identifier <- SYSTEM_IDENT
-
-task_identifier <- identifier
-
-tf_identifier <- identifier
-
-terminal_identifier <- identifier
-
-topmodule_identifier <- identifier
-
-type_identifier <- identifier
-
-udp_identifier <- identifier
-
-variable_identifier <- identifier
-
-generate_block_identifier <- IDENT
 
 extern_tf_declaration <- 
 EXTERN_K method_prototype SEMI
