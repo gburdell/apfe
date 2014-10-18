@@ -653,7 +653,7 @@ list_of_udp_port_identifiers <- identifier (COMMA identifier)*
 list_of_specparam_assignments <- specparam_assignment (COMMA specparam_assignment)*
 
 list_of_tf_variable_identifiers <- 
-port_identifier variable_dimension* (EQ expression)?  (COMMA identifier variable_dimension* (EQ expression)?)*
+identifier variable_dimension* (EQ expression)?  (COMMA identifier variable_dimension* (EQ expression)?)*
 
 list_of_type_assignments <- type_assignment (COMMA type_assignment)*
 
