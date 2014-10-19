@@ -1,4 +1,55 @@
+//follow(class_scope) is ident / NEW_K
+//class_scope <- class_type COLON2
+
+class_scope <-	//fold in class_type
+(DS_UNIT_K / identifier) (&(COLON2 identifier (COLON2 / parameter_value_assignment)) COLON2 identifier parameter_value_assignment? )* COLON2 
+
+//x $unit::id1::id2::
+//x / ( pc_scope / class_qualifier )? hierarchical_identifier select
+//x
+//x pc_scope hierarchical_identifier select yields
+scoped_prefix <-
+	(DS_UNIT_K / identifier)? (COLON2 identifier parameter_value_assignment? bit_select)*
+
+selected_suffix <- 
+	bit_select? ( LBRACK part_select_range RBRACK )?
+
+selected_ident <- 
+ 	&((DS_UNIT_K / identifier) COLON2) scoped_prefix (DOT identifier bit_select)* selected_suffix
+/	(DS_ROOT_K / identifier) (DOT identifier bit_select)* selected_suffix
+
+hierarchical_identifier <- ( DS_ROOT_K DOT )?  ( identifier bit_select DOT )* identifier
+
+bit_select   <- ( LBRACK expression RBRACK )*
+
+select <- ( ( DOT identifier bit_select )* DOT identifier )?  bit_select ( LBRACK part_select_range RBRACK )?
+
 Grammar <- source_text
+//first(parameter_value_assignment)=POUND
+class_type <- 
+	ps_class_identifier parameter_value_assignment?  
+		(COLON2 identifier parameter_value_assignment?)*
+
+ps_class_identifier <- 
+	pc_scope? identifier
+
+//package_scope is degenerate of class_scope
+//package / class scope is just class_scope
+//package_scope <- DS_UNIT_K COLON2 /	identifier COLON2
+pc_scope <-
+class_scope
+
+class_qualifier <- 
+	LOCAL2_K? 
+	( implicit_class_handle DOT 
+	/ class_scope 
+	)?
+
+implicit_class_handle <- 
+  THIS_K DOT SUPER_K
+/	THIS_K 
+/ SUPER_K 
+
 
 source_text <- timeunits_declaration? description* Spacing EOF
 
@@ -96,7 +147,7 @@ LCURLY port_reference (COMMA port_reference)* RCURLY
 / port_reference
 
 port_reference <-
-identifier constant_select
+identifier select
 
 port_direction <- INPUT_K / OUTPUT_K / INOUT_K / REF_K
 
@@ -111,9 +162,9 @@ INTERFACE_K (DOT identifier)?
 ansi_port_declaration <-
 //since we dont track types, first(net_port_header)==ident which also matches
 //port_identifier.  Eeek, lots of ambiguities
-port_direction? identifier unpacked_dimension* ( EQ constant_expression )?
-/ (net_port_header / interface_port_header)? identifier unpacked_dimension* ( EQ constant_expression )?
-/ variable_port_header? identifier variable_dimension* (EQ constant_expression )?
+port_direction? identifier unpacked_dimension* ( EQ expression )?
+/ (net_port_header / interface_port_header)? identifier unpacked_dimension* ( EQ expression )?
+/ variable_port_header? identifier variable_dimension* (EQ expression )?
 / port_direction? DOT identifier LPAREN expression? RPAREN
 
 elaboration_system_task <-
@@ -178,7 +229,7 @@ bind_target_scope <-
 identifier
 
 bind_target_instance <-
-hierarchical_identifier constant_bit_select
+hierarchical_identifier bit_select
 
 bind_target_instance_list <-
 bind_target_instance (COMMA bind_target_instance)*
@@ -307,7 +358,7 @@ attribute_instance* class_property
 / SEMI
 
 class_property <-
-CONST_K class_item_qualifier* data_type identifier (EQ constant_expression)? SEMI
+CONST_K class_item_qualifier* data_type identifier (EQ expression)? SEMI
 / property_qualifier* data_declaration
 
 class_method <-
@@ -500,7 +551,7 @@ net_type (drive_strength / charge_strength)? (VECTORED_K / SCALARED_K)?
 	SEMI
 
 type_declaration <-
-  TYPEDEF_K identifier constant_bit_select DOT identifier identifier SEMI
+  TYPEDEF_K identifier bit_select DOT identifier identifier SEMI
 / TYPEDEF_K data_type identifier variable_dimension* SEMI
 / TYPEDEF_K (ENUM_K / STRUCT_K / UNION_K / CLASS_K)? identifier SEMI
 
@@ -508,7 +559,7 @@ lifetime <- STATIC_K / AUTOMATIC_K
 
 //A.2.2 Declaration data types
 //A.2.2.1 Net and variable types
-//casting_type <- simple_type / constant_primary / signing / STRING_K / CONST_K
+//casting_type <- simple_type / primary / signing / STRING_K / CONST_K
 
 data_type <-
   integer_vector_type signing? packed_dimension*
@@ -522,7 +573,7 @@ data_type <-
 / EVENT_K
 / type_reference
   //1st set: ident...
-/ (package_scope / class_scope)? identifier packed_dimension*
+/ pc_scope? identifier packed_dimension*
   //1st set: ident...
 / class_type
   //1st set: ident...
@@ -547,15 +598,8 @@ integer_atom_type signing?
 / integer_vector_type signing? packed_dimension?
 / identifier packed_dimension?
 
-enum_name_declaration <- identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ constant_expression)?
+enum_name_declaration <- identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ expression)?
 
-class_scope <- class_type COLON2
-func_class_scope <- func_class_type COLON2
-
-//TODO: need to rm ambiguity here on COLON2 identifier and punch through
-//to ps_class_identifier
-class_type <- ps_class_identifier parameter_value_assignment?  (COLON2 identifier parameter_value_assignment?)*
-func_class_type <- func_ps_class_identifier parameter_value_assignment?  (COLON2 !function_body_declaration_follow identifier parameter_value_assignment?)*
 
 integer_type <- integer_vector_type / integer_atom_type
 
@@ -644,20 +688,20 @@ list_of_variable_decl_assignments <- variable_decl_assignment (COMMA variable_de
 list_of_variable_identifiers <- identifier variable_dimension* (COMMA identifier variable_dimension*)*
 
 list_of_variable_port_identifiers <- 
-identifier variable_dimension* (EQ constant_expression)?  (COMMA identifier variable_dimension* (EQ constant_expression)?)*
+identifier variable_dimension* (EQ expression)?  (COMMA identifier variable_dimension* (EQ expression)?)*
 
 list_of_virtual_interface_decl <-
 identifier (EQ identifier)?  (COMMA identifier (EQ identifier)?)*
 
 //A.2.4 Declaration assignments
-defparam_assignment <- hierarchical_identifier EQ constant_mintypmax_expression
+defparam_assignment <- hierarchical_identifier EQ mintypmax_expression
 
 net_decl_assignment <- identifier unpacked_dimension* (EQ expression)?
 
-param_assignment <- identifier unpacked_dimension* (EQ constant_param_expression)?
+param_assignment <- identifier unpacked_dimension* (EQ param_expression)?
 
 specparam_assignment <-
-identifier EQ constant_mintypmax_expression
+identifier EQ mintypmax_expression
 / pulse_control_specparam
 
 type_assignment <-
@@ -673,7 +717,7 @@ error_limit_value <- limit_value
 
 reject_limit_value <- limit_value
 
-limit_value <- constant_mintypmax_expression
+limit_value <- mintypmax_expression
 
 variable_decl_assignment <-
   identifier unsized_dimension variable_dimension?  (EQ dynamic_array_new)?
@@ -686,11 +730,11 @@ dynamic_array_new <- NEW_K expression? ( LPAREN expression RPAREN )?
 
 //A.2.5 Declaration ranges
 unpacked_dimension <-
-LBRACK constant_range RBRACK
-/ LBRACK constant_expression RBRACK
+LBRACK range RBRACK
+/ LBRACK expression RBRACK
 
 packed_dimension <-
-LBRACK constant_range RBRACK
+LBRACK range RBRACK
 / unsized_dimension
 
 associative_dimension <-
@@ -703,7 +747,7 @@ unsized_dimension
 / associative_dimension
 / queue_dimension
 
-queue_dimension <- LBRACK DOLLAR ( COLON constant_expression )? RBRACK
+queue_dimension <- LBRACK DOLLAR ( COLON expression )? RBRACK
 
 unsized_dimension <- LBRACK RBRACK
 
@@ -714,16 +758,15 @@ data_type_or_void
 
 function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
-function_body_declaration_follow <- identifier (LPAREN / SEMI)
 
 function_body_declaration <-
   function_data_type_or_implicit
-	( identifier DOT / func_class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
+	( identifier DOT / class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
 	( block_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON identifier )?
 / function_data_type_or_implicit
-	( identifier DOT / func_class_scope )? identifier SEMI
+	( identifier DOT / class_scope )? identifier SEMI
 	( tf_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON identifier )?
@@ -751,13 +794,13 @@ task_declaration <- TASK_K ( lifetime )? task_body_declaration
 
 task_body_declaration <-
   ( identifier DOT / class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
-	( block_item_declaration )*
-	( statement_or_null )*
-	ENDTASK_K ( COLON identifier )?
+		( block_item_declaration )*
+		( statement_or_null )*
+		ENDTASK_K ( COLON identifier )?
 / ( identifier DOT / class_scope )? identifier SEMI
-	( tf_item_declaration )*
-	( statement_or_null )*
-	ENDTASK_K ( COLON identifier )?
+		( tf_item_declaration )*
+		( statement_or_null )*
+		ENDTASK_K ( COLON identifier )?
 
 tf_item_declaration <-
 block_item_declaration
@@ -847,7 +890,7 @@ COVER_K SEQUENCE_K LPAREN (clocking_event )? ( DISABLE_K IFF_K LPAREN expression
 
 restrict_property_statement<- RESTRICT_K PROPERTY_K LPAREN property_spec RPAREN SEMI
 
-property_instance <- ps_or_hierarchical_property_identifier ( LPAREN ( property_list_of_arguments )? RPAREN )?
+property_instance <- ps_or_hierarchical_identifier ( LPAREN ( property_list_of_arguments )? RPAREN )?
 
 property_list_of_arguments <-
   DOT identifier LPAREN (property_actual_arg)? RPAREN ( COMMA DOT identifier LPAREN (property_actual_arg)? RPAREN )*
@@ -913,14 +956,14 @@ property_expr OR_K property_expr
 / LPAREN property_expr RPAREN
 / NOT_K property_expr
 / NEXTTIME_K property_expr
-/ NEXTTIME_K ( constant_expression )? property_expr
+/ NEXTTIME_K ( expression )? property_expr
 / S_NEXTTIME_K property_expr
-/ S_NEXTTIME_K ( constant_expression )? property_expr
+/ S_NEXTTIME_K ( expression )? property_expr
 / ALWAYS_K property_expr
 / ALWAYS_K ( cycle_delay_const_range_expression )? property_expr
-/ S_ALWAYS_K ( constant_range)? property_expr
+/ S_ALWAYS_K ( range)? property_expr
 / S_EVENTUALLY_K property_expr
-/ EVENTUALLY_K ( constant_range )? property_expr
+/ EVENTUALLY_K ( range )? property_expr
 / S_EVENTUALLY_K ( cycle_delay_const_range_expression )? property_expr
 / ACCEPT_ON_K LPAREN expression_or_dist RPAREN property_expr
 / REJECT_ON_K LPAREN expression_or_dist RPAREN property_expr
@@ -969,7 +1012,7 @@ cycle_delay_range <-
   POUND2 LBRACK cycle_delay_const_range_expression RBRACK
 / POUND2 LBRACK STAR RBRACK
 / POUND2 LBRACK PLUS RBRACK
-/ POUND2 constant_primary
+/ POUND2 primary
 
 sequence_method_call <- sequence_instance DOT identifier
 
@@ -978,7 +1021,7 @@ operator_assignment
 / inc_or_dec_expression
 / subroutine_call
 
-sequence_instance <- ps_or_hierarchical_sequence_identifier ( LPAREN ( sequence_list_of_arguments )? RPAREN )?
+sequence_instance <- ps_or_hierarchical_identifier ( LPAREN ( sequence_list_of_arguments )? RPAREN )?
 
 sequence_list_of_arguments <-
   DOT identifier LPAREN (sequence_actual_arg)? RPAREN ( COMMA DOT identifier LPAREN (sequence_actual_arg)? RPAREN )*
@@ -1005,12 +1048,12 @@ non_consecutive_repetition <- LBRACK EQ const_or_range_expression RBRACK
 goto_repetition <- LBRACK MINUS_GT const_or_range_expression RBRACK
 
 const_or_range_expression <-
-constant_expression
+	expression
 / cycle_delay_const_range_expression
 
 cycle_delay_const_range_expression <-
-constant_expression COLON constant_expression
-/ constant_expression COLON DOLLAR
+	expression COLON expression
+/ expression COLON DOLLAR
 
 expression_or_dist <- expression ( DIST_K LCURLY dist_list RCURLY )?
 
@@ -1026,7 +1069,7 @@ let_port_item <- ( attribute_instance )* let_formal_type identifier ( variable_d
 
 let_formal_type <- data_type_or_implicit
 
-let_expression <- ( package_scope )? let_identifier ( LPAREN ( let_list_of_arguments )? RPAREN )?
+let_expression <- pc_scope? let_identifier ( LPAREN ( let_list_of_arguments )? RPAREN )?
 
 let_list_of_arguments <-
   DOT identifier LPAREN ( let_actual_arg )? RPAREN ( COMMA DOT identifier LPAREN ( let_actual_arg )? RPAREN )*
@@ -1048,7 +1091,7 @@ coverage_option <-
 //option
 IDENT DOT identifier EQ expression
 //option_type
-/ IDENT DOT identifier EQ constant_expression
+/ IDENT DOT identifier EQ expression
 
 coverage_spec <-
 cover_point
@@ -1065,7 +1108,7 @@ block_event_expression <-
 / END_K hierarchical_btf_identifier
 
 hierarchical_btf_identifier <-
-  hierarchical_identifier ( class_scope )? identifier
+  (hierarchical_identifier DOT / class_scope)? identifier
 / hierarchical_identifier
 
 cover_point <- ( identifier COLON )? COVERPOINT_K expression ( IFF_K LPAREN expression RPAREN )? bins_or_empty
@@ -1238,7 +1281,7 @@ FOR_K LPAREN genvar_initialization SEMI genvar_expression SEMI genvar_iteration 
 generate_block
 
 genvar_initialization <-
-( GENVAR_K )? identifier EQ constant_expression
+( GENVAR_K )? identifier EQ expression
 
 genvar_iteration <-
 identifier assignment_operator genvar_expression
@@ -1250,14 +1293,14 @@ if_generate_construct
 / case_generate_construct
 
 if_generate_construct <-
-IF_K LPAREN constant_expression RPAREN generate_block ( ELSE_K generate_block )?
+IF_K LPAREN expression RPAREN generate_block ( ELSE_K generate_block )?
 
 case_generate_construct <-
-CASE_K LPAREN constant_expression RPAREN case_generate_item ( case_generate_item )* ENDCASE_K
+CASE_K LPAREN expression RPAREN case_generate_item ( case_generate_item )* ENDCASE_K
 
 case_generate_item <-
   DEFAULT_K ( COLON )? generate_block
-/ constant_expression ( COMMA constant_expression )* COLON generate_block
+/ expression ( COMMA expression )* COLON generate_block
 
 generate_block <-
   ( identifier COLON )? BEGIN_K ( COLON identifier )?
@@ -1293,7 +1336,7 @@ udp_output_declaration SEMI
 / udp_reg_declaration SEMI
 
 udp_output_declaration <-
-  ( attribute_instance )* OUTPUT_K REG_K identifier ( EQ constant_expression )?
+  ( attribute_instance )* OUTPUT_K REG_K identifier ( EQ expression )?
 / ( attribute_instance )* OUTPUT_K identifier
 
 udp_input_declaration <- ( attribute_instance )* INPUT_K list_of_udp_port_identifiers
@@ -1367,7 +1410,7 @@ final_construct <- FINAL_K function_statement
 
 blocking_assignment <-
 variable_lvalue EQ delay_or_event_control expression
-/ ( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_identifier select EQ class_new
+/ ( implicit_class_handle DOT / pc_scope )? hierarchical_identifier select EQ class_new
 / nonrange_variable_lvalue EQ dynamic_array_new
 / operator_assignment
 
@@ -1456,7 +1499,7 @@ event_control <-
 / AT_STAR
 / AT LPAREN STAR RPAREN
 / AT hierarchical_identifier
-/ AT ps_or_hierarchical_sequence_identifier
+/ AT ps_or_hierarchical_identifier
 
 event_expression <-
   event_expression OR_K event_expression
@@ -1541,17 +1584,17 @@ pattern <-
 / SQUOTE LCURLY identifier COLON pattern ( COMMA identifier COLON pattern )* RCURLY
 / SQUOTE LCURLY pattern ( COMMA pattern )* RCURLY
 / DOT identifier
-/ constant_expression
+/ expression
 
 assignment_pattern <-
   SQUOTE LCURLY structure_pattern_key COLON expression ( COMMA structure_pattern_key COLON expression )* RCURLY
 / SQUOTE LCURLY array_pattern_key COLON expression ( COMMA array_pattern_key COLON expression )* RCURLY
-/ SQUOTE LCURLY constant_expression LCURLY expression ( COMMA expression )* RCURLY RCURLY
+/ SQUOTE LCURLY expression LCURLY expression ( COMMA expression )* RCURLY RCURLY
 / SQUOTE LCURLY expression ( COMMA expression )* RCURLY
 
 structure_pattern_key <- identifier / assignment_pattern_key
 
-array_pattern_key <- constant_expression / assignment_pattern_key
+array_pattern_key <- expression / assignment_pattern_key
 
 assignment_pattern_key <- simple_type / DEFAULT_K
 
@@ -1598,9 +1641,9 @@ loop_variables <- ( identifier )? ( COMMA ( identifier )? )*
 //A.6.9 Subroutine call statements
 subroutine_call_statement <-
   VOID_K SQUOTE LPAREN 
-	//function_subroutine_call 
-	subroutine_call
-	RPAREN SEMI
+		//function_subroutine_call 
+		subroutine_call
+		RPAREN SEMI
 / subroutine_call SEMI
 
 //A.6.10 Assertion statements
@@ -1916,7 +1959,7 @@ delayed_reference <- identifier (LBRACK constant_mintypmax_expression RBRACK)?  
 
 end_edge_offset <- mintypmax_expression
 
-event_based_flag <- constant_expression
+event_based_flag <- expression
 
 notifier <- identifier
 
@@ -1928,7 +1971,7 @@ timestamp_condition <- mintypmax_expression
 
 start_edge_offset <- mintypmax_expression
 
-threshold <- constant_expression
+threshold <- expression
 
 timing_check_limit <- expression
 
@@ -1969,13 +2012,13 @@ scalar_constant <- ('1'? [bB])? [01]
 concatenation <-
 LCURLY expression ( COMMA expression )* RCURLY
 
-constant_concatenation <- LCURLY constant_expression ( COMMA constant_expression )* RCURLY
+constant_concatenation <- LCURLY expression ( COMMA expression )* RCURLY
 
-constant_multiple_concatenation <- LCURLY constant_expression constant_concatenation RCURLY
+constant_multiple_concatenation <- LCURLY expression constant_concatenation RCURLY
 
 module_path_concatenation <- LCURLY module_path_expression ( COMMA module_path_expression )* RCURLY
 
-module_path_multiple_concatenation <- LCURLY constant_expression module_path_concatenation RCURLY
+module_path_multiple_concatenation <- LCURLY expression module_path_concatenation RCURLY
 
 multiple_concatenation <- LCURLY expression concatenation RCURLY
 
@@ -1983,7 +2026,7 @@ streaming_concatenation <- LCURLY stream_operator ( slice_size )? stream_concate
 
 stream_operator <- GT2 / LT2
 
-slice_size <- simple_type / constant_expression
+slice_size <- simple_type / expression
 
 stream_concatenation <- LCURLY stream_expression ( COMMA stream_expression )* RCURLY
 
@@ -2001,7 +2044,7 @@ empty_queue <- LCURLY RCURLY
 //NOTE: indirect left recursion.  inline.
 //constant_function_call <- function_subroutine_call
 
-tf_call <- ps_or_hierarchical_tf_identifier ( attribute_instance )* ( LPAREN list_of_arguments RPAREN )?
+tf_call <- ps_or_hierarchical_identifier ( attribute_instance )* ( LPAREN list_of_arguments RPAREN )?
 
 system_tf_call <-
 system_tf_identifier LPAREN data_type ( COMMA expression )? RPAREN
@@ -2011,7 +2054,7 @@ subroutine_call <-
 //{method_call
 	(	//NOTE: causes ILR and seems incorrect to match so much
 		//so replace{: primary 
-		( package_scope / class_qualifier )? hierarchical_identifier select
+		( pc_scope / class_qualifier )? hierarchical_identifier select
 		//}
 	/ 	implicit_class_handle
 	) DOT method_call_body
@@ -2072,13 +2115,7 @@ inc_or_dec_operator ( attribute_instance )* variable_lvalue
 //NOT USED: 	)*
 //NOT USED: 	QMARK ( attribute_instance )* expression COLON expression
 
-constant_expression <-
-  constant_expression QMARK ( attribute_instance )* constant_expression COLON constant_expression
-/ constant_expression binary_operator ( attribute_instance )* constant_expression
-/ unary_operator ( attribute_instance )* constant_primary
-/ constant_primary
-
-constant_mintypmax_expression <- constant_expression (COLON constant_expression COLON constant_expression)?
+constant_mintypmax_expression <- expression (COLON expression COLON expression)?
 
 constant_param_expression <-
 constant_mintypmax_expression / data_type / DOLLAR
@@ -2086,18 +2123,13 @@ constant_mintypmax_expression / data_type / DOLLAR
 param_expression <- mintypmax_expression / data_type
 
 constant_range_expression <-
-constant_expression
-/ constant_part_select_range
+ 	constant_part_select_range
+/	expression
 
 constant_part_select_range <-
-constant_range
-/ constant_indexed_range
+	expression (COLON / PLUS_COLON / MINUS_COLON) expression
 
-constant_range <- constant_expression COLON constant_expression
-
-constant_indexed_range <-
-constant_expression PLUS_COLON constant_expression
-/ constant_expression MINUS_COLON constant_expression
+range <- expression COLON expression
 
 expression <-
 //ILR{ / conditional_expression
@@ -2138,24 +2170,24 @@ module_path_mintypmax_expression <-
   module_path_expression COLON module_path_expression COLON module_path_expression
 / module_path_expression
 
-part_select_range <- constant_range / indexed_range
+part_select_range <- range / indexed_range
 
 indexed_range <-
-expression PLUS_COLON constant_expression
-/ expression MINUS_COLON constant_expression
+expression PLUS_COLON expression
+/ expression MINUS_COLON expression
 
-genvar_expression <- constant_expression
+genvar_expression <- expression
 
 //constant_cast <-
-//casting_type SQUOTE LPAREN constant_expression RPAREN
+//casting_type SQUOTE LPAREN expression RPAREN
 //casting_type <- simple_type / constant_primary / signing / STRING_K /CONST_K 
 
 //A.8.4 Primaries
 constant_primary <-
 //NOTE replace to mitigate ILR{ / constant_cast
 //ILR{ / casting_type 
-constant_primary SQUOTE LPAREN constant_expression RPAREN
-/ (simple_type / signing / STRING_K / CONST_K) SQUOTE LPAREN constant_expression RPAREN
+constant_primary SQUOTE LPAREN expression RPAREN
+/ (simple_type / signing / STRING_K / CONST_K) SQUOTE LPAREN expression RPAREN
 //}
 //}
 / constant_multiple_concatenation ( LBRACK constant_range_expression RBRACK )?
@@ -2167,9 +2199,9 @@ constant_primary SQUOTE LPAREN constant_expression RPAREN
 / subroutine_call
 //}
 / identifier ( LBRACK constant_range_expression RBRACK )?
-/ ps_parameter_identifier constant_select
+/ ps_parameter_identifier select
 / identifier
-/ ( package_scope / class_scope )? identifier
+/ pc_scope? identifier
 / constant_assignment_pattern_expression
 / type_reference
 / primary_literal
@@ -2198,11 +2230,9 @@ primary <-
 / THIS_K
 / DOLLAR
 / NULL_K
-/ ( package_scope / class_qualifier )? hierarchical_identifier select
+/ ( pc_scope / class_qualifier )? hierarchical_identifier select
 / primary_literal
 
-//LOCAL2_K <- local::
-class_qualifier <- LOCAL2_K? ( implicit_class_handle DOT / class_scope )?
 
 range_expression <-
 expression
@@ -2216,22 +2246,10 @@ unsigned_number time_unit
 
 time_unit <- IDENT //s / ms / us / ns / ps / fs
 
-implicit_class_handle <- THIS_K / SUPER_K / THIS_K DOT SUPER_K
 
-bit_select <- ( LBRACK expression RBRACK )*
-
-select <- ( ( DOT identifier bit_select )* DOT identifier )? bit_select ( LBRACK part_select_range RBRACK )?
-
-nonrange_select <- ( ( DOT identifier bit_select )* DOT identifier )? bit_select
-
-constant_bit_select <- ( LBRACK constant_expression RBRACK )*
-
-constant_select <-
-( ( DOT identifier constant_bit_select )* DOT identifier )? constant_bit_select
-	( LBRACK constant_part_select_range RBRACK )?
 
 // constant_cast <-
-//casting_type SQUOTE LPAREN constant_expression RPAREN
+//casting_type SQUOTE LPAREN expression RPAREN
 
 constant_let_expression <- let_expression
 
@@ -2244,16 +2262,16 @@ cast <-
 //A.8.5 Expression left-side values
 net_lvalue <-
   LCURLY net_lvalue ( COMMA net_lvalue )* RCURLY
-/ ps_or_hierarchical_net_identifier constant_select
+/ ps_or_hierarchical_identifier select
 / ( assignment_pattern_expression_type )? assignment_pattern_net_lvalue
 
 variable_lvalue <-
   LCURLY variable_lvalue ( COMMA variable_lvalue )* RCURLY
-/ ( implicit_class_handle DOT / package_scope )? hierarchical_identifier select
+/ ( implicit_class_handle DOT / pc_scope )? hierarchical_identifier select
 / ( assignment_pattern_expression_type )? assignment_pattern_variable_lvalue
 / streaming_concatenation
 
-nonrange_variable_lvalue <- ( implicit_class_handle DOT / package_scope )? hierarchical_identifier nonrange_select
+nonrange_variable_lvalue <- ( implicit_class_handle DOT / pc_scope )? hierarchical_identifier select
 
 //A.8.6 Operators
 unary_operator <-
@@ -2372,7 +2390,7 @@ string_literal <- STRING //" ( Any_ASCII_Characters )* "
 //A.9.1 Attributes
 attribute_instance <- LPAREN_STAR attr_spec ( COMMA attr_spec )* STAR_RPAREN
 
-attr_spec <- attr_name ( EQ constant_expression )?
+attr_spec <- attr_name ( EQ expression )?
 
 attr_name <- identifier
 
@@ -2382,56 +2400,35 @@ c_identifier <- identifier //TODO<- ( a-zA-Z_ )? ( ( a-zA-Z0-9_ )? )*
 
 escaped_identifier <- ESC_IDENT //TODO<- \ (any_ASCII_character_except_white_space)* white_space
 
-hierarchical_identifier <- ( DS_ROOT_K DOT )? ( identifier constant_bit_select DOT )* identifier
 
 identifier <-
 simple_identifier
 / escaped_identifier
 
-package_scope <-
-identifier COLON2 !NEW_K
-//UNIT_K: $unit
-/ DS_UNIT_K COLON2
+ps_covergroup_identifier <- pc_scope? identifier
 
-func_package_scope <-
-identifier COLON2 !function_body_declaration_follow
-/ DS_UNIT_K COLON2
-
-ps_class_identifier <- ( package_scope )? identifier
-func_ps_class_identifier <- ( func_package_scope )? identifier
-
-ps_covergroup_identifier <- ( package_scope )? identifier
-
-ps_identifier <- ( package_scope )? identifier
+ps_identifier <- pc_scope? identifier
 
 ps_or_hierarchical_array_identifier <-
-( implicit_class_handle DOT / package_scope / class_scope )? hierarchical_identifier
+( implicit_class_handle DOT / pc_scope )? hierarchical_identifier
 
-ps_or_hierarchical_net_identifier <- ( package_scope )? identifier / hierarchical_identifier
-
-ps_or_hierarchical_property_identifier <-
-( package_scope )? identifier
-/ hierarchical_identifier
-
-ps_or_hierarchical_sequence_identifier <-
-( package_scope )? identifier
-/ hierarchical_identifier
-
-ps_or_hierarchical_tf_identifier <- ( package_scope )? identifier / hierarchical_identifier
+ps_or_hierarchical_identifier <- 
+  hierarchical_identifier
+/ pc_scope? identifier 
 
 ps_parameter_identifier <-
-  ( identifier ( LBRACK constant_expression RBRACK )? DOT )* identifier
-/ ( package_scope / class_scope )? identifier
+  ( identifier ( LBRACK expression RBRACK )? DOT )* identifier
+/ pc_scope? identifier
 
-ps_type_identifier <- ( LOCAL_K / package_scope )? identifier
+ps_type_identifier <- ( LOCAL_K / pc_scope )? identifier
 
 simple_identifier <- IDENT
 
 system_tf_identifier <- SYSTEM_IDENT
 
 extern_tf_declaration <- 
-EXTERN_K method_prototype SEMI
-/ EXTERN_K FORKJOIN_K task_prototype SEMI
+  EXTERN_K FORKJOIN_K task_prototype SEMI
+/	EXTERN_K method_prototype SEMI
 
 // Define tail predicate to isolate keyword
 kwrdTail <- ![a-zA-Z_0-9]
@@ -2806,11 +2803,11 @@ STRING <- Spacing '"' ('"' / (!'"' .)+ '"')
 SYSTEM_IDENT <- Spacing '$' IdentStart IdentCont*
 DIGIT <- Spacing [0-9]
 
-/** Improve performance dramatically
-Spacing <- (Space / Comment / TicLine / TimeScale)*
-**/
+// Improve performance dramatically
+// Spacing <- (Space / Comment / TicLine / TimeScale)*
+//
 Spacing << MySpacing
-Comment <- SL_COMMENT / ML_COMMENT
+// Comment <- SL_COMMENT / ML_COMMENT
 SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
 ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
 
