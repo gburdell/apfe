@@ -1,55 +1,22 @@
-//follow(class_scope) is ident / NEW_K
-//class_scope <- class_type COLON2
-
-class_scope <-	//fold in class_type
-(DS_UNIT_K / identifier) (&(COLON2 identifier (COLON2 / parameter_value_assignment)) COLON2 identifier parameter_value_assignment? )* COLON2 
-
-//x $unit::id1::id2::
-//x / ( pc_scope / class_qualifier )? hierarchical_identifier select
-//x
-//x pc_scope hierarchical_identifier select yields
-scoped_prefix <-
-	(DS_UNIT_K / identifier)? (COLON2 identifier parameter_value_assignment? bit_select)*
-
-selected_suffix <- 
-	bit_select? ( LBRACK part_select_range RBRACK )?
-
-selected_ident <- 
- 	&((DS_UNIT_K / identifier) COLON2) scoped_prefix (DOT identifier bit_select)* selected_suffix
-/	(DS_ROOT_K / identifier) (DOT identifier bit_select)* selected_suffix
-
-hierarchical_identifier <- ( DS_ROOT_K DOT )?  ( identifier bit_select DOT )* identifier
-
-bit_select   <- ( LBRACK expression RBRACK )*
-
-select <- ( ( DOT identifier bit_select )* DOT identifier )?  bit_select ( LBRACK part_select_range RBRACK )?
-
-Grammar <- source_text
-//first(parameter_value_assignment)=POUND
-class_type <- 
-	ps_class_identifier parameter_value_assignment?  
-		(COLON2 identifier parameter_value_assignment?)*
-
-ps_class_identifier <- 
-	pc_scope? identifier
-
-//package_scope is degenerate of class_scope
-//package / class scope is just class_scope
-//package_scope <- DS_UNIT_K COLON2 /	identifier COLON2
-pc_scope <-
-class_scope
-
-class_qualifier <- 
-	LOCAL2_K? 
-	( implicit_class_handle DOT 
-	/ class_scope 
-	)?
-
 implicit_class_handle <- 
   THIS_K DOT SUPER_K
 /	THIS_K 
 / SUPER_K 
 
+bit_select   <- ( LBRACK expression RBRACK )*
+
+scoped_prefix <-
+	(DS_UNIT_K / identifier)? (COLON2 identifier parameter_value_assignment? bit_select)*
+
+selected_suffix <- 
+	(DOT identifier bit_select)* bit_select? ( LBRACK part_select_range RBRACK )?
+
+selected_ident <- 
+	LOCAL_K (COLON2 (implicit_class_handle / identifier) parameter_value_assignment? bit_select)+ selected_suffix
+/	&((DS_UNIT_K / identifier) COLON2) scoped_prefix selected_suffix
+/	(implicit_class_handle / DS_ROOT_K / identifier) selected_suffix
+
+Grammar <- source_text
 
 source_text <- timeunits_declaration? description* Spacing EOF
 
@@ -102,7 +69,7 @@ CHECKER_K identifier (LPAREN checker_port_list? RPAREN)? SEMI checker_or_generat
 
 class_declaration <-
 VIRTUAL_K? CLASS_K lifetime? identifier parameter_port_list?  
-	(EXTENDS_K class_type (LPAREN list_of_arguments RPAREN)? )? SEMI
+	(EXTENDS_K selected_ident (LPAREN list_of_arguments RPAREN)? )? SEMI
 	class_item*
 	ENDCLASS_K (COLON identifier)?
 
@@ -146,8 +113,7 @@ port_expression <-
 LCURLY port_reference (COMMA port_reference)* RCURLY
 / port_reference
 
-port_reference <-
-identifier select
+port_reference <- selected_ident
 
 port_direction <- INPUT_K / OUTPUT_K / INOUT_K / REF_K
 
@@ -229,7 +195,7 @@ bind_target_scope <-
 identifier
 
 bind_target_instance <-
-hierarchical_identifier bit_select
+selected_ident
 
 bind_target_instance_list <-
 bind_target_instance (COMMA bind_target_instance)*
@@ -396,8 +362,10 @@ method_prototype <-
 task_prototype
 / function_prototype
 
+new_class_scope <- (!NEW_K identifier COLON2)*
+
 class_constructor_declaration <-
-FUNCTION_K class_scope? NEW_K (LPAREN tf_port_list? RPAREN)? SEMI
+FUNCTION_K new_class_scope NEW_K (LPAREN tf_port_list? RPAREN)? SEMI
 	block_item_declaration*
 	(SUPER_K DOT NEW_K (LPAREN list_of_arguments RPAREN)? SEMI )?
 	function_statement_or_null*
@@ -414,13 +382,13 @@ SOLVE_K solve_before_list BEFORE_K solve_before_list SEMI
 
 solve_before_list <- solve_before_primary (COMMA solve_before_primary)*
 
-solve_before_primary <- (implicit_class_handle DOT / class_scope)? hierarchical_identifier select
+solve_before_primary <- selected_ident
 
 constraint_expression <-
 expression_or_dist SEMI
 / expression MINUS_GT constraint_set
 / IF_K LPAREN expression RPAREN constraint_set (ELSE_K constraint_set)?
-/ FOREACH_K LPAREN ps_or_hierarchical_array_identifier LBRACK loop_variables RBRACK RPAREN constraint_set
+/ FOREACH_K LPAREN selected_ident LBRACK loop_variables RBRACK RPAREN constraint_set
 
 constraint_set <-
 constraint_expression
@@ -439,7 +407,7 @@ constraint_prototype <- constraint_prototype_qualifier? STATIC_K? CONSTRAINT_K i
 constraint_prototype_qualifier <- EXTERN_K / PURE_K
 
 extern_constraint_declaration <-
-STATIC_K? CONSTRAINT_K class_scope identifier constraint_block
+STATIC_K? CONSTRAINT_K selected_ident identifier constraint_block
 
 identifier_list <- identifier (COMMA identifier)*
 
@@ -551,9 +519,8 @@ net_type (drive_strength / charge_strength)? (VECTORED_K / SCALARED_K)?
 	SEMI
 
 type_declaration <-
-  TYPEDEF_K identifier bit_select DOT identifier identifier SEMI
+  TYPEDEF_K (ENUM_K / STRUCT_K / UNION_K / CLASS_K)? selected_ident SEMI
 / TYPEDEF_K data_type identifier variable_dimension* SEMI
-/ TYPEDEF_K (ENUM_K / STRUCT_K / UNION_K / CLASS_K)? identifier SEMI
 
 lifetime <- STATIC_K / AUTOMATIC_K
 
@@ -572,11 +539,7 @@ data_type <-
 / VIRTUAL_K INTERFACE_K? identifier (DOT identifier)?
 / EVENT_K
 / type_reference
-  //1st set: ident...
-/ pc_scope? identifier packed_dimension*
-  //1st set: ident...
-/ class_type
-  //1st set: ident...
+/ selected_ident packed_dimension*
 / ps_covergroup_identifier
 
 /*
@@ -694,7 +657,7 @@ list_of_virtual_interface_decl <-
 identifier (EQ identifier)?  (COMMA identifier (EQ identifier)?)*
 
 //A.2.4 Declaration assignments
-defparam_assignment <- hierarchical_identifier EQ mintypmax_expression
+defparam_assignment <- selected_ident EQ mintypmax_expression
 
 net_decl_assignment <- identifier unpacked_dimension* (EQ expression)?
 
@@ -761,12 +724,12 @@ function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
 function_body_declaration <-
   function_data_type_or_implicit
-	( identifier DOT / class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
+	selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
 	( block_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON identifier )?
 / function_data_type_or_implicit
-	( identifier DOT / class_scope )? identifier SEMI
+	selected_ident SEMI
 	( tf_item_declaration )*
 	( function_statement_or_null )*
 	ENDFUNCTION_K ( COLON identifier )?
@@ -793,11 +756,11 @@ dpi_task_proto <- task_prototype
 task_declaration <- TASK_K ( lifetime )? task_body_declaration
 
 task_body_declaration <-
-  ( identifier DOT / class_scope )? identifier LPAREN ( tf_port_list )? RPAREN SEMI
+  selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
 		( block_item_declaration )*
 		( statement_or_null )*
 		ENDTASK_K ( COLON identifier )?
-/ ( identifier DOT / class_scope )? identifier SEMI
+/ selected_ident SEMI
 		( tf_item_declaration )*
 		( statement_or_null )*
 		ENDTASK_K ( COLON identifier )?
@@ -890,7 +853,7 @@ COVER_K SEQUENCE_K LPAREN (clocking_event )? ( DISABLE_K IFF_K LPAREN expression
 
 restrict_property_statement<- RESTRICT_K PROPERTY_K LPAREN property_spec RPAREN SEMI
 
-property_instance <- ps_or_hierarchical_identifier ( LPAREN ( property_list_of_arguments )? RPAREN )?
+property_instance <- selected_ident ( LPAREN ( property_list_of_arguments )? RPAREN )?
 
 property_list_of_arguments <-
   DOT identifier LPAREN (property_actual_arg)? RPAREN ( COMMA DOT identifier LPAREN (property_actual_arg)? RPAREN )*
@@ -1021,7 +984,7 @@ operator_assignment
 / inc_or_dec_expression
 / subroutine_call
 
-sequence_instance <- ps_or_hierarchical_identifier ( LPAREN ( sequence_list_of_arguments )? RPAREN )?
+sequence_instance <- selected_ident ( LPAREN ( sequence_list_of_arguments )? RPAREN )?
 
 sequence_list_of_arguments <-
   DOT identifier LPAREN (sequence_actual_arg)? RPAREN ( COMMA DOT identifier LPAREN (sequence_actual_arg)? RPAREN )*
@@ -1059,9 +1022,7 @@ expression_or_dist <- expression ( DIST_K LCURLY dist_list RCURLY )?
 
 assertion_variable_declaration <- var_data_type list_of_variable_decl_assignments SEMI
 
-let_declaration <- LET_K let_identifier ( LPAREN ( let_port_list )? RPAREN )? EQ expression SEMI
-
-let_identifier <- identifier
+let_declaration <- LET_K selected_ident ( LPAREN ( let_port_list )? RPAREN )? EQ expression SEMI
 
 let_port_list <- let_port_item (COMMA let_port_item)*
 
@@ -1069,7 +1030,7 @@ let_port_item <- ( attribute_instance )* let_formal_type identifier ( variable_d
 
 let_formal_type <- data_type_or_implicit
 
-let_expression <- pc_scope? let_identifier ( LPAREN ( let_list_of_arguments )? RPAREN )?
+let_expression <- selected_ident ( LPAREN ( let_list_of_arguments )? RPAREN )?
 
 let_list_of_arguments <-
   DOT identifier LPAREN ( let_actual_arg )? RPAREN ( COMMA DOT identifier LPAREN ( let_actual_arg )? RPAREN )*
@@ -1104,12 +1065,8 @@ coverage_event <-
 
 block_event_expression <-
   block_event_expression OR_K block_event_expression
-/ BEGIN_K hierarchical_btf_identifier
-/ END_K hierarchical_btf_identifier
-
-hierarchical_btf_identifier <-
-  (hierarchical_identifier DOT / class_scope)? identifier
-/ hierarchical_identifier
+/ BEGIN_K selected_ident
+/ END_K selected_ident
 
 cover_point <- ( identifier COLON )? COVERPOINT_K expression ( IFF_K LPAREN expression RPAREN )? bins_or_empty
 
@@ -1410,7 +1367,7 @@ final_construct <- FINAL_K function_statement
 
 blocking_assignment <-
 variable_lvalue EQ delay_or_event_control expression
-/ ( implicit_class_handle DOT / pc_scope )? hierarchical_identifier select EQ class_new
+/ selected_ident EQ class_new
 / nonrange_variable_lvalue EQ dynamic_array_new
 / operator_assignment
 
@@ -1498,8 +1455,7 @@ event_control <-
   AT LPAREN event_expression RPAREN
 / AT_STAR
 / AT LPAREN STAR RPAREN
-/ AT hierarchical_identifier
-/ AT ps_or_hierarchical_identifier
+/ AT selected_ident
 
 event_expression <-
   event_expression OR_K event_expression
@@ -1519,17 +1475,17 @@ RETURN_K ( expression )? SEMI
 / CONTINUE_K SEMI
 
 wait_statement <-
-  WAIT_ORDER_K LPAREN hierarchical_identifier ( COMMA hierarchical_identifier )* RPAREN action_block
+  WAIT_ORDER_K LPAREN selected_ident ( COMMA selected_ident)* RPAREN action_block
 / WAIT_K LPAREN expression RPAREN statement_or_null
 / WAIT_K FORK_K SEMI
 
 event_trigger <-
-  MINUS_GT2 ( delay_or_event_control )? hierarchical_identifier SEMI
-/ MINUS_GT  hierarchical_identifier SEMI
+  MINUS_GT2 ( delay_or_event_control )? selected_ident SEMI
+/ MINUS_GT  selected_ident SEMI
 
 disable_statement <-
   DISABLE_K FORK_K SEMI
-/ DISABLE_K hierarchical_identifier SEMI
+/ DISABLE_K selected_ident SEMI
 
 //A.6.6 Conditional statements
 conditional_statement <-
@@ -1724,9 +1680,9 @@ cycle_delay <-
 / POUND2 integral_number
 / POUND2 identifier
 
-clockvar <- hierarchical_identifier
+clockvar <- selected_ident
 
-clockvar_expression <- clockvar select
+clockvar_expression <- clockvar
 
 //A.6.12 Randsequence
 randsequence_statement <- RANDSEQUENCE_K LPAREN ( identifier )? RPAREN production ( production )* ENDSEQUENCE_K
@@ -2044,25 +2000,17 @@ empty_queue <- LCURLY RCURLY
 //NOTE: indirect left recursion.  inline.
 //constant_function_call <- function_subroutine_call
 
-tf_call <- ps_or_hierarchical_identifier ( attribute_instance )* ( LPAREN list_of_arguments RPAREN )?
+tf_call <- selected_ident ( attribute_instance )* ( LPAREN list_of_arguments RPAREN )?
 
 system_tf_call <-
 system_tf_identifier LPAREN data_type ( COMMA expression )? RPAREN
 / system_tf_identifier ( LPAREN list_of_arguments RPAREN )?
 
 subroutine_call <-
-//{method_call
-	(	//NOTE: causes ILR and seems incorrect to match so much
-		//so replace{: primary 
-		( pc_scope / class_qualifier )? hierarchical_identifier select
-		//}
-	/ 	implicit_class_handle
-	) DOT method_call_body
-//}
+	(STD_K COLON2)? randomize_call
+//method_call: matches tf_call
 / system_tf_call
 / tf_call
-//NOTE<- "std::"
-/ (std_colon2)? randomize_call
 
 //NOTE{ mitigate ILR
 //method_call <- method_call_root DOT method_call_body
@@ -2198,10 +2146,7 @@ constant_primary SQUOTE LPAREN expression RPAREN
 // / function_subroutine_call
 / subroutine_call
 //}
-/ identifier ( LBRACK constant_range_expression RBRACK )?
-/ ps_parameter_identifier select
-/ identifier
-/ pc_scope? identifier
+/ selected_ident
 / constant_assignment_pattern_expression
 / type_reference
 / primary_literal
@@ -2230,7 +2175,7 @@ primary <-
 / THIS_K
 / DOLLAR
 / NULL_K
-/ ( pc_scope / class_qualifier )? hierarchical_identifier select
+/ selected_ident
 / primary_literal
 
 
@@ -2262,16 +2207,16 @@ cast <-
 //A.8.5 Expression left-side values
 net_lvalue <-
   LCURLY net_lvalue ( COMMA net_lvalue )* RCURLY
-/ ps_or_hierarchical_identifier select
+/ selected_ident
 / ( assignment_pattern_expression_type )? assignment_pattern_net_lvalue
 
 variable_lvalue <-
   LCURLY variable_lvalue ( COMMA variable_lvalue )* RCURLY
-/ ( implicit_class_handle DOT / pc_scope )? hierarchical_identifier select
+/ selected_ident
 / ( assignment_pattern_expression_type )? assignment_pattern_variable_lvalue
 / streaming_concatenation
 
-nonrange_variable_lvalue <- ( implicit_class_handle DOT / pc_scope )? hierarchical_identifier select
+nonrange_variable_lvalue <- selected_ident
 
 //A.8.6 Operators
 unary_operator <-
@@ -2405,22 +2350,20 @@ identifier <-
 simple_identifier
 / escaped_identifier
 
-ps_covergroup_identifier <- pc_scope? identifier
+ps_covergroup_identifier <- selected_ident
 
-ps_identifier <- pc_scope? identifier
+ps_identifier <- selected_ident
 
 ps_or_hierarchical_array_identifier <-
-( implicit_class_handle DOT / pc_scope )? hierarchical_identifier
+selected_ident
 
 ps_or_hierarchical_identifier <- 
-  hierarchical_identifier
-/ pc_scope? identifier 
+selected_ident
 
 ps_parameter_identifier <-
-  ( identifier ( LBRACK expression RBRACK )? DOT )* identifier
-/ pc_scope? identifier
+selected_ident
 
-ps_type_identifier <- ( LOCAL_K / pc_scope )? identifier
+ps_type_identifier <- selected_ident
 
 simple_identifier <- IDENT
 
@@ -2549,7 +2492,6 @@ LIBLIST_K  <- Spacing   "liblist"  kwrdTail
 LIBRARY_K  <- Spacing   "library"  kwrdTail
 LOCALPARAM_K  <- Spacing   "localparam"  kwrdTail
 LOCAL_K  <- Spacing   "local"  kwrdTail
-LOCAL2_K  <- Spacing   "local::"  kwrdTail
 LOGIC_K  <- Spacing   "logic"  kwrdTail
 LONGINT_K  <- Spacing   "longint"  kwrdTail
 MACROMODULE_K  <- Spacing   "macromodule"  kwrdTail
@@ -2618,6 +2560,7 @@ SOLVE_K  <- Spacing   "solve"  kwrdTail
 SPECIFY_K  <- Spacing   "specify"  kwrdTail
 SPECPARAM_K  <- Spacing   "specparam"  kwrdTail
 STATIC_K  <- Spacing   "static"  kwrdTail
+STD_K  <- Spacing   "std"  kwrdTail
 STRING_K  <- Spacing   "string"  kwrdTail
 STRONG0_K  <- Spacing   "strong0"  kwrdTail
 STRONG1_K  <- Spacing   "strong1"  kwrdTail
