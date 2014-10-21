@@ -21,54 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.CharBuffer;
+import apfe.runtime.InputStream;
+import apfe.runtime.State;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
- * Accepts character sequence.
+ *
  * @author gburdell
  */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
+public class GrammarTest {
+
+    public GrammarTest() {
     }
 
-    public CharSeq(String s) {
-        m_expect = s;
-    }
-
-    @Override
-    public Acceptor create() {
-        return new CharSeq(m_expect);
-    }
-
-    @Override
-    public String toString() {
-        return m_expect;
-    }
-    
-    private final String m_expect;
-    
-    @Override
-    protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
+    /**
+     * Test of accepti method, of class Grammar.
+     */
+    @Test
+    public void testAccepti() {
+        final String fn = "/home/gburdell/projects/apfe/nldm1.lib";
+        //final String fn = "/home/gburdell/projects/apfe/bug1.lib";
+        //final String fn = "/home/gburdell/projects/apfe/ok1.lib";
+        try {
+            InputStream fis = new InputStream(fn);
+            CharBuffer cbuf = fis.newCharBuffer();
+            State st = State.create(cbuf);
+            boolean result;
+            Grammar gram = new Grammar();
+            Acceptor acc = gram.accept();
+            result = (null != acc);
+            assertTrue(result);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
-        }
-        return match;
     }
-    
 }

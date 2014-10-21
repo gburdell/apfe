@@ -21,54 +21,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Memoize;
+import apfe.runtime.Repetition;
+import apfe.runtime.Sequence;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
+public class Bus extends Acceptor {
+
+    public Bus() {
     }
 
-    public CharSeq(String s) {
-        m_expect = s;
+    @Override
+    protected boolean accepti() {
+        // Bus <- LBRACK Number (COLON Number)? RBRACK
+        Sequence s1 = new Sequence(new Operator(Operator.EOp.COLON), new Number());
+        Repetition r1 = new Repetition(s1, Repetition.ERepeat.eOptional);
+        Sequence s2 = new Sequence(new Operator(Operator.EOp.LBRACK), new Number(),
+                r1, new Operator(Operator.EOp.RBRACK));
+        boolean match = (null != (s2 = match(s2)));
+        if (match) {
+            //todo
+        }
+        return match;
     }
 
     @Override
     public Acceptor create() {
-        return new CharSeq(m_expect);
+        return new Bus();
     }
 
     @Override
-    public String toString() {
-        return m_expect;
+    protected void memoize(Marker mark, Marker endMark) {
+        stMemo.add(mark, this, endMark);
     }
-    
-    private final String m_expect;
-    
+
     @Override
-    protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
-        }
-        return match;
+    protected Memoize.Data hasMemoized(Marker mark) {
+        return stMemo.memoized(mark);
     }
-    
+    /**
+     * Memoize for all instances of Bus.
+     */
+    private static Memoize stMemo = new Memoize();
 }

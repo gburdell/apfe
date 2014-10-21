@@ -24,12 +24,12 @@ baseJavaTemplate: base.java.tmpl
 dlrBaseJavaTemplate: dlrbase.java.tmpl
 
 # Generate listeners
-#genListeners: true
-genListeners: false
+genListeners: true
+#genListeners: false
 
 # Generate memoize
-#genMemoize: true
-genMemoize: false
+genMemoize: true
+#genMemoize: false
 
 # Generated class names use CamelCase
 #genClsAsCamelCase: true

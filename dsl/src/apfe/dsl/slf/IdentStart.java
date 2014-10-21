@@ -21,54 +21,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.State;
+import apfe.runtime.CharBuffer;
+import apfe.runtime.ICharClass;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
-    }
+public class IdentStart extends Acceptor {
 
-    public CharSeq(String s) {
-        m_expect = s;
+    public IdentStart() {
     }
 
     @Override
-    public Acceptor create() {
-        return new CharSeq(m_expect);
+    protected boolean accepti() {
+        CharBuffer buf = State.getTheOne().getBuf();
+        // IdentStart <- [a-zA-Z_]
+        char c = buf.la();
+        boolean match = ICharClass.IS_ALPHA.inClass(c) || (c == '_');
+        if (match) {
+            buf.accept();
+            m_literal.append(c);
+        }
+        return match;
     }
 
     @Override
     public String toString() {
-        return m_expect;
+        return m_literal.toString();
     }
     
-    private final String m_expect;
-    
+    private StringBuilder m_literal = new StringBuilder();
+
     @Override
-    protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
-        }
-        return match;
+    public Acceptor create() {
+        return new IdentStart();
     }
-    
+
 }

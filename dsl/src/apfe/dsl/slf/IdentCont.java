@@ -21,54 +21,54 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.CharClass;
+import apfe.runtime.ICharClass;
+import apfe.runtime.PrioritizedChoice;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
+public class IdentCont extends Acceptor {
+
+    public IdentCont() {
     }
 
-    public CharSeq(String s) {
-        m_expect = s;
-    }
-
-    @Override
-    public Acceptor create() {
-        return new CharSeq(m_expect);
-    }
-
-    @Override
-    public String toString() {
-        return m_expect;
-    }
-    
-    private final String m_expect;
-    
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
+        // IdentStart / ['0'-'9''.''/''+''-']
+        PrioritizedChoice acc = new PrioritizedChoice(new Alts());
+        boolean match = (null != (acc = match(acc)));
+        if (match) {
+            m_literal = acc.getAccepted().toString();
         }
         return match;
     }
+
+    private class Alts implements PrioritizedChoice.Choices {
+        @Override
+        public Acceptor getChoice(int ix) {
+            Acceptor acc = null;
+            switch (ix) {
+                case 0:
+                    acc = new IdentStart();
+                    break;
+                case 1:
+                    acc = new CharClass(ICharClass.IS_DIGIT, CharClass.matchOneOf("./+-"));
+                    break;
+            }
+            return acc;
+        }        
+    }
     
+    @Override
+    public String toString() {
+        return m_literal;
+    }
+    
+    private String m_literal;
+
+    @Override
+    public Acceptor create() {
+        return new IdentCont();
+    }
 }

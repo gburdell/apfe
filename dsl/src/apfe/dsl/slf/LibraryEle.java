@@ -21,54 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.NotPredicate;
+import apfe.runtime.PrioritizedChoice;
+import apfe.runtime.Sequence;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
+public class LibraryEle extends Acceptor {
+
+    public LibraryEle() {
     }
 
-    public CharSeq(String s) {
-        m_expect = s;
+    @Override
+    protected boolean accepti() {
+        // LibraryEle <- Cell / KeyValue
+        PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
+            @Override
+            public Acceptor getChoice(int ix) {
+                Acceptor a = null;
+                switch (ix) {
+                    case 0:
+                        a = new Cell();
+                        break;
+                    case 1:
+                        a = new KeyValue();
+                        break;
+                    case 2:
+                        a = new Sequence(new NotPredicate(new Operator(Operator.EOp.RCURLY)),
+                                new Error());
+                        break;
+                }
+                return a;
+            }
+        });
+        boolean match = (null != (pc1 = match(pc1)));
+        return match;
     }
 
     @Override
     public Acceptor create() {
-        return new CharSeq(m_expect);
+        return new LibraryEle();
     }
-
-    @Override
-    public String toString() {
-        return m_expect;
-    }
-    
-    private final String m_expect;
-    
-    @Override
-    protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
-        }
-        return match;
-    }
-    
 }

@@ -21,54 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.Repetition;
+import apfe.runtime.Sequence;
+import static apfe.dsl.slf.Operator.factory;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
+public class Library extends Acceptor {
+
+    public Library() {
     }
 
-    public CharSeq(String s) {
-        m_expect = s;
-    }
-
-    @Override
-    public Acceptor create() {
-        return new CharSeq(m_expect);
-    }
-
-    @Override
-    public String toString() {
-        return m_expect;
-    }
-    
-    private final String m_expect;
-    
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
+        //Library <- Spacing K_LIBRARY LPAREN LibraryName RPAREN
+        //              LCURLY LibraryEle* RCURLY
+        Repetition r1 = new Repetition(new LibraryEle(), Repetition.ERepeat.eZeroOrMore);
+        Sequence s1 = new Sequence(new Spacing(), factory(Operator.EOp.K_LIBRARY),
+                factory(Operator.EOp.LPAREN), new LibraryName(), factory(Operator.EOp.RPAREN),
+                factory(Operator.EOp.LCURLY), r1, factory(Operator.EOp.RCURLY));
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            //todo
         }
         return match;
     }
     
+    @Override
+    public String toString() {
+        return null;//todo Util.toString(m_id, stLeftArrow, m_expr, m_codeBlk).toString();
+    }
+    
+    @Override
+    public Acceptor create() {
+        return new Library();
+    }
 }

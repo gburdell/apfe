@@ -21,54 +21,50 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.CharClass;
+import apfe.runtime.CharSeq;
+import apfe.runtime.ICharClass;
+import apfe.runtime.NotPredicate;
+import apfe.runtime.Repetition;
+import apfe.runtime.Sequence;
+import apfe.runtime.Util;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
-    }
+public class SlfString extends Acceptor {
 
-    public CharSeq(String s) {
-        m_expect = s;
-    }
-
-    @Override
-    public Acceptor create() {
-        return new CharSeq(m_expect);
+    public SlfString() {
     }
 
     @Override
     public String toString() {
-        return m_expect;
+        StringBuilder s = new StringBuilder(getLiteral());
+        return Util.toString(s, m_spc).toString();
     }
-    
-    private final String m_expect;
-    
+
+    public String getLiteral() {
+        return m_literal.toString();
+    }
+
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
+        // STRING <- '"' (!'"' .)* '"' Spacing
+        Sequence e2 = new Sequence(new NotPredicate(new CharSeq('"')), new CharClass(ICharClass.IS_ANY));
+        Acceptor acc = new Sequence(new CharSeq('"'), new Repetition(e2, Repetition.ERepeat.eZeroOrMore),
+                new CharSeq('"'), new Spacing());
+        boolean match = (null != (acc = match(acc)));
+        if (match) {
+            //todo
         }
         return match;
     }
-    
+    private StringBuilder m_literal;
+    private Spacing m_spc;
+
+    @Override
+    public Acceptor create() {
+        return new SlfString();
+    }
+
 }

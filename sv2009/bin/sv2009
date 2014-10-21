@@ -6,5 +6,6 @@ if (1 > `echo $cmd | egrep -c '^/'`) then
 endif
 set rdir=$cmd:h:h
 
+set memo="-Dapfe.runtime.EnableMemoize=true"
 set cls="apfe.sv2009.Main"
-exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${rdir}/dist/sv2009.jar ${cls} ${*}
+exec java -Xms2G -ea -Dtool.root=${rdir} $memo -cp ${rdir}/dist/sv2009.jar ${cls} ${*}

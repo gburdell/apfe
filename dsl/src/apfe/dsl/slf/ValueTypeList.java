@@ -21,54 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.runtime;
+package apfe.dsl.slf;
 
+import apfe.runtime.Acceptor;
+import apfe.runtime.Repetition;
+import apfe.runtime.Sequence;
 
-/**
- * Accepts character sequence.
- * @author gburdell
- */
-public class CharSeq extends Acceptor {
-    public CharSeq(char c) {
-        m_expect = new String(new char[]{c});
+public class ValueTypeList extends Acceptor {
+
+    public ValueTypeList() {
     }
 
-    public CharSeq(String s) {
-        m_expect = s;
+    @Override
+    protected boolean accepti() {
+        //ValueTypeList <- ValueType (COMMA ValueType)*
+        Repetition r1 = new Repetition(
+                new Sequence(new Operator(Operator.EOp.COMMA), new ValueType()), 
+                Repetition.ERepeat.eZeroOrMore);
+        Sequence s1 = new Sequence(new ValueType(), r1);
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            //todo
+        }
+        return match;
     }
 
     @Override
     public Acceptor create() {
-        return new CharSeq(m_expect);
-    }
-
-    @Override
-    public String toString() {
-        return m_expect;
-    }
-    
-    private final String m_expect;
-    
-    @Override
-    protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
-        }
-        return match;
+        return new ValueTypeList();
     }
     
 }
