@@ -7,4 +7,5 @@ endif
 set rdir=$cmd:h:h
 
 set cls="apfe.dsl.vlogpp.Main"
-exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${rdir}/dist/apfe.jar ${cls} ${*}
+set jars=${rdir}/dsl/dist/lib/apfe.jar:${rdir}/dsl/dist/dsl.jar
+exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*}

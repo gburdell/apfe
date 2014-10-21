@@ -106,8 +106,11 @@ public class Main {
             Acceptor acc = gram.accept();
             if (null != acc) {
                 String ss = acc.toString();
+                /*
                 System.out.println(super.getClass().getName()
                         + " returns:\n========\n" + ss);
+                        */
+                System.out.println(ss);
             }
             boolean result = (null != acc) && State.getTheOne().isEOF();
             if (!result) {
