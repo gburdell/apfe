@@ -645,7 +645,8 @@ list_of_udp_port_identifiers <- identifier (COMMA identifier)*
 list_of_specparam_assignments <- specparam_assignment (COMMA specparam_assignment)*
 
 list_of_tf_variable_identifiers <- 
-identifier variable_dimension* (EQ expression)?  (COMMA identifier variable_dimension* (EQ expression)?)*
+//since data_type is greedy and matches this identifier too; we;ll make optional here.
+identifier? variable_dimension* (EQ expression)?  (COMMA identifier variable_dimension* (EQ expression)?)*
 
 list_of_type_assignments <- type_assignment (COMMA type_assignment)*
 
@@ -724,7 +725,6 @@ data_type_or_void
 
 function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
-
 function_body_declaration <-
   function_data_type_or_implicit
 	selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
@@ -776,11 +776,15 @@ tf_port_list <- tf_port_item ( COMMA tf_port_item )*
 
 tf_port_item <- 
 ( attribute_instance )* ( tf_port_direction )? ( VAR_K )? data_type_or_implicit 
-	( identifier ( variable_dimension )* ( EQ expression )? )?
+//since data_type is greedy and matches this identifier too; we;ll make optional here.
+	( identifier? ( variable_dimension )* ( EQ expression )? )?
 
 tf_port_direction <- port_direction / CONST_K REF_K
 
-tf_port_declaration <- ( attribute_instance )* tf_port_direction ( VAR_K )? data_type_or_implicit list_of_tf_variable_identifiers SEMI
+tf_port_declaration <- 
+	( attribute_instance )* tf_port_direction ( VAR_K )? 
+//since data_type is greedy and matches this identifier too; we;ll make optional here.
+	data_type_or_implicit list_of_tf_variable_identifiers SEMI
 
 task_prototype <- TASK_K identifier LPAREN ( tf_port_list )? RPAREN
 
