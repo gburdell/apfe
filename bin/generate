@@ -7,4 +7,5 @@ endif
 set rdir=$cmd:h:h
 
 set cls="apfe.peg.generate.Main"
-exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${rdir}/dist/apfe.jar ${cls} ${*}
+set jars=${rdir}/peg/dist/lib/apfe.jar:${rdir}/peg/dist/peg.jar
+exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*}

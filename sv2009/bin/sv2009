@@ -8,4 +8,5 @@ set rdir=$cmd:h:h
 
 set memo="-Dapfe.runtime.EnableMemoize=true"
 set cls="apfe.sv2009.Main"
-exec java -Xms2G -ea -Dtool.root=${rdir} $memo -cp ${rdir}/dist/sv2009.jar ${cls} ${*}
+set jars=${rdir}/dist/lib/apfe.jar:${rdir}/dist/sv2009.jar
+exec java -Xms4G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*}
