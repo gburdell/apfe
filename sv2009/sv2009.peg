@@ -128,10 +128,14 @@ INTERFACE_K (DOT identifier)?
 ansi_port_declaration <-
 //since we dont track types, first(net_port_header)==ident which also matches
 //port_identifier.  Eeek, lots of ambiguities
-port_direction? identifier unpacked_dimension* ( EQ expression )?
-/ (net_port_header / interface_port_header)? identifier unpacked_dimension* ( EQ expression )?
-/ variable_port_header? identifier variable_dimension* (EQ expression )?
-/ port_direction? DOT identifier LPAREN expression? RPAREN
+//TODO: fix all these ambiguities
+  port_direction? DOT identifier LPAREN expression? RPAREN
+/	port_direction? !net_type identifier unpacked_dimension* ( EQ expression )?
+//since port_header expands to port_type which is a very complex prefix
+//with tail of identifier: let it match the 1st identifier here
+//so identifier? is here
+/ (net_port_header / interface_port_header)? identifier? unpacked_dimension* ( EQ expression )?
+/ variable_port_header? identifier? variable_dimension* (EQ expression )?
 
 elaboration_system_task <-
 // $fatal $error $warning $info
@@ -462,9 +466,6 @@ specparam_declaration <-
 SPECPARAM_K packed_dimension? list_of_specparam_assignments SEMI
 
 //A.2.1.2 Port declarations
-/*
- *NOTE: since net_port_type can be nil, check if match first
- */
 inout_declaration <-
  	INOUT_K list_of_port_identifiers
 / INOUT_K net_type list_of_port_identifiers
@@ -578,7 +579,9 @@ net_port_type <- net_type? data_type_or_implicit
 
 variable_port_type <- var_data_type
 
-var_data_type <- data_type / VAR_K data_type_or_implicit
+var_data_type <- 
+  VAR_K data_type_or_implicit
+/	data_type 
 
 signing <- SIGNED_K / UNSIGNED_K
 
