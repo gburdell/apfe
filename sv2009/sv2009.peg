@@ -1460,7 +1460,7 @@ delay_control <-
 
 event_control <-
   AT LPAREN event_expression RPAREN
-/ AT_STAR
+/ AT_STAR / (AT STAR)
 / AT LPAREN STAR RPAREN
 / AT selected_ident
 
