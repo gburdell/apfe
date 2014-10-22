@@ -91,9 +91,9 @@ POUND LPAREN list_of_param_assignments (COMMA parameter_port_declaration)* RPARE
 
 parameter_port_declaration <-
 local_parameter_declaration
-/ data_type list_of_param_assignments
 / TYPE_K list_of_type_assignments
 / parameter_declaration
+/ data_type list_of_param_assignments
 
 list_of_port_declarations <-
 LPAREN ( attribute_instance* ansi_port_declaration (COMMA attribute_instance* ansi_port_declaration)* )? RPAREN
@@ -314,14 +314,14 @@ checker_always_construct <- ALWAYS_K statement
 
 //A.1.9 Class items
 class_item <-
-attribute_instance* class_property
+  local_parameter_declaration SEMI
+/ parameter_declaration SEMI
+/ SEMI
+/ attribute_instance* class_property
 / attribute_instance* class_method
 / attribute_instance* class_constraint
 / attribute_instance* class_declaration
 / attribute_instance* covergroup_declaration
-/ local_parameter_declaration SEMI
-/ parameter_declaration SEMI
-/ SEMI
 
 class_property <-
 CONST_K class_item_qualifier* data_type identifier (EQ expression)? SEMI
@@ -419,20 +419,20 @@ package_or_generate_item_declaration
 / timeunits_declaration
 
 package_or_generate_item_declaration <-
-net_declaration
-/ data_declaration
-/ task_declaration
+  task_declaration
 / function_declaration
 / checker_declaration
 / dpi_import_export
 / extern_constraint_declaration
 / class_declaration
-/ class_constructor_declaration
 / local_parameter_declaration SEMI
 / parameter_declaration SEMI
 / covergroup_declaration
 / overload_declaration
 / assertion_item_declaration
+/ class_constructor_declaration
+/	net_declaration
+/ data_declaration
 / SEMI
 
 anonymous_program <- PROGRAM_K SEMI anonymous_program_item* ENDPROGRAM_K
@@ -449,14 +449,14 @@ task_declaration
 //A.2.1 Declaration types
 //A.2.1.1 Module parameter declarations
 local_parameter_declaration <-
-LOCALPARAM_K list_of_param_assignments
-/ LOCALPARAM_K data_type_or_implicit list_of_param_assignments
+  LOCALPARAM_K !TYPE_K data_type_or_implicit list_of_param_assignments
+/ LOCALPARAM_K !TYPE_K list_of_param_assignments
 / LOCALPARAM_K TYPE_K list_of_type_assignments
 
 parameter_declaration <-
-  PARAMETER_K TYPE_K list_of_type_assignments
-/ PARAMETER_K list_of_param_assignments
-/ PARAMETER_K data_type_or_implicit list_of_param_assignments
+  PARAMETER_K !TYPE_K data_type_or_implicit list_of_param_assignments
+/ PARAMETER_K !TYPE_K list_of_param_assignments
+/ PARAMETER_K TYPE_K list_of_type_assignments
 
 specparam_declaration <-
 SPECPARAM_K packed_dimension? list_of_specparam_assignments SEMI
@@ -466,25 +466,25 @@ SPECPARAM_K packed_dimension? list_of_specparam_assignments SEMI
  *NOTE: since net_port_type can be nil, check if match first
  */
 inout_declaration <-
-INOUT_K list_of_port_identifiers
+ 	INOUT_K list_of_port_identifiers
 / INOUT_K net_type list_of_port_identifiers
 / INOUT_K net_port_type list_of_port_identifiers
 
 input_declaration <-
-INPUT_K list_of_port_identifiers
+	INPUT_K list_of_port_identifiers
 / INPUT_K net_type list_of_port_identifiers
 / INPUT_K net_port_type list_of_port_identifiers
 / INPUT_K variable_port_type list_of_variable_identifiers
 
 output_declaration <-
-OUTPUT_K list_of_port_identifiers
+ 	OUTPUT_K list_of_port_identifiers
 / OUTPUT_K net_type list_of_port_identifiers
 / OUTPUT_K net_port_type list_of_port_identifiers
 / OUTPUT_K variable_port_type list_of_variable_port_identifiers
 
 interface_port_declaration <-
-identifier list_of_interface_identifiers
-/ identifier DOT identifier list_of_interface_identifiers
+  identifier DOT identifier list_of_interface_identifiers
+/	identifier list_of_interface_identifiers
 
 ref_declaration <- REF_K variable_port_type list_of_port_identifiers
 
@@ -786,8 +786,8 @@ block_item_declaration <-
   ( attribute_instance )* local_parameter_declaration SEMI
 / ( attribute_instance )* let_declaration
 / ( attribute_instance )* parameter_declaration SEMI
-/ ( attribute_instance )* data_declaration
 / ( attribute_instance )* overload_declaration
+/ ( attribute_instance )* data_declaration
 
 overload_declaration <-
 BIND_K overload_operator FUNCTION_K data_type identifier LPAREN overload_proto_formals RPAREN SEMI
