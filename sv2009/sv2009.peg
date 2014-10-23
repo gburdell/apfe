@@ -14,7 +14,7 @@ selected_suffix <-
 selected_ident <- 
 	LOCAL_K (COLON2 (implicit_class_handle / identifier) parameter_value_assignment? bit_select)+ selected_suffix
 /	&((DS_UNIT_K / identifier) COLON2) scoped_prefix selected_suffix
-/	(implicit_class_handle / DS_ROOT_K / identifier) selected_suffix
+/	(implicit_class_handle / DS_ROOT_K / (identifier bit_select?)) selected_suffix
 
 Grammar <- source_text
 
