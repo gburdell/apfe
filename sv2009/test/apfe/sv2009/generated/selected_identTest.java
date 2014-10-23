@@ -43,7 +43,8 @@ public class selected_identTest {
         "c[4:5]",
         "$root.tb1.tb2[8].a[56:67]",
         "local::a",
-        "local::super.abc[12][9:34]"
+        "local::super.abc[12][9:34]",
+        "sense[CHAIN_LENGTH].ena"
     };
 
     @Test
