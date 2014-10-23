@@ -130,7 +130,7 @@ ansi_port_declaration <-
 //port_identifier.  Eeek, lots of ambiguities
 //TODO: fix all these ambiguities
   port_direction? DOT identifier LPAREN expression? RPAREN
-/	port_direction? !net_type identifier unpacked_dimension* ( EQ expression )?
+/	port_direction? !net_type identifier !DOT unpacked_dimension* ( EQ expression )?
 //since port_header expands to port_type which is a very complex prefix
 //with tail of identifier: let it match the 1st identifier here
 //so identifier? is here
