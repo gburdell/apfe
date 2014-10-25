@@ -25,80 +25,75 @@ package apfe.dsl.vlogpp.parser;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.CharClass;
-import apfe.runtime.CharSeq;
-import apfe.runtime.ICharClass;
+import static apfe.runtime.CharBuffer.EOF;
 import apfe.runtime.Memoize;
-import apfe.runtime.NotPredicate;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
+import apfe.runtime.State;
+import java.util.Stack;
 
 /**
  *
  * @author gburdell
  */
 public class ActualArgument extends Acceptor {
+
     public ActualArgument() {
-        this(0);
-    }
-    private ActualArgument(int lvl) {
-        m_lvl = lvl;
     }
 
-    /**
-     * Set level to indicate whether we are in a closure (e.g.: '(...)', '[...]').
+    /*
+     ActualArgument <- STRING
+     / '(' !')' ActualArgument ')'
+     / '{' !'}' ActualArgument '}'
+     / '[' !']' ActualArgument ']'
+     / (Space / Comment)+ ActualArgument
+     / (NotChar4 . ActualArgument)?          
      */
-    private final int m_lvl;
+    private static final String stOpen = "({[";
+    private static final String stClose = ")}]";
     
     @Override
     protected boolean accepti() {
-        /*
-         ActualArgument <- STRING
-         / '(' !')' ActualArgument ')'
-         / '{' !'}' ActualArgument '}'
-         / '[' !']' ActualArgument ']'
-         / (Space / Comment)+ ActualArgument
-         / (NotChar4 . ActualArgument)?          
-         */
-        PrioritizedChoice pc1 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
-            @Override
-            public Acceptor getChoice(int ix) {
-                Acceptor a = null;
-                switch (ix) {
-                    case 0:
-                        a = new VString();
-                        break;
-                    case 1:
-                        a = getMatch('(', ')');
-                        break;
-                    case 2:
-                        a = getMatch('{', '}');
-                        break;
-                    case 3:
-                        a = getMatch('[', ']');
-                        break;
-                    case 4: {
-                        PrioritizedChoice pc2 = new PrioritizedChoice(
-                                new Space(), new Comment());
-                        Repetition r1 = new Repetition(pc2, Repetition.ERepeat.eOneOrMore);
-                        a = new Sequence(r1, new ActualArgument(m_lvl));
-                        break;
+        CharBuffer cbuf = State.getTheOne().getBuf();
+        Acceptor matcher;
+        boolean ok = true;
+        Stack<Character> matchClose = new Stack<>();
+        for (boolean stay = true; stay; /*nil*/) {
+            final char c = cbuf.la();
+            if (EOF == c) {
+                stay = false;
+            } else if ('"' == c) {
+                matcher = new VString();
+                stay &= matchTrue(matcher);
+                ok &= stay; //could be bad string
+            } else {
+                int pos = stOpen.indexOf(c);
+                if (0 <= pos) {
+                    matchClose.push(stClose.charAt(pos));
+                    cbuf.accept();
+                } else {
+                    PrioritizedChoice pc2 = new PrioritizedChoice(
+                            new Space(), new Comment());
+                    matcher = new Repetition(pc2, Repetition.ERepeat.eOneOrMore);
+                    if (!matchTrue(matcher)) {
+                        //not a comment or space, so see if we match close
+                        if (!matchClose.empty() && (c == matchClose.peek())) {
+                            matchClose.pop();
+                            cbuf.accept();
+                        } else if ((')' == c) || (matchClose.empty() && (',' == c))) {
+                            stay = false;   //normal break on follow-set
+                        } else {
+                            cbuf.accept();
+                        }
                     }
-                    case 5:
-                        a = new Repetition(
-                                new Sequence(new NotChar4(m_lvl), new CharClass(ICharClass.IS_ANY),
-                                        new ActualArgument(m_lvl)), Repetition.ERepeat.eOptional);
-                        break;
                 }
-                return a;
             }
-        });
-        boolean match = (null != (pc1 = match(pc1)));
-        if (match) {
+        }
+        if (ok) {
             m_str = super.toString();
         }
-        return match;
+        ok &= matchClose.isEmpty();  //do string above just for debug
+        return ok;
     }
 
     private String m_str;
@@ -107,22 +102,6 @@ public class ActualArgument extends Acceptor {
     public String toString() {
         return m_str;
     }
-
-    /**
-     * A convenience method to generate alternatives.
-     *
-     * @param c1 leading character.
-     * @param c2 trailing character.
-     * @return Acceptor sequence to use in alternative.
-     */
-    private Acceptor getMatch(char c1, char c2) {
-        // c1 !c2 ActualArgument c2
-        Sequence s1 = new Sequence(new CharSeq(c1), new NotPredicate(new CharSeq(c2)),
-                new ActualArgument(m_lvl+1), new CharSeq(c2));
-        return s1;
-    }
-
-    private Contents m_contents;
 
     @Override
     public Acceptor create() {

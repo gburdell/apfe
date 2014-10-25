@@ -47,17 +47,12 @@ public abstract class Acceptor {
         public void onAccept(final Acceptor accepted);
     }
 
-    /**
-     * A subclass of Acceptor which supports callbacks will implement this
-     * method. It is recommended subclass implement using static members: i.e.,
-     * the class needs to know the Listeners, not each instance.
-     *
-     * @param listener an object which receives callback on Listener actions.
+    /* subclass will implement as static.
+     public void addListener(final Listener listener) {
+     throw new UnsupportedOperationException("Not supported in base class.");
+     }
      */
-    public void addListener(final Listener listener) {
-        throw new UnsupportedOperationException("Not supported in base class.");
-    }
-
+    
     /**
      * Get Listeners.
      *

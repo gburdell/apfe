@@ -8,4 +8,5 @@ set rdir=$cmd:h:h
 
 set cls="apfe.dsl.vlogpp.Main"
 set jars=${rdir}/dsl/dist/lib/apfe.jar:${rdir}/dsl/dist/dsl.jar
-exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*}
+exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*} | \
+	awk '$0 ~ /^(Warn|Info) :/{printf"// %s\n",$0};$0 !~ /^(Warn|Info) :/{print}'
