@@ -26,7 +26,7 @@ package apfe.dsl.vlogpp.parser;
 import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.ParseError;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class GrammarTest {
                 String ss = acc.toString();
                 System.out.println("returns:\n========\n"+ss);
             }
-            boolean result = (null != acc) && State.getTheOne().isEOF();
+            boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
             if (!result) {
                 ParseError.printTopMessage();
             }

@@ -27,13 +27,11 @@ import apfe.dsl.vlogpp.Location;
 import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.InputStream;
-import apfe.runtime.Memoize;
 import apfe.runtime.RestOfLine;
 import apfe.runtime.Sequence;
-import apfe.runtime.State;
 import apfe.runtime.Util;
 import java.io.File;
 
@@ -88,7 +86,7 @@ public class TicInclude extends Acceptor {
             InputStream fis = new InputStream(incl.getPath());
             CharBuffer buf = fis.newCharBuffer();
             sb.append(buf.getBuf());    //tack on file contents
-            sb.append("\n`line ").append(start.getLnum())
+            sb.append("\n`line ").append(((CharBuffer.MarkerImpl)start).getLnum())
                     .append(" \"").append(currFn).append("\" 2\n");
             Helper.getTheOne().replace(start, sb.toString(), false);
             Helper.getTheOne().reset(start);

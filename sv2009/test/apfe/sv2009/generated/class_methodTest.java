@@ -26,7 +26,7 @@ package apfe.sv2009.generated;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.ParseError;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -51,7 +51,7 @@ public class class_methodTest {
     public static void test(final String tt) {
         System.out.print("class_method: " + tt + ": parses as: ");
         CharBuffer buf = new CharBuffer("<test>", tt);
-        State st = State.create(buf);
+        CharBufState st = CharBufState.create(buf);
         boolean result;
         class_method gram = new class_method();
         Acceptor acc = gram.accept();

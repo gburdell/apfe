@@ -23,15 +23,13 @@
  */
 package apfe.runtime;
 
-import apfe.runtime.CharBuffer.Marker;
-
 public class Space extends Acceptor {
     public Space() {
     }
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         boolean match;
         char la = buf.la();
         switch (la) {

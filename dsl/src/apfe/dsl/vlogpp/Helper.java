@@ -25,12 +25,12 @@ package apfe.dsl.vlogpp;
 
 import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import static apfe.runtime.CharBuffer.NL;
 import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
 import apfe.runtime.MessageMgr;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import apfe.runtime.Util;
 import java.io.File;
 import java.util.List;
@@ -78,7 +78,7 @@ public class Helper {
             StringBuilder pfx = new StringBuilder("`line 1 \"");
             pfx.append(fname).append("\" 0").append(NL);
             cbuf.getBuf().insert(0, pfx);
-            State st = State.create(cbuf);
+            CharBufState st = CharBufState.create(cbuf);
             m_fname = fname;
             gram = new Grammar();
         } catch (Exception ex) {
@@ -97,7 +97,7 @@ public class Helper {
     }
 
     public static CharBuffer getBuf() {
-        return State.getTheOne().getBuf();
+        return CharBufState.asMe().getBuf();
     }
 
     /**

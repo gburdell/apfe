@@ -25,7 +25,7 @@ package apfe.peg;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -46,7 +46,7 @@ public class CommentTest {
     public void testAccepti() {
         System.out.println("accepti");
         CharBuffer buf = new CharBuffer("<test>", stTry);
-        State st = State.create(buf);
+        CharBufState st = CharBufState.create(buf);
         Comment instance = new Comment();
         boolean expResult = true;
         boolean result = (null != (instance = Acceptor.match(instance)));

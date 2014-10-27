@@ -26,7 +26,7 @@ package apfe.sv2009.generated;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.ParseError;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,7 +52,7 @@ public class list_of_port_declarationsTest {
     public static void test(final String tt) {
         System.out.print("fact: " + tt + ": parses as: ");
         CharBuffer buf = new CharBuffer("<test>", tt);
-        State st = State.create(buf);
+        CharBufState st = CharBufState.create(buf);
         boolean result;
         list_of_port_declarations  gram = new list_of_port_declarations();
         Acceptor acc = gram.accept();

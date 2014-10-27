@@ -24,13 +24,14 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
+import apfe.runtime.Marker;
 import apfe.runtime.EndOfFile;
 import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
 import apfe.runtime.ParseError;
 import apfe.runtime.Sequence;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
+import apfe.runtime.CharBuffer;
 import apfe.runtime.Util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -59,12 +60,12 @@ public class Grammar extends Acceptor {
     }
 
     @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
+    protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
     }
 
     @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
+    protected Memoize.Data hasMemoized(Marker mark) {
         return stMemo.memoized(mark);
     }
 
@@ -79,7 +80,7 @@ public class Grammar extends Acceptor {
             System.out.println("accepti");
             InputStream fins = new InputStream(fn);
             CharBuffer cbuf = fins.newCharBuffer();
-            State st = State.create(cbuf);
+            CharBufState st = CharBufState.create(cbuf);
             Grammar gram = new Grammar();
             Acceptor acc = gram.accept();
             if (null != acc) {

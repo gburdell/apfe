@@ -35,7 +35,7 @@ public class RestOfLine extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         char c;
         while (true) {
             c = buf.accept();

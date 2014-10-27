@@ -24,9 +24,9 @@
 package apfe.peg;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.ICharClass;
 import apfe.runtime.Memoize;
 
@@ -37,7 +37,7 @@ public class IdentStart extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         // IdentStart <- [a-zA-Z_]
         char c = buf.la();
         boolean match = ICharClass.IS_ALPHA.inClass(c) || (c == '_');

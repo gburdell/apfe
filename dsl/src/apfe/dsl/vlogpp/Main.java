@@ -26,7 +26,7 @@ import apfe.dsl.vlogpp.ProcArgs.Spec.EType;
 import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.Acceptor;
 import apfe.runtime.ParseError;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import static apfe.runtime.Util.asEmpty;
 import static apfe.runtime.Util.nl;
 import java.util.LinkedList;
@@ -112,7 +112,7 @@ public class Main {
                         */
                 System.out.println(ss);
             }
-            boolean result = (null != acc) && State.getTheOne().isEOF();
+            boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
             if (!result) {
                 ParseError.printTopMessage();
             }

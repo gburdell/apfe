@@ -29,7 +29,7 @@ public class EndOfFile extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         final char c = buf.la();
         boolean match = (CharBuffer.EOF == c);
         if (match) {

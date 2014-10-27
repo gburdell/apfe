@@ -25,113 +25,94 @@ package apfe.runtime;
 
 import java.util.Stack;
 
-
 /**
  * Encapsulate parser state so more can pass (entire state) as single object.
+ *
  * @author gburdell
  */
-public class State {
-    public static State create(CharBuffer buf) {
-        ParseError.reset();
-        Memoize.reset();
-        stTheOne = new State(buf);
-        return getTheOne();
-    }
-    
+public abstract class State {
+
     public static State getTheOne() {
         return stTheOne;
     }
+
+    protected static State stTheOne;
+
+    public abstract String getFileName();
+
+    public abstract Marker getCurrentMark();
     
-    private static State stTheOne;
+    public abstract void reset(Marker mark);
+
+    public abstract boolean isEOF();
     
-    private State(CharBuffer buf) {
-        m_buf = buf;
-    }
-    
-    public CharBuffer getBuf() {
-        return m_buf;
-    }
-    
-    public CharBuffer.Marker getCurrentMark() {
-        return getBuf().mark();
-    }
-    
-    public boolean isEOF() {
-        return (CharBuffer.EOF == peek());
-    }
-    
+    /**
+     * Return String view of parser state from start mark to current.
+     * @param start start mark.
+     * @return String view from start to current.
+     */
+    public abstract String substring(Marker start);
+
     public int incrPredicate() {
         return ++m_isPredicate;
     }
-    
+
     public int decrPredicate() {
         m_isPredicate--;
         assert 0 <= m_isPredicate;
         return m_isPredicate;
     }
-    
+
     public boolean inPredicate() {
         return 0 < m_isPredicate;
     }
-    
-    public char peek() {
-        return peek(0);
-    }
-    
-    public char peek(int i) {
-        return la(i);
-    }
-    
-    public char la(int i) {
-        return getBuf().la(i);
-    }
-    
+
     /**
      * Push non-terminal to enable indirect left recursion detection.
+     *
      * @param nt non-terminal ID.
      */
     public void pushNonTermID(String nt) {
         m_nonTermStk.push(nt);
     }
-    
+
     public String popNonTermID() {
         return m_nonTermStk.pop();
     }
-       
-    private final CharBuffer m_buf;
+
     /**
      * Count (incr and decr) predicate depth.
      */
-    private int     m_isPredicate = 0;
-    
+    private int m_isPredicate = 0;
+
     /**
-     * Track non-terminal calls to detect indirect left-recursion.
-     * TODO: I think we can just put a static boolean member in
-     * each non-terminal to track whether we have passed through this
-     * non-term already.
-     * For now, just stick with the stack.
+     * Track non-terminal calls to detect indirect left-recursion. TODO: I think
+     * we can just put a static boolean member in each non-terminal to track
+     * whether we have passed through this non-term already. For now, just stick
+     * with the stack.
      */
-    private final Stack<String>   m_nonTermStk = new Stack<>();
-    
+    private final Stack<String> m_nonTermStk = new Stack<>();
+
     public int getStackDepth() {
         return m_nonTermStk.size();
     }
-    
+
     public void updateMemoizeHit(boolean matched) {
         m_memoizeTryCnt++;
         if (matched) {
             m_memoizeHitCnt++;
         }
     }
-    
+
     /**
      * Get memoize stats.
+     *
      * @return 2 elements: [0]: hit count; [1]: try count.
      */
     public long[] getMemoizeStats() {
-        return new long[]{m_memoizeHitCnt,m_memoizeTryCnt};
+        return new long[]{m_memoizeHitCnt, m_memoizeTryCnt};
     }
-    
+
     /**
      * Track memoize attempts.
      */

@@ -24,7 +24,7 @@
 package apfe.dsl.slf;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import apfe.runtime.Util;
 
 public class Error extends Acceptor {
@@ -37,8 +37,8 @@ public class Error extends Acceptor {
         boolean match = true;
         //for now, just grab 1st char.
         //TODO: match tokens
-        char ch = State.getTheOne().peek();
-        String loc = State.getTheOne().getBuf().getPos();
+        char ch = CharBufState.asMe().peek();
+        String loc = CharBufState.asMe().getBuf().getPos();
         Util.error("PARSE-3", loc, ch);
         assert false;
         return match;

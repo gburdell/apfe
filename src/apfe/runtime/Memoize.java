@@ -24,7 +24,6 @@
 package apfe.runtime;
 
 import java.util.Map;
-import apfe.runtime.CharBuffer.Marker;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,9 +35,13 @@ import java.util.List;
 public class Memoize {
 
     public Memoize() {
-        stMemos.add(this);
+        init();
     }
 
+    private void init() {
+        stMemos.add(this);
+    }
+    
     /**
      * Memoize data.
      *

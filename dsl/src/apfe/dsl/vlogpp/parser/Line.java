@@ -33,7 +33,7 @@ import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.RestOfLine;
 import apfe.runtime.Sequence;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import apfe.runtime.Util;
 
 /**

@@ -24,7 +24,7 @@
 package apfe.dsl.vlogpp;
 
 import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import apfe.runtime.Util;
 
 /**
@@ -53,7 +53,7 @@ public class Location {
      * @return current location.
      */
     public static Location getCurrent() {
-        CharBuffer cbuf = State.getTheOne().getBuf();
+        CharBuffer cbuf = CharBufState.asMe().getBuf();
         return new Location(cbuf.getFileName(), cbuf.getLine(), cbuf.getCol());
     }
 

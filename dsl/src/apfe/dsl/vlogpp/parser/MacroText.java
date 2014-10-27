@@ -29,8 +29,6 @@ import apfe.runtime.CharBuffer;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
 import apfe.runtime.EndOfLine;
-import apfe.runtime.ICharClass;
-import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 

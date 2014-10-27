@@ -29,7 +29,7 @@ import apfe.runtime.EndOfFile;
 import apfe.runtime.InputStream;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import java.util.List;
 
 public class Grammar extends Acceptor {
@@ -77,7 +77,7 @@ public class Grammar extends Acceptor {
         try {
             InputStream fis = new InputStream(fn);
             CharBuffer cbuf = fis.newCharBuffer();
-            State st = State.create(cbuf);
+            CharBufState st = CharBufState.create(cbuf);
             boolean result;
             Grammar gram = new Grammar();
             Acceptor acc = gram.accept();

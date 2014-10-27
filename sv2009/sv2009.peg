@@ -1,24 +1,24 @@
 implicit_class_handle <- 
   THIS_K DOT SUPER_K
-/	THIS_K 
+/ THIS_K 
 / SUPER_K 
 
 bit_select   <- ( LBRACK expression RBRACK )*
 
 scoped_prefix <-
-	(DS_UNIT_K / identifier)? (COLON2 identifier parameter_value_assignment? bit_select)*
+  (DS_UNIT_K / identifier)? (COLON2 identifier parameter_value_assignment? bit_select)*
 
 selected_suffix <- 
-	(DOT identifier bit_select)* bit_select? ( LBRACK part_select_range RBRACK )?
+  (DOT identifier bit_select)* bit_select? ( LBRACK part_select_range RBRACK )?
 
 selected_ident <- 
-	LOCAL_K (COLON2 (implicit_class_handle / identifier) parameter_value_assignment? bit_select)+ selected_suffix
-/	&((DS_UNIT_K / identifier) COLON2) scoped_prefix selected_suffix
-/	(implicit_class_handle / DS_ROOT_K / (identifier bit_select?)) selected_suffix
+  LOCAL_K (COLON2 (implicit_class_handle / identifier) parameter_value_assignment? bit_select)+ selected_suffix
+/ &((DS_UNIT_K / identifier) COLON2) scoped_prefix selected_suffix
+/ (implicit_class_handle / DS_ROOT_K / (identifier bit_select?)) selected_suffix
 
 Grammar <- source_text
 
-source_text <- timeunits_declaration? description* Spacing EOF
+source_text <- timeunits_declaration? description* EOF
 
 description <-
 module_declaration
@@ -34,55 +34,55 @@ module_declaration
 module_declaration <-
 module_ansi_header timeunits_declaration? module_item* ENDMODULE_K (COLON identifier)?
 / attribute_instance* module_keyword lifetime? identifier ( DOT_STAR ) SEMI 
-	timeunits_declaration? module_item* ENDMODULE_K (COLON identifier)?
+  timeunits_declaration? module_item* ENDMODULE_K (COLON identifier)?
 / EXTERN_K module_ansi_header
 
 module_ansi_header <-
 attribute_instance* module_keyword lifetime? identifier package_import_declaration* parameter_port_list? 
-	list_of_port_declarations? SEMI
+  list_of_port_declarations? SEMI
 
 module_keyword <- MODULE_K / MACROMODULE_K
 
 interface_declaration <-
 interface_ansi_header timeunits_declaration? interface_item* ENDINTERFACE_K (COLON identifier)?
 / attribute_instance* INTERFACE_K identifier ( DOT_STAR ) SEMI timeunits_declaration? interface_item* ENDINTERFACE_K 
-	(COLON identifier)?
+  (COLON identifier)?
 / EXTERN_K interface_ansi_header
 
 interface_ansi_header <-
 attribute_instance* INTERFACE_K lifetime? identifier package_import_declaration* parameter_port_list? 
-	list_of_port_declarations? SEMI
+  list_of_port_declarations? SEMI
 
 program_declaration <-
 program_ansi_header timeunits_declaration? program_item* ENDPROGRAM_K (COLON identifier)?
 / attribute_instance* PROGRAM_K identifier ( DOT_STAR ) SEMI timeunits_declaration? program_item* ENDPROGRAM_K 
-	(COLON identifier)?
+  (COLON identifier)?
 / EXTERN_K program_ansi_header
 
 program_ansi_header <-
 attribute_instance* PROGRAM_K lifetime? identifier package_import_declaration* parameter_port_list? 
-	list_of_port_declarations? SEMI
+  list_of_port_declarations? SEMI
 
 checker_declaration <-
 CHECKER_K identifier (LPAREN checker_port_list? RPAREN)? SEMI checker_or_generate_item* ENDCHECKER_K 
-	(COLON identifier)?
+  (COLON identifier)?
 
 class_declaration <-
 VIRTUAL_K? CLASS_K lifetime? identifier parameter_port_list?  
-	(EXTENDS_K selected_ident (LPAREN list_of_arguments RPAREN)? )? SEMI
-	class_item*
-	ENDCLASS_K (COLON identifier)?
+  (EXTENDS_K selected_ident (LPAREN list_of_arguments RPAREN)? )? SEMI
+  class_item*
+  ENDCLASS_K (COLON identifier)?
 
 package_declaration <-
 attribute_instance* PACKAGE_K lifetime? identifier SEMI
-	timeunits_declaration? (attribute_instance* package_item)*
-	ENDPACKAGE_K (COLON identifier)?
+  timeunits_declaration? (attribute_instance* package_item)*
+  ENDPACKAGE_K (COLON identifier)?
 
 timeunits_declaration <-
-TIMEUNIT_K time_literal SEMI TIMEPRECISION_K time_literal SEMI
-/ TIMEUNIT_K time_literal (DIV time_literal)? SEMI
-/ TIMEPRECISION_K time_literal SEMI TIMEUNIT_K time_literal SEMI
-/ TIMEPRECISION_K time_literal SEMI
+TIMEUNIT_K TIME_LITERAL SEMI TIMEPRECISION_K TIME_LITERAL SEMI
+/ TIMEUNIT_K TIME_LITERAL (DIV TIME_LITERAL)? SEMI
+/ TIMEPRECISION_K TIME_LITERAL SEMI TIMEUNIT_K TIME_LITERAL SEMI
+/ TIMEPRECISION_K TIME_LITERAL SEMI
 
 parameter_port_list <-
 POUND LPAREN list_of_param_assignments (COMMA parameter_port_declaration)* RPAREN
@@ -130,7 +130,7 @@ ansi_port_declaration <-
 //port_identifier.  Eeek, lots of ambiguities
 //TODO: fix all these ambiguities
   port_direction? DOT identifier LPAREN expression? RPAREN
-/	port_direction? !net_type identifier !DOT unpacked_dimension* ( EQ expression )?
+/ port_direction? !net_type identifier !DOT unpacked_dimension* ( EQ expression )?
 //since port_header expands to port_type which is a very complex prefix
 //with tail of identifier: let it match the 1st identifier here
 //so identifier? is here
@@ -139,12 +139,10 @@ ansi_port_declaration <-
 
 elaboration_system_task <-
 // $fatal $error $warning $info
-DS_FATAL_K (LPAREN finish_number (COMMA list_of_arguments)? RPAREN)? SEMI
+DS_FATAL_K (LPAREN UNSIGNED_NUMBER (COMMA list_of_arguments)? RPAREN)? SEMI
 / DS_ERROR_K (LPAREN list_of_arguments RPAREN)? SEMI
 / DS_WARNING_K (LPAREN list_of_arguments RPAREN)? SEMI
 / DS_INFO_K (LPAREN list_of_arguments RPAREN)? SEMI
-
-finish_number <- [0-2]
 
 module_common_item <-
 initial_construct
@@ -214,7 +212,7 @@ program_instantiation
 //A.1.5 Configuration source text
 config_declaration <-
 CONFIG_K identifier SEMI (local_parameter_declaration SEMI)* design_statement config_rule_statement*
-	ENDCONFIG_K (COLON identifier)?
+  ENDCONFIG_K (COLON identifier)?
 
 design_statement <- DESIGN_K ((identifier DOT)? identifier)* SEMI
 
@@ -370,10 +368,10 @@ new_class_scope <- (!NEW_K identifier COLON2)*
 
 class_constructor_declaration <-
 FUNCTION_K new_class_scope NEW_K (LPAREN tf_port_list? RPAREN)? SEMI
-	block_item_declaration*
-	(SUPER_K DOT NEW_K (LPAREN list_of_arguments RPAREN)? SEMI )?
-	function_statement_or_null*
-	ENDFUNCTION_K (COLON NEW_K)?
+  block_item_declaration*
+  (SUPER_K DOT NEW_K (LPAREN list_of_arguments RPAREN)? SEMI )?
+  function_statement_or_null*
+  ENDFUNCTION_K (COLON NEW_K)?
 
 //A.1.10 Constraints
 constraint_declaration <- STATIC_K? CONSTRAINT_K identifier constraint_block
@@ -435,7 +433,7 @@ package_or_generate_item_declaration <-
 / overload_declaration
 / assertion_item_declaration
 / class_constructor_declaration
-/	net_declaration
+/ net_declaration
 / data_declaration
 / SEMI
 
@@ -467,25 +465,25 @@ SPECPARAM_K packed_dimension? list_of_specparam_assignments SEMI
 
 //A.2.1.2 Port declarations
 inout_declaration <-
- 	INOUT_K list_of_port_identifiers
+  INOUT_K list_of_port_identifiers
 / INOUT_K net_type list_of_port_identifiers
 / INOUT_K net_port_type list_of_port_identifiers
 
 input_declaration <-
-	INPUT_K list_of_port_identifiers
+  INPUT_K list_of_port_identifiers
 / INPUT_K net_type list_of_port_identifiers
 / INPUT_K net_port_type list_of_port_identifiers
 / INPUT_K variable_port_type list_of_variable_identifiers
 
 output_declaration <-
- 	OUTPUT_K list_of_port_identifiers
+  OUTPUT_K list_of_port_identifiers
 / OUTPUT_K net_type list_of_port_identifiers
 / OUTPUT_K net_port_type list_of_port_identifiers
 / OUTPUT_K variable_port_type list_of_variable_port_identifiers
 
 interface_port_declaration <-
   identifier DOT identifier list_of_interface_identifiers
-/	identifier list_of_interface_identifiers
+/ identifier list_of_interface_identifiers
 
 ref_declaration <- REF_K variable_port_type list_of_port_identifiers
 
@@ -511,13 +509,13 @@ genvar_declaration <- GENVAR_K list_of_genvar_identifiers SEMI
 
 net_declaration <-
 net_type (drive_strength / charge_strength)? (VECTORED_K / SCALARED_K)?  
-	// Since 'ident' can be first(data_type_or_implicit) or
-	// first(list_of_net_decl_assignments), we need to disambiguate.
-	//ORIG: data_type_or_implicit delay3? list_of_net_decl_assignments 
-	(	list_of_net_decl_assignments
-	/	data_type_or_implicit delay3? list_of_net_decl_assignments
-	)
-	SEMI
+  // Since 'ident' can be first(data_type_or_implicit) or
+  // first(list_of_net_decl_assignments), we need to disambiguate.
+  //ORIG: data_type_or_implicit delay3? list_of_net_decl_assignments 
+  ( list_of_net_decl_assignments
+  / data_type_or_implicit delay3? list_of_net_decl_assignments
+  )
+  SEMI
 
 type_declaration <-
   TYPEDEF_K (ENUM_K / STRUCT_K / UNION_K / CLASS_K)? selected_ident SEMI
@@ -562,7 +560,7 @@ integer_atom_type signing?
 / integer_vector_type signing? packed_dimension?
 / identifier packed_dimension?
 
-enum_name_declaration <- identifier (LBRACK integral_number (COLON integral_number)? RBRACK)? (EQ expression)?
+enum_name_declaration <- identifier (LBRACK number (COLON number)? RBRACK)? (EQ expression)?
 
 
 integer_type <- integer_vector_type / integer_atom_type
@@ -581,7 +579,7 @@ variable_port_type <- var_data_type
 
 var_data_type <- 
   VAR_K data_type_or_implicit
-/	data_type 
+/ data_type 
 
 signing <- SIGNED_K / UNSIGNED_K
 
@@ -623,10 +621,9 @@ delay2 <-
 
 delay_value <-
   W1STEP_K //1step
-/ real_number
-/ unsigned_number
+/ number
 / ps_identifier
-/ time_literal
+/ TIME_LITERAL
 
 //A.2.3 Declaration lists
 list_of_defparam_assignments <- defparam_assignment (COMMA defparam_assignment)*
@@ -727,15 +724,15 @@ function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
 function_body_declaration <-
   function_data_type_or_implicit
-	selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
-	( block_item_declaration )*
-	( function_statement_or_null )*
-	ENDFUNCTION_K ( COLON identifier )?
+  selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
+  ( block_item_declaration )*
+  ( function_statement_or_null )*
+  ENDFUNCTION_K ( COLON identifier )?
 / function_data_type_or_implicit
-	selected_ident SEMI
-	( tf_item_declaration )*
-	( function_statement_or_null )*
-	ENDFUNCTION_K ( COLON identifier )?
+  selected_ident SEMI
+  ( tf_item_declaration )*
+  ( function_statement_or_null )*
+  ENDFUNCTION_K ( COLON identifier )?
 
 function_prototype <- FUNCTION_K data_type_or_void identifier LPAREN ( tf_port_list )? RPAREN
 
@@ -745,7 +742,7 @@ dpi_import_export <-
 / EXPORT_K dpi_spec_string ( c_identifier EQ )? FUNCTION_K identifier SEMI
 / EXPORT_K dpi_spec_string ( c_identifier EQ )? TASK_K identifier SEMI
 
-dpi_spec_string <- STRING //"DPI-C" / "DPI"
+dpi_spec_string <- STRING_LITERAL
 
 dpi_function_import_property <- CONTEXT_K / PURE_K
 
@@ -760,13 +757,13 @@ task_declaration <- TASK_K ( lifetime )? task_body_declaration
 
 task_body_declaration <-
   selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
-		( block_item_declaration )*
-		( statement_or_null )*
-		ENDTASK_K ( COLON identifier )?
+    ( block_item_declaration )*
+    ( statement_or_null )*
+    ENDTASK_K ( COLON identifier )?
 / selected_ident SEMI
-		( tf_item_declaration )*
-		( statement_or_null )*
-		ENDTASK_K ( COLON identifier )?
+    ( tf_item_declaration )*
+    ( statement_or_null )*
+    ENDTASK_K ( COLON identifier )?
 
 tf_item_declaration <-
 block_item_declaration
@@ -777,14 +774,14 @@ tf_port_list <- tf_port_item ( COMMA tf_port_item )*
 tf_port_item <- 
 ( attribute_instance )* ( tf_port_direction )? ( VAR_K )? data_type_or_implicit 
 //since data_type is greedy and matches this identifier too; we;ll make optional here.
-	( identifier? ( variable_dimension )* ( EQ expression )? )?
+  ( identifier? ( variable_dimension )* ( EQ expression )? )?
 
 tf_port_direction <- port_direction / CONST_K REF_K
 
 tf_port_declaration <- 
-	( attribute_instance )* tf_port_direction ( VAR_K )? 
+  ( attribute_instance )* tf_port_direction ( VAR_K )? 
 //since data_type is greedy and matches this identifier too; we;ll make optional here.
-	data_type_or_implicit list_of_tf_variable_identifiers SEMI
+  data_type_or_implicit list_of_tf_variable_identifiers SEMI
 
 task_prototype <- TASK_K identifier LPAREN ( tf_port_list )? RPAREN
 
@@ -806,7 +803,7 @@ overload_proto_formals <- data_type (COMMA data_type)*
 //A.2.9 Interface declarations
 virtual_interface_declaration <-
 VIRTUAL_K ( INTERFACE_K )? identifier ( parameter_value_assignment)? (DOT identifier)?
-	list_of_virtual_interface_decl SEMI
+  list_of_virtual_interface_decl SEMI
 
 modport_declaration <- MODPORT_K modport_item ( COMMA modport_item )* SEMI
 
@@ -856,7 +853,7 @@ expect_property_statement <- EXPECT_K LPAREN property_spec RPAREN action_block
 
 cover_sequence_statement<-
 COVER_K SEQUENCE_K LPAREN (clocking_event )? ( DISABLE_K IFF_K LPAREN expression_or_dist RPAREN )?
-	sequence_expr RPAREN statement_or_null
+  sequence_expr RPAREN statement_or_null
 
 restrict_property_statement<- RESTRICT_K PROPERTY_K LPAREN property_spec RPAREN SEMI
 
@@ -877,15 +874,15 @@ property_declaration
 
 property_declaration <-
 PROPERTY_K identifier ( LPAREN ( property_port_list )? RPAREN )? SEMI
-	( assertion_variable_declaration )*
-	property_statement_spec
-	ENDPROPERTY_K ( COLON identifier )?
+  ( assertion_variable_declaration )*
+  property_statement_spec
+  ENDPROPERTY_K ( COLON identifier )?
 
 property_port_list <- property_port_item (COMMA property_port_item)*
 
 property_port_item <-
 ( attribute_instance )* ( LOCAL_K ( property_lvar_port_direction )? )? property_formal_type
-	identifier (variable_dimension)* ( EQ property_actual_arg )?
+  identifier (variable_dimension)* ( EQ property_actual_arg )?
 
 property_lvar_port_direction <- INPUT_K
 
@@ -944,15 +941,15 @@ property_expr OR_K property_expr
 
 sequence_declaration <-
 SEQUENCE_K identifier ( LPAREN ( sequence_port_list )? RPAREN )? SEMI
-	( assertion_variable_declaration )*
-	sequence_expr SEMI
-	ENDSEQUENCE_K ( COLON identifier )?
+  ( assertion_variable_declaration )*
+  sequence_expr SEMI
+  ENDSEQUENCE_K ( COLON identifier )?
 
 sequence_port_list <- sequence_port_item (COMMA sequence_port_item)*
 
 sequence_port_item <-
 ( attribute_instance )* ( LOCAL_K ( sequence_lvar_port_direction )? )? sequence_formal_type
-	identifier (variable_dimension)* ( EQ sequence_actual_arg )?
+  identifier (variable_dimension)* ( EQ sequence_actual_arg )?
 
 sequence_lvar_port_direction <- INPUT_K / INOUT_K / OUTPUT_K
 
@@ -1018,11 +1015,11 @@ non_consecutive_repetition <- LBRACK EQ const_or_range_expression RBRACK
 goto_repetition <- LBRACK MINUS_GT const_or_range_expression RBRACK
 
 const_or_range_expression <-
-	expression
+  expression
 / cycle_delay_const_range_expression
 
 cycle_delay_const_range_expression <-
-	expression COLON expression
+  expression COLON expression
 / expression COLON DOLLAR
 
 expression_or_dist <- expression ( DIST_K LCURLY dist_list RCURLY )?
@@ -1048,8 +1045,8 @@ let_actual_arg <- expression
 //A.2.11 Covergroup declarations
 covergroup_declaration <-
 COVERGROUP_K identifier ( LPAREN ( tf_port_list )? RPAREN )? ( coverage_event )? SEMI
-	( coverage_spec_or_option )*
-	ENDGROUP_K ( COLON identifier )?
+  ( coverage_spec_or_option )*
+  ENDGROUP_K ( COLON identifier )?
 
 coverage_spec_or_option <-
   (attribute_instance)* coverage_option SEMI
@@ -1068,7 +1065,7 @@ cover_point
 coverage_event <-
   WITH_K FUNCTION_K IDENT LPAREN ( tf_port_list )? RPAREN
 / AT2 LPAREN block_event_expression RPAREN
-/ clocking_event	//IDENT ==> sample (but not a keyword)
+/ clocking_event  //IDENT ==> sample (but not a keyword)
 
 block_event_expression <-
   block_event_expression OR_K block_event_expression
@@ -1085,7 +1082,7 @@ bins_or_options <-
 coverage_option
 / bins_keyword identifier EQ DEFAULT_K SEQUENCE_K ( IFF_K LPAREN expression RPAREN )?
 / ( WILDCARD_K )? bins_keyword identifier ( LBRACK ( expression )? RBRACK )? EQ 
-	LCURLY open_range_list RCURLY ( IFF_K LPAREN expression RPAREN )?
+  LCURLY open_range_list RCURLY ( IFF_K LPAREN expression RPAREN )?
 / ( WILDCARD_K )? bins_keyword identifier ( RBRACK RBRACK )? EQ trans_list ( IFF_K LPAREN expression RPAREN )?
 / bins_keyword identifier ( LBRACK ( expression )? RBRACK )? EQ DEFAULT_K ( IFF_K LPAREN expression RPAREN )?
 
@@ -1148,15 +1145,15 @@ open_value_range <- value_range
 
 //Greatly simplified this rather archaic/arcane detail
 gate_instantiation <-
-	(	cmos_switchtype / enable_gatetype / mos_switchtype / n_input_gatetype 
-	/ 	n_output_gatetype / pass_en_switchtype / pass_switchtype
-	/	PULLDOWN_K / PULLUP_K
-	)
-	(drive_strength)? (delay3)?
-	gate_instance (COMMA gate_instance)* SEMI
+  ( cmos_switchtype / enable_gatetype / mos_switchtype / n_input_gatetype 
+  /   n_output_gatetype / pass_en_switchtype / pass_switchtype
+  / PULLDOWN_K / PULLUP_K
+  )
+  (drive_strength)? (delay3)?
+  gate_instance (COMMA gate_instance)* SEMI
 
 gate_instance <-
-	( name_of_instance )? LPAREN gate_terminal ( COMMA gate_terminal )* RPAREN
+  ( name_of_instance )? LPAREN gate_terminal ( COMMA gate_terminal )* RPAREN
 
 gate_terminal <-
   expression
@@ -1268,8 +1265,8 @@ case_generate_item <-
 
 generate_block <-
   ( identifier COLON )? BEGIN_K ( COLON identifier )?
-	( generate_item )*
-	END_K ( COLON identifier )?
+  ( generate_item )*
+  END_K ( COLON identifier )?
 / generate_item
 
 generate_item <-
@@ -1285,9 +1282,9 @@ udp_declaration <-
   udp_ansi_declaration udp_body ENDPRIMITIVE_K ( COLON identifier )?
 / EXTERN_K udp_ansi_declaration
 / ( attribute_instance )* PRIMITIVE_K identifier LPAREN DOT_STAR RPAREN SEMI
-	( udp_port_declaration )*
-	udp_body
-	ENDPRIMITIVE_K ( COLON identifier )?
+  ( udp_port_declaration )*
+  udp_body
+  ENDPRIMITIVE_K ( COLON identifier )?
 
 //A.5.2 UDP ports
 udp_port_list <- identifier COMMA identifier ( COMMA identifier )*
@@ -1318,7 +1315,7 @@ sequential_body <- ( udp_initial_statement )? TABLE_K sequential_entry ( sequent
 
 udp_initial_statement <- INITIAL_K identifier EQ init_val SEMI
 
-init_val <- ("1'" [bB] [01xX]) / [01]
+init_val <- number; //("1'" [bB] [01xX]) / [01]
 
 sequential_entry <- seq_input_list COLON current_state COLON next_state SEMI
 
@@ -1334,11 +1331,11 @@ current_state <- level_symbol
 
 next_state <- output_symbol / MINUS
 
-output_symbol <- [01xX]
+output_symbol <- number; //[01xX]
 
-level_symbol <- [01xX?bB]
+level_symbol <- number / IDENT; //[01xX?bB]
 
-edge_symbol <- [rRfFpPnN*]
+edge_symbol <- IDENT / STAR; //[rRfFpPnN*]
 
 //A.5.4 UDP instantiation
 udp_instantiation <- identifier ( drive_strength )? ( delay2 )? udp_instance ( COMMA udp_instance )* SEMI
@@ -1497,8 +1494,8 @@ disable_statement <-
 //A.6.6 Conditional statements
 conditional_statement <-
 ( unique_priority )? IF_K LPAREN cond_predicate RPAREN statement_or_null
-	( ELSE_K IF_K LPAREN cond_predicate RPAREN statement_or_null )*
-	( ELSE_K statement_or_null )?
+  ( ELSE_K IF_K LPAREN cond_predicate RPAREN statement_or_null )*
+  ( ELSE_K statement_or_null )?
 
 unique_priority <- UNIQUE_K / UNIQUE0_K/ PRIORITY_K
 
@@ -1604,9 +1601,9 @@ loop_variables <- ( identifier )? ( COMMA ( identifier )? )*
 //A.6.9 Subroutine call statements
 subroutine_call_statement <-
   VOID_K SQUOTE LPAREN 
-		//function_subroutine_call 
-		subroutine_call
-		RPAREN SEMI
+    //function_subroutine_call 
+    subroutine_call
+    RPAREN SEMI
 / subroutine_call SEMI
 
 //A.6.10 Assertion statements
@@ -1641,11 +1638,11 @@ deferred_immediate_assert_statement
 / deferred_immediate_assume_statement
 / deferred_immediate_cover_statement
 
-deferred_immediate_assert_statement <- ASSERT_K POUND DIGIT LPAREN expression RPAREN action_block
+deferred_immediate_assert_statement <- ASSERT_K POUND UNSIGNED_NUMBER LPAREN expression RPAREN action_block
 
-deferred_immediate_assume_statement <- ASSUME_K POUND DIGIT LPAREN expression RPAREN action_block
+deferred_immediate_assume_statement <- ASSUME_K POUND UNSIGNED_NUMBER LPAREN expression RPAREN action_block
 
-deferred_immediate_cover_statement <- COVER_K POUND DIGIT LPAREN expression RPAREN statement_or_null
+deferred_immediate_cover_statement <- COVER_K POUND UNSIGNED_NUMBER LPAREN expression RPAREN statement_or_null
 
 //A.6.11 Clocking block
 clocking_declaration <- 
@@ -1684,7 +1681,7 @@ clocking_drive <- clockvar_expression LT_EQ ( cycle_delay )? expression
 
 cycle_delay <-
   POUND2 LPAREN expression RPAREN
-/ POUND2 integral_number
+/ POUND2 number
 / POUND2 identifier
 
 clockvar <- selected_ident
@@ -1703,7 +1700,7 @@ rs_production_list <-
 / rs_prod ( rs_prod )*
 
 weight_specification <-
-integral_number
+number
 / ps_identifier
 / LPAREN expression RPAREN
 
@@ -1784,11 +1781,11 @@ path_delay_value <-
 
 list_of_path_delay_expressions <-
   t01_path_delay_expression COMMA t10_path_delay_expression COMMA t0z_path_delay_expression COMMA
-	tz1_path_delay_expression COMMA t1z_path_delay_expression COMMA tz0_path_delay_expression COMMA
-	t0x_path_delay_expression COMMA tx1_path_delay_expression COMMA t1x_path_delay_expression COMMA
-	tx0_path_delay_expression COMMA txz_path_delay_expression COMMA tzx_path_delay_expression
+  tz1_path_delay_expression COMMA t1z_path_delay_expression COMMA tz0_path_delay_expression COMMA
+  t0x_path_delay_expression COMMA tx1_path_delay_expression COMMA t1x_path_delay_expression COMMA
+  tx0_path_delay_expression COMMA txz_path_delay_expression COMMA tzx_path_delay_expression
 / t01_path_delay_expression COMMA t10_path_delay_expression COMMA t0z_path_delay_expression COMMA
-	tz1_path_delay_expression COMMA t1z_path_delay_expression COMMA tz0_path_delay_expression
+  tz1_path_delay_expression COMMA t1z_path_delay_expression COMMA tz0_path_delay_expression
 / trise_path_delay_expression COMMA tfall_path_delay_expression COMMA tz_path_delay_expression
 / trise_path_delay_expression COMMA tfall_path_delay_expression
 / t_path_delay_expression
@@ -1837,7 +1834,7 @@ LPAREN specify_output_terminal_descriptor ( polarity_operator )? COLON data_sour
 
 full_edge_sensitive_path_description <-
 LPAREN ( edge_identifier )? list_of_path_inputs ( polarity_operator )? STAR_GT
-	LPAREN list_of_path_outputs ( polarity_operator )? COLON data_source_expression RPAREN RPAREN
+  LPAREN list_of_path_outputs ( polarity_operator )? COLON data_source_expression RPAREN RPAREN
 
 data_source_expression <- expression
 
@@ -1875,8 +1872,8 @@ DS_HOLD_K LPAREN reference_event COMMA data_event COMMA timing_check_limit ( COM
 
 ds_setuphold_timing_check <-
 DS_SETUPHOLD_K LPAREN reference_event COMMA data_event COMMA timing_check_limit COMMA timing_check_limit
-	( COMMA ( notifier )? ( COMMA ( timestamp_condition )? ( COMMA ( timecheck_condition )?
-	( COMMA ( delayed_reference )? ( COMMA ( delayed_data )? )? )? )? )? )? RPAREN SEMI
+  ( COMMA ( notifier )? ( COMMA ( timestamp_condition )? ( COMMA ( timecheck_condition )?
+  ( COMMA ( delayed_reference )? ( COMMA ( delayed_data )? )? )? )? )? )? RPAREN SEMI
 
 ds_recovery_timing_check <-
 DS_RECOVERY_K LPAREN reference_event COMMA data_event COMMA timing_check_limit ( COMMA ( notifier )? )? RPAREN SEMI
@@ -1886,18 +1883,18 @@ DS_REMOVAL_K LPAREN reference_event COMMA data_event COMMA timing_check_limit ( 
 
 ds_recrem_timing_check <-
 DS_RECREM_K LPAREN reference_event COMMA data_event COMMA timing_check_limit COMMA timing_check_limit
-	( COMMA ( notifier )? ( COMMA ( timestamp_condition )? ( COMMA ( timecheck_condition )?
-	( COMMA ( delayed_reference )? ( COMMA ( delayed_data )? )? )? )? )? )? RPAREN SEMI
+  ( COMMA ( notifier )? ( COMMA ( timestamp_condition )? ( COMMA ( timecheck_condition )?
+  ( COMMA ( delayed_reference )? ( COMMA ( delayed_data )? )? )? )? )? )? RPAREN SEMI
 
 ds_skew_timing_check <- DS_SKEW_K LPAREN reference_event COMMA data_event COMMA timing_check_limit ( COMMA ( notifier )? )? RPAREN SEMI
 
 ds_timeskew_timing_check <-
 DS_TIMESKEW_K LPAREN reference_event COMMA data_event COMMA timing_check_limit
-	( COMMA ( notifier )? ( COMMA ( event_based_flag )? ( COMMA ( remain_active_flag )? )? )? )? RPAREN SEMI
+  ( COMMA ( notifier )? ( COMMA ( event_based_flag )? ( COMMA ( remain_active_flag )? )? )? )? RPAREN SEMI
 
 ds_fullskew_timing_check <-
 DS_FULLSKEW_K LPAREN reference_event COMMA data_event COMMA timing_check_limit COMMA timing_check_limit
-	( COMMA ( notifier )? ( COMMA ( event_based_flag )? ( COMMA ( remain_active_flag )? )? )? )? RPAREN SEMI
+  ( COMMA ( notifier )? ( COMMA ( event_based_flag )? ( COMMA ( remain_active_flag )? )? )? )? RPAREN SEMI
 
 ds_period_timing_check <-
 DS_PERIOD_K LPAREN controlled_reference_event COMMA timing_check_limit ( COMMA ( notifier )? )? RPAREN SEMI
@@ -1907,7 +1904,7 @@ DS_WIDTH_K LPAREN controlled_reference_event COMMA timing_check_limit COMMA thre
 
 ds_nochange_timing_check <-
 DS_NOCHANGE_K LPAREN reference_event COMMA data_event COMMA start_edge_offset COMMA 
-	end_edge_offset ( COMMA ( notifier )? )? RPAREN SEMI
+  end_edge_offset ( COMMA ( notifier )? )? RPAREN SEMI
 
 //A.7.5.2 System timing check command arguments
 timecheck_condition <- mintypmax_expression
@@ -1955,7 +1952,8 @@ specify_input_terminal_descriptor
 
 edge_control_specifier <- EDGE_K LBRACK edge_descriptor ( COMMA edge_descriptor )* RBRACK
 
-edge_descriptor <- "01" / "10" / [01][xX] / [xX][01]
+//edge_descriptor <- "01" / "10" / [01][xX] / [xX][01]
+edge_descriptor <- STRING_LITERAL / IDENT / NUMBER
 
 timing_check_condition <-
   LPAREN scalar_timing_check_condition RPAREN
@@ -1968,7 +1966,7 @@ scalar_timing_check_condition <-
 / expression NOT_EQ2 scalar_constant
 / TILDE? expression
 
-scalar_constant <- ('1'? [bB])? [01]
+scalar_constant <- number; //('1'? [bB])? [01]
 
 //A.8 Expressions
 //A.8.1 Concatenations
@@ -2014,7 +2012,7 @@ system_tf_identifier LPAREN data_type ( COMMA expression )? RPAREN
 / system_tf_identifier ( LPAREN list_of_arguments RPAREN )?
 
 subroutine_call <-
-	(STD_K COLON2)? randomize_call
+  (STD_K COLON2)? randomize_call
 //method_call: matches tf_call
 / system_tf_call
 / tf_call
@@ -2048,7 +2046,7 @@ randomize_call <-
 //NOTE<- "randomize" is not a keyword, so no RANDOMIZE_K
 //I think that is a mistake.  should be keyword
 RANDOMIZE_K ( attribute_instance )* ( LPAREN ( variable_identifier_list / NULL_K )? RPAREN )?
-	( WITH_K ( LPAREN ( identifier_list )? RPAREN )? constraint_block )?
+  ( WITH_K ( LPAREN ( identifier_list )? RPAREN )? constraint_block )?
 
 array_method_name <- identifier / UNIQUE_K / AND_K / OR_K / XOR_K
 
@@ -2063,12 +2061,12 @@ inc_or_dec_operator ( attribute_instance )* variable_lvalue
 //NOT USED: expression (MATCHES_K pattern)?
 //NOT USED: //}
 //NOT USED: //}
-//NOT USED: 	( AND3 
-//NOT USED: 		//ILR{ expression_or_cond_pattern 
-//NOT USED: 		expression (MATCHES_K pattern)?
-//NOT USED: 		//}
-//NOT USED: 	)*
-//NOT USED: 	QMARK ( attribute_instance )* expression COLON expression
+//NOT USED:   ( AND3 
+//NOT USED:     //ILR{ expression_or_cond_pattern 
+//NOT USED:     expression (MATCHES_K pattern)?
+//NOT USED:     //}
+//NOT USED:   )*
+//NOT USED:   QMARK ( attribute_instance )* expression COLON expression
 
 constant_mintypmax_expression <- expression (COLON expression COLON expression)?
 
@@ -2078,11 +2076,11 @@ constant_mintypmax_expression / data_type / DOLLAR
 param_expression <- mintypmax_expression / data_type
 
 constant_range_expression <-
- 	constant_part_select_range
-/	expression
+  constant_part_select_range
+/ expression
 
 constant_part_select_range <-
-	expression (COLON / PLUS_COLON / MINUS_COLON) expression
+  expression (COLON / PLUS_COLON / MINUS_COLON) expression
 
 range <- expression COLON expression
 
@@ -2190,15 +2188,7 @@ range_expression <-
 expression
 / part_select_range
 
-primary_literal <- number / time_literal / unbased_unsized_literal / string_literal
-
-time_literal <-
-unsigned_number time_unit
-/ fixed_point_number time_unit
-
-time_unit <- IDENT //s / ms / us / ns / ps / fs
-
-
+primary_literal <- number / TIME_LITERAL / UNBASED_UNSIZED_LITERAL / STRING_LITERAL ;
 
 // constant_cast <-
 //casting_type SQUOTE LPAREN expression RPAREN
@@ -2209,7 +2199,7 @@ cast <-
 //ILR{ casting_type 
 (simple_type / constant_primary / signing / STRING_K / CONST_K)
 //}
-	SQUOTE LPAREN expression RPAREN
+  SQUOTE LPAREN expression RPAREN
 
 //A.8.5 Expression left-side values
 net_lvalue <-
@@ -2295,48 +2285,10 @@ EQ2
 / XOR 
 
 //A.8.7 Numbers
-number <- Spacing (real_number / integral_number)
-
-integral_number <-
-octal_number
-/ binary_number
-/ hex_number
-/ decimal_number
-
-decimal_number <-
-size? Space* decimal_base Space* unsigned_number
-/ size? Space* decimal_base Space* [xX] '_'*
-/ size? Space* decimal_base Space* [zZ?] '_'*
-/ unsigned_number
-
-binary_number <- size? Space* binary_base Space* binary_value
-
-octal_number <- size? Space* octal_base Space* octal_value
-
-hex_number <- size? Space* hex_base Space* hex_value
-
-size <- non_zero_unsigned_number
-
-//no spacing allowed in these begin{{
-non_zero_unsigned_number <- [1-9] [_0-9]*
-real_number <-
-unsigned_number ('.' unsigned_number)? [eE] ('-'/'+')? unsigned_number
-/ fixed_point_number
-fixed_point_number <- unsigned_number '.' unsigned_number
-unsigned_number <- [0-9] [_0-9]*
-binary_value <- [01xXzZ?] [01xXzZ?_]* 
-octal_value <- [0-7xXzZ?] [0-7xXzZ?_]*
-hex_value <- [0-9a-fA-FxXzZ?] [0-9a-fA-FxXzZ?_]*
-decimal_base <- "'" [sS]? [dD]
-binary_base <- "'" [sS]? [bB]
-octal_base <- "'" [sS]? [oO]
-hex_base <- "'" [sS]? [hH]
-//no spacing }}end
-
-unbased_unsized_literal <- "'" [01xXzZ?]
+number <- NUMBER / UNSIGNED_NUMBER ;
 
 //A.8.8 Strings
-string_literal <- STRING //" ( Any_ASCII_Characters )* "
+string_literal <- STRING_LITERAL //" ( Any_ASCII_Characters )* "
 
 //A.9 General
 //A.9.1 Attributes
@@ -2378,392 +2330,363 @@ system_tf_identifier <- SYSTEM_IDENT
 
 extern_tf_declaration <- 
   EXTERN_K FORKJOIN_K task_prototype SEMI
-/	EXTERN_K method_prototype SEMI
+/ EXTERN_K method_prototype SEMI
+;
 
-// Define tail predicate to isolate keyword
-kwrdTail <- ![a-zA-Z_0-9]
-
-ACCEPT_ON_K  <- Spacing   "accept_on"  kwrdTail
-ALIAS_K  <- Spacing   "alias"  kwrdTail
-ALWAYS_COMB_K  <- Spacing   "always_comb"  kwrdTail
-ALWAYS_FF_K  <- Spacing   "always_ff"  kwrdTail
-ALWAYS_K  <- Spacing   "always"  kwrdTail
-ALWAYS_LATCH_K  <- Spacing   "always_latch"  kwrdTail
-AND_K  <- Spacing   "and"  kwrdTail
-ASSERT_K  <- Spacing   "assert"  kwrdTail
-ASSIGN_K  <- Spacing   "assign"  kwrdTail
-ASSUME_K  <- Spacing   "assume"  kwrdTail
-AUTOMATIC_K  <- Spacing   "automatic"  kwrdTail
-BEFORE_K  <- Spacing   "before"  kwrdTail
-BEGIN_K  <- Spacing   "begin"  kwrdTail
-BIND_K  <- Spacing   "bind"  kwrdTail
-BINSOF_K  <- Spacing   "binsof"  kwrdTail
-BINS_K  <- Spacing   "bins"  kwrdTail
-BIT_K  <- Spacing   "bit"  kwrdTail
-BREAK_K  <- Spacing   "break"  kwrdTail
-BUFIF0_K  <- Spacing   "bufif0"  kwrdTail
-BUFIF1_K  <- Spacing   "bufif1"  kwrdTail
-BUF_K  <- Spacing   "buf"  kwrdTail
-BYTE_K  <- Spacing   "byte"  kwrdTail
-CASEX_K  <- Spacing   "casex"  kwrdTail
-CASEZ_K  <- Spacing   "casez"  kwrdTail
-CASE_K  <- Spacing   "case"  kwrdTail
-CELL_K  <- Spacing   "cell"  kwrdTail
-CHANDLE_K  <- Spacing   "chandle"  kwrdTail
-CHECKER_K  <- Spacing   "checker"  kwrdTail
-CLASS_K  <- Spacing   "class"  kwrdTail
-CLOCKING_K  <- Spacing   "clocking"  kwrdTail
-CMOS_K  <- Spacing   "cmos"  kwrdTail
-CONFIG_K  <- Spacing   "config"  kwrdTail
-CONSTRAINT_K  <- Spacing   "constraint"  kwrdTail
-CONST_K  <- Spacing   "const"  kwrdTail
-CONTEXT_K  <- Spacing   "context"  kwrdTail
-CONTINUE_K  <- Spacing   "continue"  kwrdTail
-COVERGROUP_K  <- Spacing   "covergroup"  kwrdTail
-COVERPOINT_K  <- Spacing   "coverpoint"  kwrdTail
-COVER_K  <- Spacing   "cover"  kwrdTail
-CROSS_K  <- Spacing   "cross"  kwrdTail
-DEASSIGN_K  <- Spacing   "deassign"  kwrdTail
-DEFAULT_K  <- Spacing   "default"  kwrdTail
-DEFPARAM_K  <- Spacing   "defparam"  kwrdTail
-DESIGN_K  <- Spacing   "design"  kwrdTail
-DISABLE_K  <- Spacing   "disable"  kwrdTail
-DIST_K  <- Spacing   "dist"  kwrdTail
-DO_K  <- Spacing   "do"  kwrdTail
-EDGE_K  <- Spacing   "edge"  kwrdTail
-ELSE_K  <- Spacing   "else"  kwrdTail
-ENDCASE_K  <- Spacing   "endcase"  kwrdTail
-ENDCHECKER_K  <- Spacing   "endchecker"  kwrdTail
-ENDCLASS_K  <- Spacing   "endclass"  kwrdTail
-ENDCLOCKING_K  <- Spacing   "endclocking"  kwrdTail
-ENDCONFIG_K  <- Spacing   "endconfig"  kwrdTail
-ENDFUNCTION_K  <- Spacing   "endfunction"  kwrdTail
-ENDGENERATE_K  <- Spacing   "endgenerate"  kwrdTail
-ENDGROUP_K  <- Spacing   "endgroup"  kwrdTail
-ENDINTERFACE_K  <- Spacing   "endinterface"  kwrdTail
-ENDMODULE_K  <- Spacing   "endmodule"  kwrdTail
-ENDPACKAGE_K  <- Spacing   "endpackage"  kwrdTail
-ENDPRIMITIVE_K  <- Spacing   "endprimitive"  kwrdTail
-ENDPROGRAM_K  <- Spacing   "endprogram"  kwrdTail
-ENDPROPERTY_K  <- Spacing   "endproperty"  kwrdTail
-ENDSEQUENCE_K  <- Spacing   "endsequence"  kwrdTail
-ENDSPECIFY_K  <- Spacing   "endspecify"  kwrdTail
-ENDTABLE_K  <- Spacing   "endtable"  kwrdTail
-ENDTASK_K  <- Spacing   "endtask"  kwrdTail
-END_K  <- Spacing   "end"  kwrdTail
-ENUM_K  <- Spacing   "enum"  kwrdTail
-EVENTUALLY_K  <- Spacing   "eventually"  kwrdTail
-EVENT_K  <- Spacing   "event"  kwrdTail
-EXPECT_K  <- Spacing   "expect"  kwrdTail
-EXPORT_K  <- Spacing   "export"  kwrdTail
-EXTENDS_K  <- Spacing   "extends"  kwrdTail
-EXTERN_K  <- Spacing   "extern"  kwrdTail
-FINAL_K  <- Spacing   "final"  kwrdTail
-FIRST_MATCH_K  <- Spacing   "first_match"  kwrdTail
-FORCE_K  <- Spacing   "force"  kwrdTail
-FOREACH_K  <- Spacing   "foreach"  kwrdTail
-FOREVER_K  <- Spacing   "forever"  kwrdTail
-FORKJOIN_K  <- Spacing   "forkjoin"  kwrdTail
-FORK_K  <- Spacing   "fork"  kwrdTail
-FOR_K  <- Spacing   "for"  kwrdTail
-FUNCTION_K  <- Spacing   "function"  kwrdTail
-GENERATE_K  <- Spacing   "generate"  kwrdTail
-GENVAR_K  <- Spacing   "genvar"  kwrdTail
-GLOBAL_K  <- Spacing   "global"  kwrdTail
-HIGHZ0_K  <- Spacing   "highz0"  kwrdTail
-HIGHZ1_K  <- Spacing   "highz1"  kwrdTail
-IFF_K  <- Spacing   "iff"  kwrdTail
-IFNONE_K  <- Spacing   "ifnone"  kwrdTail
-IF_K  <- Spacing   "if"  kwrdTail
-IGNORE_BINS_K  <- Spacing   "ignore_bins"  kwrdTail
-ILLEGAL_BINS_K  <- Spacing   "illegal_bins"  kwrdTail
-IMPLIES_K  <- Spacing   "implies"  kwrdTail
-IMPORT_K  <- Spacing   "import"  kwrdTail
-INCDIR_K  <- Spacing   "incdir"  kwrdTail
-INCLUDE_K  <- Spacing   "include"  kwrdTail
-INITIAL_K  <- Spacing   "initial"  kwrdTail
-INOUT_K  <- Spacing   "inout"  kwrdTail
-INPUT_K  <- Spacing   "input"  kwrdTail
-INSIDE_K  <- Spacing   "inside"  kwrdTail
-INSTANCE_K  <- Spacing   "instance"  kwrdTail
-INTEGER_K  <- Spacing   "integer"  kwrdTail
-INTERFACE_K  <- Spacing   "interface"  kwrdTail
-INTERSECT_K  <- Spacing   "intersect"  kwrdTail
-INT_K  <- Spacing   "int"  kwrdTail
-JOIN_ANY_K  <- Spacing   "join_any"  kwrdTail
-JOIN_K  <- Spacing   "join"  kwrdTail
-JOIN_NONE_K  <- Spacing   "join_none"  kwrdTail
-LARGE_K  <- Spacing   "large"  kwrdTail
-LET_K  <- Spacing   "let"  kwrdTail
-LIBLIST_K  <- Spacing   "liblist"  kwrdTail
-LIBRARY_K  <- Spacing   "library"  kwrdTail
-LOCALPARAM_K  <- Spacing   "localparam"  kwrdTail
-LOCAL_K  <- Spacing   "local"  kwrdTail
-LOGIC_K  <- Spacing   "logic"  kwrdTail
-LONGINT_K  <- Spacing   "longint"  kwrdTail
-MACROMODULE_K  <- Spacing   "macromodule"  kwrdTail
-MATCHES_K  <- Spacing   "matches"  kwrdTail
-MEDIUM_K  <- Spacing   "medium"  kwrdTail
-MODPORT_K  <- Spacing   "modport"  kwrdTail
-MODULE_K  <- Spacing   "module"  kwrdTail
-NAND_K  <- Spacing   "nand"  kwrdTail
-NEGEDGE_K  <- Spacing   "negedge"  kwrdTail
-NEW_K  <- Spacing   "new"  kwrdTail
-NEXTTIME_K  <- Spacing   "nexttime"  kwrdTail
-NMOS_K  <- Spacing   "nmos"  kwrdTail
-NOR_K  <- Spacing   "nor"  kwrdTail
-NOSHOWCANCELLED_K  <- Spacing   "noshowcancelled"  kwrdTail
-NOTIF0_K  <- Spacing   "notif0"  kwrdTail
-NOTIF1_K  <- Spacing   "notif1"  kwrdTail
-NOT_K  <- Spacing   "not"  kwrdTail
-NULL_K  <- Spacing   "null"  kwrdTail
-OR_K  <- Spacing   "or"  kwrdTail
-OUTPUT_K  <- Spacing   "output"  kwrdTail
-PACKAGE_K  <- Spacing   "package"  kwrdTail
-PACKED_K  <- Spacing   "packed"  kwrdTail
-PARAMETER_K  <- Spacing   "parameter"  kwrdTail
-PMOS_K  <- Spacing   "pmos"  kwrdTail
-POSEDGE_K  <- Spacing   "posedge"  kwrdTail
-PRIMITIVE_K  <- Spacing   "primitive"  kwrdTail
-PRIORITY_K  <- Spacing   "priority"  kwrdTail
-PROGRAM_K  <- Spacing   "program"  kwrdTail
-PROPERTY_K  <- Spacing   "property"  kwrdTail
-PROTECTED_K  <- Spacing   "protected"  kwrdTail
-PULL0_K  <- Spacing   "pull0"  kwrdTail
-PULL1_K  <- Spacing   "pull1"  kwrdTail
-PULLDOWN_K  <- Spacing   "pulldown"  kwrdTail
-PULLUP_K  <- Spacing   "pullup"  kwrdTail
-PULSESTYLE_ONDETECT_K  <- Spacing   "pulsestyle_ondetect"  kwrdTail
-PULSESTYLE_ONEVENT_K  <- Spacing   "pulsestyle_onevent"  kwrdTail
-PURE_K  <- Spacing   "pure"  kwrdTail
-RANDCASE_K  <- Spacing   "randcase"  kwrdTail
-RANDC_K  <- Spacing   "randc"  kwrdTail
-RANDSEQUENCE_K  <- Spacing   "randsequence"  kwrdTail
-RAND_K  <- Spacing   "rand"  kwrdTail
-RANDOMIZE_K  <- Spacing   "randomize"  kwrdTail
-RCMOS_K  <- Spacing   "rcmos"  kwrdTail
-REALTIME_K  <- Spacing   "realtime"  kwrdTail
-REAL_K  <- Spacing   "real"  kwrdTail
-REF_K  <- Spacing   "ref"  kwrdTail
-REG_K  <- Spacing   "reg"  kwrdTail
-REJECT_ON_K  <- Spacing   "reject_on"  kwrdTail
-RELEASE_K  <- Spacing   "release"  kwrdTail
-REPEAT_K  <- Spacing   "repeat"  kwrdTail
-RESTRICT_K  <- Spacing   "restrict"  kwrdTail
-RETURN_K  <- Spacing   "return"  kwrdTail
-RNMOS_K  <- Spacing   "rnmos"  kwrdTail
-RPMOS_K  <- Spacing   "rpmos"  kwrdTail
-RTRANIF0_K  <- Spacing   "rtranif0"  kwrdTail
-RTRANIF1_K  <- Spacing   "rtranif1"  kwrdTail
-RTRAN_K  <- Spacing   "rtran"  kwrdTail
-SCALARED_K  <- Spacing   "scalared"  kwrdTail
-SEQUENCE_K  <- Spacing   "sequence"  kwrdTail
-SHORTINT_K  <- Spacing   "shortint"  kwrdTail
-SHORTREAL_K  <- Spacing   "shortreal"  kwrdTail
-SHOWCANCELLED_K  <- Spacing   "showcancelled"  kwrdTail
-SIGNED_K  <- Spacing   "signed"  kwrdTail
-SMALL_K  <- Spacing   "small"  kwrdTail
-SOLVE_K  <- Spacing   "solve"  kwrdTail
-SPECIFY_K  <- Spacing   "specify"  kwrdTail
-SPECPARAM_K  <- Spacing   "specparam"  kwrdTail
-STATIC_K  <- Spacing   "static"  kwrdTail
-STD_K  <- Spacing   "std"  kwrdTail
-STRING_K  <- Spacing   "string"  kwrdTail
-STRONG0_K  <- Spacing   "strong0"  kwrdTail
-STRONG1_K  <- Spacing   "strong1"  kwrdTail
-STRONG_K  <- Spacing   "strong"  kwrdTail
-STRUCT_K  <- Spacing   "struct"  kwrdTail
-SUPER_K  <- Spacing   "super"  kwrdTail
-SUPPLY0_K  <- Spacing   "supply0"  kwrdTail
-SUPPLY1_K  <- Spacing   "supply1"  kwrdTail
-SYNC_ACCEPT_ON_K  <- Spacing   "sync_accept_on"  kwrdTail
-SYNC_REJECT_ON_K  <- Spacing   "sync_reject_on"  kwrdTail
-S_ALWAYS_K  <- Spacing   "s_always"  kwrdTail
-S_EVENTUALLY_K  <- Spacing   "s_eventually"  kwrdTail
-S_NEXTTIME_K  <- Spacing   "s_nexttime"  kwrdTail
-S_UNTIL_K  <- Spacing   "s_until"  kwrdTail
-S_UNTIL_WITH_K  <- Spacing   "s_until_with"  kwrdTail
-TABLE_K  <- Spacing   "table"  kwrdTail
-TAGGED_K  <- Spacing   "tagged"  kwrdTail
-TASK_K  <- Spacing   "task"  kwrdTail
-THIS_K  <- Spacing   "this"  kwrdTail
-THROUGHOUT_K  <- Spacing   "throughout"  kwrdTail
-TIMEPRECISION_K  <- Spacing   "timeprecision"  kwrdTail
-TIMEUNIT_K  <- Spacing   "timeunit"  kwrdTail
-TIME_K  <- Spacing   "time"  kwrdTail
-TRANIF0_K  <- Spacing   "tranif0"  kwrdTail
-TRANIF1_K  <- Spacing   "tranif1"  kwrdTail
-TRAN_K  <- Spacing   "tran"  kwrdTail
-TRI0_K  <- Spacing   "tri0"  kwrdTail
-TRI1_K  <- Spacing   "tri1"  kwrdTail
-TRIAND_K  <- Spacing   "triand"  kwrdTail
-TRIOR_K  <- Spacing   "trior"  kwrdTail
-TRIREG_K  <- Spacing   "trireg"  kwrdTail
-TRI_K  <- Spacing   "tri"  kwrdTail
-TYPEDEF_K  <- Spacing   "typedef"  kwrdTail
-TYPE_K  <- Spacing   "type"  kwrdTail
-UNION_K  <- Spacing   "union"  kwrdTail
-UNIQUE0_K  <- Spacing   "unique0"  kwrdTail
-UNIQUE_K  <- Spacing   "unique"  kwrdTail
-UNSIGNED_K  <- Spacing   "unsigned"  kwrdTail
-UNTIL_K  <- Spacing   "until"  kwrdTail
-UNTIL_WITH_K  <- Spacing   "until_with"  kwrdTail
-UNTYPED_K  <- Spacing   "untyped"  kwrdTail
-USE_K  <- Spacing   "use"  kwrdTail
-UWIRE_K  <- Spacing   "uwire"  kwrdTail
-VAR_K  <- Spacing   "var"  kwrdTail
-VECTORED_K  <- Spacing   "vectored"  kwrdTail
-VIRTUAL_K  <- Spacing   "virtual"  kwrdTail
-VOID_K  <- Spacing   "void"  kwrdTail
-WAIT_K  <- Spacing   "wait"  kwrdTail
-WAIT_ORDER_K  <- Spacing   "wait_order"  kwrdTail
-WAND_K  <- Spacing   "wand"  kwrdTail
-WEAK0_K  <- Spacing   "weak0"  kwrdTail
-WEAK1_K  <- Spacing   "weak1"  kwrdTail
-WEAK_K  <- Spacing   "weak"  kwrdTail
-WHILE_K  <- Spacing   "while"  kwrdTail
-WILDCARD_K  <- Spacing   "wildcard"  kwrdTail
-WIRE_K  <- Spacing   "wire"  kwrdTail
-WITHIN_K  <- Spacing   "within"  kwrdTail
-WITH_K  <- Spacing   "with"  kwrdTail
-WOR_K  <- Spacing   "wor"  kwrdTail
-XNOR_K  <- Spacing   "xnor"  kwrdTail
-XOR_K  <- Spacing   "xor"  kwrdTail
-W1STEP_K  <- Spacing   "1step" kwrdTail	//NOTE: actually not a keyword in LRM
-
-//Token definitions
-
-AND <- Spacing  				'&'		
-AND2 <- Spacing  				"&&"	
-AND3 <- Spacing  				"&&&"	
-AND_EQ <- Spacing  				"&="	
-AT <- Spacing  					'@'		
-AT2 <- Spacing  				"@@"	
-AT_STAR <- Spacing  			"@*"	
-BAR_EQ_GT <- Spacing  			"|=>"	
-BAR_MINUS_GT <- Spacing  		"|->"	
-COLON2 <- Spacing  				"::" 	
-COLON <- Spacing  				':'		
-COLON_DIV <- Spacing  			":/"	
-COLON_EQ <- Spacing  			":="	
-COMMA <- Spacing  				','		
-//changed to NUMBER <- Spacing   DIGIT_012:			'0'..'2'
-DIV <- Spacing  				'/'		
-DIV_EQ <- Spacing  				"/="	
-DOLLAR <- Spacing  				'$'		
-DOT <- Spacing  				'.'		
-DOT_STAR <- Spacing  			".*"	
-EQ2 <- Spacing  				"=="	 
-EQ2_QMARK <- Spacing  			"==?"	
-EQ3 <- Spacing  				"==="	
-EQ <- Spacing  					'='		
-EQ_GT <- Spacing  				"=>"	
-GT2 <- Spacing  				">>"	
-GT2_EQ <- Spacing  				">>="	
-GT3_EQ <- Spacing  				">>>="	
-GT <- Spacing  					'>'		 
-GT3 <- Spacing  				">>>"	
-GT_EQ <- Spacing  				">="	 
-LBRACK <- Spacing  				'['		
-LCURLY <- Spacing  				'{'		
-LPAREN <- Spacing  				'('		
-LPAREN_STAR <- Spacing  		"(*"	
-LT2 <- Spacing  				"<<"	
-LT2_EQ <- Spacing  				"<<="	
-LT3_EQ <- Spacing  				"<<<="	
-LT <- Spacing  					'<'		 
-LT3 <- Spacing  				"<<<"	
-LT_EQ <- Spacing  				"<="	 
-LT_MINUS_GT <- Spacing  		"<->"	
-MINUS2 <- Spacing  				"--"	 
-MINUS <- Spacing  				'-'		
-MINUS_COLON <- Spacing  		"-:"	
-MINUS_EQ <- Spacing  			"-="	
-MINUS_GT2 <- Spacing  			"->>"	
-MINUS_GT <- Spacing  			"->"	
-MOD <- Spacing  				'%'		 
-MOD_EQ <- Spacing  				"%="	
-NOT <- Spacing  				'!'		
-NOT_EQ2 <- Spacing  			"!=="	
-NOT_EQ <- Spacing  				"!="	 
-NOT_EQ_QMARK <- Spacing  		"!=?"	
-OR2 <- Spacing  				"||"	
-OR <- Spacing  					'|'		
-OR_EQ <- Spacing  				"|="	
-PLUS2 <- Spacing  				"++"	 
-PLUS <- Spacing  				'+'		 
-PLUS_COLON <- Spacing  			"+:"	
-PLUS_EQ <- Spacing  			"+="	
-POUND2 <- Spacing  				"##"	
-POUND <- Spacing  				'#'		
-POUND_EQ_POUND <- Spacing  		"#=#"	
-POUND_MINUS_POUND <- Spacing  	"#-#"	
-QMARK <- Spacing  				'?'		
-RBRACK <- Spacing  				']'		
-RCURLY <- Spacing  				'}'		
-RPAREN <- Spacing  				')'		
-SEMI <- Spacing  				';'		
-STAR2 <- Spacing  				"**"	 
-STAR <- Spacing  				'*'		
-STAR_COLON2_STAR <- Spacing  	"*::*"	
-STAR_EQ <- Spacing  			"*="	
-STAR_GT <- Spacing  			"*>"	
-STAR_RPAREN <- Spacing  		"*)"	
-TILDE <- Spacing  				'~'		
-TILDE_AND <- Spacing  			"~&"	
-TILDE_OR <- Spacing  			"~|"	
-TILDE_XOR <- Spacing  			"~^"	
-XOR <- Spacing  				'^'		
-XOR_EQ <- Spacing  				"^="	
-XOR_TILDE <- Spacing  			"^~"	
-
-SQUOTE <- Spacing  				"'"		
-
-PATHPULSE_K <- Spacing  	"PATHPULSE$" kwrdTail
-DS_SETUP_K <- Spacing  		"$setup" kwrdTail
-DS_REMOVAL_K <- Spacing   	"$removal" kwrdTail
-DS_PERIOD_K <- Spacing  		"$period" kwrdTail
-DS_RECREM_K <- Spacing  		"$recrem" kwrdTail
-DS_SETUPHOLD_K <- Spacing  	"$setuphold" kwrdTail
-DS_RECOVERY_K <- Spacing  	"$recovery" kwrdTail
-DS_HOLD_K <- Spacing  		"$hold" kwrdTail
-DS_WIDTH_K <- Spacing  		"$width" kwrdTail
-DS_SKEW_K <- Spacing  		"$skew" kwrdTail
-DS_FULLSKEW_K <- Spacing  	"$fullskew" kwrdTail
-DS_TIMESKEW_K <- Spacing  	"$timeskew" kwrdTail
-DS_NOCHANGE_K <- Spacing  	"$nochange" kwrdTail
-DS_FATAL_K <- Spacing  		"$fatal" kwrdTail
-DS_ERROR_K <- Spacing  		"$error" kwrdTail
-DS_WARNING_K <- Spacing  		"$warning" kwrdTail
-DS_INFO_K <- Spacing  		"$info" kwrdTail
-DS_UNIT_K <- Spacing  		"$unit" kwrdTail
-DS_ROOT_K <- Spacing  		"$root" kwrdTail
-
-ESC_IDENT  <- Spacing '\\' (!(' ' / '\r' / '\t' / EOL) .)+
-        
-/**Need to match keywords (*_K) or IDENT
-IDENT <- Spacing IdentStart IdentCont*
-**/
-IDENT << MyIDENT
-IdentStart <- [a-zA-Z_]
-IdentCont <- IdentStart / [0-9] //TODO: where is this used: / '$'
-
-STRING <- Spacing '"' ('"' / (!'"' .)+ '"')
-
-SYSTEM_IDENT <- Spacing '$' IdentStart IdentCont*
-DIGIT <- Spacing [0-9]
-
-// Improve performance dramatically
-// Spacing <- (Space / Comment / TicLine / TimeScale)*
-//
-Spacing << MySpacing
-// Comment <- SL_COMMENT / ML_COMMENT
-SL_COMMENT  <- "//" (!(EOL / EOF) .)* (EOL / EOF)
-ML_COMMENT  <- "/*" (!("*/" / EOF) .)* "*/"
-
-Space <- ' ' / '\t' / EOL
-
-TicLine <- "`line" Space+ [0-9]+ Space+ STRING Space+ [0-2]
-
-TimeScale <- "`timescale" Space+ TimeValue Space* '/' Space* TimeValue
-TimeValue <- [0-9]+ Space* ("s" / "ms" / "us" / "ns" / "ps" / "fs")
+ACCEPT_ON_K.
+ALIAS_K.
+ALWAYS_COMB_K.
+ALWAYS_FF_K.
+ALWAYS_K.
+ALWAYS_LATCH_K.
+AND_K.
+ASSERT_K.
+ASSIGN_K.
+ASSUME_K.
+AUTOMATIC_K.
+BEFORE_K.
+BEGIN_K.
+BIND_K.
+BINSOF_K.
+BINS_K.
+BIT_K.
+BREAK_K.
+BUFIF0_K.
+BUFIF1_K.
+BUF_K.
+BYTE_K.
+CASEX_K.
+CASEZ_K.
+CASE_K.
+CELL_K.
+CHANDLE_K.
+CHECKER_K.
+CLASS_K.
+CLOCKING_K.
+CMOS_K.
+CONFIG_K.
+CONSTRAINT_K.
+CONST_K.
+CONTEXT_K.
+CONTINUE_K.
+COVERGROUP_K.
+COVERPOINT_K.
+COVER_K.
+CROSS_K.
+DEASSIGN_K.
+DEFAULT_K.
+DEFPARAM_K.
+DESIGN_K.
+DISABLE_K.
+DIST_K.
+DO_K.
+EDGE_K.
+ELSE_K.
+ENDCASE_K.
+ENDCHECKER_K.
+ENDCLASS_K.
+ENDCLOCKING_K.
+ENDCONFIG_K.
+ENDFUNCTION_K.
+ENDGENERATE_K.
+ENDGROUP_K.
+ENDINTERFACE_K.
+ENDMODULE_K.
+ENDPACKAGE_K.
+ENDPRIMITIVE_K.
+ENDPROGRAM_K.
+ENDPROPERTY_K.
+ENDSEQUENCE_K.
+ENDSPECIFY_K.
+ENDTABLE_K.
+ENDTASK_K.
+END_K.
+ENUM_K.
+EVENTUALLY_K.
+EVENT_K.
+EXPECT_K.
+EXPORT_K.
+EXTENDS_K.
+EXTERN_K.
+FINAL_K.
+FIRST_MATCH_K.
+FORCE_K.
+FOREACH_K.
+FOREVER_K.
+FORKJOIN_K.
+FORK_K.
+FOR_K.
+FUNCTION_K.
+GENERATE_K.
+GENVAR_K.
+GLOBAL_K.
+HIGHZ0_K.
+HIGHZ1_K.
+IFF_K.
+IFNONE_K.
+IF_K.
+IGNORE_BINS_K.
+ILLEGAL_BINS_K.
+IMPLIES_K.
+IMPORT_K.
+INCDIR_K.
+INCLUDE_K.
+INITIAL_K.
+INOUT_K.
+INPUT_K.
+INSIDE_K.
+INSTANCE_K.
+INTEGER_K.
+INTERFACE_K.
+INTERSECT_K.
+INT_K.
+JOIN_ANY_K.
+JOIN_K.
+JOIN_NONE_K.
+LARGE_K.
+LET_K.
+LIBLIST_K.
+LIBRARY_K.
+LOCALPARAM_K.
+LOCAL_K.
+LOGIC_K.
+LONGINT_K.
+MACROMODULE_K.
+MATCHES_K.
+MEDIUM_K.
+MODPORT_K.
+MODULE_K.
+NAND_K.
+NEGEDGE_K.
+NEW_K.
+NEXTTIME_K.
+NMOS_K.
+NOR_K.
+NOSHOWCANCELLED_K.
+NOTIF0_K.
+NOTIF1_K.
+NOT_K.
+NULL_K.
+OR_K.
+OUTPUT_K.
+PACKAGE_K.
+PACKED_K.
+PARAMETER_K.
+PMOS_K.
+POSEDGE_K.
+PRIMITIVE_K.
+PRIORITY_K.
+PROGRAM_K.
+PROPERTY_K.
+PROTECTED_K.
+PULL0_K.
+PULL1_K.
+PULLDOWN_K.
+PULLUP_K.
+PULSESTYLE_ONDETECT_K.
+PULSESTYLE_ONEVENT_K.
+PURE_K.
+RANDCASE_K.
+RANDC_K.
+RANDSEQUENCE_K.
+RAND_K.
+RANDOMIZE_K.
+RCMOS_K.
+REALTIME_K.
+REAL_K.
+REF_K.
+REG_K.
+REJECT_ON_K.
+RELEASE_K.
+REPEAT_K.
+RESTRICT_K.
+RETURN_K.
+RNMOS_K.
+RPMOS_K.
+RTRANIF0_K.
+RTRANIF1_K.
+RTRAN_K.
+SCALARED_K.
+SEQUENCE_K.
+SHORTINT_K.
+SHORTREAL_K.
+SHOWCANCELLED_K.
+SIGNED_K.
+SMALL_K.
+SOLVE_K.
+SPECIFY_K.
+SPECPARAM_K.
+STATIC_K.
+STD_K.
+STRING_K.
+STRONG0_K.
+STRONG1_K.
+STRONG_K.
+STRUCT_K.
+SUPER_K.
+SUPPLY0_K.
+SUPPLY1_K.
+SYNC_ACCEPT_ON_K.
+SYNC_REJECT_ON_K.
+S_ALWAYS_K.
+S_EVENTUALLY_K.
+S_NEXTTIME_K.
+S_UNTIL_K.
+S_UNTIL_WITH_K.
+TABLE_K.
+TAGGED_K.
+TASK_K.
+THIS_K.
+THROUGHOUT_K.
+TIMEPRECISION_K.
+TIMEUNIT_K.
+TIME_K.
+TRANIF0_K.
+TRANIF1_K.
+TRAN_K.
+TRI0_K.
+TRI1_K.
+TRIAND_K.
+TRIOR_K.
+TRIREG_K.
+TRI_K.
+TYPEDEF_K.
+TYPE_K.
+UNION_K.
+UNIQUE0_K.
+UNIQUE_K.
+UNSIGNED_K.
+UNTIL_K.
+UNTIL_WITH_K.
+UNTYPED_K.
+USE_K.
+UWIRE_K.
+VAR_K.
+VECTORED_K.
+VIRTUAL_K.
+VOID_K.
+WAIT_K.
+WAIT_ORDER_K.
+WAND_K.
+WEAK0_K.
+WEAK1_K.
+WEAK_K.
+WHILE_K.
+WILDCARD_K.
+WIRE_K.
+WITHIN_K.
+WITH_K.
+WOR_K.
+XNOR_K.
+XOR_K.
+W1STEP_K.
+PATHPULSE_K.
+DS_SETUP_K.
+DS_REMOVAL_K.
+DS_PERIOD_K.
+DS_RECREM_K.
+DS_SETUPHOLD_K.
+DS_RECOVERY_K.
+DS_HOLD_K.
+DS_WIDTH_K.
+DS_SKEW_K.
+DS_FULLSKEW_K.
+DS_TIMESKEW_K.
+DS_NOCHANGE_K.
+DS_FATAL_K.
+DS_ERROR_K.
+DS_WARNING_K.
+DS_INFO_K.
+DS_UNIT_K.
+DS_ROOT_K.
+AND.
+AND2.
+AND3.
+AND_EQ.
+AT.
+AT2.
+AT_STAR.
+BAR_EQ_GT.
+BAR_MINUS_GT.
+COLON2.
+COLON.
+COLON_DIV.
+COLON_EQ.
+COMMA.
+DIV.
+DIV_EQ.
+DOLLAR.
+DOT.
+DOT_STAR.
+EQ2.
+EQ2_QMARK.
+EQ3.
+EQ.
+EQ_GT.
+GT2.
+GT2_EQ.
+GT3_EQ.
+GT.
+GT3.
+GT_EQ.
+LBRACK.
+LCURLY.
+LPAREN.
+LPAREN_STAR.
+LT2.
+LT2_EQ.
+LT3_EQ.
+LT.
+LT3.
+LT_EQ.
+LT_MINUS_GT.
+MINUS2.
+MINUS.
+MINUS_COLON.
+MINUS_EQ.
+MINUS_GT2.
+MINUS_GT.
+MOD.
+MOD_EQ.
+NOT.
+NOT_EQ2.
+NOT_EQ.
+NOT_EQ_QMARK.
+OR2.
+OR.
+OR_EQ.
+PLUS2.
+PLUS.
+PLUS_COLON.
+PLUS_EQ.
+POUND2.
+POUND.
+POUND_EQ_POUND.
+POUND_MINUS_POUND.
+QMARK.
+RBRACK.
+RCURLY.
+RPAREN.
+SEMI.
+STAR2.
+STAR.
+STAR_COLON2_STAR.
+STAR_EQ.
+STAR_GT.
+STAR_RPAREN.
+TILDE.
+TILDE_AND.
+TILDE_OR.
+TILDE_XOR.
+XOR.
+XOR_EQ.
+XOR_TILDE.
+IDENT.
+ESC_IDENT.
+UNSIGNED_NUMBER.
+UNBASED_UNSIZED_LITERAL.
+NUMBER.
+TIME_LITERAL.
+SYSTEM_IDENT.
+SQUOTE.
+STRING_LITERAL.

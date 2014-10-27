@@ -25,7 +25,7 @@ package apfe.peg;
 
 import apfe.peg.generate.GenJava;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -47,11 +47,11 @@ public class DefinitionTest {
     public void testAcceptTrue() {
         Definition instance;
         System.out.println("testAcceptTrue");
-        State st;
+        CharBufState st;
         String res;
         for (String s : stData) {
             CharBuffer buf = new CharBuffer("<test>", s);
-            st = State.create(buf);
+            st = CharBufState.create(buf);
             instance = new Definition();
             assertTrue(instance.acceptTrue());
         }

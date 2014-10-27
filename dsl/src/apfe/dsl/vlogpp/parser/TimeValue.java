@@ -24,7 +24,7 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
+import apfe.runtime.Marker;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
 import apfe.runtime.ICharClass;
@@ -73,12 +73,12 @@ public class TimeValue extends Acceptor {
     }
 
     @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
+    protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
     }
 
     @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
+    protected Memoize.Data hasMemoized(Marker mark) {
         return stMemo.memoized(mark);
     }
 

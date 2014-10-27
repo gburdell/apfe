@@ -23,8 +23,6 @@
  */
 package apfe.runtime;
 
-import apfe.runtime.CharBuffer.Marker;
-
 /**
  * Base class for all nonterminals, sequences, predicates.
  *
@@ -52,7 +50,6 @@ public abstract class Acceptor {
      throw new UnsupportedOperationException("Not supported in base class.");
      }
      */
-    
     /**
      * Get Listeners.
      *
@@ -109,15 +106,15 @@ public abstract class Acceptor {
      */
     protected abstract boolean accepti();
 
-    private CharBuffer.Marker m_startMark;
+    private Marker m_startMark;
     private final long m_memoBar = Memoize.getTheBar();
 
-    protected CharBuffer.Marker getStartMark() {
+    protected Marker getStartMark() {
         return m_startMark;
     }
 
     protected Marker getCurrentMark() {
-        return State.getTheOne().getCurrentMark();
+        return CharBufState.getTheOne().getCurrentMark();
     }
 
     /**
@@ -130,7 +127,7 @@ public abstract class Acceptor {
      */
     protected Acceptor accept(boolean isPredicate) {
         State st = State.getTheOne();
-        CharBuffer.Marker mark = st.getCurrentMark();
+        Marker mark = st.getCurrentMark();
         m_startMark = mark;
         Acceptor accepted = this;
         boolean ok = false;
@@ -149,7 +146,7 @@ public abstract class Acceptor {
                 if (null != md) {
                     accepted = md.getAcceptor();
                     mark = md.getMark();
-                    st.getBuf().reset(mark);
+                    st.reset(mark);
                     ok = true;
                 }
                 st.updateMemoizeHit(ok);
@@ -164,7 +161,7 @@ public abstract class Acceptor {
                  */
                 if (m_memoBar == Memoize.getTheBar()) {
                     //memoize
-                    Marker end = st.getBuf().mark();
+                    Marker end = st.getCurrentMark();
                     if (0 < mark.length(end)) {
                         memoize(mark, end);
                     }
@@ -172,7 +169,7 @@ public abstract class Acceptor {
             }
         }
         if (!ok || isPredicate) {
-            st.getBuf().reset(mark);
+            st.reset(mark);
         }
         if (isPredicate) {
             st.decrPredicate();
@@ -187,12 +184,12 @@ public abstract class Acceptor {
     public static boolean stDebug = System.getProperty("apfe.runtime.Acceptor.Debug", "false").equals("true");
 
     public boolean inPredicate() {
-        return State.getTheOne().inPredicate();
+        return CharBufState.getTheOne().inPredicate();
     }
 
     @Override
     public String toString() {
-        return State.getTheOne().getBuf().substring(m_startMark);
+        return State.getTheOne().substring(m_startMark);
     }
 
     /**

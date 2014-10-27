@@ -26,7 +26,7 @@ package apfe.dsl.slf;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -50,7 +50,7 @@ public class GrammarTest {
         try {
             InputStream fis = new InputStream(fn);
             CharBuffer cbuf = fis.newCharBuffer();
-            State st = State.create(cbuf);
+            CharBufState st = CharBufState.create(cbuf);
             boolean result;
             Grammar gram = new Grammar();
             Acceptor acc = gram.accept();

@@ -28,7 +28,7 @@ package apfe.sv2009.generated;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -53,7 +53,7 @@ public class numberTest {
         public static void test(final String tt) {
         System.out.print("fact: " + tt + ": parses as: ");
         CharBuffer buf = new CharBuffer("<test>", tt);
-        State st = State.create(buf);
+        CharBufState st = CharBufState.create(buf);
         boolean result;
         number gram = new number();
         Acceptor acc = gram.accept();

@@ -27,7 +27,7 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.EndOfFile;
 import apfe.runtime.NotPredicate;
 import apfe.runtime.PrioritizedChoice;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 
 /**
  *
@@ -59,7 +59,7 @@ public class AnyChar extends Acceptor {
         NotPredicate np1 = new NotPredicate(pc);
         boolean match = np1.acceptTrue();
         if (match) {
-            m_ch = State.getTheOne().getBuf().accept();
+            m_ch = CharBufState.asMe().getBuf().accept();
         }
         return match;
     }

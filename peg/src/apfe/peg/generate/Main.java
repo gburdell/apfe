@@ -29,7 +29,7 @@ import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
 import apfe.runtime.Util;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class Main {
         try {
             InputStream istr = new InputStream(argv[0]);
             CharBuffer cb = istr.newCharBuffer();
-            State.create(cb);
+            CharBufState.create(cb);
             Grammar gram = new Grammar();
             gram = Util.downCast(gram.accept());
             int numErrs = 0;
@@ -70,7 +70,7 @@ public class Main {
             }
             {
                 //dump memoize stats
-                long stats[] = State.getTheOne().getMemoizeStats();
+                long stats[] = CharBufState.getTheOne().getMemoizeStats();
                 double pcnt = 0;
                 if (0 < stats[1]) {
                     pcnt = (100.0 * stats[0]) / stats[1];

@@ -93,7 +93,6 @@ public class PrioritizedChoice extends Acceptor {
     protected boolean accepti() {
         boolean match = false;
         Acceptor choice;
-        State st = State.getTheOne();
         for (m_acceptedIx = 0; null != (choice = m_alts.getChoice(m_acceptedIx)); m_acceptedIx++) {
             match = (null != (choice = match(choice)));
             if (match) {

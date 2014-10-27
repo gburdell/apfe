@@ -29,7 +29,7 @@ public class EndOfLine extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         boolean match = (CharBuffer.NL == buf.accept());
         return match;
     }

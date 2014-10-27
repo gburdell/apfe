@@ -239,7 +239,7 @@ public class Generate {
                 continue;
             }
             if (defn.isToken()) {
-                assert Main.stGenMaze;
+                //assert Main.stGenMaze;
                 continue;
             }
             final String nm = defn.getId().getId();

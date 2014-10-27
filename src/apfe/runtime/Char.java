@@ -23,14 +23,10 @@
  */
 package apfe.runtime;
 
-import apfe.runtime.Acceptor;
 import static apfe.runtime.Acceptor.match;
-import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
 import static apfe.runtime.CharBuffer.NUL;
 import static apfe.runtime.CharBuffer.EOF;
 import static apfe.runtime.CharBuffer.NL;
-import apfe.runtime.ParseError;
 
 /**
  * Char specific single character or any != EOF.
@@ -63,7 +59,7 @@ public class Char extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         m_char = buf.la();
         boolean match;
         if (NUL == m_expect) {

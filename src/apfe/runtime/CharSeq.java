@@ -51,7 +51,7 @@ public class CharSeq extends Acceptor {
     
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         boolean match = false;
         char c;
         StringBuilder acc = new StringBuilder(m_expect.length());

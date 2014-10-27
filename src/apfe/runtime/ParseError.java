@@ -35,14 +35,14 @@ import static apfe.runtime.CharBuffer.EOF;
  */
 public class ParseError {
 
-    public enum EType {
+    private enum EType {
 
         eFoundExpecting
     }
 
-    public ParseError(EType type, String... args) {
+    private ParseError(EType type, String... args) {
         m_type = type;
-        m_loc = State.getTheOne().getBuf().mark();
+        m_loc = State.getTheOne().getCurrentMark();
         if (EType.eFoundExpecting == m_type) {
             m_args = new String[]{args[0]};
             m_expecting = new LinkedList<>();
@@ -53,8 +53,8 @@ public class ParseError {
     }
 
     private final EType m_type;
-    private String[] m_args;
-    private final CharBuffer.Marker m_loc;
+    private final String[] m_args;
+    private final Marker m_loc;
     private List<String> m_expecting;
 
     public static void push(String... args) {
@@ -138,7 +138,7 @@ public class ParseError {
         if (!m_fails.empty()) {
             ParseError e = m_fails.peek();
             assert EType.eFoundExpecting == e.m_type;
-            final String fn = State.getTheOne().getBuf().getFileName();
+            final String fn = CharBufState.getTheOne().getFileName();
             final String loc = e.m_loc.toString();
             msg = new MessageMgr.Message('E', "PARSE-5", fn, loc,
                     e.m_args[0], e.m_expecting);

@@ -25,7 +25,7 @@ package apfe.peg;
 
 import apfe.peg.generate.GenJava;
 import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -48,11 +48,11 @@ public class PrimaryTest {
     public void testGenJava() {
         Primary instance;
         System.out.println("genJava");
-        State st;
+        CharBufState st;
         String res;
         for (String s : stData) {
             CharBuffer buf = new CharBuffer("<test>", s);
-            st = State.create(buf);
+            st = CharBufState.create(buf);
             instance = new Primary();
             assertTrue(instance.acceptTrue());
             GenJava j = new GenJava();

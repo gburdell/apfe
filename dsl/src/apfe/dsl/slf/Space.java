@@ -24,7 +24,7 @@
 package apfe.dsl.slf;
 
 import apfe.runtime.*;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 
 public class Space extends Acceptor {
     public Space() {
@@ -32,7 +32,7 @@ public class Space extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         boolean match;
         char la = buf.accept();
         switch (la) {

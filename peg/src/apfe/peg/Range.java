@@ -26,7 +26,7 @@ package apfe.peg;
 import apfe.runtime.Char;
 import apfe.peg.generate.GenJava;
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;

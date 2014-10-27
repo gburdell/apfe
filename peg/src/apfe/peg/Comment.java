@@ -27,7 +27,7 @@ import apfe.runtime.Char;
 import apfe.runtime.EndOfLine;
 import apfe.runtime.Acceptor;
 import static apfe.runtime.Acceptor.match;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
 import apfe.runtime.ICharClass;

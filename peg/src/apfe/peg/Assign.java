@@ -24,7 +24,7 @@
 package apfe.peg;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;

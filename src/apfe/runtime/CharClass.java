@@ -121,7 +121,7 @@ public class CharClass extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         boolean match = false;
         char c = buf.la();
         for (ICharClass cc : m_eles) {

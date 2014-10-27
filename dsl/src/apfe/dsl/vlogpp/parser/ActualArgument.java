@@ -29,7 +29,8 @@ import static apfe.runtime.CharBuffer.EOF;
 import apfe.runtime.Memoize;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Repetition;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
+import apfe.runtime.Marker;
 import java.util.Stack;
 
 /**
@@ -54,7 +55,7 @@ public class ActualArgument extends Acceptor {
     
     @Override
     protected boolean accepti() {
-        CharBuffer cbuf = State.getTheOne().getBuf();
+        CharBuffer cbuf = CharBufState.asMe().getBuf();
         Acceptor matcher;
         boolean ok = true;
         Stack<Character> matchClose = new Stack<>();
@@ -109,12 +110,12 @@ public class ActualArgument extends Acceptor {
     }
 
     @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
+    protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
     }
 
     @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
+    protected Memoize.Data hasMemoized(Marker mark) {
         return stMemo.memoized(mark);
     }
 

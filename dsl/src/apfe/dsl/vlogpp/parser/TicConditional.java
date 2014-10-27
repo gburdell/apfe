@@ -25,7 +25,7 @@ package apfe.dsl.vlogpp.parser;
 
 import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;

@@ -112,15 +112,16 @@ public class CharBuffer {
      * @return marker to current position.
      */
     public Marker mark() {
-        return new Marker();
+        return new MarkerImpl();
     }
 
     /**
      * Reset to marker position.
      *
-     * @param backTo marker position.
+     * @param mark marker position.
      */
-    public void reset(Marker backTo) {
+    public void reset(Marker mark) {
+        MarkerImpl backTo = Util.downCast(mark);
         m_pos = backTo.m_xpos;
         m_lnum = backTo.m_xlnum;
         m_col = backTo.m_xcol;
@@ -160,8 +161,9 @@ public class CharBuffer {
      * @return buffer contents from start to current position.
      */
     public String substring(final Marker start) {
-        assert start.m_xpos <= m_pos;
-        return m_buf.substring(start.getPos(), m_pos);
+        MarkerImpl mark = Util.downCast(start);
+        assert mark.m_xpos <= m_pos;
+        return m_buf.substring(mark.getPos(), m_pos);
     }
 
     /**
@@ -170,7 +172,8 @@ public class CharBuffer {
      * @param s replace string.
      */
     public void replace(final Marker start, String s) {
-        getBuf().replace(start.getPos(), m_pos, s);
+        MarkerImpl mark = Util.downCast(start);;
+        getBuf().replace(mark.getPos(), m_pos, s);
         reset(start);
     }
     
@@ -181,7 +184,8 @@ public class CharBuffer {
      * @param start start position.
      */
     public void replace(final Marker start) {
-        for (int i = start.getPos(); i < m_pos; i++) {
+        MarkerImpl mark = Util.downCast(start);
+        for (int i = mark.getPos(); i < m_pos; i++) {
             if (m_buf.charAt(i) != NL) {
                 m_buf.setCharAt(i, ' ');
             }
@@ -206,28 +210,15 @@ public class CharBuffer {
      */
     private int m_col;
 
-    public class Marker {
+    public class MarkerImpl extends Marker {
 
-        public Marker() {
+        public MarkerImpl() {
             m_xpos = m_pos;
             m_xlnum = m_lnum;
             m_xcol = m_col;
         }
 
-        public int length(final Marker end) {
-            return end.getCol() - getCol();
-        }
-        
         @Override
-        public boolean equals(Object m) {
-            return (m_xpos == ((Marker) m).m_xpos);
-        }
-
-        @Override
-        public int hashCode() {
-            return m_xpos;
-        }
-
         public int getPos() {
             return m_xpos;
         }
@@ -241,6 +232,7 @@ public class CharBuffer {
             return m_xlnum;
         }
 
+        @Override
         public int getCol() {
             return 1 + m_xcol;
         }

@@ -28,7 +28,7 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class GrammarTest {
             final String fn = stFname;
             InputStream ins = new InputStream(fn);
             CharBuffer buf = ins.newCharBuffer();
-            State st = State.create(buf);
+            CharBufState st = CharBufState.create(buf);
             System.out.println("accepti");
             Grammar gram = new Grammar();
             Acceptor acc = gram.accept();
@@ -68,7 +68,7 @@ public class GrammarTest {
                 String ss = acc.toString();
                 System.out.println("returns:\n========\n" + ss);
             }
-            boolean result = (null != acc) && State.getTheOne().isEOF();
+            boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
             if (!result) {
                 ParseError.printTopMessage();
             }

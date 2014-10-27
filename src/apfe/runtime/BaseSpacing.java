@@ -23,7 +23,6 @@
  */
 package apfe.runtime;
 
-import apfe.runtime.CharBuffer.Marker;
 import java.util.List;
 
 /**

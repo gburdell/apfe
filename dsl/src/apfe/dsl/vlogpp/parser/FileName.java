@@ -24,10 +24,10 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
+import apfe.runtime.Marker;
 import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.State;
+import apfe.runtime.CharBuffer;
+import apfe.runtime.CharBufState;
 import apfe.runtime.Util;
 
 /**
@@ -40,7 +40,7 @@ public class FileName extends Acceptor {
     protected boolean accepti() {
         //FileName <- (!([">] / EOL / EOF) .)+
         boolean match = true;
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         char ch;
         while (match) {
             ch = buf.la();
@@ -75,12 +75,12 @@ public class FileName extends Acceptor {
     }
 
     @Override
-    protected void memoize(CharBuffer.Marker mark, CharBuffer.Marker endMark) {
+    protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
     }
 
     @Override
-    protected Memoize.Data hasMemoized(CharBuffer.Marker mark) {
+    protected Memoize.Data hasMemoized(Marker mark) {
         return stMemo.memoized(mark);
     }
 

@@ -6,7 +6,7 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.runtime.CharBuffer;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -36,11 +36,11 @@ public class ActualArgumentTest {
     @Test
     public void testAccepti() {
         for (String s : stBuf) {
-            State.create(new CharBuffer("<stBuf>", s));
+            CharBufState.create(new CharBuffer("<stBuf>", s));
             ActualArgument aarg = new ActualArgument();
             boolean match = aarg.acceptTrue();
             System.out.println(s + ": parses as: " + aarg.toString());
-            assertTrue(match && State.getTheOne().isEOF());
+            assertTrue(match && CharBufState.getTheOne().isEOF());
         }
     }
 

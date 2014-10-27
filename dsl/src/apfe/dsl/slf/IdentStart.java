@@ -24,7 +24,7 @@
 package apfe.dsl.slf;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.State;
+import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.ICharClass;
 
@@ -35,7 +35,7 @@ public class IdentStart extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        CharBuffer buf = State.getTheOne().getBuf();
+        CharBuffer buf = CharBufState.asMe().getBuf();
         // IdentStart <- [a-zA-Z_]
         char c = buf.la();
         boolean match = ICharClass.IS_ALPHA.inClass(c) || (c == '_');

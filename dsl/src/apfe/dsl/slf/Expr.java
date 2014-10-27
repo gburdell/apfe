@@ -24,7 +24,7 @@
 package apfe.dsl.slf;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.Marker;
+import apfe.runtime.Marker;
 import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
