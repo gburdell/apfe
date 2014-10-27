@@ -31,6 +31,12 @@ import java.util.ArrayList;
  */
 public abstract class Scanner extends ArrayList<Token> {
 
+    /**
+     * Check for EOF while reading file to create tokens.
+     * Not to be confused with checking EOF while post-processing
+     * tokens.
+     * @return true on EOF while reading file and generating tokens. 
+     */
     public abstract boolean isEOF();
 
     public abstract Token nextToken();
@@ -41,5 +47,6 @@ public abstract class Scanner extends ArrayList<Token> {
             tok = nextToken();
             super.add(tok);
         }
+        super.add(Token.create("<EOF>", Token.EOF));
     }
 }

@@ -35,11 +35,9 @@ public class CharBufState extends State {
     }
     
     public static CharBufState create(CharBuffer buf) {
-        ParseError.reset();
-        Memoize.reset();
         CharBufState ele = new CharBufState(buf);
-        stTheOne = ele;
-        return ele;
+        init(ele);
+        return asMe();
     }
 
     private CharBufState(CharBuffer buf) {

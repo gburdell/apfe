@@ -43,7 +43,7 @@ public class Token {
     }
     
     public static Token create(String text, int code) {
-        return create("_", 0, 0, text, code);
+        return create("?", 0, 0, text, code);
     }
     
     public boolean isEOF() {

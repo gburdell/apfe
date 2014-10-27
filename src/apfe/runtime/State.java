@@ -36,18 +36,26 @@ public abstract class State {
         return stTheOne;
     }
 
-    protected static State stTheOne;
+    protected static void init(State theOne) {
+        assert null == stTheOne;
+        ParseError.reset();
+        Memoize.reset();
+        stTheOne = theOne;
+    }
+
+    private static State stTheOne;
 
     public abstract String getFileName();
 
     public abstract Marker getCurrentMark();
-    
+
     public abstract void reset(Marker mark);
 
     public abstract boolean isEOF();
-    
+
     /**
      * Return String view of parser state from start mark to current.
+     *
      * @param start start mark.
      * @return String view from start to current.
      */

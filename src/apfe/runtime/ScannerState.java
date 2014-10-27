@@ -23,49 +23,64 @@
  */
 package apfe.runtime;
 
-
 /**
- * Accepts Token.
+ * Encapsulate parser state so more can pass (entire state) as single object.
+ *
  * @author gburdell
  */
-public class TokenAcceptor extends Acceptor {
-    public TokenAcceptor(int tokCode) {
-        m_expect = tokCode;
+public class ScannerState extends State {
+
+    public static ScannerState asMe() {
+        return Util.downCast(getTheOne());
+    }
+    
+    public static ScannerState create(Scanner tokens) {
+        ScannerState ele = new ScannerState(tokens);
+        init(ele);
+        return asMe();
+    }
+
+    private ScannerState(Scanner tokens) {
+        m_tokens = tokens;
+    }
+
+    public CharBuffer getBuf() {
+        return m_buf;
     }
 
     @Override
-    public Acceptor create() {
-        return new TokenAcceptor(m_expect);
+    public String getFileName() {
+        return getBuf().getFileName();
     }
 
     @Override
-    public String toString() {
-        return m_accepted.getText();
+    public Marker getCurrentMark() {
+        return getBuf().mark();
+    }
+
+    @Override
+    public boolean isEOF() {
+        return (Token.EOF == la().getCode());
+    }
+
+    private Token la() {
+        return m_tokens.get(m_pos);
     }
     
-    private final int   m_expect;
-    private Token       m_accepted;
-    
+    private final Scanner m_tokens;
+    /**
+     * Current position in m_tokens.
+     */
+    private int m_pos;
+
     @Override
-    protected boolean accepti() {
-        CharBuffer buf = CharBufState.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
-        }
-        return match;
+    public void reset(Marker mark) {
+        m_buf.reset(mark);
+    }
+
+    @Override
+    public String substring(Marker start) {
+        return getBuf().substring(start);
     }
     
 }
