@@ -44,6 +44,8 @@ public class Identifier extends Acceptor implements GenJava.IGen {
             if (getId().equals("EOF")) {
                 s = "Terminal." + s;
             }
+        } else if (Main.stGenTerminal && getId().toUpperCase().equals(getId())) {
+            s = "new Terminal(" + getId() + ")";
         } else {
             s = "new " + GenJava.getClsNm(getId()) + "()";
         }

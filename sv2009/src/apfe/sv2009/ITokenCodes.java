@@ -23,12 +23,15 @@
  */
 package apfe.sv2009;
 
+import apfe.runtime.Token;
+
 /**
  *
  * @author gburdell
  */
 public interface ITokenCodes {
     public static final int STRING_LITERAL = 999;
+    public static final int EOF = Token.EOF;
     
     //{ insert 'codes'
 	public static final int ACCEPT_ON_K = 1 ;

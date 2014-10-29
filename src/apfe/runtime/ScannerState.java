@@ -33,7 +33,7 @@ public class ScannerState extends State {
     public static ScannerState asMe() {
         return Util.downCast(getTheOne());
     }
-    
+
     public static ScannerState create(Scanner tokens) {
         ScannerState ele = new ScannerState(tokens);
         init(ele);
@@ -44,18 +44,14 @@ public class ScannerState extends State {
         m_tokens = tokens;
     }
 
-    public CharBuffer getBuf() {
-        return m_buf;
-    }
-
     @Override
     public String getFileName() {
-        return getBuf().getFileName();
+        return la().getFileName();
     }
 
     @Override
     public Marker getCurrentMark() {
-        return getBuf().mark();
+        return new MarkerImpl();
     }
 
     @Override
@@ -63,8 +59,18 @@ public class ScannerState extends State {
         return (Token.EOF == la().getCode());
     }
 
-    private Token la() {
+    public Token la() {
         return m_tokens.get(m_pos);
+    }
+
+    public void accept() {
+        if (! isEOF()) {
+            m_pos++;
+        }
+    }
+    
+    public String getExpectedAsString(int tokCode) {
+        return m_tokens.getAsString(tokCode);
     }
     
     private final Scanner m_tokens;
@@ -75,12 +81,45 @@ public class ScannerState extends State {
 
     @Override
     public void reset(Marker mark) {
-        m_buf.reset(mark);
+        MarkerImpl to = Util.downCast(mark);
+        m_pos = to.getPos();
     }
 
     @Override
     public String substring(Marker start) {
-        return getBuf().substring(start);
+        throw new UnsupportedOperationException("Doesn't make sense to implement.");
     }
-    
+
+    public class MarkerImpl extends Marker {
+
+        public MarkerImpl() {
+            m_xpos = m_pos;
+        }
+
+        @Override
+        public int getPos() {
+            return m_xpos;
+        }
+
+        @Override
+        public String toString() {
+            return getLnum() + ":" + getCol();
+        }
+
+        private Token getToken() {
+            return m_tokens.get(getPos());
+        }
+
+        private int getLnum() {
+            return getToken().getLineNum();
+        }
+
+        @Override
+        public int getCol() {
+            return getToken().getColNum();
+        }
+
+        private final int m_xpos;
+    }
+
 }

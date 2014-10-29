@@ -147,4 +147,5 @@ public class Main {
     }
     
     public static final boolean stGenMaze = getPropertyAsBoolean("genMaze");
+    public static final boolean stGenTerminal = getPropertyAsBoolean("genTerminal");
 }

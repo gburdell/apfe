@@ -28,14 +28,14 @@ package apfe.runtime;
  * Accepts Token.
  * @author gburdell
  */
-public class TokenAcceptor extends Acceptor {
-    public TokenAcceptor(int tokCode) {
+public class Terminal extends Acceptor {
+    public Terminal(int tokCode) {
         m_expect = tokCode;
     }
 
     @Override
     public Acceptor create() {
-        return new TokenAcceptor(m_expect);
+        return new Terminal(m_expect);
     }
 
     @Override
@@ -43,27 +43,22 @@ public class TokenAcceptor extends Acceptor {
         return m_accepted.getText();
     }
     
+    public Token getAccepted() {
+        return m_accepted;
+    }
+    
     private final int   m_expect;
     private Token       m_accepted;
     
     @Override
     protected boolean accepti() {
-        CharBuffer buf = CharBufState.getTheOne().getBuf();
-        boolean match = false;
-        char c;
-        StringBuilder acc = new StringBuilder(m_expect.length());
-        for (int i = 0; i < m_expect.length(); i++) {
-            c = buf.la();
-            acc.append(Char.toString(c));
-            match = (m_expect.charAt(i) == c);
-            if (match) {
-                buf.accept();
-            } else {
-                break;
-            }
-        }
-        if (!match) {
-            ParseError.push(acc.toString(), "'"+m_expect+"'");
+        final ScannerState st = ScannerState.asMe(); 
+        final Token la = st.la();
+        boolean match = la.getCode() == m_expect;
+        if (match) {
+            st.accept();
+        } else {
+            ParseError.push(la.getText(), "'"+st.getExpectedAsString(m_expect)+"'");
         }
         return match;
     }

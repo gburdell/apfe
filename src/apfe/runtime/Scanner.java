@@ -49,4 +49,11 @@ public abstract class Scanner extends ArrayList<Token> {
         }
         super.add(Token.create("<EOF>", Token.EOF));
     }
+    
+    /**
+     * Get the string associated with token code.
+     * @param tokCode token code.
+     * @return string associated with token code.
+     */
+    public abstract String getAsString(int tokCode);
 }
