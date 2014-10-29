@@ -85,9 +85,13 @@ public class ScannerState extends State {
         m_pos = to.getPos();
     }
 
+    private Token at(int i) {
+        return m_tokens.get(i);
+    }
+    
     @Override
     public String substring(Marker start) {
-        throw new UnsupportedOperationException("Doesn't make sense to implement.");
+        return at(start.getPos()).getText();
     }
 
     public class MarkerImpl extends Marker {

@@ -56,6 +56,7 @@ public class Terminal extends Acceptor {
         final Token la = st.la();
         boolean match = la.getCode() == m_expect;
         if (match) {
+            m_accepted = la;
             st.accept();
         } else {
             ParseError.push(la.getText(), "'"+st.getExpectedAsString(m_expect)+"'");
