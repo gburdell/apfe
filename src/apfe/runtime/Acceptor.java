@@ -162,7 +162,7 @@ public abstract class Acceptor {
                 if (m_memoBar == Memoize.getTheBar()) {
                     //memoize
                     Marker end = st.getCurrentMark();
-                    if (0 < mark.length(end)) {
+                    if (stUsesTokens || (0 < mark.length(end))) {
                         memoize(mark, end);
                     }
                 }
@@ -181,6 +181,11 @@ public abstract class Acceptor {
         return ok ? accepted : null;
     }
 
+    /**
+     * If we are using Tokens, make sure to set this true to enable
+     * memoization with tokens,
+     */
+    public static boolean stUsesTokens = false;
     public static boolean stDebug = System.getProperty("apfe.runtime.Acceptor.Debug", "false").equals("true");
 
     public boolean inPredicate() {

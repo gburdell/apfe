@@ -37,6 +37,7 @@ public class ScannerState extends State {
     public static ScannerState create(Scanner tokens) {
         ScannerState ele = new ScannerState(tokens);
         init(ele);
+        Acceptor.stUsesTokens = true;
         return asMe();
     }
 
