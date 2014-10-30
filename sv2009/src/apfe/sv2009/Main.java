@@ -6,8 +6,6 @@
 package apfe.sv2009;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer;
-import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
 import apfe.runtime.ScannerState;
 import apfe.runtime.State;
