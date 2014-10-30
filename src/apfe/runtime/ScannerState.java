@@ -91,7 +91,11 @@ public class ScannerState extends State {
     
     @Override
     public String substring(Marker start) {
-        return at(start.getPos()).getText();
+        final StringBuilder sb = new StringBuilder();
+        for (int i = start.getPos(); i <= m_pos; i++) {
+            sb.append(at(i).getText()).append("\n");
+        }
+        return sb.toString();
     }
 
     public class MarkerImpl extends Marker {

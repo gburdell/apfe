@@ -83,7 +83,7 @@ public class Token {
     }
 
     public String getText() {
-        return m_text;
+        return (EOF != getCode()) ? m_text : "<EOF>";
     }
 
     public static boolean stLocationHasFileName = true;

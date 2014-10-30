@@ -1459,6 +1459,8 @@ event_control <-
   AT LPAREN event_expression RPAREN
 / AT_STAR / (AT STAR)
 / AT LPAREN STAR RPAREN
+/ AT LPAREN_STAR RPAREN
+/ AT LPAREN STAR_RPAREN
 / AT selected_ident
 
 event_expression <-
