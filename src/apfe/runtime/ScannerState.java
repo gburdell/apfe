@@ -128,6 +128,11 @@ public class ScannerState extends State {
             return getToken().getColNum();
         }
 
+        @Override
+        public int hashCode() {
+            return getPos();
+        }
+
         private final int m_xpos;
     }
 

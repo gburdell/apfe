@@ -1,6 +1,4 @@
-
-package apfe.tc1.generated ;
-
+package apfe.tc1.generated;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -8,22 +6,18 @@ import java.util.LinkedList;
 import apfe.runtime.*;
 import apfe.tc1.*;
 
-
-
-
-
-public  class nt2 extends Acceptor implements ITokenCodes {
+public class nt2 extends Acceptor implements ITokenCodes {
 
     public nt2() {
     }
 
     @Override
     protected boolean accepti() {
-		Acceptor matcher = new Sequence(new Terminal(IDENT),
-new Repetition(new Sequence(new Terminal(COMMA),
-new Terminal(IDENT)), Repetition.ERepeat.eZeroOrMore)) ;
-		Acceptor accepted = match(matcher);
-		boolean match = (null != accepted);
+        Acceptor matcher = new Sequence(new Terminal(IDENT),
+                new Repetition(new Sequence(new Terminal(COMMA),
+                                new Terminal(IDENT)), Repetition.ERepeat.eZeroOrMore));
+        Acceptor accepted = match(matcher);
+        boolean match = (null != accepted);
 
         if (match && (null != getListeners())) {
             for (Listener cb : getListeners()) {
@@ -39,14 +33,18 @@ new Terminal(IDENT)), Repetition.ERepeat.eZeroOrMore)) ;
         return new nt2();
     }
 
- //Begin memoize
+    //Begin memoize
     @Override
     protected void memoize(Marker mark, Marker endMark) {
+        int dg1 = mark.hashCode();
         stMemo.add(mark, this, endMark);
+        Memoize.Data dbg2 = hasMemoized(mark);
+        assert null != dbg2;
     }
 
     @Override
     protected Memoize.Data hasMemoized(Marker mark) {
+        int dbg1 = mark.hashCode();
         return stMemo.memoized(mark);
     }
     /**
@@ -54,26 +52,22 @@ new Terminal(IDENT)), Repetition.ERepeat.eZeroOrMore)) ;
      */
     private static final Memoize stMemo = new Memoize();
 	//End memoize
- 
 
+    //Begin Listener
+    static //@Override
+    public void addListener(final Listener listener) {
+        if (null == stListeners) {
+            stListeners = new LinkedList<>();
+        }
+        stListeners.add(listener);
+    }
 
-	//Begin Listener
-	static //@Override
-	public void addListener(final Listener listener) {
-		if (null == stListeners) {
-			stListeners = new LinkedList<>();
-		}
-		stListeners.add(listener);
-	}
-
-	@Override
+    @Override
     protected Iterable<Listener> getListeners() {
-		return stListeners;
-	}
+        return stListeners;
+    }
 
-	private static List<Listener> stListeners;
-	//End Listener
+    private static List<Listener> stListeners;
+    //End Listener
 
 }
-
-
