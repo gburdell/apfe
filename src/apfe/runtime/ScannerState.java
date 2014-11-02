@@ -41,6 +41,10 @@ public class ScannerState extends State {
         return asMe();
     }
 
+    public static Token getToken(Marker mark) {
+        return asMe().at(mark);
+    }
+    
     private ScannerState(Scanner tokens) {
         m_tokens = tokens;
     }
@@ -86,6 +90,10 @@ public class ScannerState extends State {
         m_pos = to.getPos();
     }
 
+    private Token at(Marker mark) {
+        return at(mark.getPos());
+    }
+    
     private Token at(int i) {
         return m_tokens.get(i);
     }

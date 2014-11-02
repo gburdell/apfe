@@ -109,7 +109,7 @@ public abstract class Acceptor {
     private Marker m_startMark;
     private final long m_memoBar = Memoize.getTheBar();
 
-    protected Marker getStartMark() {
+    public Marker getStartMark() {
         return m_startMark;
     }
 

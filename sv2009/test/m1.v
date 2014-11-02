@@ -1,3 +1,5 @@
+
+`line 12 "foobar" 0
 module bar(
 input wire clk,
 output wire z,
@@ -13,6 +15,7 @@ input z;
 endfunction
 
 endmodule
+`line 88 "dogbar" 0
 module foo();
 output wire ww, ww2;
 integer fives[4] = '{ 5, 10, 15, 20 };

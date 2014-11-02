@@ -4,8 +4,10 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.ParseError;
 import apfe.runtime.ScannerState;
 import apfe.runtime.State;
+import apfe.runtime.Token;
 import apfe.runtime.Util;
 import apfe.sv2009.generated.*;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +24,7 @@ public class Main {
             State st = ScannerState.create(toks);
             System.out.println("accepti");
             Grammar gram = new Grammar();
+            addListeners();
             Acceptor acc = gram.accept();
             if (null != acc) {
                 String ss = acc.toString();
@@ -40,8 +43,20 @@ public class Main {
                 }
                 Util.info("STAT-1", stats[0], stats[1], pcnt);
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    private static void addListeners() {
+        module_identifier.addListener(new Acceptor.Listener() {
+
+            @Override
+            public void onAccept(Acceptor accepted) {
+                Token id = ScannerState.getToken(accepted.getStartMark());
+                String dbg1 = id.getText();
+                dbg1 += "";
+            }
+        });
     }
 }

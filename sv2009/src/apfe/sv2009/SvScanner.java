@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.StringTokenizer;
 
 
 /**
@@ -2516,7 +2517,17 @@ public class SvScanner extends Scanner implements ITokenCodes {
   }
 
   private void ticLine() {
-  	String ss = yytext();
+  	StringTokenizer toks = new StringTokenizer(yytext());
+	assert toks.hasMoreElements();
+	toks.nextToken(); //skip `line
+	assert toks.hasMoreElements();
+	int lnum = Integer.parseInt(toks.nextToken());
+	assert toks.hasMoreElements();
+	String fname = toks.nextToken().replaceAll("\"","");//lose lead/trail "
+	assert toks.hasMoreElements();
+	//dont care about finish
+	yyline = lnum-2;
+	stFileName = fname;
   }
 
   public SvScanner(String fn) throws FileNotFoundException, IOException {
