@@ -29,9 +29,16 @@ import apfe.runtime.ParseError;
 import apfe.runtime.CharBufState;
 import static apfe.runtime.Util.asEmpty;
 import static apfe.runtime.Util.nl;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PipedWriter;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,6 +59,11 @@ public class Main {
     }
 
     public Main(String argv[]) {
+        this(argv, new PrintWriter(System.out, true));
+    }
+
+    public Main(String argv[], PrintWriter os) {
+        m_os = os;
         init(argv);
     }
 
@@ -107,10 +119,10 @@ public class Main {
             if (null != acc) {
                 String ss = acc.toString();
                 /*
-                System.out.println(super.getClass().getName()
-                        + " returns:\n========\n" + ss);
-                        */
-                System.out.println(ss);
+                 System.out.println(super.getClass().getName()
+                 + " returns:\n========\n" + ss);
+                 */
+                m_os.println(ss);
             }
             boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
             if (!result) {
@@ -121,6 +133,38 @@ public class Main {
 
     private Args m_args;
     private List<String> m_srcFiles;
+    private final PrintWriter m_os;
+
+    /**
+     * 
+     */
+    public static class WriterThread extends Thread {
+
+        public WriterThread(String argv[]) {
+            m_argv = argv;
+            m_pipedWriter = new PipedWriter();
+            m_os = new PrintWriter(m_pipedWriter, true);
+        }
+
+        public PrintWriter getWriter() {
+            return m_os;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Main notUsed = new Main(m_argv, m_os);
+                m_pipedWriter.close();
+                m_os.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        private final String m_argv[];
+        private final PipedWriter m_pipedWriter;
+        private final PrintWriter m_os;
+    }
 
     private static class Args extends ProcArgs {
 
@@ -154,7 +198,7 @@ public class Main {
             return asEmpty(m_args.get(opt), new LinkedList<String>());
         }
 
-        private Map<String, List<String>> m_args;
+        private final Map<String, List<String>> m_args;
     }
 
 }
