@@ -122,6 +122,7 @@ public class Main {
                  System.out.println(super.getClass().getName()
                  + " returns:\n========\n" + ss);
                  */
+                m_os.println("`line 1 \""+fn+"\" 0");
                 m_os.println(ss);
             }
             boolean result = (null != acc) && CharBufState.getTheOne().isEOF();

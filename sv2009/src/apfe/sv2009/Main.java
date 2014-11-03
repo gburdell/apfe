@@ -8,6 +8,9 @@ import apfe.runtime.Token;
 import apfe.runtime.Util;
 import apfe.sv2009.generated.*;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,5 +61,23 @@ public class Main {
                 dbg1 += "";
             }
         });
+    }
+    
+    public static class ReaderThread extends Thread {
+        public ReaderThread(PipedOutputStream src) {
+            try {
+                m_ins = new PipedInputStream(src);
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+
+        @Override
+        public void run() {
+            super.run(); //To change body of generated methods, choose Tools | Templates.
+        }
+        
+        
+        private PipedInputStream m_ins;
     }
 }
