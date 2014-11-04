@@ -30,9 +30,7 @@ import apfe.runtime.CharBufState;
 import static apfe.runtime.Util.asEmpty;
 import static apfe.runtime.Util.nl;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PipedWriter;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -147,8 +145,8 @@ public class Main {
             m_os = new PrintWriter(m_pipedWriter, true);
         }
 
-        public PrintWriter getWriter() {
-            return m_os;
+        public PipedWriter getWriter() {
+            return m_pipedWriter;
         }
 
         @Override

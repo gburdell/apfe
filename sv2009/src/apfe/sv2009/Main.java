@@ -7,10 +7,10 @@ import apfe.runtime.State;
 import apfe.runtime.Token;
 import apfe.runtime.Util;
 import apfe.sv2009.generated.*;
+import apfe.dsl.vlogpp.Main.WriterThread;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintWriter;
+import java.io.PipedReader;
+import java.io.PipedWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,37 +20,66 @@ import java.util.logging.Logger;
  */
 public class Main {
 
+    /**
+     * Run parser with single post-vlogpp'd file.
+     * @param argv single (post vlogpp) file.
+     */
     public static void main(String argv[]) {
         try {
             final String fn = argv[0];
             SvScanner toks = new SvScanner(fn);
-            State st = ScannerState.create(toks);
-            System.out.println("accepti");
-            Grammar gram = new Grammar();
-            addListeners();
-            Acceptor acc = gram.accept();
-            if (null != acc) {
-                String ss = acc.toString();
-                System.out.println("returns:\n========\n" + ss);
-            }
-            boolean result = (null != acc) && State.getTheOne().isEOF();
-            if (!result) {
-                ParseError.printTopMessage();
-            }
-            {
-                //dump memoize stats
-                long stats[] = State.getTheOne().getMemoizeStats();
-                double pcnt = 0;
-                if (0 < stats[1]) {
-                    pcnt = (100.0 * stats[0]) / stats[1];
-                }
-                Util.info("STAT-1", stats[0], stats[1], pcnt);
-            }
+            process(toks);
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
+    /**
+     * Run vlogpp and parser using multithread connected pipes.
+     * @param argv arguments passed to vlogpp.
+     */
+    public static void runVlogppAndParser(String argv[]) {
+        SvScanner toks = null;
+        try {
+            WriterThread vlogpp = new WriterThread(argv);
+            ReaderThread tokenizer = new ReaderThread(vlogpp.getWriter());
+            vlogpp.start();
+            tokenizer.start();
+            //wait for finish
+            vlogpp.join();
+            tokenizer.join();
+            toks = tokenizer.getToks();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        process(toks);
+    }
+
+    /*package*/ static void process(SvScanner toks) {
+        State st = ScannerState.create(toks);
+        System.out.println("accepti");
+        Grammar gram = new Grammar();
+        addListeners();
+        Acceptor acc = gram.accept();
+        if (null != acc) {
+            String ss = acc.toString();
+            System.out.println("returns:\n========\n" + ss);
+        }
+        boolean result = (null != acc) && State.getTheOne().isEOF();
+        if (!result) {
+            ParseError.printTopMessage();
+        }
+        {
+            //dump memoize stats
+            long stats[] = State.getTheOne().getMemoizeStats();
+            double pcnt = 0;
+            if (0 < stats[1]) {
+                pcnt = (100.0 * stats[0]) / stats[1];
+            }
+            Util.info("STAT-1", stats[0], stats[1], pcnt);
+        }
+    }
+
     private static void addListeners() {
         module_identifier.addListener(new Acceptor.Listener() {
 
@@ -62,22 +91,33 @@ public class Main {
             }
         });
     }
-    
+
     public static class ReaderThread extends Thread {
-        public ReaderThread(PipedOutputStream src) {
+        public SvScanner getToks() {
+            return m_toks;
+        }
+        public static int stBufSz = 1 << 24; //16M?
+
+        public ReaderThread(PipedWriter src) {
             try {
-                m_ins = new PipedInputStream(src);
+                m_ins = new PipedReader(src, stBufSz);
+                m_toks = new SvScanner(m_ins);
             } catch (IOException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            } 
+            }
         }
 
         @Override
         public void run() {
-            super.run(); //To change body of generated methods, choose Tools | Templates.
+            try {
+                m_toks.slurp();
+                m_ins.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        
-        
-        private PipedInputStream m_ins;
+
+        private PipedReader m_ins;
+        private SvScanner m_toks;
     }
 }
