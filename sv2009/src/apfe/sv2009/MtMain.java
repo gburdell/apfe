@@ -1,6 +1,7 @@
 package apfe.sv2009;
 
 import apfe.dsl.vlogpp.Main.WriterThread;
+import apfe.runtime.State;
 import static apfe.sv2009.Main.process;
 import java.io.IOException;
 import java.io.PipedReader;
@@ -31,6 +32,8 @@ public class MtMain {
         } catch (InterruptedException ex) {
             Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //clear out apfe state used by vlogpp
+        State.clear();
         process(toks);
     }
 

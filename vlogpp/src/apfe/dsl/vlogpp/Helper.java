@@ -69,6 +69,7 @@ public class Helper {
      * @return Grammar instance to run acceptor() (or null on error).
      */
     public Grammar start(String fname) {
+        CharBufState.clear();
         Grammar gram = null;
         m_fname = null;
         try {

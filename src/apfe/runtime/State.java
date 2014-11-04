@@ -38,11 +38,16 @@ public abstract class State {
 
     protected static void init(State theOne) {
         assert null == stTheOne;
-        ParseError.reset();
-        Memoize.reset();
+        clear();
         stTheOne = theOne;
     }
 
+    public static void clear() {
+        ParseError.reset();
+        Memoize.reset();
+        stTheOne = null;        
+    }
+    
     private static State stTheOne;
 
     public abstract String getFileName();
