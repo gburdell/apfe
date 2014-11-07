@@ -29,6 +29,7 @@ import apfe.runtime.ParseError;
 import apfe.runtime.CharBufState;
 import static apfe.runtime.Util.asEmpty;
 import static apfe.runtime.Util.nl;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PipedWriter;
 import java.io.PrintWriter;
@@ -110,23 +111,38 @@ public class Main {
     }
 
     private void parse(final List<String> srcs) {
+        PrintWriter vpp = null;
+        if (null != stDumpVpp) {
+            try {
+                System.err.println("DEBUG: generate vpp output: " + stDumpVpp);
+                vpp = new PrintWriter(stDumpVpp);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         for (String fn : srcs) {
             Helper.info("VPP-PROC", fn);
             Grammar gram = Helper.getTheOne().start(fn);
             Acceptor acc = gram.accept();
             if (null != acc) {
-                String ss = acc.toString();
+                StringBuilder sb = new StringBuilder();//("`line 1 \"" + fn + "\" 0\n");
+                sb.append(acc.toString());
                 /*
                  System.out.println(super.getClass().getName()
                  + " returns:\n========\n" + ss);
                  */
-                m_os.println("`line 1 \""+fn+"\" 0");
-                m_os.println(ss);
+                m_os.println(sb.toString());
+                if (null != vpp) {
+                    vpp.println(sb.toString());
+                }
             }
             boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
             if (!result) {
                 ParseError.printTopMessage();
             }
+        }
+        if (null != vpp) {
+            vpp.close();
         }
     }
 
@@ -135,7 +151,7 @@ public class Main {
     private final PrintWriter m_os;
 
     /**
-     * 
+     *
      */
     public static class WriterThread extends Thread {
 
@@ -200,4 +216,6 @@ public class Main {
         private final Map<String, List<String>> m_args;
     }
 
+    private static final String stDumpVpp
+            = System.getProperty("vlogpp.dumpVpp");
 }

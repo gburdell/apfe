@@ -35,23 +35,23 @@ public class CharBuffer {
     public CharBuffer(String fname, CharSequence buf) {
         this(fname, new StringBuilder(buf));
     }
-    
+
     public CharBuffer(String fname, StringBuilder buf) {
         m_fname = fname;
         m_buf = buf;
         m_lnum = 1;
         m_col = m_pos = 0;
     }
-    
+
     public void reset(String fname, int lnum) {
         m_fname = fname;
         m_lnum = lnum;
         m_col = 0;
     }
-    
+
     public StringBuilder getBuf() {
         return m_buf;
-        
+
     }
 
     /**
@@ -142,11 +142,11 @@ public class CharBuffer {
     public String getFileName() {
         return m_fname;
     }
-    
+
     public int getLine() {
         return m_lnum;
     }
-    
+
     public int getCol() {
         return 1 + m_col;
     }
@@ -157,6 +157,7 @@ public class CharBuffer {
 
     /**
      * Return buffer contents from start to current position.
+     *
      * @param start start marker.
      * @return buffer contents from start to current position.
      */
@@ -168,6 +169,7 @@ public class CharBuffer {
 
     /**
      * Replace buffer contents from start to current position with s.
+     *
      * @param start start marker.
      * @param s replace string.
      */
@@ -176,11 +178,11 @@ public class CharBuffer {
         getBuf().replace(mark.getPos(), m_pos, s);
         reset(start);
     }
-    
+
     /**
-     * Replace current CharBuffer contents [start,current) with space,
-     * while retaining any newline.
-     * Clear/invalidate any memoization too.
+     * Replace current CharBuffer contents [start,current) with space, while
+     * retaining any newline. Clear/invalidate any memoization too.
+     *
      * @param start start position.
      */
     public void replace(final Marker start) {
@@ -191,7 +193,7 @@ public class CharBuffer {
             }
         }
     }
-    
+
     public final static char NUL = 0;
     public final static char EOF = (char) -1;
     public final static char NL = '\n';    //LineNumberReader converts all to this.
@@ -230,6 +232,11 @@ public class CharBuffer {
 
         public int getLnum() {
             return m_xlnum;
+        }
+
+        @Override
+        public String getFileName() {
+            return CharBuffer.this.getFileName();
         }
 
         @Override

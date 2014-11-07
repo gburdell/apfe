@@ -107,6 +107,10 @@ public class ScannerState extends State {
         return sb.toString();
     }
 
+    /**
+     * Implement Marker as inner class so we get access
+     * to ScannerState state.
+     */
     public class MarkerImpl extends Marker {
 
         public MarkerImpl() {
@@ -116,6 +120,11 @@ public class ScannerState extends State {
         @Override
         public int getPos() {
             return m_xpos;
+        }
+
+        @Override
+        public String getFileName() {
+            return at(getPos()).getFileName();
         }
 
         @Override

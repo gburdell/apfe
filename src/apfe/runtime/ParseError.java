@@ -138,8 +138,8 @@ public class ParseError {
         if (!m_fails.empty()) {
             ParseError e = m_fails.peek();
             assert EType.eFoundExpecting == e.m_type;
-            final String fn = CharBufState.getTheOne().getFileName();
-            final String loc = e.m_loc.toString();
+            final String fn = e.m_loc.getFileName();
+            final String loc = e.m_loc.toString();  //line:col
             msg = new MessageMgr.Message('E', "PARSE-5", fn, loc,
                     e.m_args[0], e.m_expecting);
         }

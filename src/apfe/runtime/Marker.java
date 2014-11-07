@@ -33,6 +33,8 @@ public abstract class Marker {
     
     public abstract int getCol();
     
+    public abstract String getFileName();
+    
     public int length(Marker to) {
         return to.getCol() - getCol();
     }
@@ -45,6 +47,6 @@ public abstract class Marker {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return getPos(); //super.hashCode();
     }
 }

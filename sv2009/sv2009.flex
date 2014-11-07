@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
   }
 
   private Token create(int id, String text) {
-  	  	return new Token(stFileName, yyline+1, yycolumn+1, text, id);
+  	  	return new Token(getFileName(), yyline+1, yycolumn+1, text, id);
   }
 
   private Token create(int id) {

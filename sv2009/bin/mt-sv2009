@@ -1,0 +1,13 @@
+#!/bin/csh -f
+
+set cmd=$0
+if (1 > `echo $cmd | egrep -c '^/'`) then
+	set cmd=$PWD/${cmd}
+endif
+set rdir=$cmd:h:h
+echo "DBG: $rdir"
+
+set memo="-Dapfe.runtime.EnableMemoize=true"
+set cls="apfe.sv2009.MtMain"
+set jars=${rdir}/dist/lib/apfe.jar:${rdir}/dist/sv2009.jar
+exec java -Xms4G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*}

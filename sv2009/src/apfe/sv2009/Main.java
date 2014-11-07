@@ -57,14 +57,14 @@ public class Main {
 
     /*package*/ static void process(SvScanner toks) {
         State st = ScannerState.create(toks);
-        System.out.println("accepti");
+        System.out.println("parser...");
         Grammar gram = new Grammar();
         addListeners();
         Acceptor acc = gram.accept();
-        if (null != acc) {
+        /*if (null != acc) {
             String ss = acc.toString();
             System.out.println("returns:\n========\n" + ss);
-        }
+        }*/
         boolean result = (null != acc) && State.getTheOne().isEOF();
         if (!result) {
             ParseError.printTopMessage();
