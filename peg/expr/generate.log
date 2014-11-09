@@ -1,0 +1,18 @@
+grammar:
+Grammar <- Expr + EOF  ;
+ Expr <- Expr ( '+' 
+  /  '-' ) Term 
+  /  Term  ;
+ Term <- Term [*/] Factor 
+  /  Factor  ;
+ Factor <- Unary ? '(' Expr ')' 
+  /  Unary ? [0-9] + 
+  /  Unary ? [a-z] +  ;
+ Unary <- '+' 
+  /  '-'  ;
+ 
+
+Warn : EOL: rule defined but not used.  (LINK-3)
+Warn : Expr: rule is direct left-recursive: path 'Expr->Expr'.  (LR-1)
+Warn : Term: rule is direct left-recursive: path 'Term->Term'.  (LR-1)
+Info : Memoize hit rate: 55 / 3015 (1.82%)  (STAT-1)

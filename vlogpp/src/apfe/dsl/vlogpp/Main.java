@@ -150,9 +150,6 @@ public class Main {
     private List<String> m_srcFiles;
     private final PrintWriter m_os;
 
-    /**
-     *
-     */
     public static class WriterThread extends Thread {
 
         public WriterThread(String argv[]) {
@@ -218,4 +215,5 @@ public class Main {
 
     private static final String stDumpVpp
             = System.getProperty("vlogpp.dumpVpp");
+
 }

@@ -25,6 +25,7 @@ package apfe.runtime;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Non-terminals with direct left recursion will extend this class.
@@ -153,6 +154,10 @@ public abstract class LeftRecursiveAcceptor extends Acceptor {
         m_isDRR = isDRR;
     }
     
+    public List<Acceptor> getItems() {
+        return m_items;
+    }
+    
     /**
      * True if definite right recursion
      */
@@ -162,6 +167,7 @@ public abstract class LeftRecursiveAcceptor extends Acceptor {
 
     protected int m_lrCnt = 0;
 
+    
     /**
      * Track last acceptor choice, so if we accept seed, then we know which
      * choice was matched.

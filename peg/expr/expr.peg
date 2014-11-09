@@ -1,0 +1,14 @@
+// Hierarchical syntax
+Grammar <- Expr+ EOF
+Expr <- Expr ('+' / '-') Term
+      / Term
+Term <- Term [*/] Factor
+      / Factor
+Factor <- Unary? '(' Expr ')'
+        /  Unary? [0-9]+
+		/  Unary? [a-z]+
+Unary <- '+' / '-'
+
+//These are special (predefined)
+//EOL: EndOfLine <- "\r\n" / "\n" / "\r"
+//EOF: EndOfFile <- !.
