@@ -25,6 +25,9 @@ package apfe.dsl.vlogpp;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import static java.nio.file.Files.isSameFile;
+import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,7 +37,7 @@ import java.util.List;
  * @author gburdell
  */
 public class IncludeDirs {
-
+    
     public static IncludeDirs create(String dirNm) {
         IncludeDirs rval = new IncludeDirs();
         rval.add(dirNm);
@@ -51,20 +54,15 @@ public class IncludeDirs {
         File d = new File(dirNm);
         boolean ok = d.canRead() && d.exists() && d.isDirectory();
         if (ok) {
-            final String asAbs;
-            try {
-                asAbs = d.getCanonicalPath();
-            } catch (IOException ex) {
-                Helper.error("VPP-DIR-1", dirNm);
-                return false;
-            }
+            final Path asPath;
+            asPath = d.toPath();
             for (File i : m_inclDirs) {
                 try {
-                    if (asAbs.equals(i.getCanonicalPath())) {
+                    if (isSameFile(asPath, i.toPath())) {
                         d = null;
                         break;
                     }
-                } catch (IOException ex) {
+                } catch (IOException unused) {
                     Helper.error("VPP-DIR-2", i.getName(), "access");
                 }
             }
@@ -93,7 +91,11 @@ public class IncludeDirs {
                 fileReadError(f);
             }
         } else {
-            for (File dir : m_inclDirs) {
+            final List<File> inclDirs = new LinkedList<>(m_inclDirs);
+            if (null != stCurrentDir) {
+                addIfNotExists(inclDirs, stCurrentDir.toFile(), 0);
+            }
+            for (File dir : inclDirs) {
                 File ff = new File(dir, fn);
                 if (ff.isFile() && ff.canRead()) {
                     addIfNotExists(rval, ff);
@@ -108,30 +110,55 @@ public class IncludeDirs {
      *
      * @param list list to add to.
      * @param item add file iff. not already exists.
+     * @param ix index to add element (-1 for end).
      */
-    private static void addIfNotExists(List<File> list, File item) {
-        final String canon;
-        try {
-            canon = item.getCanonicalPath();
-        } catch (IOException ex) {
+    private static void addIfNotExists(List<File> list, File item, int ix) {
+        if (!item.canRead()) {
             fileReadError(item);
             return;
         }
+        final Path asPath = item.toPath();
         for (File i : list) {
             try {
-                if (i.getCanonicalPath().equals(canon)) {
+                if (isSameFile(asPath, i.toPath())) {
                     return;
                 }
-            } catch (IOException ex) {
+            } catch (IOException unused) {
                 fileReadError(i);
             }
         }
-        list.add(item);
+        if (0 > ix) {
+            list.add(item);
+        } else {
+            list.add(ix, item);
+        }
     }
-
+    
+    private static void addIfNotExists(List<File> list, File item) {
+        addIfNotExists(list, item, -1);
+    }
+    
     private static void fileReadError(final File f) {
         Helper.error("VPP-FILE-1", f.getName(), "read");
     }
-
+    
     private final List<File> m_inclDirs = new LinkedList<>();
+    
+    /**
+     * Set current file directory.
+     * This is used to handle `include of files which are local to the
+     * directory of the file being processed.
+     * @param fn current file being processed.
+     */
+    public static void setCurrentDir(String fn) {
+        assert null == stCurrentDir;
+        stCurrentDir = FileSystems.getDefault().getPath(fn).getParent();
+    }
+    
+    public static void resetCurrentDir() {
+        stCurrentDir = null;
+    }
+
+    //The current directory of file being parsed.
+    private static Path stCurrentDir;
 }

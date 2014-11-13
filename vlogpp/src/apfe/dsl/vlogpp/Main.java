@@ -122,8 +122,10 @@ public class Main {
         }
         for (String fn : srcs) {
             Helper.info("VPP-PROC", fn);
+            IncludeDirs.setCurrentDir(fn);
             Grammar gram = Helper.getTheOne().start(fn);
             Acceptor acc = gram.accept();
+            IncludeDirs.resetCurrentDir();
             if (null != acc) {
                 StringBuilder sb = new StringBuilder();//("`line 1 \"" + fn + "\" 0\n");
                 sb.append(acc.toString());
