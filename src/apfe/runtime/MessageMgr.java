@@ -136,6 +136,15 @@ public class MessageMgr {
     private static MessageMgr getTheOne() {
         return stTheOne;
     }
+    
+    /**
+     * Set the message count to be shared.
+     * @param cnts reference to shared counters.
+     */
+    public static void setMessageCountRef(int cnts[]) {
+        getTheOne().m_msgCnts = cnts;
+    }
+    
 
     /**
      * Creates a new instance of MessageMgr
@@ -270,8 +279,8 @@ public class MessageMgr {
         return m_msgs.get(code);
     }
     private static final String stFname = "messages.txt";
-    private static MessageMgr stTheOne = new MessageMgr();
+    private static final MessageMgr stTheOne = new MessageMgr();
     private final Map<String, String> m_msgs = new HashMap<>();
     private final IMessenger m_messenger = new DefaultMessenger();
-    private final int m_msgCnts[] = new int[]{0, 0, 0};
+    private int m_msgCnts[] = new int[]{0, 0, 0};
 }
