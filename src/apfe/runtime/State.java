@@ -48,6 +48,11 @@ public abstract class State {
         stTheOne = null;        
     }
     
+    /**
+     * We need an instance to get messages initialized.
+     */
+    private static final MessageMgr stMessageMgr = new MessageMgr();
+    
     private static State stTheOne;
 
     public abstract String getFileName();

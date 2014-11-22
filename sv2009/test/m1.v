@@ -1,3 +1,4 @@
+`timescale 1 ns / 1 ns
 
 `line 12 "foobar" 0
 module bar(

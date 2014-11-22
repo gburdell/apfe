@@ -468,7 +468,7 @@ ESC_IDENT = \\ ~{WhiteSpace}
 SYSTEM_IDENT = "$" {IDENT}
 
 /*No whitespace between number and unit*/
-TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {TimeUnit}
+TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {Space}* {TimeUnit}
 TimeUnit = [munpf]? "s"
 
 TicLine = "`line" {Space}+ [0-9]+ {Space}+ \" [^\"]+ \" {Space}+ [0-2]

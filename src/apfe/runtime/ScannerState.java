@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+import static gblib.Util.downCast;
 
 /**
  * Encapsulate parser state so more can pass (entire state) as single object.
@@ -31,7 +32,7 @@ package apfe.runtime;
 public class ScannerState extends State {
 
     public static ScannerState asMe() {
-        return Util.downCast(getTheOne());
+        return downCast(getTheOne());
     }
 
     public static ScannerState create(Scanner tokens) {
@@ -86,7 +87,7 @@ public class ScannerState extends State {
 
     @Override
     public void reset(Marker mark) {
-        MarkerImpl to = Util.downCast(mark);
+        MarkerImpl to = downCast(mark);
         m_pos = to.getPos();
     }
 

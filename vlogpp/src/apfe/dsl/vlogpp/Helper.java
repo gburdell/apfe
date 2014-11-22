@@ -29,9 +29,8 @@ import apfe.runtime.Marker;
 import static apfe.runtime.CharBuffer.NL;
 import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
-import apfe.runtime.MessageMgr;
 import apfe.runtime.CharBufState;
-import apfe.runtime.Util;
+import gblib.MessageMgr;
 import java.io.File;
 import java.util.List;
 import java.util.Stack;
@@ -168,13 +167,16 @@ public class Helper {
      * @return first valid include file (or null).
      */
     public File getInclFile(Location loc, String fnm) {
-        List<File> cands = m_inclDirs.findInclFile(fnm);
+        List<gblib.File> cands = m_inclDirs.findInclFile(fnm);
         if (stWarnOnMultipleInclude && (1 < cands.size())) {
             warning("VPP-INCL-1", loc, fnm, cands.size());
             int i = 1;
             for (File f : cands) {
                 warning("VPP-INCL-2", i++, f.getName());
             }
+        }
+        if (1 == cands.size()) {
+            info("VPP-INCL-5", cands.get(0).toString(), fnm);
         }
         return (0 < cands.size()) ? cands.get(0) : null;
     }
@@ -262,7 +264,9 @@ public class Helper {
     private final Stack<IfdefState> m_ifdefStack = new Stack<>();
 
     static {
-        File f = new File(new File(Util.getToolRoot()), "messages.vlogpp.txt");
-        MessageMgr.addMessages(f);
+        String fname = System.getProperty("vlogpp.messages");
+        if (null != fname) {
+            MessageMgr.addMessages(fname);
+        }
     }
 }

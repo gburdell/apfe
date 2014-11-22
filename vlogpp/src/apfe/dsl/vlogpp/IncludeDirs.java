@@ -23,13 +23,17 @@
  */
 package apfe.dsl.vlogpp;
 
-import java.io.File;
-import java.io.IOException;
+import gblib.File;
 import java.nio.file.FileSystems;
-import static java.nio.file.Files.isSameFile;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A convenience class for manipulating include dirs and include files.
@@ -54,20 +58,8 @@ public class IncludeDirs {
         File d = new File(dirNm);
         boolean ok = d.canRead() && d.exists() && d.isDirectory();
         if (ok) {
-            final Path asPath;
-            asPath = d.toPath();
-            for (File i : m_inclDirs) {
-                try {
-                    if (isSameFile(asPath, i.toPath())) {
-                        d = null;
-                        break;
-                    }
-                } catch (IOException unused) {
-                    Helper.error("VPP-DIR-2", i.getName(), "access");
-                }
-            }
-            if (null != d) {
-                m_inclDirs.add(d);
+            if (!m_usedByInclDir.containsKey(d)) {
+                m_usedByInclDir.put(d, false);
             }
         } else {
             Helper.error("VPP-DIR-1", dirNm);
@@ -82,7 +74,7 @@ public class IncludeDirs {
      * @return list of all include file candidates (in search path order).
      */
     public List<File> findInclFile(String fn) {
-        List<File> rval = new LinkedList<>();
+        Set<File> rval = new LinkedHashSet<>();
         if (fn.startsWith(File.separator)) {
             File f = new File(fn);
             if (f.canRead()) {
@@ -91,58 +83,40 @@ public class IncludeDirs {
                 fileReadError(f);
             }
         } else {
-            final List<File> inclDirs = new LinkedList<>(m_inclDirs);
+            final List<File> inclDirs = new LinkedList<>(m_usedByInclDir.keySet());
+            File f;
+            //Check if found at current directory of file we're processing.
             if (null != stCurrentDir) {
-                addIfNotExists(inclDirs, stCurrentDir.toFile(), 0);
+                f = new File(stCurrentDir, fn);
+                if (fileIsOK(f) && !rval.contains(f)) {
+                    rval.add(f);
+                }
             }
             for (File dir : inclDirs) {
                 File ff = new File(dir, fn);
-                if (ff.isFile() && ff.canRead()) {
-                    addIfNotExists(rval, ff);
+                if (fileIsOK(ff) && !rval.contains(ff)) {
+                    rval.add(ff);
+                    m_usedByInclDir.put(dir, Boolean.TRUE); //mark used
                 }
             }
         }
-        return rval;
+        return Collections.unmodifiableList(new LinkedList(rval));
     }
 
-    /**
-     * Add file to list iff. not already exists (in canonical form).
-     *
-     * @param list list to add to.
-     * @param item add file iff. not already exists.
-     * @param ix index to add element (-1 for end).
-     */
-    private static void addIfNotExists(List<File> list, File item, int ix) {
-        if (!item.canRead()) {
-            fileReadError(item);
-            return;
-        }
-        final Path asPath = item.toPath();
-        for (File i : list) {
-            try {
-                if (isSameFile(asPath, i.toPath())) {
-                    return;
-                }
-            } catch (IOException unused) {
-                fileReadError(i);
-            }
-        }
-        if (0 > ix) {
-            list.add(item);
-        } else {
-            list.add(ix, item);
-        }
-    }
-    
-    private static void addIfNotExists(List<File> list, File item) {
-        addIfNotExists(list, item, -1);
+    private static boolean fileIsOK(File ff) {
+        return ff.isFile() && ff.canRead();
     }
     
     private static void fileReadError(final File f) {
         Helper.error("VPP-FILE-1", f.getName(), "read");
     }
     
-    private final List<File> m_inclDirs = new LinkedList<>();
+    /**
+     * Map of used by include directory.
+     * The backing list maintains the order paths are added.
+     * TODO: make sure this ordering policy is true.
+     */
+    private final Map<File,Boolean> m_usedByInclDir = new LinkedHashMap<>();
     
     /**
      * Set current file directory.

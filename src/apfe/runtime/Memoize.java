@@ -91,7 +91,7 @@ public class Memoize {
         }
     }
 
-    public static class Data extends Util.Pair<Acceptor, Marker> {
+    public static class Data extends gblib.Util.Pair<Acceptor, Marker> {
 
         public Data(Acceptor accepted, Marker endMark) {
             super(accepted, endMark);

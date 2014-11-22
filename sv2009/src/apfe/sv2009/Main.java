@@ -5,7 +5,6 @@ import apfe.runtime.ParseError;
 import apfe.runtime.ScannerState;
 import apfe.runtime.State;
 import apfe.runtime.Token;
-import apfe.runtime.Util;
 import apfe.sv2009.generated.*;
 import apfe.dsl.vlogpp.Main.WriterThread;
 import java.io.IOException;
@@ -76,7 +75,7 @@ public class Main {
             if (0 < stats[1]) {
                 pcnt = (100.0 * stats[0]) / stats[1];
             }
-            Util.info("STAT-1", stats[0], stats[1], pcnt);
+            gblib.Util.info("STAT-1", stats[0], stats[1], pcnt);
         }
     }
 

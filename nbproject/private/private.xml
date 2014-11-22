@@ -47,14 +47,12 @@
             <url>src/apfe/runtime/Acceptor.java</url>
             <bookmark id="7">
                 <name/>
-                <line>164</line>
+                <line>170</line>
                 <key/>
             </bookmark>
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Token.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

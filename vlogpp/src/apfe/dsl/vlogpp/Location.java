@@ -64,7 +64,7 @@ public class Location {
 
     @Override
     public boolean equals(Object obj) {
-        Location other = Util.downCast(obj);
+        Location other = gblib.Util.downCast(obj);
         boolean eq = m_fname.equals(other.m_fname) && (m_lnum == other.m_lnum)
                 && (m_col == other.m_col);
         return eq;

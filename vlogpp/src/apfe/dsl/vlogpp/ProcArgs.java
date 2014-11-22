@@ -72,7 +72,7 @@ public class ProcArgs {
                 }
             }
         } catch (IOException ex) {
-            Util.abnormalExit(ex);
+            gblib.Util.abnormalExit(ex);
         }
         return parse(args.toArray(new String[0]));
     }

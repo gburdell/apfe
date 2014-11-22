@@ -1,3 +1,5 @@
+//messages for apfe parser generator
+
 DEFN-1   %s: rule already defined.
 DIR-1    %s: could not %s directory.
 EMPTY-1  %s: alt %d is empty.

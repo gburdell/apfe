@@ -60,15 +60,15 @@ public class InputStream {
         Path path = FileSystems.getDefault().getPath(m_fname);
         long lsz = Files.size(path);
         if (lsz > Integer.MAX_VALUE) {
-            Util.abnormalExit(lsz + " > " + Integer.MAX_VALUE);
+            gblib.Util.abnormalExit(lsz + " > " + Integer.MAX_VALUE);
         }
-        int sz = Util.longToInt(lsz);
+        int sz = gblib.Util.longToInt(lsz);
         m_buf = new StringBuilder(sz);
         int i;
         try (LineNumberReader rdr = new LineNumberReader(new FileReader(m_fname))) {
             //Need to use read()/singular since read([],..) does not discard \r.
             while (0 <= (i = rdr.read())) {
-                m_buf.append(Util.intToChar(i));
+                m_buf.append(gblib.Util.intToChar(i));
             }
         }
     }

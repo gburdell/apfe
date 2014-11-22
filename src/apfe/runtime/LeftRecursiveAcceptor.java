@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+import static gblib.Util.downCast;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -131,7 +132,7 @@ public abstract class LeftRecursiveAcceptor extends Acceptor {
             m_items.add(m_lastChoice);
         } else {
             //We must have a sequence and drop the LeftRecursive part.
-            Sequence asSeq = Util.downCast(m_lastChoice);
+            Sequence asSeq = downCast(m_lastChoice);
             Acceptor accs[] = asSeq.getAccepted();
             Acceptor rem[] = Arrays.copyOfRange(accs, 1, accs.length);
             asSeq = new Sequence(rem);

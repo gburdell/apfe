@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
-
+import static gblib.Util.downCast;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,7 +54,7 @@ public class Repetition extends Acceptor {
      */
     public <T extends Acceptor> T getOnlyAccepted() {
         assert 1==sizeofAccepted();
-        return Util.downCast(getAccepted().get(0));
+        return downCast(getAccepted().get(0));
     }
     
     public int sizeofAccepted() {

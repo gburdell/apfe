@@ -20,12 +20,12 @@ public @11@ class @2@ extends @3@ implements ITokenCodes {
     @Override
     protected boolean accepti() {
 		Acceptor matcher = @8@ ;
-		Acceptor accepted = match(matcher);
-		boolean match = (null != accepted);
+		m_baseAccepted = match(matcher);
+		boolean match = (null != m_baseAccepted);
 @6.2@
         if (match && (null != getListeners())) {
             for (Listener cb : getListeners()) {
-                cb.onAccept(accepted);
+                cb.onAccept(m_baseAccepted);
             }
         }
 @6.2@

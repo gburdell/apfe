@@ -46,8 +46,8 @@ public class MacroDefns {
         if (isDefined(key)) {
             Val val = lookup(key);
             if (val.m_loc.equals(loc)) {
-                assert Util.equalsInclNull(val.m_defn, defn);
-            } else if (!Util.equalsInclNull(val.m_defn, defn)) {
+                assert gblib.Util.equalsInclNull(val.m_defn, defn);
+            } else if (!gblib.Util.equalsInclNull(val.m_defn, defn)) {
                 Helper.warning("VPP-DUP-1a", loc.toString(), key);
                 Helper.warning("VPP-DUP-1b", val.m_loc.toString(), key);
             }

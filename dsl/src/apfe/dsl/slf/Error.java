@@ -39,7 +39,7 @@ public class Error extends Acceptor {
         //TODO: match tokens
         char ch = CharBufState.asMe().peek();
         String loc = CharBufState.asMe().getBuf().getPos();
-        Util.error("PARSE-3", loc, ch);
+        gblib.Util.error("PARSE-3", loc, ch);
         assert false;
         return match;
     }

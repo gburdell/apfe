@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+import static gblib.Util.downCast;
 
 /**
  * Base class for all nonterminals, sequences, predicates.
@@ -67,7 +68,7 @@ public abstract class Acceptor {
      * @return instance of subclass, if accepted; else null.
      */
     public static <T extends Acceptor> T match(Acceptor a) {
-        return Util.downCast(a.accept());
+        return downCast(a.accept());
     }
 
     /**
@@ -108,7 +109,12 @@ public abstract class Acceptor {
 
     private Marker m_startMark;
     private final long m_memoBar = Memoize.getTheBar();
-
+    protected Acceptor m_baseAccepted;
+    
+    public Acceptor getBaseAccepted() {
+        return m_baseAccepted;
+    }
+    
     public Marker getStartMark() {
         return m_startMark;
     }

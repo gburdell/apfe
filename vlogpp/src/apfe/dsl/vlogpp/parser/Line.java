@@ -24,16 +24,14 @@
 package apfe.dsl.vlogpp.parser;
 
 import apfe.dsl.vlogpp.Helper;
-import static apfe.runtime.Util.abnormalExit;
+import static gblib.Util.abnormalExit;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharClass;
 import apfe.runtime.CharSeq;
 import apfe.runtime.ICharClass;
-import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.RestOfLine;
 import apfe.runtime.Sequence;
-import apfe.runtime.CharBufState;
 import apfe.runtime.Util;
 
 /**

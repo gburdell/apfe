@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+import static gblib.Util.downCast;
 
 /**
  *
@@ -121,7 +122,7 @@ public class CharBuffer {
      * @param mark marker position.
      */
     public void reset(Marker mark) {
-        MarkerImpl backTo = Util.downCast(mark);
+        MarkerImpl backTo = downCast(mark);
         m_pos = backTo.m_xpos;
         m_lnum = backTo.m_xlnum;
         m_col = backTo.m_xcol;
@@ -162,7 +163,7 @@ public class CharBuffer {
      * @return buffer contents from start to current position.
      */
     public String substring(final Marker start) {
-        MarkerImpl mark = Util.downCast(start);
+        MarkerImpl mark = downCast(start);
         assert mark.m_xpos <= m_pos;
         return m_buf.substring(mark.getPos(), m_pos);
     }
@@ -174,7 +175,7 @@ public class CharBuffer {
      * @param s replace string.
      */
     public void replace(final Marker start, String s) {
-        MarkerImpl mark = Util.downCast(start);;
+        MarkerImpl mark = downCast(start);;
         getBuf().replace(mark.getPos(), m_pos, s);
         reset(start);
     }
@@ -186,7 +187,7 @@ public class CharBuffer {
      * @param start start position.
      */
     public void replace(final Marker start) {
-        MarkerImpl mark = Util.downCast(start);
+        MarkerImpl mark = downCast(start);
         for (int i = mark.getPos(); i < m_pos; i++) {
             if (m_buf.charAt(i) != NL) {
                 m_buf.setCharAt(i, ' ');

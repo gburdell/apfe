@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
-
+import gblib.MessageMgr.Message;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -111,7 +111,7 @@ public class ParseError {
                     if (deepest.m_loc.getPos() == e.m_loc.getPos()) {
                         if (EType.eFoundExpecting == e.m_type) {
                             /*TODO: assert deepest.m_args[0].equals(e.m_args[0]);*/
-                            deepest.m_expecting = Util.union(deepest.m_expecting, e.m_expecting);
+                            deepest.m_expecting = gblib.Util.union(deepest.m_expecting, e.m_expecting);
                         }
                     }
                 }
@@ -122,25 +122,25 @@ public class ParseError {
     }
 
     public static String getTopMessage() {
-        final MessageMgr.Message msg = getTopMessage2();
+        final Message msg = getTopMessage2();
         return (null != msg) ? msg.toString() : "";
     }
 
     public static void printTopMessage() {
-        final MessageMgr.Message msg = getTopMessage2();
+        final Message msg = getTopMessage2();
         if (null != msg) {
-            MessageMgr.print(msg);
+            gblib.MessageMgr.print(msg);
         }
     }
 
-    private static MessageMgr.Message getTopMessage2() {
-        MessageMgr.Message msg = null;
+    private static Message getTopMessage2() {
+        Message msg = null;
         if (!m_fails.empty()) {
             ParseError e = m_fails.peek();
             assert EType.eFoundExpecting == e.m_type;
             final String fn = e.m_loc.getFileName();
             final String loc = e.m_loc.toString();  //line:col
-            msg = new MessageMgr.Message('E', "PARSE-5", fn, loc,
+            msg = new Message('E', "PARSE-5", fn, loc,
                     e.m_args[0], e.m_expecting);
         }
         return msg;
