@@ -39,7 +39,7 @@ public class Main {
                 if (0 < stats[1]) {
                     pcnt = (100.0 * stats[0]) / stats[1];
                 }
-                Util.info("STAT-1", stats[0], stats[1], pcnt);
+                Util.info("APFE-STAT-1", stats[0], stats[1], pcnt);
             }
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

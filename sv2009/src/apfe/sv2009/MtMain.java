@@ -1,6 +1,6 @@
 package apfe.sv2009;
 
-import apfe.dsl.vlogpp.Main.WriterThread;
+import apfe.dsl.vlogpp.WriterThread;
 import apfe.runtime.State;
 import static apfe.sv2009.Main.process;
 import java.io.IOException;

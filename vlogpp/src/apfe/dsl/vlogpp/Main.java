@@ -30,8 +30,6 @@ import apfe.runtime.CharBufState;
 import static gblib.Util.asEmpty;
 import static gblib.Util.nl;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PipedWriter;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
@@ -114,7 +112,7 @@ public class Main {
         PrintWriter vpp = null;
         if (null != stDumpVpp) {
             try {
-                System.err.println("DEBUG: generate vpp output: " + stDumpVpp);
+                Helper.info("VPPE-1", stDumpVpp);
                 vpp = new PrintWriter(stDumpVpp);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
@@ -152,34 +150,6 @@ public class Main {
     private List<String> m_srcFiles;
     private final PrintWriter m_os;
 
-    public static class WriterThread extends Thread {
-
-        public WriterThread(String argv[]) {
-            m_argv = argv;
-            m_pipedWriter = new PipedWriter();
-            m_os = new PrintWriter(m_pipedWriter, true);
-        }
-
-        public PipedWriter getWriter() {
-            return m_pipedWriter;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Main notUsed = new Main(m_argv, m_os);
-                m_pipedWriter.close();
-                m_os.close();
-            } catch (IOException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        private final String m_argv[];
-        private final PipedWriter m_pipedWriter;
-        private final PrintWriter m_os;
-    }
-
     private static class Args extends ProcArgs {
 
         public Args(final String argv[]) throws ArgException {
@@ -215,7 +185,11 @@ public class Main {
         private final Map<String, List<String>> m_args;
     }
 
-    private static final String stDumpVpp
+    public static void setDumpVpp(String fname) {
+        stDumpVpp = fname;
+    }
+    
+    private static String stDumpVpp
             = System.getProperty("vlogpp.dumpVpp");
 
 }

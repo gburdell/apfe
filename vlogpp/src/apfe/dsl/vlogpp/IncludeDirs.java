@@ -24,10 +24,10 @@
 package apfe.dsl.vlogpp;
 
 import gblib.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -73,6 +73,7 @@ public class IncludeDirs {
      * @param fn include file to find.
      * @return list of all include file candidates (in search path order).
      */
+    @SuppressWarnings("empty-statement")
     public List<File> findInclFile(String fn) {
         Set<File> rval = new LinkedHashSet<>();
         if (fn.startsWith(File.separator)) {
@@ -100,9 +101,26 @@ public class IncludeDirs {
                 }
             }
         }
-        return Collections.unmodifiableList(new LinkedList(rval));
+        List<File> rvals = Collections.unmodifiableList(new LinkedList(rval));
+        if (!rvals.isEmpty()) {
+            try {
+                //we'll just take the first one.
+                m_usedInclFiles.add(rvals.get(0).getCanonicalPath());
+            } catch (IOException ex) {
+                ;//do nothing
+            }
+        }
+        return rvals;
     }
 
+    /**
+     * Get included files (in order they were referenced).
+     * @return included files.
+     */
+    public List<String> getIncludedFiles() {
+        return new LinkedList<>(m_usedInclFiles);
+    }
+    
     private static boolean fileIsOK(File ff) {
         return ff.isFile() && ff.canRead();
     }
@@ -117,6 +135,12 @@ public class IncludeDirs {
      * TODO: make sure this ordering policy is true.
      */
     private final Map<File,Boolean> m_usedByInclDir = new LinkedHashMap<>();
+    
+    /**
+     * Set of used include files.
+     * Keys are in order added.
+     */
+    private final Set<String> m_usedInclFiles = new LinkedHashSet<>();
     
     /**
      * Set current file directory.

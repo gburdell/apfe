@@ -5,8 +5,8 @@ import apfe.runtime.ParseError;
 import apfe.runtime.ScannerState;
 import apfe.runtime.State;
 import apfe.runtime.Token;
+import apfe.dsl.vlogpp.WriterThread;
 import apfe.sv2009.generated.*;
-import apfe.dsl.vlogpp.Main.WriterThread;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
@@ -21,6 +21,7 @@ public class Main {
 
     /**
      * Run parser with single post-vlogpp'd file.
+     *
      * @param argv single (post vlogpp) file.
      */
     public static void main(String argv[]) {
@@ -32,9 +33,10 @@ public class Main {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     /**
      * Run vlogpp and parser using multithread connected pipes.
+     *
      * @param argv arguments passed to vlogpp.
      */
     public static void runVlogppAndParser(String argv[]) {
@@ -56,14 +58,14 @@ public class Main {
 
     /*package*/ static void process(SvScanner toks) {
         State st = ScannerState.create(toks);
-        System.out.println("parser...");
+        //System.out.println("parser...");
         Grammar gram = new Grammar();
         addListeners();
         Acceptor acc = gram.accept();
         /*if (null != acc) {
-            String ss = acc.toString();
-            System.out.println("returns:\n========\n" + ss);
-        }*/
+         String ss = acc.toString();
+         System.out.println("returns:\n========\n" + ss);
+         }*/
         boolean result = (null != acc) && State.getTheOne().isEOF();
         if (!result) {
             ParseError.printTopMessage();
@@ -75,7 +77,7 @@ public class Main {
             if (0 < stats[1]) {
                 pcnt = (100.0 * stats[0]) / stats[1];
             }
-            gblib.Util.info("STAT-1", stats[0], stats[1], pcnt);
+            gblib.Util.info("APFE-STAT-1", stats[0], stats[1], pcnt);
         }
     }
 
@@ -92,6 +94,7 @@ public class Main {
     }
 
     public static class ReaderThread extends Thread {
+
         public SvScanner getToks() {
             return m_toks;
         }

@@ -1,7 +1,6 @@
 //The MIT License
 //
-//Copyright (c) 2006-2010  Karl W. Pfalzer
-//Copyright (c) 2011-      George P. Burdell
+//Copyright (c) 2014-      George P. Burdell
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +21,11 @@
 //THE SOFTWARE.
 package apfe.dsl.vlogpp;
 
-import apfe.runtime.Util;
+import gblib.File;
+import static gblib.Util.addAllNoDups;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 /**
  * `define macro definitions. NOTES from LRM: It shall be an error if any of the
@@ -38,30 +37,65 @@ import java.util.regex.Pattern;
  * @author kpfalzer
  */
 public class MacroDefns {
-    
+
     public MacroDefns() {
     }
-    
-    public void checkDupl(String key, Location loc, String defn) {
+
+    /**
+     * Type of macro redefinition check: 1=value difference; 2=file location.
+     */
+    private static int stRedefinedCheck = 1;
+
+    public static int setRedefinedCheck(int val) {
+        return (stRedefinedCheck = val);
+    }
+
+    /**
+     * Get list of files which only define macros which are used within used
+     * sources and other define only files whose macros are used.
+     *
+     * @param usedSrcs list of used sources
+     * @return list of files which only define macros.
+     */
+    public List<String> getDefineOnlyFiles(List<String> usedSrcs) {
+        return m_macrosUsed.getMacroDefnFiles(usedSrcs);
+    }
+
+    /**
+     * Check if macro is being redefined in accordance with stRedefinedCheck.
+     *
+     * @param key macro name.
+     * @param loc location of new macro definition.
+     * @param defn new definition value (or null).
+     * @return true if macro is redefined in accordance with stRedefinedCheck.
+     */
+    private boolean isRedefined(String key, Location loc, String defn) {
+        boolean isRedef = false;
         if (isDefined(key)) {
             Val val = lookup(key);
             if (val.m_loc.equals(loc)) {
                 assert gblib.Util.equalsInclNull(val.m_defn, defn);
-            } else if (!gblib.Util.equalsInclNull(val.m_defn, defn)) {
+            } else if (1 == stRedefinedCheck) {
+                isRedef = !gblib.Util.equalsInclNull(val.m_defn, defn);
+            } else {
+                isRedef = !loc.equals(val.m_loc);
+            }
+            if (isRedef) {
                 Helper.warning("VPP-DUP-1a", loc.toString(), key);
                 Helper.warning("VPP-DUP-1b", val.m_loc.toString(), key);
             }
         }
+        return isRedef;
     }
-    
+
     private Val lookup(String key) {
         return m_valsByName.get(key);
     }
-    
+
     public boolean isDefined(String nm) {
         return (m_valsByName.containsKey(nm));
     }
-    
+
     public void add(String nm, String defn, Location loc) {
         add(nm, null, defn, loc);
     }
@@ -71,12 +105,14 @@ public class MacroDefns {
      * Expand macro.
      *
      * @param macnm name of macro.
-     * @param args list of actual arguments (or null)
+     * @param args list of actual arguments (or null).
+     * @param loc location where macro used.
      * @return expanded macro.
      */
     public String expandMacro(String macnm, List<String> args, Location loc) {
-        Val mval = m_valsByName.get(macnm);
+        Val mval = lookup(macnm);
         mval.m_hitCnt++;
+        m_macrosUsed.markUsed(macnm, loc);
         List<Parm> parms = mval.m_parms;
         int hasN = (null != args) ? args.size() : 0;
         int expectsN = (null != parms) ? parms.size() : 0;
@@ -115,15 +151,16 @@ public class MacroDefns {
         }
         return defn;
     }
-    
+
     private static String replace(String s, int pos, String with) {
         String repl = stDelim[0] + pos + stDelim[1];
         s = s.replace(repl, with);
         return s;
     }
-    
+
     public void add(String nm, List<Parm> parms, String defn, Location loc) {
-        checkDupl(nm, loc, defn);
+        isRedefined(nm, loc, defn);
+        m_macrosUsed.addDefn(nm, loc);
         if (null == parms) {
             m_valsByName.put(nm, new Val(null, defn, loc));
         } else {
@@ -190,20 +227,138 @@ public class MacroDefns {
     }
     // {[0],[1]}={prefix,suffix}
     private static final String stDelim[] = new String[]{"</%", "%/>"};
+    /**
+     * Map of macro defn by macro name.
+     */
     private Map<String, Val> m_valsByName = new HashMap<>();
-    
+    /**
+     * More detailed tracking of macro usage.
+     */
+    private MacrosUsed m_macrosUsed = new MacrosUsed();
+
+    /**
+     * Track where macros are defined and if they are used. From this info, can
+     * return files which may have only defined macros. These are used if any of
+     * the macros are actually used.
+     */
+    private static class MacrosUsed {
+
+        /**
+         * Add (new) definition.
+         *
+         * @param macro macro being defined.
+         * @param loc location of (new) definition.
+         */
+        private void addDefn(String macro, Location loc) {
+            if (null != loc) {
+                File f = new File(loc.getFilename());
+                List<File> locs;
+                if (!m_filesByMacro.containsKey(macro)) {
+                    locs = new LinkedList<>();
+                    m_filesByMacro.put(macro, locs);
+                } else {
+                    locs = m_filesByMacro.get(macro);
+                }
+                if (!locs.contains(f)) {
+                    locs.add(f);
+                }
+            }
+        }
+
+        /**
+         * Mark macro usage.
+         *
+         * @param macro macro being used.
+         * @param loc location of usage.
+         */
+        private void markUsed(String macro, Location loc) {
+            if (null != loc) {
+                File f = new File(loc.getFilename());
+                List<String> l = null;
+                if (!m_macrosUsed.containsKey(f)) {
+                    l = new LinkedList<>();
+                    m_macrosUsed.put(f, l);
+                } else {
+                    l = m_macrosUsed.get(f);
+                }
+                if (!l.contains(macro)) {
+                    l.add(macro);
+                }
+            }
+        }
+
+        /**
+         * Go through usedSrcs and create unique list of used macros. Foreach
+         * macro, get list of sources which define macro. Foreach (macro)
+         * source, return source if not in usedSrcs
+         *
+         * @param usedSrcs list of files which are used. This set is the union
+         * of source files and included files (known a priori).
+         * @return list of source files which define macros used by usedSrcs but
+         * are not in usedSrcs.
+         */
+        private List<String> getMacroDefnFiles(final List<String> usedSrcs) {
+            List<String> rval = new LinkedList<>();
+            List<String> allUsed = new LinkedList<>(usedSrcs);
+            int lastAllUsedSize = 0;
+            do {
+                lastAllUsedSize = allUsed.size();
+                List<String> newUsed = getMacroDefnFilesIter(allUsed);
+                addAllNoDups(rval, newUsed);
+                allUsed.addAll(newUsed);
+            } while (lastAllUsedSize != allUsed.size());
+            return rval;
+        }
+
+        private List<String> getMacroDefnFilesIter(final List<String> usedSrcs) {
+            List<String> rval = new LinkedList<>();
+            List<File> usedFiles = new LinkedList<>();
+            //Hash/keys of used macros
+            Map<String, Object> usedMacros = new HashMap<>();
+            //1) get macros used
+            for (String fn : usedSrcs) {
+                File f = new File(fn);
+                usedFiles.add(f);
+                if (m_macrosUsed.containsKey(f)) {
+                    for (String macro : m_macrosUsed.get(f)) {
+                        if (!usedMacros.containsKey(macro)) {
+                            usedMacros.put(macro, null);    //value if nil, not used.
+                        }
+                    }
+                }
+            }
+            //2) get sources which defined macro not in usedFiles
+            for (String macro : usedMacros.keySet()) {
+                for (File src : m_filesByMacro.get(macro)) {
+                    if (!usedFiles.contains(src)) {
+                        rval.add(src.getFilename());
+                    }
+                }
+            }
+            return rval;
+        }
+        /**
+         * Map of file which defined macro/key.
+         */
+        private Map<String, List<File>> m_filesByMacro = new HashMap<>();
+        /**
+         * Map of macros used by File/key.
+         */
+        private Map<File, List<String>> m_macrosUsed = new HashMap<>();
+    }
+
     private static class Val {
-        
+
         public Val(String defn) {
             this(null, defn, null);
         }
-        
+
         public Val(List<Parm> parms, String defn, Location loc) {
             m_parms = parms;
             m_defn = defn;
             m_loc = (null != loc) ? loc : Location.stCmdLine;
         }
-        
+
         public boolean hasParms() {
             return (null != m_parms);
         }
@@ -213,6 +368,6 @@ public class MacroDefns {
         /**
          * Track how many times macro is referenced.
          */
-        public int m_hitCnt = 0;
+        private int m_hitCnt = 0;
     }
 }

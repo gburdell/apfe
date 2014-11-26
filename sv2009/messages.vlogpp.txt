@@ -1,1 +1,1 @@
-../messages.vlogpp.txt
+../vlogpp/messages.txt

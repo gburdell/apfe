@@ -1,5 +1,6 @@
 //messages for apfe parser generator
 
+APFE-STAT-1 Memoize hit rate: %d / %d (%.2f%%)
 DEFN-1   %s: rule already defined.
 DIR-1    %s: could not %s directory.
 EMPTY-1  %s: alt %d is empty.
@@ -21,4 +22,4 @@ PARSE-2  %s:%d: syntax error at '%s'.
 PARSE-3  %s: unexpected char '%c'.
 PARSE-4  %s: parse failed.
 PARSE-5  %s:%s: found '%s', expected %s.
-STAT-1   Memoize hit rate: %d / %d (%.2f%%)
+VPPE-1   %s: post-preprocessor output.

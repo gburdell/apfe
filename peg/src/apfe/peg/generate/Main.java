@@ -75,7 +75,7 @@ public class Main {
                 if (0 < stats[1]) {
                     pcnt = (100.0 * stats[0]) / stats[1];
                 }
-                Util.info("STAT-1", stats[0], stats[1], pcnt);
+                Util.info("APFE-STAT-1", stats[0], stats[1], pcnt);
             }
             if ((0 < numErrs) || (null == gram)) {
                 System.exit(numErrs);

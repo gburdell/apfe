@@ -26,6 +26,14 @@
             </bookmark>
         </file>
         <file>
+            <url>src/apfe/runtime/Acceptor.java</url>
+            <bookmark id="7">
+                <name/>
+                <line>170</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
             <url>src/apfe/peg/generate/Analyze.java</url>
             <bookmark id="3">
                 <name/>
@@ -40,14 +48,6 @@
             <bookmark id="4">
                 <name/>
                 <line>290</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
-            <url>src/apfe/runtime/Acceptor.java</url>
-            <bookmark id="7">
-                <name/>
-                <line>170</line>
                 <key/>
             </bookmark>
         </file>

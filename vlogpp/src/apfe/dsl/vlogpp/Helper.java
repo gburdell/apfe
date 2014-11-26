@@ -96,6 +96,10 @@ public class Helper {
         return m_macroDefns;
     }
 
+    public IncludeDirs getIncludeDirs() {
+        return m_inclDirs;
+    }
+    
     public static CharBuffer getBuf() {
         return CharBufState.asMe().getBuf();
     }
