@@ -25,7 +25,7 @@ package apfe.peg.generate;
 
 import apfe.peg.Definition;
 import apfe.peg.PegSequence;
-import apfe.runtime.Util;
+import gblib.Util;
 import static apfe.peg.generate.Main.getProperty;
 import static apfe.peg.generate.Main.getPropertyAsBoolean;
 import java.io.File;

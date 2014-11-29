@@ -2,14 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="7">
         <file>
-            <url>src/apfe/dsl/vlogpp/Comment.java</url>
-            <bookmark id="5">
-                <name/>
-                <line>125</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>src/apfe/peg/generate/Generate.java</url>
             <bookmark id="6">
                 <name/>
@@ -18,18 +10,18 @@
             </bookmark>
         </file>
         <file>
-            <url>src/apfe/runtime/PrioritizedChoice.java</url>
-            <bookmark id="1">
-                <name/>
-                <line>101</line>
-                <key/>
-            </bookmark>
-        </file>
-        <file>
             <url>src/apfe/runtime/Acceptor.java</url>
             <bookmark id="7">
                 <name/>
                 <line>170</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/apfe/dsl/vlogpp/Comment.java</url>
+            <bookmark id="5">
+                <name/>
+                <line>125</line>
                 <key/>
             </bookmark>
         </file>
@@ -48,6 +40,14 @@
             <bookmark id="4">
                 <name/>
                 <line>290</line>
+                <key/>
+            </bookmark>
+        </file>
+        <file>
+            <url>src/apfe/runtime/PrioritizedChoice.java</url>
+            <bookmark id="1">
+                <name/>
+                <line>101</line>
                 <key/>
             </bookmark>
         </file>

@@ -23,6 +23,7 @@ package apfe.dsl.vlogpp;
 
 import gblib.File;
 import static gblib.Util.addAllNoDups;
+import static gblib.Util.appendIfNotNull;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +38,12 @@ import java.util.regex.Pattern;
  * @author kpfalzer
  */
 public class MacroDefns {
+
+    /**
+     * Delimiter used to separate prefix location from definition. Example:
+     * file1.f:45@@DEFN1
+     */
+    public final static String stDefineDelimitLoc = "@@";
 
     public MacroDefns() {
     }
@@ -97,8 +104,21 @@ public class MacroDefns {
     }
 
     public void add(String nm, String defn, Location loc) {
+        final String orig = appendIfNotNull(nm, "=", defn);
+        int ix = nm.indexOf(stDefineDelimitLoc); //fname:lnum<delim>
+        if (0 < ix) {
+            int ix2 = nm.indexOf(":");
+            if (0 < ix2) {
+                String fn = nm.substring(0, ix2);
+                int ln = Integer.parseInt(nm.substring(ix2 + 1, ix));
+                loc = new Location(fn, ln, 0);
+                nm = nm.substring(ix + stDefineDelimitLoc.length());
+            }
+            Helper.info("VPP-MAC-1", orig, appendIfNotNull(nm, "=", defn));
+        }
         add(nm, null, defn, loc);
     }
+
     public final static String stNul = "";
 
     /**

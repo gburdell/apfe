@@ -22,7 +22,6 @@
 //THE SOFTWARE.
 package apfe.dsl.vlogpp;
 
-import apfe.runtime.Util;
 import java.util.*;
 import java.io.*;
 

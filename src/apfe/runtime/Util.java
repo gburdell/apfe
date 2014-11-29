@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+
 import static gblib.Util.downCast;
 import java.util.LinkedList;
 import java.util.List;
@@ -106,6 +107,7 @@ public class Util {
 
     /**
      * Select element from Acceptor (as base instance of actual Sequence).
+     *
      * @param <T> type of selected element.
      * @param from base instance of actual Sequence.
      * @param pos position of selected element.
@@ -165,4 +167,5 @@ public class Util {
     public static StringBuilder toString(Acceptor... eles) {
         return toString(new StringBuilder(), eles);
     }
+
 }

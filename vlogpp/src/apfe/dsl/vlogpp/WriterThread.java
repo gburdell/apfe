@@ -24,8 +24,6 @@ package apfe.dsl.vlogpp;
 import java.io.IOException;
 import java.io.PipedWriter;
 import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -46,11 +44,11 @@ public class WriterThread extends Thread {
     @Override
     public void run() {
         try {
-            Main notUsed = new Main(m_argv, m_os);
+            VppMain notUsed = new VppMain(m_argv, m_os);
             m_pipedWriter.close();
             m_os.close();
         } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            gblib.Util.abnormalExit(ex);
         }
     }
     private final String[] m_argv;

@@ -62,7 +62,7 @@ public class CodeBlock extends Acceptor {
     private StringBuilder m_codeBlk;
     
     public String getCodeBlk() {
-        return Util.toString(m_codeBlk);
+        return gblib.Util.toString(m_codeBlk);
     }
     
     @Override

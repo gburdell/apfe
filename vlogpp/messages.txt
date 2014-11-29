@@ -1,6 +1,7 @@
 // Add messages for vlogpp
 
 VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d
+VPP-CLARG-1  %s %s
 VPP-DIR-1  %s: invalid directory
 VPP-DIR-2  %s: cannot '%s' directory
 VPP-DUP-1a %s: replace macro '%s' definition
@@ -11,6 +12,7 @@ VPP-INCL-2 location %d: %s
 VPP-INCL-3 include file nesting exceeds %d levels
 VPP-INCL-4 %s: cannot find include file '%s'
 VPP-INCL-5 %s: found include file '%s'
+VPP-MAC-1 '-D %s' transformed to '-D %s'
 VPP-NODEFN %s: no definition for macro instance '%s'
 VPP-NODFLT %s: macro '%s' has no default value for parameter '%s' and was not assigned actual value
 VPP-PROC %s: processing

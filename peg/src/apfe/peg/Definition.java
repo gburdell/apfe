@@ -71,7 +71,7 @@ public class Definition extends Acceptor {
         boolean match;
         match = (null != (p1 = match(p1)));
         if (match) {
-            s1 = Util.downCast(p1.getAccepted());
+            s1 = gblib.Util.downCast(p1.getAccepted());
             switch (p1.whichAccepted()) {
                 case 0:
                     m_id = extractEle(s1, 0);
@@ -85,7 +85,7 @@ public class Definition extends Acceptor {
                     if (0 != r1.sizeofAccepted()) {
                         assert false; //no codeblocks supported in generator
                         assert (1 == r1.sizeofAccepted());
-                        m_codeBlk = Util.downCast(r1.getAccepted().get(0));
+                        m_codeBlk = gblib.Util.downCast(r1.getAccepted().get(0));
                     }
                     break;
                 case 2:
@@ -107,7 +107,7 @@ public class Definition extends Acceptor {
         for (PegSequence ps : getExpr().getSequences()) {
             if ((null == ps) || (null == ps.getPrefixes())
                     || (1 > ps.getPrefixes().size())) {
-                Util.error("EMPTY-1", m_id.getId(), n);
+                gblib.Util.error("EMPTY-1", m_id.getId(), n);
             }
             n++;
         }

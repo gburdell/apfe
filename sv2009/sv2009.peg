@@ -516,8 +516,8 @@ net_type (drive_strength / charge_strength)? (VECTORED_K / SCALARED_K)?
   // Since 'ident' can be first(data_type_or_implicit) or
   // first(list_of_net_decl_assignments), we need to disambiguate.
   //ORIG: data_type_or_implicit delay3? list_of_net_decl_assignments 
-  ( list_of_net_decl_assignments
-  / data_type_or_implicit delay3? list_of_net_decl_assignments
+  ( data_type_or_implicit delay3? list_of_net_decl_assignments
+  / list_of_net_decl_assignments
   )
   SEMI
 
@@ -1838,11 +1838,16 @@ parallel_edge_sensitive_path_description EQ path_delay_value
 
 parallel_edge_sensitive_path_description <-
 LPAREN ( edge_identifier )? specify_input_terminal_descriptor ( polarity_operator )? EQ_GT
-LPAREN specify_output_terminal_descriptor ( polarity_operator )? COLON data_source_expression RPAREN RPAREN
+LPAREN specify_output_terminal_descriptor polarity_operator_colon data_source_expression RPAREN RPAREN
+
+polarity_operator_colon <-
+	(polarity_operator)? COLON
+/ PLUS_COLON
+/ MINUS_COLON
 
 full_edge_sensitive_path_description <-
 LPAREN ( edge_identifier )? list_of_path_inputs ( polarity_operator )? STAR_GT
-  LPAREN list_of_path_outputs ( polarity_operator )? COLON data_source_expression RPAREN RPAREN
+  LPAREN list_of_path_outputs polarity_operator_colon data_source_expression RPAREN RPAREN
 
 data_source_expression <- expression
 
@@ -1908,7 +1913,14 @@ ds_period_timing_check <-
 DS_PERIOD_K LPAREN controlled_reference_event COMMA timing_check_limit ( COMMA ( notifier )? )? RPAREN SEMI
 
 ds_width_timing_check <-
-DS_WIDTH_K LPAREN controlled_reference_event COMMA timing_check_limit COMMA threshold ( COMMA ( notifier )? )? RPAREN SEMI
+//from LRM: It is permissible to not specify
+//both the threshold and notifier arguments, making the default value for the threshold zero
+//kwp: this "not specify" was not present in original grammar so we'll put here
+DS_WIDTH_K LPAREN controlled_reference_event COMMA timing_check_limit 
+	(	COMMA threshold COMMA ( notifier )?
+	/	COMMA threshold
+	)?
+	RPAREN SEMI
 
 ds_nochange_timing_check <-
 DS_NOCHANGE_K LPAREN reference_event COMMA data_event COMMA start_edge_offset COMMA 
@@ -2123,8 +2135,8 @@ module_path_expression <-
 //ILR{ / module_path_conditional_expression
   module_path_expression QMARK ( attribute_instance )* module_path_expression COLON module_path_expression
 //}
-/ module_path_expression binary_module_path_operator ( attribute_instance )*
-/ unary_module_path_operator ( attribute_instance )* module_path_primary module_path_expression
+/ module_path_expression binary_module_path_operator ( attribute_instance )* module_path_expression
+/ unary_module_path_operator ( attribute_instance )* module_path_primary 
 / module_path_primary
 
 module_path_mintypmax_expression <-

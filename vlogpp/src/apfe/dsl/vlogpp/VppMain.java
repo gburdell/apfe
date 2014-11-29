@@ -29,6 +29,8 @@ import apfe.runtime.ParseError;
 import apfe.runtime.CharBufState;
 import static gblib.Util.asEmpty;
 import static gblib.Util.nl;
+import static gblib.Util.info;
+import static gblib.Util.appendIfNotNull;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
@@ -41,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @author karl
  */
-public class Main {
+public class VppMain {
 
     private void init(String argv[]) {
         if (1 > argv.length) {
@@ -55,17 +57,17 @@ public class Main {
         }
     }
 
-    public Main(String argv[]) {
+    public VppMain(String argv[]) {
         this(argv, new PrintWriter(System.out, true));
     }
 
-    public Main(String argv[], PrintWriter os) {
+    public VppMain(String argv[], PrintWriter os) {
         m_os = os;
         init(argv);
     }
 
     public static void main(String argv[]) {
-        Main notUsed = new Main(argv);
+        VppMain notUsed = new VppMain(argv);
     }
 
     private static void usageErr(String msg) {
@@ -77,7 +79,7 @@ public class Main {
     }
 
     private static void usage() {
-        final String progName = "parser.sv.Main";
+        final String progName = "apfe.dsl.vlogpp.VppMain";
         final String usage
                 = "Usage: " + progName + " [options] infile..." + nl()
                 + nl()
@@ -105,6 +107,18 @@ public class Main {
         for (Pair<String, String> md : defs) {
             macs.add(md.v1, md.v2, Location.stCmdLine);
         }
+        {
+            //dump options
+            for (Pair<String, String> md : defs) {
+                info("VPP-CLARG-1", "-D", appendIfNotNull(md.v1, "=", md.v2));
+            }
+            for (String incdir : inclDirs) {
+                info("VPP-CLARG-1", "-I", incdir); 
+            }
+            for (String src : m_srcFiles) {
+                info("VPP-CLARG-1", src, "");
+            }
+        }
         parse(m_srcFiles);
     }
 
@@ -115,7 +129,7 @@ public class Main {
                 Helper.info("VPPE-1", stDumpVpp);
                 vpp = new PrintWriter(stDumpVpp);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(VppMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         for (String fn : srcs) {

@@ -43,7 +43,7 @@ public class Prefix extends Acceptor implements GenJava.IGen {
     public GenJava genJava(GenJava j) {
         assert null == getAsgn();//not supported for now.
         if (null != getOp()) {
-            Util.assertFalse(Main.stGenMaze, "Predicate() not supported for maze");
+            gblib.Util.assertFalse(Main.stGenMaze, "Predicate() not supported for maze");
             j = j.append("new ")
                     .append((getOp().getOp() == EOp.AND) ? "And" : "Not")
                     .append("Predicate(");
@@ -81,7 +81,7 @@ public class Prefix extends Acceptor implements GenJava.IGen {
             Repetition r2 = Util.extractEle(s1, 0);
             PrioritizedChoice pc1 = Util.getOnlyElement(r2);
             if (null != pc1) {
-                m_op = Util.downCast(pc1.getAccepted());
+                m_op = gblib.Util.downCast(pc1.getAccepted());
             }
             r1 = Util.extractEle(s1, 1);
             if (0 < r1.sizeofAccepted()) {

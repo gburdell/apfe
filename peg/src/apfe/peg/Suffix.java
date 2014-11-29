@@ -91,7 +91,7 @@ public class Suffix extends Acceptor implements GenJava.IGen {
             Repetition r1 = Util.extractEle(s1, 1);
             PrioritizedChoice pc1 = Util.getOnlyElement(r1);
             if (null != pc1) {
-                m_op = Util.downCast(pc1.getAccepted());
+                m_op = gblib.Util.downCast(pc1.getAccepted());
             }
             m_prim = Util.extractEle(s1, 0);
         }

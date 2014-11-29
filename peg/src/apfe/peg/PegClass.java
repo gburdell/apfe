@@ -42,7 +42,7 @@ public class PegClass extends Acceptor implements GenJava.IGen {
 
     @Override
     public GenJava genJava(GenJava j) {
-        Util.assertFalse(Main.stGenMaze, "PegClass not supported for maze");
+        gblib.Util.assertFalse(Main.stGenMaze, "PegClass not supported for maze");
         assert (0 < getRanges().size());
         return j.funcCall("new CharClass", getRanges());
     }

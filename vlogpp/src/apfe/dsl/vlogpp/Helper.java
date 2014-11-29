@@ -31,6 +31,7 @@ import apfe.runtime.InputStream;
 import apfe.runtime.Memoize;
 import apfe.runtime.CharBufState;
 import gblib.MessageMgr;
+import gblib.Util;
 import java.io.File;
 import java.util.List;
 import java.util.Stack;
@@ -43,6 +44,10 @@ import java.util.Stack;
 public class Helper {
 
     private Helper() {
+        String fname = System.getProperty("vlogpp.messages");
+        if (null != fname) {
+            MessageMgr.addMessages(fname);
+        }
     }
 
     public static Helper getTheOne() {
@@ -50,15 +55,15 @@ public class Helper {
     }
 
     public static void warning(String code, Object... args) {
-        MessageMgr.message('W', code, args);
+        Util.warn(code, args);
     }
 
     public static void error(String code, Object... args) {
-        MessageMgr.message('E', code, args);
+        Util.error(code, args);
     }
 
     public static void info(String code, Object... args) {
-        MessageMgr.message('I', code, args);
+        Util.info(code, args);
     }
 
     /**
@@ -99,7 +104,7 @@ public class Helper {
     public IncludeDirs getIncludeDirs() {
         return m_inclDirs;
     }
-    
+
     public static CharBuffer getBuf() {
         return CharBufState.asMe().getBuf();
     }
@@ -266,11 +271,4 @@ public class Helper {
         return ns;
     }
     private final Stack<IfdefState> m_ifdefStack = new Stack<>();
-
-    static {
-        String fname = System.getProperty("vlogpp.messages");
-        if (null != fname) {
-            MessageMgr.addMessages(fname);
-        }
-    }
 }

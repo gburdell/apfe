@@ -7,7 +7,7 @@ output wire z,
 output reg x
 );
 /**/
-assign snext.ena  = sprev.ena;
+assign snext.ena  = #1 sprev.ena;
 assign sense[CHAIN_LENGTH].ena  = sprev.ena;
 function [49:0] fn1;
 input [13:0] x;         

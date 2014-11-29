@@ -2,7 +2,6 @@ package apfe.sv2009;
 
 import apfe.dsl.vlogpp.WriterThread;
 import apfe.runtime.State;
-import static apfe.sv2009.Main.process;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
@@ -14,11 +13,14 @@ import java.util.logging.Logger;
  * @author gburdell
  */
 public class MtMain {
+    public static void main(String argv[]) {
+        process(argv);
+    }
     /**
      * Run vlogpp and parser using multithread connected pipes.
      * @param argv arguments passed to vlogpp.
      */
-    public static void main(String argv[]) {
+    public static void process(String argv[]) {
         SvScanner toks = null;
         try {
             WriterThread vlogpp = new WriterThread(argv);
@@ -34,7 +36,7 @@ public class MtMain {
         }
         //clear out apfe state used by vlogpp
         State.clear();
-        process(toks);
+        apfe.sv2009.Main.process(toks);
     }
 
     private static class ReaderThread extends Thread {

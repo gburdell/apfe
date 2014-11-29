@@ -483,26 +483,27 @@ FixedPointNumber = {UnsignedNumber} '.' {UnsignedNumber}
 BinaryValue = [01xXzZ?][01xXzZ?_]* 
 OctalValue = [0-7xXzZ?][0-7xXzZ?_]*
 HexValue = [0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]*
-DecimalBase = \' [sS]? [dD] {Space}*
-BinaryBase = \' [sS]? [bB] {Space}*
-OctalBase = \' [sS]? [oO] {Space}*
-HexBase = \' [sS]? [hH] {Space}*
+
+DecimalBase = {Size}? \' [sS]? [dD] {Space}*
+BinaryBase  = {Size}? \' [sS]? [bB] {Space}*
+OctalBase   = {Size}? \' [sS]? [oO] {Space}*
+HexBase     = {Size}? \' [sS]? [hH] {Space}*
+
 UNBASED_UNSIZED_LITERAL = \' {Space}* [01xXzZ?]
+
+//Size only matches if followed by '
 Size = {NonZeroUnsignedNumber} {Space}*
 
 //A.8.7 Numbers
 UNSIGNED_NUMBER = {UnsignedNumber}
 NUMBER = {IntegralNumber} | {RealNumber}
 
-IntegralNumber = {Size}? ({OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber})
+IntegralNumber = ({OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber})
 
 DecimalNumber = {DecimalBase}? ({UnsignedNumber} | ([xXzZ?] '_'*))
-
-BinaryNumber = {BinaryBase} {BinaryValue}
-
-OctalNumber = {OctalBase} {OctalValue}
-
-HexNumber = {HexBase} {HexValue}
+BinaryNumber  = {BinaryBase} {BinaryValue}
+OctalNumber   = {OctalBase} {OctalValue}
+HexNumber     = {HexBase} {HexValue}
 
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]

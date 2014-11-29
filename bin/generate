@@ -8,4 +8,5 @@ set rdir=$cmd:h:h
 
 set cls="apfe.peg.generate.Main"
 set jars=${rdir}/peg/dist/lib/apfe.jar:${rdir}/peg/dist/peg.jar
-exec java -Xms2G -ea -Dtool.root=${rdir} -cp ${jars} ${cls} ${*}
+set props="-Dapfe.messages=${rdir}/messages.txt"
+exec java -Xms2G -ea -Dtool.root=${rdir} ${props} -cp ${jars} ${cls} ${*}

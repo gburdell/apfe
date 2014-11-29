@@ -28,8 +28,9 @@ import apfe.peg.Grammar;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
-import apfe.runtime.Util;
+import gblib.Util;
 import apfe.runtime.CharBufState;
+import gblib.MessageMgr;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -75,7 +76,7 @@ public class Main {
                 if (0 < stats[1]) {
                     pcnt = (100.0 * stats[0]) / stats[1];
                 }
-                Util.info("APFE-STAT-1", stats[0], stats[1], pcnt);
+                gblib.Util.info("APFE-STAT-1", stats[0], stats[1], pcnt);
             }
             if ((0 < numErrs) || (null == gram)) {
                 System.exit(numErrs);

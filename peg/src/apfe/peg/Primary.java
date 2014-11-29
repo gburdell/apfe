@@ -54,7 +54,7 @@ public class Primary extends Acceptor implements GenJava.IGen {
             case eClass:        //fall through
             case eIdentifier:   //fall through
             case eExpression:   //fall through
-                GenJava.IGen g = Util.downCast(getEle());
+                GenJava.IGen g = gblib.Util.downCast(getEle());
                 j = j.append(g);
                 break;
             default:
@@ -113,12 +113,12 @@ public class Primary extends Acceptor implements GenJava.IGen {
                     m_ele = pc1.getAccepted();
                     break;
                 case eIdentifier: {
-                    Sequence s1 = Util.downCast(pc1.getAccepted());
+                    Sequence s1 = gblib.Util.downCast(pc1.getAccepted());
                     m_ele = Util.extractEle(s1, 0);
                 }
                 break;
                 case eExpression: {
-                    Sequence s1 = Util.downCast(pc1.getAccepted());
+                    Sequence s1 = gblib.Util.downCast(pc1.getAccepted());
                     m_ele = Util.extractEle(s1, 1);
                 }
                 break;

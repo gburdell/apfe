@@ -23,6 +23,7 @@
  */
 package apfe.runtime;
 
+import static gblib.MessageMgr.addMessages;
 import java.util.Stack;
 
 /**
@@ -48,10 +49,12 @@ public abstract class State {
         stTheOne = null;        
     }
     
-    /**
-     * We need an instance to get messages initialized.
-     */
-    private static final MessageMgr stMessageMgr = new MessageMgr();
+    static {
+        String fname = System.getProperty("apfe.messages");
+        if (null != fname) {
+            addMessages(fname);
+        }
+    }
     
     private static State stTheOne;
 

@@ -42,7 +42,7 @@ public class Literal extends Acceptor implements GenJava.IGen {
 
     @Override
     public GenJava genJava(GenJava j) {
-        Util.assertFalse(Main.stGenMaze, "Literal not supported for maze");
+        gblib.Util.assertFalse(Main.stGenMaze, "Literal not supported for maze");
         return j.template("new CharSeq(@1@)", toString());
     }
 
