@@ -16,3 +16,4 @@ VPP-MAC-1 '-D %s' transformed to '-D %s'
 VPP-NODEFN %s: no definition for macro instance '%s'
 VPP-NODFLT %s: macro '%s' has no default value for parameter '%s' and was not assigned actual value
 VPP-PROC %s: processing
+VPP-EXIT 'Exiting due to previous error(s)'

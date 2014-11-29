@@ -7,6 +7,8 @@ import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static gblib.Util.error;
+import static gblib.MessageMgr.getErrorCnt;
 
 /**
  *
@@ -34,6 +36,11 @@ public class MtMain {
         } catch (InterruptedException ex) {
             Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+        int errCnt = getErrorCnt();
+        if (0 < errCnt) {
+            error("VPP-EXIT");
+            System.exit(errCnt);
+        }
         //clear out apfe state used by vlogpp
         State.clear();
         apfe.sv2009.Main.process(toks);
@@ -58,6 +65,10 @@ public class MtMain {
         public void run() {
             try {
                 m_toks.slurp();
+            } catch (RuntimeException ex) {
+                error("LEXER-1", ex.getMessage());
+            }
+            try {
                 m_ins.close();
             } catch (IOException ex) {
                 Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);

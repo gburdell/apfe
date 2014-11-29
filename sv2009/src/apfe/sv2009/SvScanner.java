@@ -2544,9 +2544,8 @@ public class SvScanner extends Scanner implements ITokenCodes {
 	yyclose();
   }
 
-  //TODO: derive from RuntimeException to pass back to parser
   private void error(String msg) {
-      StringBuilder sb = new StringBuilder("Error: ");
+      StringBuilder sb = new StringBuilder();
       sb.append(getFileName()).append(':').append(yyline+1).append(':')
               .append(yycolumn+1).append(": ").append(msg)
               .append(": ").append(yytext());

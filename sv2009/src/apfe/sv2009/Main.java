@@ -7,6 +7,7 @@ import apfe.runtime.State;
 import apfe.runtime.Token;
 import apfe.dsl.vlogpp.WriterThread;
 import apfe.sv2009.generated.*;
+import static gblib.Util.error;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
@@ -32,28 +33,6 @@ public class Main {
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    /**
-     * Run vlogpp and parser using multithread connected pipes.
-     *
-     * @param argv arguments passed to vlogpp.
-     */
-    public static void runVlogppAndParser(String argv[]) {
-        SvScanner toks = null;
-        try {
-            WriterThread vlogpp = new WriterThread(argv);
-            ReaderThread tokenizer = new ReaderThread(vlogpp.getWriter());
-            vlogpp.start();
-            tokenizer.start();
-            //wait for finish
-            vlogpp.join();
-            tokenizer.join();
-            toks = tokenizer.getToks();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        process(toks);
     }
 
     /*package*/ static void process(SvScanner toks) {
@@ -113,9 +92,13 @@ public class Main {
         public void run() {
             try {
                 m_toks.slurp();
+            } catch (RuntimeException ex) {
+                error("LEXER-1", ex.getMessage());
+            }
+            try {
                 m_ins.close();
             } catch (IOException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
