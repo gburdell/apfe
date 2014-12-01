@@ -114,7 +114,7 @@ public class MacroDefns {
                 loc = new Location(fn, ln, 0);
                 nm = nm.substring(ix + stDefineDelimitLoc.length());
             }
-            Helper.info("VPP-MAC-1", orig, appendIfNotNull(nm, "=", defn));
+            Helper.info(3, "VPP-MAC-1", orig, appendIfNotNull(nm, "=", defn));
         }
         add(nm, null, defn, loc);
     }

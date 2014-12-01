@@ -66,6 +66,10 @@ public class Helper {
         Util.info(code, args);
     }
 
+    public static void info(int minLvl, String code, Object... args) {
+        Util.info(minLvl, code, args);
+    }
+
     /**
      * Entry point for running vlogpp.
      *
@@ -185,7 +189,7 @@ public class Helper {
             }
         }
         if (1 == cands.size()) {
-            info("VPP-INCL-5", cands.get(0).toString(), fnm);
+            info(2, "VPP-INCL-5", cands.get(0).toString(), fnm);
         }
         return (0 < cands.size()) ? cands.get(0) : null;
     }

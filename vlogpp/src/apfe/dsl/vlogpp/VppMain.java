@@ -110,13 +110,13 @@ public class VppMain {
         {
             //dump options
             for (Pair<String, String> md : defs) {
-                info("VPP-CLARG-1", "-D", appendIfNotNull(md.v1, "=", md.v2));
+                info(3, "VPP-CLARG-1", "-D", appendIfNotNull(md.v1, "=", md.v2));
             }
             for (String incdir : inclDirs) {
-                info("VPP-CLARG-1", "-I", incdir); 
+                info(3, "VPP-CLARG-1", "-I", incdir); 
             }
             for (String src : m_srcFiles) {
-                info("VPP-CLARG-1", src, "");
+                info(3, "VPP-CLARG-1", src, "");
             }
         }
         parse(m_srcFiles);
@@ -126,14 +126,14 @@ public class VppMain {
         PrintWriter vpp = null;
         if (null != stDumpVpp) {
             try {
-                Helper.info("VPPE-1", stDumpVpp);
+                Helper.info(1, "VPPE-1", stDumpVpp);
                 vpp = new PrintWriter(stDumpVpp);
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(VppMain.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         for (String fn : srcs) {
-            Helper.info("VPP-PROC", fn);
+            Helper.info(2, "VPP-PROC", fn);
             IncludeDirs.setCurrentDir(fn);
             Grammar gram = Helper.getTheOne().start(fn);
             Acceptor acc = gram.accept();
