@@ -27,9 +27,11 @@ import apfe.dsl.vlogpp.Location;
 import apfe.dsl.vlogpp.MacroDefns;
 import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
+import apfe.runtime.CharBufState;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
+import apfe.runtime.NotPredicate;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -41,10 +43,23 @@ import java.util.List;
  */
 public class TicMacroUsage extends Acceptor {
 
+    private static final String stTokenPaste = "``";
+    
     @Override
     protected boolean accepti() {
-        //TicMacroUsage <- '`'Identifier (Spacing '(' ListOfActualArguments ')')?
+        //TicMacroUsage <- '``'? '`'Identifier (Spacing '(' ListOfActualArguments ')')?
         Location loc = Location.getCurrent();
+        boolean hasTokPastePfx;
+        //check for token paste prefix
+        {
+            Acceptor tp = new CharSeq(stTokenPaste);
+            hasTokPastePfx = tp.acceptTrue();
+            if (hasTokPastePfx) {
+               if (CharBufState.asMe().getBuf().la() != '`') {
+                   Helper.getTheOne().replace(super.getStartMark(), null);
+               }
+            }
+        }
         Sequence s1 = new Sequence(new CharSeq('`'), new Identifier());
         boolean match = (null != (s1 = match(s1)));
         if (match) {
@@ -60,7 +75,7 @@ public class TicMacroUsage extends Acceptor {
             }
             assert match;
             m_str = super.toString();
-            expandMacro(loc);
+            expandMacro(loc, hasTokPastePfx);
         }
         return match;
     }
@@ -71,9 +86,11 @@ public class TicMacroUsage extends Acceptor {
     /**
      * Expand macro usage. The CharBuffer (in State) is then rewound to
      * beginning so any embedded TicMacroUsage are then subsequently expanded.
+     *
      * @param loc location of instance.
+     * @param hasTokPastePfx token paste detected immediately before macro.
      */
-    private void expandMacro(final Location loc) {
+    private void expandMacro(final Location loc, final boolean hasTokPastePfx) {
         Helper mn = Helper.getTheOne();
         if (false == mn.getConditionalAllow()) {
             return;
@@ -87,6 +104,9 @@ public class TicMacroUsage extends Acceptor {
         String expanded = defns.expandMacro(m_ident, instArgs, loc);
         if (null == expanded) {
             return; //had error
+        }
+        if (hasTokPastePfx) {
+            expanded = "``" + expanded;
         }
         mn.replace(super.getStartMark(), expanded);
     }

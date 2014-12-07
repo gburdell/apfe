@@ -20,7 +20,9 @@ TextMacroName <- Identifier ('(' ListOfFormalArguments ')')?
 ListOfFormalArguments <- FormalArgument (Spacing ',' FormalArgument)*
 FormalArgument <- Spacing Identifier (Spacing '=' (DefaultText)? )?
 
-TicMacroUsage <- '`'Identifier (Spacing '(' ListOfActualArguments ')')?
+#Skip over token pasting during `macro detection
+TicMacroUsage <- !('``') '`'Identifier (Spacing '(' ListOfActualArguments ')')?
+
 ListOfActualArguments <- ActualArgument (',' ActualArgument)*
 ActualArgument <- VString
                 / '(' !')' ActualArgument ')'

@@ -129,17 +129,15 @@ interface_port_header <-
 INTERFACE_K (DOT identifier)?
 / identifier (DOT identifier)?
 
+//add this extra to grab that which is otherwise not matched 
+//lots of ambiguities on this one...
+ansi_port_decl_xtra <- identifier? variable_dimension*
 ansi_port_declaration <-
-//since we dont track types, first(net_port_header)==ident which also matches
-//port_identifier.  Eeek, lots of ambiguities
-//TODO: fix all these ambiguities
   port_direction? DOT identifier LPAREN expression? RPAREN
-/ port_direction? !net_type identifier !DOT unpacked_dimension* ( EQ expression )?
-//since port_header expands to port_type which is a very complex prefix
-//with tail of identifier: let it match the 1st identifier here
-//so identifier? is here
-/ (net_port_header / interface_port_header)? identifier? unpacked_dimension* ( EQ expression )?
-/ variable_port_header? identifier? variable_dimension* (EQ expression )?
+/ port_direction? !net_type identifier !DOT identifier? unpacked_dimension* ansi_port_decl_xtra
+	( EQ expression )?
+/ (net_port_header / interface_port_header)? identifier? unpacked_dimension* ansi_port_decl_xtra
+/ variable_port_header? ansi_port_decl_xtra (EQ expression )?
 
 elaboration_system_task <-
 // $fatal $error $warning $info
@@ -566,7 +564,6 @@ integer_atom_type signing?
 
 enum_name_declaration <- identifier (LBRACK number (COLON number)? RBRACK)? (EQ expression)?
 
-
 integer_type <- integer_vector_type / integer_atom_type
 
 integer_atom_type <- BYTE_K / SHORTINT_K / INT_K / LONGINT_K / INTEGER_K / TIME_K
@@ -575,7 +572,10 @@ integer_vector_type <- BIT_K / LOGIC_K / REG_K
 
 non_integer_type <- SHORTREAL_K / REAL_K / REALTIME_K
 
-net_type <- SUPPLY0_K / SUPPLY1_K / TRI_K / TRIAND_K / TRIOR_K / TRIREG_K/ TRI0_K / TRI1_K / UWIRE_K/ WIRE_K / WAND_K / WOR_K
+net_type <- 
+	SUPPLY0_K / SUPPLY1_K 
+/ TRI_K / TRIAND_K / TRIOR_K / TRIREG_K / TRI0_K / TRI1_K 
+/ UWIRE_K / WIRE_K / WAND_K / WOR_K
 
 net_port_type <- net_type? data_type_or_implicit
 
@@ -2186,14 +2186,14 @@ module_path_primary <-
 / identifier
 
 primary <-
-  multiple_concatenation ( LBRACK range_expression RBRACK )?
+  cast
+/ multiple_concatenation ( LBRACK range_expression RBRACK )?
 / concatenation ( LBRACK range_expression RBRACK )?
 / empty_queue
 // / function_subroutine_call
 / subroutine_call
 / let_expression
 / LPAREN mintypmax_expression RPAREN
-/ cast
 / assignment_pattern_expression
 / streaming_concatenation
 / sequence_method_call
@@ -2217,7 +2217,7 @@ constant_let_expression <- let_expression
 
 cast <-
 //ILR{ casting_type 
-(simple_type / constant_primary / signing / STRING_K / CONST_K)
+(simple_type / primary_literal / signing / STRING_K / CONST_K)
 //}
   SQUOTE LPAREN expression RPAREN
 

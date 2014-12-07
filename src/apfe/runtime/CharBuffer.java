@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+
 import static gblib.Util.downCast;
 
 /**
@@ -175,8 +176,13 @@ public class CharBuffer {
      * @param s replace string.
      */
     public void replace(final Marker start, String s) {
-        MarkerImpl mark = downCast(start);;
-        getBuf().replace(mark.getPos(), m_pos, s);
+        MarkerImpl mark = downCast(start);
+        final int begin = mark.getPos();
+        if (null != s) {
+            getBuf().replace(begin, m_pos, s);
+        } else {
+            getBuf().delete(begin, m_pos);
+        }
         reset(start);
     }
 

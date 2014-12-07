@@ -25,6 +25,7 @@ package apfe.dsl.vlogpp;
 
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBufState;
+import gblib.File;
 
 /**
  * Detailed file location.
@@ -49,7 +50,7 @@ public class Location {
     public String getFilename() {
         return m_fname;
     }
-    
+
     /**
      * Get current location.
      *
@@ -65,11 +66,15 @@ public class Location {
         return m_fname + ":" + m_lnum + ":" + m_col;
     }
 
+    public String toStringAbsFn() {
+        return File.getCanonicalName(m_fname) + ":" + m_lnum + ":" + m_col;
+    }
+
     @Override
     public boolean equals(Object obj) {
         assert (obj instanceof Location);
         Location other = gblib.Util.downCast(obj);
-        boolean eq = gblib.Util.filesAreSame(m_fname, other.m_fname) 
+        boolean eq = gblib.Util.filesAreSame(m_fname, other.m_fname)
                 && (m_lnum == other.m_lnum)
                 && (m_col == other.m_col);
         return eq;
@@ -79,9 +84,9 @@ public class Location {
     public int hashCode() {
         return super.hashCode();
     }
-    
+
     private final String m_fname;
     private final int m_lnum, m_col;
-    
+
     public static final Location stCmdLine = new Location("<cmdline>", 0, 0);
 }

@@ -22,6 +22,7 @@
 package apfe.dsl.vlogpp;
 
 import gblib.File;
+import gblib.Util;
 import static gblib.Util.addAllNoDups;
 import static gblib.Util.appendIfNotNull;
 import java.util.*;
@@ -83,17 +84,25 @@ public class MacroDefns {
             if (val.m_loc.equals(loc)) {
                 assert gblib.Util.equalsInclNull(val.m_defn, defn);
             } else if (1 == stRedefinedCheck) {
-                isRedef = !gblib.Util.equalsInclNull(val.m_defn, defn);
+                isRedef = !gblib.Util.equalsInclNull(val.m_defn, defn, stEquals);
             } else {
                 isRedef = !loc.equals(val.m_loc);
             }
             if (isRedef) {
-                Helper.warning("VPP-DUP-1a", loc.toString(), key);
-                Helper.warning("VPP-DUP-1b", val.m_loc.toString(), key);
+                Helper.warning("VPP-DUP-1a", loc.toStringAbsFn(), key);
+                Helper.warning("VPP-DUP-1b", val.m_loc.toStringAbsFn(), key);
             }
         }
         return isRedef;
     }
+
+    private static final Util.Equals<String> stEquals = new Util.Equals<String>() {
+
+        @Override
+        public boolean equals(String a, String b) {
+            return a.trim().equals(b.trim());
+        }
+    };
 
     private Val lookup(String key) {
         return m_valsByName.get(key);
@@ -132,6 +141,7 @@ public class MacroDefns {
     public String expandMacro(String macnm, List<String> args, Location loc) {
         Val mval = lookup(macnm);
         mval.m_hitCnt++;
+        m_macrosUsed.markUsed(macnm, loc);
         m_macrosUsed.markUsed(macnm, loc);
         List<Parm> parms = mval.m_parms;
         int hasN = (null != args) ? args.size() : 0;

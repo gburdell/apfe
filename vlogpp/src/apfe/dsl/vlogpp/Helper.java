@@ -123,7 +123,7 @@ public class Helper {
      * buffer steps, then just do on last one.
      */
     public void replace(final Marker start, String s, boolean doReset) {
-        if (s.isEmpty()) {
+        if ((null != s) && s.isEmpty()) {
             s = " ";
         }
         getBuf().replace(start, s);

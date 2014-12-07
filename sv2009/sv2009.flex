@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
   }
 
   private Token create(int id, String text) {
-  	  	return new Token(getFileName(), yyline+1, yycolumn+1, text, id);
+  	  	return new Token(getFileName(), yyline, yycolumn+1, text, id);
   }
 
   private Token create(int id) {
@@ -49,8 +49,7 @@ import java.util.StringTokenizer;
 	assert toks.hasMoreElements();
 	String fname = toks.nextToken().replaceAll("\"","");//lose lead/trail "
 	assert toks.hasMoreElements();
-	//dont care about finish
-	yyline = lnum-2;
+	yyline = lnum-1;
 	stFileName = fname;
   }
 
