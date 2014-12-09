@@ -89,8 +89,10 @@ public class MacroDefns {
                 isRedef = !loc.equals(val.m_loc);
             }
             if (isRedef) {
-                Helper.warning("VPP-DUP-1a", loc.toStringAbsFn(), key);
-                Helper.warning("VPP-DUP-1b", val.m_loc.toStringAbsFn(), key);
+                final String newDefn = (null != defn) ? defn.trim() : "";
+                final String wasDefn = (null != val.m_defn) ? val.m_defn.trim() : "";
+                Helper.warning("VPP-DUP-1a", loc.toStringAbsFn(), key, newDefn);
+                Helper.warning("VPP-DUP-1b", val.m_loc.toStringAbsFn(), key, wasDefn);
             }
         }
         return isRedef;
@@ -147,7 +149,7 @@ public class MacroDefns {
         int hasN = (null != args) ? args.size() : 0;
         int expectsN = (null != parms) ? parms.size() : 0;
         if (hasN > expectsN) {
-            Helper.error("VPP-ARGN", loc, hasN, expectsN);
+            Helper.error("VPP-ARGN", loc, macnm, hasN, expectsN);
             return null;
         }
         String defn = mval.m_defn;

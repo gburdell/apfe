@@ -28,6 +28,7 @@ import apfe.dsl.vlogpp.MacroDefns;
 import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBufState;
+import apfe.runtime.CharClass;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
@@ -60,10 +61,11 @@ public class TicMacroUsage extends Acceptor {
                }
             }
         }
-        Sequence s1 = new Sequence(new CharSeq('`'), new Identifier());
+        Repetition ws = new Repetition(new CharClass(" \t"), Repetition.ERepeat.eZeroOrMore);
+        Sequence s1 = new Sequence(new CharSeq('`'), ws, new Identifier());
         boolean match = (null != (s1 = match(s1)));
         if (match) {
-            m_ident = Util.extractEleAsString(s1, 1);
+            m_ident = Util.extractEleAsString(s1, 2);
             s1 = new Sequence(new Spacing(), new CharSeq('('),
                     new ListOfActualArguments(), new CharSeq(')'));
             Repetition r1 = new Repetition(s1, Repetition.ERepeat.eOptional);

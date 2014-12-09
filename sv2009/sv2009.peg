@@ -727,13 +727,16 @@ data_type_or_void
 function_declaration <- FUNCTION_K ( lifetime )? function_body_declaration
 
 function_body_declaration <-
-  function_data_type_or_implicit
-  selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
+  (	identifier LPAREN
+  / function_data_type_or_implicit selected_ident LPAREN
+  )
+  ( tf_port_list )? RPAREN SEMI
   ( block_item_declaration )*
   ( function_statement_or_null )*
   ENDFUNCTION_K ( COLON identifier )?
-/ function_data_type_or_implicit
-  selected_ident SEMI
+/ (	identifier SEMI
+  /	function_data_type_or_implicit selected_ident SEMI
+  )
   ( tf_item_declaration )*
   ( function_statement_or_null )*
   ENDFUNCTION_K ( COLON identifier )?
@@ -760,11 +763,12 @@ dpi_task_proto <- task_prototype
 task_declaration <- TASK_K ( lifetime )? task_body_declaration
 
 task_body_declaration <-
-  selected_ident LPAREN ( tf_port_list )? RPAREN SEMI
+  (	identifier LPAREN / selected_ident LPAREN)
+  	( tf_port_list )? RPAREN SEMI
     ( block_item_declaration )*
     ( statement_or_null )*
     ENDTASK_K ( COLON identifier )?
-/ selected_ident SEMI
+/ (identifier SEMI / selected_ident SEMI)
     ( tf_item_declaration )*
     ( statement_or_null )*
     ENDTASK_K ( COLON identifier )?
