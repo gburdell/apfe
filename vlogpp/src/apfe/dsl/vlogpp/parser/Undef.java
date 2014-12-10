@@ -23,6 +23,8 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
+import apfe.dsl.vlogpp.Location;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -36,15 +38,21 @@ import apfe.runtime.Util;
  */
 public class Undef extends Acceptor {
 
-   @Override
+    @Override
     protected boolean accepti() {
         //Undef <- "`undef" Spacing Identifier
-       Sequence s1 = new Sequence(new CharSeq("`undef"), new Spacing(), 
-               new Identifier());
+        Location loc = Location.getCurrent();
+        Sequence s1 = new Sequence(new CharSeq("`undef"), new Spacing(),
+                new Identifier());
         boolean match = (null != (s1 = match(s1)));
         if (match) {
             m_ident = Util.extractEleAsString(s1, 2);
             m_text = super.toString();
+            //remove defn from just compilation unit
+            final Helper helper = Helper.getTheOne();
+            final String cuFname = helper.getFname();
+            helper.getMacroDefns().undef(m_ident, cuFname, loc);
+            helper.replace(super.getStartMark());
         }
         return match;
     }
@@ -55,6 +63,7 @@ public class Undef extends Acceptor {
     public String toString() {
         return m_text;
     }
+
     @Override
     public Acceptor create() {
         return new Undef();

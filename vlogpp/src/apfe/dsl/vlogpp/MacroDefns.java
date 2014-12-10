@@ -59,6 +59,17 @@ public class MacroDefns {
     }
 
     /**
+     * Specify whether compilation unit is single source file; or composite set.
+     * This setting used for determining scope of macros undef-ness, currently.
+     */
+    private static boolean stSingleCompilationUnits = false;
+
+    public static boolean setSingleCompilationUnits(boolean val) {
+        Helper.info(3, "VPP-SFCU-1", val);
+        return (stSingleCompilationUnits = val);
+    }
+
+    /**
      * Get list of files which only define macros which are used within used
      * sources and other define only files whose macros are used.
      *
@@ -81,16 +92,16 @@ public class MacroDefns {
         boolean isRedef = false;
         if (isDefined(key)) {
             Val val = lookup(key);
-            if (val.m_loc.equals(loc)) {
-                assert gblib.Util.equalsInclNull(val.m_defn, defn);
+            final String newDefn = (null != defn) ? defn.trim() : "";
+            final String wasDefn = (null != val.m_defn) ? val.m_defn.trim() : "";
+            if (val.m_loc.equals(loc) && !gblib.Util.equalsInclNull(val.m_defn, defn)) {
+                Helper.error("VPP-REDEFN-1", loc.toStringAbsFn(), key, wasDefn, newDefn);
             } else if (1 == stRedefinedCheck) {
                 isRedef = !gblib.Util.equalsInclNull(val.m_defn, defn, stEquals);
             } else {
                 isRedef = !loc.equals(val.m_loc);
             }
             if (isRedef) {
-                final String newDefn = (null != defn) ? defn.trim() : "";
-                final String wasDefn = (null != val.m_defn) ? val.m_defn.trim() : "";
                 Helper.warning("VPP-DUP-1a", loc.toStringAbsFn(), key, newDefn);
                 Helper.warning("VPP-DUP-1b", val.m_loc.toStringAbsFn(), key, wasDefn);
             }
@@ -112,6 +123,30 @@ public class MacroDefns {
 
     public boolean isDefined(String nm) {
         return (m_valsByName.containsKey(nm));
+    }
+
+    /**
+     * Remove macro definition for 'macnm' for those definition locations within
+     * compilation unit named by 'cuFname'.
+     *
+     * @param macnm macro name to remove.
+     * @param cuFname compilation unit filename.
+     * @param loc location of `undef directive
+     */
+    public void undef(String macnm, String cuFname, Location loc) {
+        if (!isDefined(macnm)) {
+            //VPP-UNDEF-1: %s: '`undef %s' has no effect since '%s' was never defined
+            Helper.warning("VPP-UNDEF-1", loc, macnm, macnm);
+        } else {
+            final gblib.File cuLoc = new gblib.File(cuFname);
+            final Val curr = lookup(macnm);
+            if (!stSingleCompilationUnits || cuLoc.equals(curr.m_cuLoc)) {
+                m_valsByName.remove(macnm);
+                Helper.info(3, "VPP-UNDEF-3", loc, macnm);
+            } else {
+                Helper.warning("VPP-UNDEF-2", loc, macnm, macnm, cuFname);
+            }
+        }
     }
 
     public void add(String nm, String defn, Location loc) {
@@ -193,8 +228,9 @@ public class MacroDefns {
     public void add(String nm, List<Parm> parms, String defn, Location loc) {
         isRedefined(nm, loc, defn);
         m_macrosUsed.addDefn(nm, loc);
+        final String cuFname = Helper.getTheOne().getFname();
         if (null == parms) {
-            m_valsByName.put(nm, new Val(null, defn, loc));
+            m_valsByName.put(nm, new Val(null, defn, loc, cuFname));
         } else {
             /* replace each parameter value w/ </%n%/> where n is
              * parm position, 1-origin.
@@ -218,7 +254,7 @@ public class MacroDefns {
                 String repl = stDelim[0] + ix + stDelim[1];
                 defn = replace(defn, p, repl);
             }
-            m_valsByName.put(nm, new Val(parms, defn, loc));
+            m_valsByName.put(nm, new Val(parms, defn, loc, cuFname));
         }
     }
 
@@ -382,13 +418,14 @@ public class MacroDefns {
     private static class Val {
 
         public Val(String defn) {
-            this(null, defn, null);
+            this(null, defn, null, null);
         }
 
-        public Val(List<Parm> parms, String defn, Location loc) {
+        public Val(List<Parm> parms, String defn, Location loc, String cuFname) {
             m_parms = parms;
             m_defn = defn;
             m_loc = (null != loc) ? loc : Location.stCmdLine;
+            m_cuLoc = (null != cuFname) ? new gblib.File(cuFname) : null;
         }
 
         public boolean hasParms() {
@@ -397,6 +434,8 @@ public class MacroDefns {
         public final List<Parm> m_parms;
         public final String m_defn;
         public final Location m_loc;
+        //compilation unit filename (null if command line)
+        public final gblib.File m_cuLoc;
         /**
          * Track how many times macro is referenced.
          */

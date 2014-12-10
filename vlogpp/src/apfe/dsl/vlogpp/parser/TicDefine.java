@@ -30,7 +30,6 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
-import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 import java.util.List;
