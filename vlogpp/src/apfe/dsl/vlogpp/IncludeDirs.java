@@ -73,7 +73,6 @@ public class IncludeDirs {
      * @param fn include file to find.
      * @return list of all include file candidates (in search path order).
      */
-    @SuppressWarnings("empty-statement")
     public List<File> findInclFile(String fn) {
         Set<File> rval = new LinkedHashSet<>();
         if (fn.startsWith(File.separator)) {

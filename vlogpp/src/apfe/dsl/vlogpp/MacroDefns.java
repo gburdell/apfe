@@ -142,7 +142,7 @@ public class MacroDefns {
             final Val curr = lookup(macnm);
             if (!stSingleCompilationUnits || cuLoc.equals(curr.m_cuLoc)) {
                 m_valsByName.remove(macnm);
-                Helper.info(3, "VPP-UNDEF-3", loc, macnm);
+                Helper.info(2, "VPP-UNDEF-3", loc, macnm, macnm);
             } else {
                 Helper.warning("VPP-UNDEF-2", loc, macnm, macnm, cuFname);
             }

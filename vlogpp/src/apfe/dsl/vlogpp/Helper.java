@@ -33,8 +33,11 @@ import apfe.runtime.CharBufState;
 import gblib.MessageMgr;
 import gblib.Util;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Toplevel object/singleton for vlogpp system.
@@ -185,7 +188,13 @@ public class Helper {
             warning("VPP-INCL-1", loc, fnm, cands.size());
             int i = 1;
             for (File f : cands) {
-                warning("VPP-INCL-2", i++, f.getName());
+                String absNm;
+                try {
+                    absNm = f.getCanonicalPath();
+                } catch (IOException ex) {
+                    absNm = f.getName();
+                }
+                warning("VPP-INCL-2", i++, absNm);
             }
         }
         if (1 == cands.size()) {
