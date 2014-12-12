@@ -80,6 +80,14 @@ public class MacroDefns {
         return m_macrosUsed.getMacroDefnFiles(usedSrcs);
     }
 
+    private static String squeeze(String s) {
+        return s.replaceAll("\\s", "");
+    }
+    
+    private static String trim(String s) {
+        return (null != s) ? s.trim() : "";
+    }
+
     /**
      * Check if macro is being redefined in accordance with stRedefinedCheck.
      *
@@ -92,18 +100,24 @@ public class MacroDefns {
         boolean isRedef = false;
         if (isDefined(key)) {
             Val val = lookup(key);
-            final String newDefn = (null != defn) ? defn.trim() : "";
-            final String wasDefn = (null != val.m_defn) ? val.m_defn.trim() : "";
-            if (val.m_loc.equals(loc) && !gblib.Util.equalsInclNull(val.m_defn, defn)) {
+            //create trimmed versions of definitions for print.
+            final String newDefn = trim(defn);
+            final String wasDefn = trim(val.m_origDefn);
+            //we'll compare a complete squeeze (so 'a+b' is same as 'a + b')
+            final boolean eq = squeeze(wasDefn).equals(squeeze(newDefn));
+            if (val.m_loc.equals(loc) && !eq) {
                 Helper.error("VPP-REDEFN-1", loc.toStringAbsFn(), key, wasDefn, newDefn);
-            } else if (1 == stRedefinedCheck) {
-                isRedef = !gblib.Util.equalsInclNull(val.m_defn, defn, stEquals);
+                isRedef = true;
             } else {
-                isRedef = !loc.equals(val.m_loc);
-            }
-            if (isRedef) {
-                Helper.warning("VPP-DUP-1a", loc.toStringAbsFn(), key, newDefn);
-                Helper.warning("VPP-DUP-1b", val.m_loc.toStringAbsFn(), key, wasDefn);
+                if (1 == stRedefinedCheck) {
+                    isRedef = !eq;
+                } else {
+                    isRedef = !loc.equals(val.m_loc);
+                }
+                if (isRedef) {
+                    Helper.warning("VPP-DUP-1a", loc.toStringAbsFn(), key, newDefn);
+                    Helper.warning("VPP-DUP-1b", val.m_loc.toStringAbsFn(), key, wasDefn);
+                }
             }
         }
         return isRedef;
@@ -179,7 +193,6 @@ public class MacroDefns {
         Val mval = lookup(macnm);
         mval.m_hitCnt++;
         m_macrosUsed.markUsed(macnm, loc);
-        m_macrosUsed.markUsed(macnm, loc);
         List<Parm> parms = mval.m_parms;
         int hasN = (null != args) ? args.size() : 0;
         int expectsN = (null != parms) ? parms.size() : 0;
@@ -225,37 +238,48 @@ public class MacroDefns {
         return s;
     }
 
-    public void add(String nm, List<Parm> parms, String defn, Location loc) {
+    /**
+     * Encode parameter-based macro definition.
+     *
+     * @param parms list of parameters
+     * @param defn definition.
+     * @return expanded macro definition.
+     */
+    private static String encodeDefn(List<Parm> parms, String defn) {
+        if (null == parms) {
+            return defn;
+        }
+        /* replace each parameter value w/ </%n%/> where n is
+         * parm position, 1-origin.
+         */
+        //Get parameter names in descending order of length
+        List<String> names = new LinkedList<>();
+        for (Parm p : parms) {
+            names.add(p.getParmName());
+        }
+        List<String> sorted = new LinkedList<>(names);
+        Collections.sort(sorted, new Comparator<String>() {
+            @Override
+            public int compare(String t, String t1) {
+                //return by descending order
+                int n = t.length(), n1 = t1.length();
+                return (n == n1) ? 0 : ((n < n1) ? 1 : -1);
+            }
+        });
+        for (String p : sorted) {
+            int ix = names.indexOf(p) + 1;  //which parm
+            String repl = stDelim[0] + ix + stDelim[1];
+            defn = replace(defn, p, repl);
+        }
+        return defn;
+    }
+
+    public void add(String nm, List<Parm> parms, final String defn, Location loc) {
         isRedefined(nm, loc, defn);
+        String encodedDefn = encodeDefn(parms, defn);
         m_macrosUsed.addDefn(nm, loc);
         final String cuFname = Helper.getTheOne().getFname();
-        if (null == parms) {
-            m_valsByName.put(nm, new Val(null, defn, loc, cuFname));
-        } else {
-            /* replace each parameter value w/ </%n%/> where n is
-             * parm position, 1-origin.
-             */
-            //Get parameter names in descending order of length
-            List<String> names = new LinkedList<>();
-            for (Parm p : parms) {
-                names.add(p.getParmName());
-            }
-            List<String> sorted = new LinkedList<>(names);
-            Collections.sort(sorted, new Comparator<String>() {
-                @Override
-                public int compare(String t, String t1) {
-                    //return by descending order
-                    int n = t.length(), n1 = t1.length();
-                    return (n == n1) ? 0 : ((n < n1) ? 1 : -1);
-                }
-            });
-            for (String p : sorted) {
-                int ix = names.indexOf(p) + 1;  //which parm
-                String repl = stDelim[0] + ix + stDelim[1];
-                defn = replace(defn, p, repl);
-            }
-            m_valsByName.put(nm, new Val(parms, defn, loc, cuFname));
-        }
+        m_valsByName.put(nm, new Val(parms, encodedDefn, loc, cuFname, defn));
     }
 
     /**
@@ -421,18 +445,26 @@ public class MacroDefns {
             this(null, defn, null, null);
         }
 
-        public Val(List<Parm> parms, String defn, Location loc, String cuFname) {
+        public Val(List<Parm> parms, String defn, Location loc, String cuFname, String origDefn) {
             m_parms = parms;
             m_defn = defn;
             m_loc = (null != loc) ? loc : Location.stCmdLine;
             m_cuLoc = (null != cuFname) ? new gblib.File(cuFname) : null;
+            m_origDefn = origDefn.trim();
         }
+        
+        public Val(List<Parm> parms, String defn, Location loc, String cuFname) {
+            this(parms, defn, loc, cuFname, defn);
+        }        
 
         public boolean hasParms() {
             return (null != m_parms);
         }
         public final List<Parm> m_parms;
+        // Encoded definition
         public final String m_defn;
+        // Original definition
+        public final String m_origDefn;
         public final Location m_loc;
         //compilation unit filename (null if command line)
         public final gblib.File m_cuLoc;

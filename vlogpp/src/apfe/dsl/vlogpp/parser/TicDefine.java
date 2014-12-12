@@ -68,11 +68,7 @@ public class TicDefine extends Acceptor {
         String macnm = mname.getId();
         String text = (null != mtext) ? mtext.toString() : null;
         List<Parm> parms = Parm.createList(mname.getFormalArgs());
-        if (null == parms) {
-            mn.getMacroDefns().add(macnm, text, loc);
-        } else {
-            mn.getMacroDefns().add(macnm, parms, text, loc);
-        }
+        mn.getMacroDefns().add(macnm, parms, text, loc);
     }
     private String m_text;
 

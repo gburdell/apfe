@@ -79,7 +79,7 @@ public class TicInclude extends Acceptor {
         }
         //Build up stuffing
         StringBuilder sb = new StringBuilder();
-        sb.append("`line 1").append(" \"").append(incl.getName())
+        sb.append("`line 1").append(" \"").append(incl.getPath())
                 .append("\" 1\n");
         boolean ok = true;
         try {
