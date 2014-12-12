@@ -450,7 +450,7 @@ public class MacroDefns {
             m_defn = defn;
             m_loc = (null != loc) ? loc : Location.stCmdLine;
             m_cuLoc = (null != cuFname) ? new gblib.File(cuFname) : null;
-            m_origDefn = origDefn.trim();
+            m_origDefn = (null != origDefn) ? origDefn.trim() : null;
         }
         
         public Val(List<Parm> parms, String defn, Location loc, String cuFname) {
