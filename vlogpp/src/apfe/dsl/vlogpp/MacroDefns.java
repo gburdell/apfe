@@ -148,17 +148,18 @@ public class MacroDefns {
      * @param loc location of `undef directive
      */
     public void undef(String macnm, String cuFname, Location loc) {
+        final String aloc = loc.toStringAbsFn();
         if (!isDefined(macnm)) {
             //VPP-UNDEF-1: %s: '`undef %s' has no effect since '%s' was never defined
-            Helper.warning("VPP-UNDEF-1", loc, macnm, macnm);
+            Helper.warning("VPP-UNDEF-1", aloc, macnm, macnm);
         } else {
             final gblib.File cuLoc = new gblib.File(cuFname);
             final Val curr = lookup(macnm);
             if (!stSingleCompilationUnits || cuLoc.equals(curr.m_cuLoc)) {
                 m_valsByName.remove(macnm);
-                Helper.info(2, "VPP-UNDEF-3", loc, macnm, macnm);
+                Helper.info(2, "VPP-UNDEF-3", aloc, macnm, macnm);
             } else {
-                Helper.warning("VPP-UNDEF-2", loc, macnm, macnm, cuFname);
+                Helper.warning("VPP-UNDEF-2", aloc, macnm, macnm, cuFname);
             }
         }
     }
@@ -197,10 +198,10 @@ public class MacroDefns {
         int hasN = (null != args) ? args.size() : 0;
         int expectsN = (null != parms) ? parms.size() : 0;
         if (hasN > expectsN) {
-            Helper.error("VPP-ARGN", loc, macnm, hasN, expectsN);
+            Helper.error("VPP-ARGN", loc.toStringAbsFn(), macnm, hasN, expectsN);
             return null;
         }
-        String defn = mval.m_defn;
+        String defn = trim(mval.m_defn);
         int pos = 1;
         String with;
         if (null != args) {
@@ -223,7 +224,7 @@ public class MacroDefns {
             for (; pos <= expectsN; pos++) {
                 with = parms.get(pos - 1).getDefault();
                 if (null == with) {
-                    Helper.error("VPP-NODFLT", loc, macnm, parms.get(pos - 1).getParmName());
+                    Helper.error("VPP-NODFLT", loc.toStringAbsFn(), macnm, parms.get(pos - 1).getParmName());
                     return null;
                 }
                 defn = replace(defn, pos, with);
@@ -275,6 +276,7 @@ public class MacroDefns {
     }
 
     public void add(String nm, List<Parm> parms, final String defn, Location loc) {
+        Util.info(3, "VPP-DEFN-1", loc.toStringAbsFn(), nm, trim(defn));
         isRedefined(nm, loc, defn);
         String encodedDefn = encodeDefn(parms, defn);
         m_macrosUsed.addDefn(nm, loc);

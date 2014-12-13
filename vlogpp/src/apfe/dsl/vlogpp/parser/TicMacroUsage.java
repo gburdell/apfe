@@ -66,7 +66,7 @@ public class TicMacroUsage extends Acceptor {
         boolean match = (null != (s1 = match(s1)));
         if (match) {
             m_ident = Util.extractEleAsString(s1, 2);
-            s1 = new Sequence(new Spacing(), new CharSeq('('),
+            s1 = new Sequence(ws.create(), new CharSeq('('),
                     new ListOfActualArguments(), new CharSeq(')'));
             Repetition r1 = new Repetition(s1, Repetition.ERepeat.eOptional);
             match &= (null != (r1 = match(r1)));

@@ -7,7 +7,9 @@ import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import gblib.Timer;
 import static gblib.Util.error;
+import static gblib.Util.info;
 import static gblib.MessageMgr.getErrorCnt;
 
 /**
@@ -24,6 +26,7 @@ public class MtMain {
      */
     public static void process(String argv[]) {
         SvScanner toks = null;
+        Timer timer = new Timer();
         try {
             WriterThread vlogpp = new WriterThread(argv);
             ReaderThread tokenizer = new ReaderThread(vlogpp.getWriter());
@@ -36,6 +39,7 @@ public class MtMain {
         } catch (InterruptedException ex) {
             Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+        info(2, "TIM-1", "vlogpp + tokenizer", timer.toString());
         int errCnt = getErrorCnt();
         if (0 < errCnt) {
             error("VPP-EXIT");
@@ -43,7 +47,10 @@ public class MtMain {
         }
         //clear out apfe state used by vlogpp
         State.clear();
+        timer.restart();
+        info(2, "PARSE-0");
         apfe.sv2009.Main.process(toks);
+        info(2, "TIM-1", "parsing", timer.toString());
     }
 
     private static class ReaderThread extends Thread {
