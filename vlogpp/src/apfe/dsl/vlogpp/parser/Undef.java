@@ -50,9 +50,11 @@ public class Undef extends Acceptor {
             m_text = super.toString();
             //remove defn from just compilation unit
             final Helper helper = Helper.getTheOne();
-            final String cuFname = helper.getFname();
-            helper.getMacroDefns().undef(m_ident, cuFname, loc);
-            helper.replace(super.getStartMark());
+            if (helper.getConditionalAllow()) {
+                final String cuFname = helper.getFname();
+                helper.getMacroDefns().undef(m_ident, cuFname, loc);
+                helper.replace(super.getStartMark());
+            }
         }
         return match;
     }

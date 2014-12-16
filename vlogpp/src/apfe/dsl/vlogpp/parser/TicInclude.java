@@ -61,7 +61,9 @@ public class TicInclude extends Acceptor {
         //Grab spacing afterwards so we can get next start line
         match &= (new RestOfLine()).acceptTrue();
         if (match) {
-            match &= processIncludeFile(loc, start);
+            if (Helper.getTheOne().getConditionalAllow()) {
+                match &= processIncludeFile(loc, start);
+            }
         }
         return match;
     }
@@ -86,7 +88,7 @@ public class TicInclude extends Acceptor {
             InputStream fis = new InputStream(incl.getPath());
             CharBuffer buf = fis.newCharBuffer();
             sb.append(buf.getBuf());    //tack on file contents
-            sb.append("\n`line ").append(((CharBuffer.MarkerImpl)start).getLnum())
+            sb.append("\n`line ").append(((CharBuffer.MarkerImpl) start).getLnum())
                     .append(" \"").append(currFn).append("\" 2\n");
             Helper.getTheOne().replace(start, sb.toString(), false);
             Helper.getTheOne().reset(start);

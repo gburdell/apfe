@@ -6,6 +6,7 @@
 package apfe.sv2009;
 
 import apfe.runtime.Token;
+import gblib.Util;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +31,7 @@ public class SvScannerTest {
                 }
             }
         } catch (IOException ex) {
-            Logger.getLogger(SvScannerTest.class.getName()).log(Level.SEVERE, null, ex);
+            Util.abnormalExit(ex);
         }
     }
 

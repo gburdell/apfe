@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -40,6 +41,9 @@ public class LineExpand extends Acceptor {
         boolean match = (new CharSeq("`__LINE__")).acceptTrue();
         if (match) {
             m_text = super.toString();
+            if (Helper.getTheOne().getConditionalAllow()) {
+				;//TODO
+			}
         }
         return match;
     }

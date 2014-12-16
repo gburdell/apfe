@@ -11,6 +11,7 @@ import gblib.Timer;
 import static gblib.Util.error;
 import static gblib.Util.info;
 import static gblib.MessageMgr.getErrorCnt;
+import gblib.Util;
 
 /**
  *
@@ -37,7 +38,7 @@ public class MtMain {
             tokenizer.join();
             toks = tokenizer.getToks();
         } catch (InterruptedException ex) {
-            Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
+            Util.abnormalExit(ex);
         }
         info(2, "TIM-1", "vlogpp + tokenizer", timer.toString());
         int errCnt = getErrorCnt();
@@ -64,7 +65,7 @@ public class MtMain {
                 m_ins = new PipedReader(src, stBufSz);
                 m_toks = new SvScanner(m_ins);
             } catch (IOException ex) {
-                Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
+                Util.abnormalExit(ex);
             }
         }
 
@@ -78,7 +79,7 @@ public class MtMain {
             try {
                 m_ins.close();
             } catch (IOException ex) {
-                Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
+                Util.abnormalExit(ex);
             }
         }
 

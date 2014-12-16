@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -37,12 +38,14 @@ public class UndefineAll extends Acceptor {
     @Override
     protected boolean accepti() {
         //UndefineAll <- "`undefineall"
+        final Marker start = getStartMark();
         boolean match = (new CharSeq("`undefineall")).acceptTrue();
         if (match) {
             /*
-            NOTE: see LRM: 22.5.3 on remove from compilation_unit
-            */
+             NOTE: see LRM: 22.5.3 on remove from compilation_unit
+             */
             m_text = super.toString();
+            Helper.getTheOne().replace(start);
         }
         return match;
     }
@@ -52,6 +55,7 @@ public class UndefineAll extends Acceptor {
     public String toString() {
         return m_text;
     }
+
     @Override
     public Acceptor create() {
         return new UndefineAll();

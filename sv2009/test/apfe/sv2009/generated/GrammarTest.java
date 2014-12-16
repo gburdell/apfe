@@ -29,6 +29,7 @@ import apfe.runtime.CharBuffer;
 import apfe.runtime.InputStream;
 import apfe.runtime.ParseError;
 import apfe.runtime.CharBufState;
+import gblib.Util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
@@ -75,8 +76,7 @@ public class GrammarTest {
             assertTrue(result);
 
         } catch (Exception ex) {
-            Logger.getLogger(GrammarTest.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Util.abnormalExit(ex);
         }
     }
 }

@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -37,9 +38,11 @@ public class EndKeywords extends Acceptor {
     @Override
     protected boolean accepti() {
         //EndKeywords <- "`end_keywords"
+        final Marker start = getStartMark();
         boolean match = (new CharSeq("`end_keywords")).acceptTrue();
         if (match) {
             m_text = super.toString();
+            Helper.getTheOne().replace(start);
         }
         return match;
     }

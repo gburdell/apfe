@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -38,11 +39,13 @@ public class BeginKeywords extends Acceptor {
     @Override
     protected boolean accepti() {
         //BeginKeywords <- "`begin_keywords" Spacing VString
+        final Marker start = getStartMark();
         m_contents = new Sequence(new CharSeq("`begin_keywords"), new Spacing(),
                 new VString());
         boolean match = (null != (m_contents = match(m_contents)));
         if (match) {
             m_text = super.toString();
+            Helper.getTheOne().replace(start);
         }
         return match;
     }

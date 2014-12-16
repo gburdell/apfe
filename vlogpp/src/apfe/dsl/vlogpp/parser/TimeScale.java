@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -47,6 +48,9 @@ public class TimeScale extends Acceptor {
             m_vals = new TimeValue[]{Util.extractEle(s1, 2),
                 Util.extractEle(s1, 6)};
             m_text = super.toString();
+            if (Helper.getTheOne().getConditionalAllow()) {
+				;//TODO
+			}
         }
         return match;
     }

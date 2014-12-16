@@ -47,7 +47,7 @@ public class TicDefine extends Acceptor {
                 new TextMacroName(), new MacroText());
         Location loc = Location.getCurrent();
         boolean match = (null != (s1 = match(s1)));
-        if (match) {
+        if (match && Helper.getTheOne().getConditionalAllow()) {
             TextMacroName mname = Util.extractEle(s1, 2);
             MacroText mtext = Util.extractEle(s1, 3);
             if (mtext.toString().isEmpty()) {
@@ -62,9 +62,6 @@ public class TicDefine extends Acceptor {
 
     private void addDefn(TextMacroName mname, MacroText mtext, Location loc) {
         Helper mn = Helper.getTheOne();
-        if (false == mn.getConditionalAllow()) {
-            return;
-        }
         String macnm = mname.getId();
         String text = (null != mtext) ? mtext.toString() : null;
         List<Parm> parms = Parm.createList(mname.getFormalArgs());

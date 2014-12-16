@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -38,12 +39,14 @@ public class CellDefine extends Acceptor {
     @Override
     protected boolean accepti() {
         //CellDefine <- "`celldefine" /  "`endcelldefine"
+        final Marker start = getStartMark();
         PrioritizedChoice p1 = new PrioritizedChoice(new CharSeq("`celldefine"),
                 new CharSeq("`endcelldefine"));
         boolean match = (null != (p1 = match(p1)));
         if (match) {
             m_isBegin = (0 == p1.whichAccepted());
             m_text = super.toString();
+            Helper.getTheOne().replace(start);
         }
         return match;
     }

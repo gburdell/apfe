@@ -7,6 +7,7 @@ import apfe.runtime.State;
 import apfe.runtime.Token;
 import apfe.dsl.vlogpp.WriterThread;
 import apfe.sv2009.generated.*;
+import gblib.Util;
 import static gblib.Util.error;
 import java.io.IOException;
 import java.io.PipedReader;
@@ -31,7 +32,7 @@ public class Main {
             SvScanner toks = new SvScanner(fn);
             process(toks);
         } catch (IOException ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Util.abnormalExit(ex);
         }
     }
 
@@ -84,7 +85,7 @@ public class Main {
                 m_ins = new PipedReader(src, stBufSz);
                 m_toks = new SvScanner(m_ins);
             } catch (IOException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+                Util.abnormalExit(ex);
             }
         }
 
@@ -98,7 +99,7 @@ public class Main {
             try {
                 m_ins.close();
             } catch (IOException ex) {
-                Logger.getLogger(MtMain.class.getName()).log(Level.SEVERE, null, ex);
+                Util.abnormalExit(ex);
             }
         }
 

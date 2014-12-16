@@ -93,7 +93,7 @@ public class Grammar extends Acceptor {
             }
             assert(result);
         } catch (Exception ex) {
-            Logger.getLogger(Grammar.class.getName()).log(Level.SEVERE, null, ex);
+            gblib.Util.abnormalExit(ex);
         }
     }
 }

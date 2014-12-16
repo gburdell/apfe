@@ -23,12 +23,11 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
 
 /**
  *
@@ -36,12 +35,14 @@ import apfe.runtime.Util;
  */
 public class ResetAll extends Acceptor {
 
-   @Override
+    @Override
     protected boolean accepti() {
         //ResetAll <- "`resetall"
-        boolean match = (new CharSeq("`resetall")).acceptTrue();
+         final Marker start = getStartMark();
+       boolean match = (new CharSeq("`resetall")).acceptTrue();
         if (match) {
             m_text = super.toString();
+            Helper.getTheOne().replace(start);
         }
         return match;
     }
@@ -51,6 +52,7 @@ public class ResetAll extends Acceptor {
     public String toString() {
         return m_text;
     }
+
     @Override
     public Acceptor create() {
         return new ResetAll();

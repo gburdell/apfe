@@ -41,7 +41,7 @@ public class ListOfFormalArguments extends Acceptor {
 
     @Override
     protected boolean accepti() {
-        //ListOfFormalArguments <- FormalArgument (Spacing ',' FormalArgument)*
+        //ListOfFormalArguments <- FormalArgument (Spacing ',' FormalArgument)* Spacing
         FormalArgument f1 = new FormalArgument();
         boolean match = (null != (f1 = match(f1)));
         if (match) {
@@ -53,6 +53,8 @@ public class ListOfFormalArguments extends Acceptor {
             assert match;
             Util.extractList(r1, 2, m_fargs);
             m_str = super.toString();
+            match &= (new Spacing()).acceptTrue();
+            assert match;
         }
         return match;
     }

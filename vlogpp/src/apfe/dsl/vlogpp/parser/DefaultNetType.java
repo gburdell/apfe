@@ -23,6 +23,7 @@
  */
 package apfe.dsl.vlogpp.parser;
 
+import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
@@ -42,6 +43,7 @@ public class DefaultNetType extends Acceptor {
         //DefaultNetType <- "`default_nettype" Spacing
         //  ("wire" / "tri0" / "tri1" / "wand" / "triand" / "wor" / "trior" 
         //  / "trireg" / "uwire" / "none" / "tri")
+        final Marker start = getStartMark();
         PrioritizedChoice p1 = new PrioritizedChoice(new CharSeq("wire"),
                 new CharSeq("tri0"), new CharSeq("tri1"),
                 new CharSeq("wand"), new CharSeq("triand"),
@@ -53,6 +55,7 @@ public class DefaultNetType extends Acceptor {
         if (match) {
             m_type = Util.extractEleAsString(s1, 2);
             m_text = super.toString();
+            Helper.getTheOne().replace(start);
         }
         return match;
     }

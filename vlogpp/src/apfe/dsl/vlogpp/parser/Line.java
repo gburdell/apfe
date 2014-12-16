@@ -50,7 +50,7 @@ public class Line extends Acceptor {
                 new CharClass(CharClass.matchOneOf("012")));
         boolean match = (null != (s1 = match(s1)));
         match &= (new RestOfLine()).acceptTrue();
-        if (match) {
+        if (match && Helper.getTheOne().getConditionalAllow()) {
             m_fname = Util.extractEleAsString(s1, 4);
             m_lnum = Integer.parseInt(Util.extractEleAsString(s1, 2));
             m_type = Integer.parseInt(Util.extractEleAsString(s1, 6));

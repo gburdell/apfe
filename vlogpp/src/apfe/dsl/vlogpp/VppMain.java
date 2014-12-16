@@ -27,6 +27,7 @@ import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.Acceptor;
 import apfe.runtime.ParseError;
 import apfe.runtime.CharBufState;
+import gblib.Util;
 import static gblib.Util.asEmpty;
 import static gblib.Util.nl;
 import static gblib.Util.info;
@@ -129,7 +130,7 @@ public class VppMain {
                 Helper.info(1, "VPPE-1", stDumpVpp);
                 vpp = new PrintWriter(stDumpVpp);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(VppMain.class.getName()).log(Level.SEVERE, null, ex);
+                Util.abnormalExit(ex);
             }
         }
         for (String fn : srcs) {
