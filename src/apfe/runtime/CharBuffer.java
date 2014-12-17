@@ -34,6 +34,23 @@ import static gblib.Util.downCast;
  */
 public class CharBuffer {
 
+    /**
+     * Create buffer associated with 'fname'.  Buffer size is determined
+     * by (1+extra) * buf.size.
+     * @param fname filename associated with buffer.
+     * @param buf initial size of buffer.
+     * @param extra extra size scaling factor.
+     */
+    public CharBuffer(String fname, CharSequence buf, float extra) {
+        reset(fname, 1);
+        final int n = buf.length();
+        int sz = (int) ((1 + extra) * n);
+        assert sz >= n;
+        m_buf = new StringBuilder(sz);
+        m_buf.append(buf);
+        assert n == m_buf.length();
+    }
+
     public CharBuffer(String fname, CharSequence buf) {
         this(fname, new StringBuilder(buf));
     }
@@ -45,7 +62,7 @@ public class CharBuffer {
         m_col = m_pos = 0;
     }
 
-    public void reset(String fname, int lnum) {
+    public final void reset(String fname, int lnum) {
         m_fname = fname;
         m_lnum = lnum;
         m_col = 0;
