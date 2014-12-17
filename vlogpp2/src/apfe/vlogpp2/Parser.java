@@ -52,7 +52,7 @@ public class Parser {
         char c;
         try {
             while (true) {
-                c = m_buf.la();
+                c = la();
                 if (CharBuffer.EOF == c) {
                     break;  //while
                 }
@@ -68,8 +68,10 @@ public class Parser {
             }
         } catch (ParseException ex) {
             ok = false;
+            ex.printErrorMsg();
         } finally {
-            m_os.flush();
+            //remember, finally blocks always execute
+            flush();
         }
         //TODO: Get here via EOF, ????
         return ok;
@@ -79,6 +81,7 @@ public class Parser {
 
         /**
          * Parser exception.
+         *
          * @param msg message code.
          * @param args args[0] is MarkerImpl of location.
          */
@@ -89,11 +92,12 @@ public class Parser {
 
         private void printErrorMsg() {
             MarkerImpl mark = Util.downCast(m_args[0]);
-            final String loc = gblib.File.getCanonicalName(mark.getFileName()) 
+            final String loc = gblib.File.getCanonicalName(mark.getFileName())
                     + ":" + mark.toString();
             m_args[0] = loc;
             Helper.error(m_msg, m_args);
         }
+
         private final String m_msg;
         private final Object[] m_args;
     }
@@ -106,19 +110,38 @@ public class Parser {
     private boolean blockComment() throws ParseException {
         final boolean ok = match("/*");
         if (ok) {
-            final MarkerImpl begin = Util.downCast(m_buf.mark());
+            final MarkerImpl begin = getMark();
             char c;
             while (true) {
-                c = m_buf.accept();
+                c = accept();
                 if (CharBuffer.EOF == c) {
                     throw new ParseException("VPP-CMNT-1", begin);
                 }
                 if (CharBuffer.NL == c) {
                     c = stNL;
+                } else if (match("*/")) {
+                    print("*/");
+                    break;
                 }
-                m_os.print(c);
+                print(c);
             }
-            m_os.flush();
+            flush();
+        }
+        return ok;
+    }
+
+    private boolean string() {
+        final boolean ok = la() == '"';
+        if (ok) {
+            final MarkerImpl mark = getMark();
+            char c = accept();
+            while (true) {
+                c = accept();
+                if ('\\' == c) {
+                    //what are we escaping?
+                    c = accept();
+                }
+            }
         }
         return ok;
     }
@@ -128,27 +151,68 @@ public class Parser {
         if (ok) {
             char c;
             while (true) {
-                c = m_buf.accept();
+                c = accept();
                 if (CharBuffer.EOF == c) {
                     break;
                 }
                 if (CharBuffer.NL == c) {
                     c = stNL;
                 }
-                m_os.print(c);
+                print(c);
             }
-            m_os.flush();
+            flush();
         }
         return ok;
     }
 
-    private boolean match(final String to) {
+    private boolean match(final String to, final boolean doAccept) {
         for (int i = 0; i < to.length(); i++) {
-            if (m_buf.la(i) != to.charAt(i)) {
+            if (la(i) != to.charAt(i)) {
                 return false;
             }
         }
+        if (doAccept) {
+            accept(to.length());
+        }
         return true;
+    }
+
+    private void flush() {
+        m_os.flush();
+    }
+    
+    private void print(final char c) {
+        //TODO: printing may be blocked if in conditional
+        m_os.print(c);
+    }
+
+    private void print(final String s) {
+        //TODO: printing may be blocked if in conditional
+        m_os.print(s);
+    }
+
+    private boolean match(final String to) {
+        return match(to, true);
+    }
+
+    private MarkerImpl getMark() {
+        return Util.downCast(m_buf.mark());
+    }
+
+    private char accept() {
+        return m_buf.accept();
+    }
+
+    private char accept(final int n) {
+        return m_buf.accept(n);
+    }
+
+    private char la() {
+        return m_buf.la();
+    }
+
+    private char la(final int n) {
+        return m_buf.la(n);
     }
 
     private static enum EState {
