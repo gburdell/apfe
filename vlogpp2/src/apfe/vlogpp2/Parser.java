@@ -56,14 +56,12 @@ public class Parser {
                 if (CharBuffer.EOF == c) {
                     break;  //while
                 }
-                switch (m_state) {
-                    case eStart:
-                        if (!lineComment()) {
-                            if (!blockComment()) {
+                if (!string()) {
+                    if (!lineComment()) {
+                        if (!blockComment()) {
 
-                            }
                         }
-                    default:
+                    }
                 }
             }
         } catch (ParseException ex) {
@@ -106,6 +104,14 @@ public class Parser {
         final String loc = gblib.File.getCanonicalName(mark.getFileName()) + ":" + mark.toString();
         Helper.error(msg, loc);
     }
+    
+    private boolean ticDirective() {
+        final boolean ok = ('`' == la());
+        if (match("`include")) {
+            
+        }
+        return ok;
+    }
 
     private boolean blockComment() throws ParseException {
         final boolean ok = match("/*");
@@ -117,11 +123,9 @@ public class Parser {
                 if (CharBuffer.EOF == c) {
                     throw new ParseException("VPP-CMNT-1", begin);
                 }
-                if (CharBuffer.NL == c) {
-                    c = stNL;
-                } else if (match("*/")) {
+                if (match("*/")) {
                     print("*/");
-                    break;
+                    break;  //while
                 }
                 print(c);
             }
@@ -166,10 +170,10 @@ public class Parser {
                 if (CharBuffer.EOF == c) {
                     break;
                 }
-                if (CharBuffer.NL == c) {
-                    c = stNL;
-                }
                 print(c);
+                if (CharBuffer.NL == c) {
+                    break;  //while
+                }
             }
             flush();
         }
@@ -228,18 +232,10 @@ public class Parser {
         return m_buf.la(n);
     }
 
-    private static enum EState {
-
-        eStart, eBlockComment
-    }
-
     private void reset() {
-        m_state = EState.eStart;
+        ;
     }
 
-    private static final char stNL = '\n';
-
-    private EState m_state;
     private final CharBuffer m_buf;
     private final PrintWriter m_os;
 }
