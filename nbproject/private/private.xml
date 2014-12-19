@@ -56,7 +56,7 @@
         <group>
             <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/InputStream.java</file>
             <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/CharBuffer.java</file>
-            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Marker.java</file>
+            <file>file:/home/gburdell/projects/apfe/src/apfe/runtime/Space.java</file>
         </group>
     </open-files>
 </project-private>

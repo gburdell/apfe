@@ -28,6 +28,7 @@ import apfe.runtime.CharBuffer.MarkerImpl;
 import apfe.runtime.Marker;
 import gblib.Util;
 import java.io.PrintWriter;
+import java.util.Stack;
 
 /**
  * Parser object associated with CharBuffer.
@@ -59,7 +60,9 @@ public class Parser {
                 if (!string()) {
                     if (!lineComment()) {
                         if (!blockComment()) {
-
+                            if ('`' == la()) {
+                                ticDirective();
+                            }
                         }
                     }
                 }
@@ -88,6 +91,10 @@ public class Parser {
             m_args = args;
         }
 
+        private ParseException(final String msg) {
+            this(msg, getMark());
+        }
+
         private void printErrorMsg() {
             MarkerImpl mark = Util.downCast(m_args[0]);
             final String loc = gblib.File.getCanonicalName(mark.getFileName())
@@ -104,11 +111,55 @@ public class Parser {
         final String loc = gblib.File.getCanonicalName(mark.getFileName()) + ":" + mark.toString();
         Helper.error(msg, loc);
     }
-    
-    private boolean ticDirective() {
-        final boolean ok = ('`' == la());
-        if (match("`include")) {
-            
+
+    private char expect(final String oneOf) throws ParseException {
+        final char c = la();
+        if (0 > oneOf.indexOf(c)) {
+            throw new ParseException("VPP-ERR-1", getMark(), oneOf, c);
+        }
+        return accept();
+    }
+
+    private void ticDirective() throws ParseException {
+        //dont echo out anything while processing the directives.
+        m_noPrint = true;
+        if (!ticInclude()) {
+
+        }
+        m_noPrint = false;
+    }
+
+    private boolean ticInclude() throws ParseException {
+        final boolean ok = match("`include");
+        if (ok) {
+            spacing();
+            final MarkerImpl begin = getMark();
+            char ends[] = {expect("\"<"), '\0'};
+            StringBuilder path = new StringBuilder();
+            char c;
+            while (true) {
+                c = accept();
+                if (('"' != c) && ('>' != c)) {
+                    if (CharBuffer.NL == c) {
+                        throw new ParseException("VPP-NL-1");
+                    }
+                    path.append(c);
+                } else if (CharBuffer.EOF != c) {
+                    ends[1] = c;
+                    break;
+                } else {
+                    throw new ParseException("VPP-EOF-2", begin);
+                }
+            }
+            if (ends[0] != ends[1]) {
+                throw new ParseException("VPP-FNAME-1", begin, ends[0], ends[1]);
+            }
+            spacing(true); //rest of line
+            final String inclFname = path.toString().trim();
+            if (inclFname.isEmpty()) {
+                throw new ParseException("VPP-FNAME-2", begin);
+            }
+            //TODO look for file.
         }
         return ok;
     }
@@ -118,6 +169,7 @@ public class Parser {
         if (ok) {
             final MarkerImpl begin = getMark();
             char c;
+            print("/*");
             while (true) {
                 c = accept();
                 if (CharBuffer.EOF == c) {
@@ -138,14 +190,15 @@ public class Parser {
         final boolean ok = la() == '"';
         char la;
         if (ok) {
-            final MarkerImpl mark = getMark();
+            final MarkerImpl begin = getMark();
             char c = accept();
+            print(c);
             while (true) {
                 c = accept();
                 if ('\\' == c) {
                     la = accept();
                     if (CharBuffer.EOF == la) {
-                        throw new ParseException("VPP-EOF-1", getMark());
+                        throw new ParseException("VPP-EOF-1", begin);
                     }
                     print(c).print(la);
                 } else if (CharBuffer.EOF != c) {
@@ -154,7 +207,7 @@ public class Parser {
                         break; //while
                     }
                 } else {
-                    throw new ParseException("VPP-EOF-1", getMark());
+                    throw new ParseException("VPP-EOF-1", begin);
                 }
             }
         }
@@ -164,6 +217,7 @@ public class Parser {
     private boolean lineComment() {
         final boolean ok = match("//");
         if (ok) {
+            print("//");
             char c;
             while (true) {
                 c = accept();
@@ -180,6 +234,47 @@ public class Parser {
         return ok;
     }
 
+    /**
+     * Process ([ \t\n]|comment)*
+     * @param untilNl if true, slurp until 1st newline; else keep going until
+     * no more spacing.
+     */
+    private void spacing(final boolean untilNl) throws ParseException {
+        boolean stay = true;
+        char c;
+        while (stay) {
+            c = la();
+            switch (c) {
+                case '\n':
+                    stay = !untilNl;    //done on 1st newline detect if untilNl
+                    //fall through
+                case '\t':
+                case ' ':
+                    print(accept());
+                    break;
+                default:
+                    if (!lineComment()) {
+                        if (!blockComment()) {
+                            stay = false;
+                        }
+                    }
+            }
+        }
+    }
+    
+    private void spacing() throws ParseException {
+        spacing(false);
+    }
+
+    /**
+     * Attempt to match string.
+     * <B>No characters are printed here.</B>
+     *
+     * @param to string to match.
+     * @param doAccept accept characters from buffer if true; else characters
+     * are left in buffer (and current position does not advance).
+     * @return true if exact match.
+     */
     private boolean match(final String to, final boolean doAccept) {
         for (int i = 0; i < to.length(); i++) {
             if (la(i) != to.charAt(i)) {
@@ -198,13 +293,17 @@ public class Parser {
 
     private Parser print(final char c) {
         //TODO: printing may be blocked if in conditional
-        m_os.print(c);
+        if (!m_noPrint) {
+            m_os.print(c);
+        }
         return this;
     }
 
     private Parser print(final String s) {
         //TODO: printing may be blocked if in conditional
-        m_os.print(s);
+        if (!m_noPrint) {
+            m_os.print(s);
+        }
         return this;
     }
 
@@ -236,6 +335,24 @@ public class Parser {
         ;
     }
 
-    private final CharBuffer m_buf;
+    /**
+     * Make 'buf' current buffer. If we have an existing buffer, it is pushed
+     * onto stack.
+     *
+     * @param buf new current buffer.
+     * @return current buffer.
+     */
+    private CharBuffer push(final CharBuffer buf) {
+        if (null != m_buf) {
+            m_bufStk.push(m_buf);
+        }
+        m_buf = buf;
+        return m_buf;
+    }
+
+    private final Stack<CharBuffer> m_bufStk = new Stack<>();
+    private CharBuffer m_buf;
     private final PrintWriter m_os;
+    //Disable printing during "in-between" processing.
+    private boolean m_noPrint;
 }
