@@ -130,16 +130,27 @@ public class Parser {
         return ok;
     }
 
-    private boolean string() {
+    private boolean string() throws ParseException {
         final boolean ok = la() == '"';
+        char la;
         if (ok) {
             final MarkerImpl mark = getMark();
             char c = accept();
             while (true) {
                 c = accept();
                 if ('\\' == c) {
-                    //what are we escaping?
-                    c = accept();
+                    la = accept();
+                    if (CharBuffer.EOF == la) {
+                        throw new ParseException("VPP-EOF-1", getMark());
+                    }
+                    print(c).print(la);
+                } else if (CharBuffer.EOF != c) {
+                    print(c);
+                    if ('"' == c) {
+                        break; //while
+                    }
+                } else {
+                    throw new ParseException("VPP-EOF-1", getMark());
                 }
             }
         }
@@ -180,15 +191,17 @@ public class Parser {
     private void flush() {
         m_os.flush();
     }
-    
-    private void print(final char c) {
+
+    private Parser print(final char c) {
         //TODO: printing may be blocked if in conditional
         m_os.print(c);
+        return this;
     }
 
-    private void print(final String s) {
+    private Parser print(final String s) {
         //TODO: printing may be blocked if in conditional
         m_os.print(s);
+        return this;
     }
 
     private boolean match(final String to) {
