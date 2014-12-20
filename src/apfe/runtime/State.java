@@ -38,7 +38,13 @@ public abstract class State {
     }
 
     protected static void init(State theOne) {
-        assert null == stTheOne;
+        init(theOne, false);
+    }
+
+    protected static void init(State theOne, boolean replace) {
+        if (!replace) {
+            assert null == stTheOne;
+        }
         clear();
         stTheOne = theOne;
     }
@@ -46,16 +52,16 @@ public abstract class State {
     public static void clear() {
         ParseError.reset();
         Memoize.reset();
-        stTheOne = null;        
+        stTheOne = null;
     }
-    
+
     static {
         String fname = System.getProperty("apfe.messages");
         if (null != fname) {
             addMessages(fname);
         }
     }
-    
+
     private static State stTheOne;
 
     public abstract String getFileName();

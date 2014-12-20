@@ -23,12 +23,17 @@
  */
 package apfe.vlogpp2;
 
+import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.MarkerImpl;
-import apfe.runtime.Marker;
+import apfe.runtime.InputStream;
 import gblib.Util;
+import gblib.File;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Parser object associated with CharBuffer.
@@ -55,7 +60,9 @@ public class Parser {
             while (true) {
                 c = la();
                 if (CharBuffer.EOF == c) {
-                    break;  //while
+                    if (!pop()) {
+                        break;  //while
+                    }
                 }
                 if (!string()) {
                     if (!lineComment()) {
@@ -96,19 +103,24 @@ public class Parser {
         }
 
         private void printErrorMsg() {
-            MarkerImpl mark = Util.downCast(m_args[0]);
-            final String loc = gblib.File.getCanonicalName(mark.getFileName())
-                    + ":" + mark.toString();
-            m_args[0] = loc;
+            if (null != m_args[0]) {
+                MarkerImpl mark = Util.downCast(m_args[0]);
+                final String loc = gblib.File.getCanonicalPath(mark.getFileName())
+                        + ":" + mark.toString();
+                m_args[0] = loc;
+            } else {
+                //skip the [0]==null
+                m_args = Arrays.copyOfRange(m_args, 1, m_args.length);
+            }
             Helper.error(m_msg, m_args);
         }
 
         private final String m_msg;
-        private final Object[] m_args;
+        private Object[] m_args;
     }
 
     private void error(final String msg, final MarkerImpl mark) {
-        final String loc = gblib.File.getCanonicalName(mark.getFileName()) + ":" + mark.toString();
+        final String loc = gblib.File.getCanonicalPath(mark.getFileName()) + ":" + mark.toString();
         Helper.error(msg, loc);
     }
 
@@ -124,11 +136,22 @@ public class Parser {
         //dont echo out anything while processing the directives.
         m_noPrint = true;
         if (!ticInclude()) {
-
+            //setup apfe parsing: connect buffer to apfe's singleton state.
+            CharBufState.create(m_buf, true);
+            //TODO: use vlogpp apfe-based...
         }
         m_noPrint = false;
     }
 
+    /**
+     * Attempt to match and process `include.
+     * I just happened to flush/detail this implementation before
+     * switching over to apfe/vlogpp ones, so we're a bit inconsistent
+     * in ways tic-directives processed.  There are better error detects
+     * here (than in apfe/vlogpp one, so another reason to stick w/ this one.
+     * @return true if matched.
+     * @throws apfe.vlogpp2.Parser.ParseException 
+     */
     private boolean ticInclude() throws ParseException {
         final boolean ok = match("`include");
         if (ok) {
@@ -159,7 +182,16 @@ public class Parser {
             if (inclFname.isEmpty()) {
                 throw new ParseException("VPP-FNAME-2", begin);
             }
-            //TODO look for file.
+            //dont process further if conditional blocks us
+            if (condTrue()) {
+                final Location loc = Location.create(begin);
+                File incl = Helper.getTheOne().getInclFile(loc, inclFname);
+                if (null == incl) {
+                    throw new ParseException("VPP-INCL-4", begin, inclFname);
+                }
+                //start new buffer
+                push(incl);
+            }
         }
         return ok;
     }
@@ -235,9 +267,11 @@ public class Parser {
     }
 
     /**
-     * Process ([ \t\n]|comment)*
-     * @param untilNl if true, slurp until 1st newline; else keep going until
-     * no more spacing.
+     * Process ([ \t\n]|comment)
+     *
+     *
+     * @param untilNl if true, slurp until 1st newline; else keep going until no
+     * more spacing.
      */
     private void spacing(final boolean untilNl) throws ParseException {
         boolean stay = true;
@@ -245,9 +279,9 @@ public class Parser {
         while (stay) {
             c = la();
             switch (c) {
-                case '\n':
+                case CharBuffer.NL:
                     stay = !untilNl;    //done on 1st newline detect if untilNl
-                    //fall through
+                //fall through
                 case '\t':
                 case ' ':
                     print(accept());
@@ -261,7 +295,7 @@ public class Parser {
             }
         }
     }
-    
+
     private void spacing() throws ParseException {
         spacing(false);
     }
@@ -292,17 +326,22 @@ public class Parser {
     }
 
     private Parser print(final char c) {
-        //TODO: printing may be blocked if in conditional
-        if (!m_noPrint) {
+        if (!m_noPrint && condTrue()) {
             m_os.print(c);
         }
         return this;
     }
 
     private Parser print(final String s) {
-        //TODO: printing may be blocked if in conditional
-        if (!m_noPrint) {
+        if (!m_noPrint && condTrue()) {
             m_os.print(s);
+        }
+        return this;
+    }
+
+    private Parser print(final int v) {
+        if (!m_noPrint && condTrue()) {
+            m_os.print(v);
         }
         return this;
     }
@@ -335,19 +374,57 @@ public class Parser {
         ;
     }
 
-    /**
-     * Make 'buf' current buffer. If we have an existing buffer, it is pushed
-     * onto stack.
-     *
-     * @param buf new current buffer.
-     * @return current buffer.
-     */
-    private CharBuffer push(final CharBuffer buf) {
+    private void push(final File fn) throws ParseException {
+        assert condTrue();
+        //start new buffer
+        m_noPrint = false;
+        final CharBuffer newBuf;
+        try {
+            newBuf = InputStream.create(fn.getFilename());
+        } catch (Exception ex) {
+            throw new ParseException("VPP-FILE-1", null, fn.getCanonicalPath(), "read");
+        }
+        print("`line 1 \"").print(fn.getCanonicalPath()).print("\" 1\n");
         if (null != m_buf) {
+            if (m_bufStk.size() == stMaxInclDepth) {
+                throw new ParseException("VPP-INCL-6", null, stMaxInclDepth);
+            }
             m_bufStk.push(m_buf);
         }
-        m_buf = buf;
-        return m_buf;
+        m_buf = newBuf;
+    }
+
+    /**
+     * Upon EOF, we will pop a CharBuffer, or do nothing if stack empty.
+     *
+     * @return true if pop and new CharBuffer, else false.
+     */
+    private boolean pop() {
+        assert condTrue();
+        final boolean ok = !m_bufStk.empty();
+        if (ok) {
+            m_buf = m_bufStk.pop();
+            m_noPrint = false;
+            final String fname = File.getCanonicalPath(m_buf.getFileName());
+            print("`line ").print(m_buf.getLine()).print(" \"").print(fname)
+                    .print("\" 2\n");
+        } else {
+            m_buf = null;   //we're done
+        }
+        return ok;
+    }
+
+    //Maximum include nested depth.
+    private static final int stMaxInclDepth = 16;
+
+    /**
+     * Indicate that last conditional `ifdef/`else/... evaluation is true so we
+     * can print/evaluate `include, ...
+     *
+     * @return true if last conditional evaluated true.
+     */
+    private boolean condTrue() {
+        return Helper.getTheOne().getConditionalAllow();
     }
 
     private final Stack<CharBuffer> m_bufStk = new Stack<>();

@@ -20,6 +20,7 @@ VPP-INCL-2 location %d: %s
 VPP-INCL-3 include file nesting exceeds %d levels
 VPP-INCL-4 %s: cannot find include file '%s'
 VPP-INCL-5 %s: found include file '%s'
+VPP-INCL-6 include file depth > %d
 VPP-MAC-1 '-D %s' transformed to '-D %s'
 VPP-NL-1 %s: unexpected newline
 VPP-NODEFN %s: no definition for macro instance '%s'

@@ -23,8 +23,7 @@
  */
 package apfe.vlogpp2;
 
-import apfe.runtime.CharBuffer;
-import apfe.runtime.CharBufState;
+import apfe.runtime.CharBuffer.MarkerImpl;
 import gblib.File;
 
 /**
@@ -47,18 +46,17 @@ public class Location {
         m_col = col;
     }
 
+    /**
+     * Create Location from MarkerImpl.
+     * @param mark the mark to convert.
+     * @return Location equivalent of mark.
+     */
+    public static Location create(final MarkerImpl mark) {
+        return new Location(mark.getFileName(), mark.getLnum(), mark.getCol());
+    }
+    
     public String getFilename() {
         return m_fname;
-    }
-
-    /**
-     * Get current location.
-     *
-     * @return current location.
-     */
-    public static Location getCurrent() {
-        CharBuffer cbuf = CharBufState.asMe().getBuf();
-        return new Location(cbuf.getFileName(), cbuf.getLine(), cbuf.getCol());
     }
 
     @Override
@@ -67,7 +65,7 @@ public class Location {
     }
 
     public String toStringAbsFn() {
-        return File.getCanonicalName(m_fname) + ":" + m_lnum + ":" + m_col;
+        return File.getCanonicalPath(m_fname) + ":" + m_lnum + ":" + m_col;
     }
 
     @Override

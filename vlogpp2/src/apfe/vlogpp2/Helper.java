@@ -23,7 +23,6 @@
  */
 package apfe.vlogpp2;
 
-import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.Marker;
 import static apfe.runtime.CharBuffer.NL;
@@ -32,12 +31,10 @@ import apfe.runtime.Memoize;
 import apfe.runtime.CharBufState;
 import gblib.MessageMgr;
 import gblib.Util;
-import java.io.File;
+import gblib.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Toplevel object/singleton for vlogpp system.
@@ -183,7 +180,7 @@ public class Helper {
      * @return first valid include file (or null).
      */
     public File getInclFile(Location loc, String fnm) {
-        List<gblib.File> cands = m_inclDirs.findInclFile(fnm);
+        List<File> cands = m_inclDirs.findInclFile(fnm);
         if (stWarnOnMultipleInclude && (1 < cands.size())) {
             warning("VPP-INCL-1", loc, fnm, cands.size());
             int i = 1;

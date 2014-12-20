@@ -35,10 +35,14 @@ public class CharBufState extends State {
         return downCast(getTheOne());
     }
     
-    public static CharBufState create(CharBuffer buf) {
+    public static CharBufState create(CharBuffer buf, boolean replace) {
         CharBufState ele = new CharBufState(buf);
-        init(ele);
+        init(ele, replace);
         return asMe();
+    }
+    
+    public static CharBufState create(CharBuffer buf) {
+        return create(buf, false);
     }
 
     private CharBufState(CharBuffer buf) {

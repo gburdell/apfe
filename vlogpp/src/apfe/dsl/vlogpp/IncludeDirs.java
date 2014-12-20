@@ -102,12 +102,9 @@ public class IncludeDirs {
         }
         List<File> rvals = Collections.unmodifiableList(new LinkedList(rval));
         if (!rvals.isEmpty()) {
-            try {
-                //we'll just take the first one.
-                m_usedInclFiles.add(rvals.get(0).getCanonicalPath());
-            } catch (IOException ex) {
-                ;//do nothing
-            }
+            //do nothing
+            
+            m_usedInclFiles.add(rvals.get(0).getCanonicalPath());
         }
         return rvals;
     }

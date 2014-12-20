@@ -67,7 +67,7 @@ public class Location {
     }
 
     public String toStringAbsFn() {
-        return File.getCanonicalName(m_fname) + ":" + m_lnum + ":" + m_col;
+        return File.getCanonicalPath(m_fname) + ":" + m_lnum + ":" + m_col;
     }
 
     @Override
