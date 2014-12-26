@@ -21,6 +21,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 package apfe.dsl.vlogpp;
+import gblib.Pair;
 import apfe.dsl.vlogpp.parser.FormalArgument;
 import apfe.dsl.vlogpp.parser.ListOfFormalArguments;
 import  java.util.*;

@@ -23,6 +23,7 @@
  */
 package apfe.vlogpp2;
 
+import apfe.runtime.Acceptor;
 import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.MarkerImpl;
@@ -32,8 +33,6 @@ import gblib.File;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Parser object associated with CharBuffer.
@@ -41,6 +40,23 @@ import java.util.logging.Logger;
  * @author gburdell
  */
 public class Parser {
+
+    public static void main(final String argv[]) {
+        final PrintWriter pw = new PrintWriter(System.out, true);
+        for (String f : argv) {
+            try {
+                final CharBuffer cbuf = InputStream.create(f);
+                final boolean ok = parse(cbuf, pw);
+            } catch (Exception ex) {
+                Util.abnormalExit(ex);
+            }
+        }
+    }
+
+    public static boolean parse(final CharBuffer cbuf, final PrintWriter os) {
+        final Parser parser = new Parser(cbuf, os);
+        return parser.parse();
+    }
 
     public Parser(final CharBuffer cbuf, final PrintWriter os) {
         m_buf = cbuf;
@@ -67,8 +83,11 @@ public class Parser {
                 if (!string()) {
                     if (!lineComment()) {
                         if (!blockComment()) {
-                            if ('`' == la()) {
+                            if ('`' == c) {
                                 ticDirective();
+                            } else {
+                                c = accept();
+                                print(c);
                             }
                         }
                     }
@@ -138,19 +157,26 @@ public class Parser {
         if (!ticInclude()) {
             //setup apfe parsing: connect buffer to apfe's singleton state.
             CharBufState.create(m_buf, true);
-            //TODO: use vlogpp apfe-based...
+            AcceptorWithLocation acc;
+            boolean match = false;
+            if (match("`define", false)) {
+                acc = new TicDefine(getMark());
+                match = acc.acceptTrue();
+            }
+            assert match;
         }
         m_noPrint = false;
     }
 
     /**
-     * Attempt to match and process `include.
-     * I just happened to flush/detail this implementation before
-     * switching over to apfe/vlogpp ones, so we're a bit inconsistent
-     * in ways tic-directives processed.  There are better error detects
-     * here (than in apfe/vlogpp one, so another reason to stick w/ this one.
+     * Attempt to match and process `include. I just happened to flush/detail
+     * this implementation before switching over to apfe/vlogpp ones, so we're a
+     * bit inconsistent in ways tic-directives processed. There are better error
+     * detects here (than in apfe/vlogpp one, so another reason to stick w/ this
+     * one.
+     *
      * @return true if matched.
-     * @throws apfe.vlogpp2.Parser.ParseException 
+     * @throws apfe.vlogpp2.Parser.ParseException
      */
     private boolean ticInclude() throws ParseException {
         final boolean ok = match("`include");
@@ -203,13 +229,13 @@ public class Parser {
             char c;
             print("/*");
             while (true) {
-                c = accept();
-                if (CharBuffer.EOF == c) {
-                    throw new ParseException("VPP-CMNT-1", begin);
-                }
                 if (match("*/")) {
                     print("*/");
                     break;  //while
+                }
+                c = accept();
+                if (CharBuffer.EOF == c) {
+                    throw new ParseException("VPP-CMNT-1", begin);
                 }
                 print(c);
             }
@@ -350,6 +376,14 @@ public class Parser {
         return match(to, true);
     }
 
+    /*package*/ static Location getLocation(final MarkerImpl mark) {
+        return Location.create(mark);
+    }
+    
+    private Location getLocation() {
+        return getLocation(getMark());
+    }
+    
     private MarkerImpl getMark() {
         return Util.downCast(m_buf.mark());
     }

@@ -76,27 +76,28 @@ public class Helper {
      * @param fname source file to process.
      * @return Grammar instance to run acceptor() (or null on error).
      */
-    public Grammar start(String fname) {
-        CharBufState.clear();
-        Grammar gram = null;
-        m_fname = null;
-        try {
-            InputStream fins = new InputStream(fname);
-            CharBuffer cbuf = fins.newCharBuffer();
-            //Prepend `line
-            StringBuilder pfx = new StringBuilder("`line 1 \"");
-            pfx.append(fname).append("\" 0").append(NL);
-            cbuf.getBuf().insert(0, pfx);
-            CharBufState st = CharBufState.create(cbuf);
-            m_fname = fname;
-            gram = new Grammar();
-        } catch (Exception ex) {
-            //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-            error("VPP-FILE-1", fname, "read");
-        }
-        return gram;
-    }
-
+    /*NOT USED for now
+     public Grammar start(String fname) {
+     CharBufState.clear();
+     Grammar gram = null;
+     m_fname = null;
+     try {
+     InputStream fins = new InputStream(fname);
+     CharBuffer cbuf = fins.newCharBuffer();
+     //Prepend `line
+     StringBuilder pfx = new StringBuilder("`line 1 \"");
+     pfx.append(fname).append("\" 0").append(NL);
+     cbuf.getBuf().insert(0, pfx);
+     CharBufState st = CharBufState.create(cbuf);
+     m_fname = fname;
+     gram = new Grammar();
+     } catch (Exception ex) {
+     //Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+     error("VPP-FILE-1", fname, "read");
+     }
+     return gram;
+     }
+     */
     public String getFname() {
         return m_fname;
     }
@@ -112,7 +113,7 @@ public class Helper {
     public static CharBuffer getBuf() {
         return CharBufState.asMe().getBuf();
     }
-
+    
     /**
      * Replace current CharBuffer contents [start,current) with s. Optionally,
      * clear/invalidate any memoization too.
@@ -186,11 +187,7 @@ public class Helper {
             int i = 1;
             for (File f : cands) {
                 String absNm;
-                try {
-                    absNm = f.getCanonicalPath();
-                } catch (IOException ex) {
-                    absNm = f.getName();
-                }
+                absNm = f.getCanonicalPath();
                 warning("VPP-INCL-2", i++, absNm);
             }
         }

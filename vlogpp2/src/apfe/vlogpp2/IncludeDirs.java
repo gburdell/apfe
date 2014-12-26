@@ -24,7 +24,6 @@
 package apfe.vlogpp2;
 
 import gblib.File;
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -41,7 +40,7 @@ import java.util.Set;
  * @author gburdell
  */
 public class IncludeDirs {
-    
+
     public static IncludeDirs create(String dirNm) {
         IncludeDirs rval = new IncludeDirs();
         rval.add(dirNm);
@@ -102,56 +101,51 @@ public class IncludeDirs {
         }
         List<File> rvals = Collections.unmodifiableList(new LinkedList(rval));
         if (!rvals.isEmpty()) {
-            try {
-                //we'll just take the first one.
-                m_usedInclFiles.add(rvals.get(0).getCanonicalPath());
-            } catch (IOException ex) {
-                ;//do nothing
-            }
+            //we'll just take the first one.
+            m_usedInclFiles.add(rvals.get(0).getCanonicalPath());
         }
         return rvals;
     }
 
     /**
      * Get included files (in order they were referenced).
+     *
      * @return included files.
      */
     public List<String> getIncludedFiles() {
         return new LinkedList<>(m_usedInclFiles);
     }
-    
+
     private static boolean fileIsOK(File ff) {
         return ff.isFile() && ff.canRead();
     }
-    
+
     private static void fileReadError(final File f) {
         Helper.error("VPP-FILE-1", f.getName(), "read");
     }
-    
+
     /**
-     * Map of used by include directory.
-     * The backing list maintains the order paths are added.
-     * TODO: make sure this ordering policy is true.
+     * Map of used by include directory. The backing list maintains the order
+     * paths are added. TODO: make sure this ordering policy is true.
      */
-    private final Map<File,Boolean> m_usedByInclDir = new LinkedHashMap<>();
-    
+    private final Map<File, Boolean> m_usedByInclDir = new LinkedHashMap<>();
+
     /**
-     * Set of used include files.
-     * Keys are in order added.
+     * Set of used include files. Keys are in order added.
      */
     private final Set<String> m_usedInclFiles = new LinkedHashSet<>();
-    
+
     /**
-     * Set current file directory.
-     * This is used to handle `include of files which are local to the
-     * directory of the file being processed.
+     * Set current file directory. This is used to handle `include of files
+     * which are local to the directory of the file being processed.
+     *
      * @param fn current file being processed.
      */
     public static void setCurrentDir(String fn) {
         assert null == stCurrentDir;
         stCurrentDir = FileSystems.getDefault().getPath(fn).getParent();
     }
-    
+
     public static void resetCurrentDir() {
         stCurrentDir = null;
     }

@@ -20,46 +20,52 @@
 //LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
-package apfe.dsl.vlogpp;
-
-import java.util.StringTokenizer;
-import java.util.LinkedList;
-import java.util.List;
+package apfe.vlogpp2;
+import  java.util.*;
+import  gblib.Pair;
 
 /**
- *
- * @author karl
- * @param <T1> type of v1 element.
- * @param <T2> type of v2 element.
+ * A parameter name and its default value.
+ * 
+ * @author kpfalzer
  */
-public class Pair<T1, T2> {
-
-    /**
-     * Create list of Pair parsing key(=val)?
-     *
-     * @return list of pair from parsing.
-     */
-    public static List<Pair<String, String>> factory(
-            List<String> keyVals, String delim) {
-        List<Pair<String, String>> rval
-                = new LinkedList<>();
-        for (String kv : keyVals) {
-            StringTokenizer toks = new StringTokenizer(kv, delim);
-            String key = toks.nextToken();
-            String val = toks.hasMoreTokens() ? toks.nextToken() : null;
-            rval.add(new Pair<>(key, val));
+public class Parm extends Pair<String,String> {
+    public static List<Parm> createList(final ListOfFormalArguments lofas) {
+        List<Parm> rval = null;
+        if (null != lofas) {
+            List<FormalArgument> lofa = lofas.getFormalArgs();
+            if (null != lofa) {
+                rval = new LinkedList<>();
+                String idAndDflt[];
+                for (FormalArgument fa : lofa) {
+                    idAndDflt = fa.getIdAndDefaultText();
+                    rval.add(new Parm(idAndDflt[0], idAndDflt[1]));
+                }
+            }
         }
         return rval;
     }
-
-    public static List<Pair<String, String>> factory(List<String> keyVals) {
-        return factory(keyVals, "=");
+    public Parm(String parm) {
+        super(parm,null);
     }
 
-    public Pair(T1 v1, T2 v2) {
-        this.v1 = v1;
-        this.v2 = v2;
+    public Parm(String parm, String dflt) {
+        super(parm,dflt);
     }
-    public T1 v1;
-    public T2 v2;
+
+    public void setDefault(String dflt) {
+        super.v2 = dflt;
+    }
+
+    public String getParmName() {
+        return v1;
+    }
+
+    public String getDefault() {
+        return v2;
+    }
+
+    public boolean hasDefault() {
+        return (null != getDefault());
+    }
 }

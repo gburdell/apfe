@@ -24,7 +24,9 @@
 package apfe.vlogpp2;
 
 import apfe.runtime.CharBuffer.MarkerImpl;
+import static apfe.vlogpp2.Helper.getBuf;
 import gblib.File;
+import gblib.Util;
 
 /**
  * Detailed file location.
@@ -46,15 +48,20 @@ public class Location {
         m_col = col;
     }
 
+    public static Location getCurrent() {
+        return create(Util.downCast(getBuf().mark()));
+    }
+
     /**
      * Create Location from MarkerImpl.
+     *
      * @param mark the mark to convert.
      * @return Location equivalent of mark.
      */
     public static Location create(final MarkerImpl mark) {
         return new Location(mark.getFileName(), mark.getLnum(), mark.getCol());
     }
-    
+
     public String getFilename() {
         return m_fname;
     }

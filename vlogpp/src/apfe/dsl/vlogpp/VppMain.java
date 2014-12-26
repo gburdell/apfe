@@ -22,6 +22,7 @@
 //THE SOFTWARE.
 package apfe.dsl.vlogpp;
 
+import gblib.Pair;
 import apfe.dsl.vlogpp.ProcArgs.Spec.EType;
 import apfe.dsl.vlogpp.parser.Grammar;
 import apfe.runtime.Acceptor;

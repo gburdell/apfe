@@ -135,7 +135,7 @@ public class ParseError {
 
     private static Message getTopMessage2() {
         Message msg = null;
-        if (!m_fails.empty()) {
+        if (hasError()) {
             ParseError e = m_fails.peek();
             assert EType.eFoundExpecting == e.m_type;
             final String fn = e.m_loc.getFileName();
@@ -144,5 +144,9 @@ public class ParseError {
                     e.m_args[0], e.m_expecting);
         }
         return msg;
+    }
+    
+    public static boolean hasError() {
+        return !m_fails.empty();
     }
 }
