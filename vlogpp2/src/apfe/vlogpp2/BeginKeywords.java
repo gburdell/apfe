@@ -24,40 +24,39 @@
 package apfe.vlogpp2;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.MarkerImpl;
+import apfe.runtime.Marker;
+import apfe.runtime.CharSeq;
+import apfe.runtime.Sequence;
 
 /**
  *
  * @author gburdell
  */
-public abstract class AcceptorWithLocation extends Acceptor {
-    protected AcceptorWithLocation(final MarkerImpl loc) {
-        m_currLoc = loc;
+public class BeginKeywords extends Acceptor {
+
+    @Override
+    protected boolean accepti() {
+        //BeginKeywords <- "`begin_keywords" Spacing VString
+        final Marker start = getStartMark();
+        m_contents = new Sequence(new CharSeq("`begin_keywords"), new Spacing(),
+                new VString());
+        boolean match = (null != (m_contents = match(m_contents)));
+        if (match) {
+            m_text = super.toString();
+            Helper.getTheOne().replace(start);
+        }
+        return match;
     }
-    /*package*/ Location getLocation() {
-        return Parser.getLocation(m_currLoc);
+    private Sequence m_contents;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
     }
-    /*package*/ boolean hasError() {
-        return (null != m_errMsgCode) || hasParseError();
+
+    @Override
+    public Acceptor create() {
+        return new BeginKeywords();
     }
-    protected void setError(final String msgCode, final Object... args) {
-        m_errMsgCode = msgCode;
-        m_args = args;
-    }
-    protected void setParseError() {
-        m_hasParseError = true;
-    }
-    protected boolean hasParseError() {
-        return m_hasParseError;
-    }
-    /*package*/ String getMsgCode() {
-        return m_errMsgCode;
-    }
-    /*package*/ Object[] getMsgArgs() {
-        return m_args;
-    }
-    private final MarkerImpl m_currLoc;
-    private String m_errMsgCode;
-    private Object m_args[];
-    private boolean m_hasParseError = false;
 }

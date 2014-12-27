@@ -24,40 +24,41 @@
 package apfe.vlogpp2;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.MarkerImpl;
+import apfe.runtime.Marker;
+import apfe.runtime.CharSeq;
+import apfe.runtime.PrioritizedChoice;
 
 /**
  *
  * @author gburdell
  */
-public abstract class AcceptorWithLocation extends Acceptor {
-    protected AcceptorWithLocation(final MarkerImpl loc) {
-        m_currLoc = loc;
+public class CellDefine extends Acceptor {
+
+    @Override
+    protected boolean accepti() {
+        //CellDefine <- "`celldefine" /  "`endcelldefine"
+        final Marker start = getStartMark();
+        PrioritizedChoice p1 = new PrioritizedChoice(new CharSeq("`celldefine"),
+                new CharSeq("`endcelldefine"));
+        boolean match = (null != (p1 = match(p1)));
+        if (match) {
+            m_isBegin = (0 == p1.whichAccepted());
+            m_text = super.toString();
+            Helper.getTheOne().replace(start);
+        }
+        return match;
     }
-    /*package*/ Location getLocation() {
-        return Parser.getLocation(m_currLoc);
+
+    private boolean m_isBegin;
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
     }
-    /*package*/ boolean hasError() {
-        return (null != m_errMsgCode) || hasParseError();
+
+    @Override
+    public Acceptor create() {
+        return new CellDefine();
     }
-    protected void setError(final String msgCode, final Object... args) {
-        m_errMsgCode = msgCode;
-        m_args = args;
-    }
-    protected void setParseError() {
-        m_hasParseError = true;
-    }
-    protected boolean hasParseError() {
-        return m_hasParseError;
-    }
-    /*package*/ String getMsgCode() {
-        return m_errMsgCode;
-    }
-    /*package*/ Object[] getMsgArgs() {
-        return m_args;
-    }
-    private final MarkerImpl m_currLoc;
-    private String m_errMsgCode;
-    private Object m_args[];
-    private boolean m_hasParseError = false;
 }

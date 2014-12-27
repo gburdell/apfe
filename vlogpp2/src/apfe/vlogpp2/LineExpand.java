@@ -24,40 +24,34 @@
 package apfe.vlogpp2;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.MarkerImpl;
+import apfe.runtime.CharSeq;
 
 /**
  *
  * @author gburdell
  */
-public abstract class AcceptorWithLocation extends Acceptor {
-    protected AcceptorWithLocation(final MarkerImpl loc) {
-        m_currLoc = loc;
+public class LineExpand extends Acceptor {
+
+    @Override
+    protected boolean accepti() {
+        //LineExpand <- "`__LINE__"
+        boolean match = (new CharSeq("`__LINE__")).acceptTrue();
+        if (match) {
+            m_text = super.toString();
+            if (Helper.getTheOne().getConditionalAllow()) {
+				;//TODO
+			}
+        }
+        return match;
     }
-    /*package*/ Location getLocation() {
-        return Parser.getLocation(m_currLoc);
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
     }
-    /*package*/ boolean hasError() {
-        return (null != m_errMsgCode) || hasParseError();
+    @Override
+    public Acceptor create() {
+        return new LineExpand();
     }
-    protected void setError(final String msgCode, final Object... args) {
-        m_errMsgCode = msgCode;
-        m_args = args;
-    }
-    protected void setParseError() {
-        m_hasParseError = true;
-    }
-    protected boolean hasParseError() {
-        return m_hasParseError;
-    }
-    /*package*/ String getMsgCode() {
-        return m_errMsgCode;
-    }
-    /*package*/ Object[] getMsgArgs() {
-        return m_args;
-    }
-    private final MarkerImpl m_currLoc;
-    private String m_errMsgCode;
-    private Object m_args[];
-    private boolean m_hasParseError = false;
 }

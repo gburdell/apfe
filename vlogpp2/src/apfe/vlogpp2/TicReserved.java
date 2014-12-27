@@ -21,17 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.dsl.vlogpp.parser;
+package apfe.vlogpp2;
 
 import apfe.runtime.Acceptor;
+import apfe.runtime.CharBuffer;
 import apfe.runtime.PrioritizedChoice;
 
 /**
  *
  * @author gburdell
  */
-public class TicReserved extends Acceptor {
+public class TicReserved extends AcceptorWithLocation {
 
+    public TicReserved(CharBuffer.MarkerImpl loc) {
+        super(loc);
+    }
+
+    /**
+     * Parse `_reserved_ statement.
+     * It is assumed the `_reserved_ has been detected (but not accepted) upon
+     * entry.  Thus, if we have any issue here, we will mark as parse error.
+     * @return true on success; else false.
+     */
     @Override
     protected boolean accepti() {
         /*
@@ -96,6 +107,8 @@ public class TicReserved extends Acceptor {
         boolean match = (null != (m_contents = match(m_contents)));
         if (match) {
             m_text = super.toString();
+        } else {
+            setParseError();
         }
         return match;
     }
@@ -110,5 +123,9 @@ public class TicReserved extends Acceptor {
     @Override
     public Acceptor create() {
         return new TicReserved();
+    }
+    
+    private TicReserved() {
+        super(null);
     }
 }

@@ -28,6 +28,7 @@ import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.MarkerImpl;
 import apfe.runtime.InputStream;
+import apfe.runtime.ParseError;
 import gblib.Util;
 import gblib.File;
 import java.io.PrintWriter;
@@ -138,11 +139,6 @@ public class Parser {
         private Object[] m_args;
     }
 
-    private void error(final String msg, final MarkerImpl mark) {
-        final String loc = gblib.File.getCanonicalPath(mark.getFileName()) + ":" + mark.toString();
-        Helper.error(msg, loc);
-    }
-
     private char expect(final String oneOf) throws ParseException {
         final char c = la();
         if (0 > oneOf.indexOf(c)) {
@@ -157,15 +153,71 @@ public class Parser {
         if (!ticInclude()) {
             //setup apfe parsing: connect buffer to apfe's singleton state.
             CharBufState.create(m_buf, true);
-            AcceptorWithLocation acc;
-            boolean match = false;
+            AcceptorWithLocation acc = null;
+            final MarkerImpl mark = getMark();
             if (match("`define", false)) {
-                acc = new TicDefine(getMark());
-                match = acc.acceptTrue();
+                acc = new TicDefine(mark);
+            } else if (matches(stConds)) {
+                acc = new TicConditional(mark);
+            } else if (matches(stReserved)) {
+                acc = new TicReserved(mark);
+            } else {
+                acc = new TicMacroUsage(mark);
             }
-            assert match;
+            assert (null != acc);
+            final boolean hasError = !acc.acceptTrue();
+            if (hasError) {
+                assert acc.hasError();
+                if (acc.hasParseError()) {
+                    throw new ParseException(ParseError.stErrCode, null, ParseError.getMessageArgs());
+                } else {
+                    throw new ParseException(acc.getMsgCode(), mark, acc.getMsgArgs());
+                }
+            } else {
+                //accumulate non-whitespace
+                throw new ParseException("VPP-UNEXPECT-1", mark, getAllNonWhiteSpace(), "(expected tic-directive)");
+            }
+            
         }
         m_noPrint = false;
+    }
+    
+    private String getAllNonWhiteSpace() {
+        StringBuilder sb = new StringBuilder();
+        char c;
+        while (true) {
+            c = la();
+            if (Character.isWhitespace(c)) {
+                break;
+            }
+                sb.append(accept());
+        }
+        return sb.toString();
+    }
+    
+    private static final String stConds[] = new String[]{
+        "`ifdef", "`ifndef", "`else", "`elsif", "`endif"
+    };
+    
+    private static final String stReserved[] = new String[] {
+        "`undef",
+        "`__FILE__",
+        "`resetall",
+        "`end_keywords",
+        "`line",
+        "`celldefine",
+        "`pragma",
+        "`__LINE__",
+        "`begin_keywords"
+    };
+    
+    private boolean matches(final String... oneOf) {
+        for (String s : oneOf) {
+            if (match(s, false)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

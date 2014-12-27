@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+
 import gblib.MessageMgr.Message;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,8 +79,10 @@ public class ParseError {
     }
 
     public static void reset() {
-        if ((null == m_fails) || !m_fails.empty()) {
+        if (null == m_fails) {
             m_fails = new Stack<>();
+        } else {
+            m_fails.clear();
         }
     }
 
@@ -136,17 +139,23 @@ public class ParseError {
     private static Message getTopMessage2() {
         Message msg = null;
         if (hasError()) {
-            ParseError e = m_fails.peek();
-            assert EType.eFoundExpecting == e.m_type;
-            final String fn = e.m_loc.getFileName();
-            final String loc = e.m_loc.toString();  //line:col
-            msg = new Message('E', "PARSE-5", fn, loc,
-                    e.m_args[0], e.m_expecting);
+            msg = new Message('E', stErrCode, getMessageArgs());
         }
         return msg;
     }
-    
+
+    public static Object[] getMessageArgs() {
+        assert hasError();
+        ParseError e = m_fails.peek();
+        assert EType.eFoundExpecting == e.m_type;
+        final String fn = e.m_loc.getFileName();
+        final String loc = e.m_loc.toString();  //line:col
+        return new Object[]{fn, loc, e.m_args[0], e.m_expecting};
+    }
+
     public static boolean hasError() {
         return !m_fails.empty();
     }
+    
+    public static final String stErrCode = "PARSE-5";
 }

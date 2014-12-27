@@ -21,17 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package apfe.dsl.vlogpp.parser;
+package apfe.vlogpp2;
 
-import apfe.dsl.vlogpp.Location;
-import apfe.dsl.vlogpp.MacroDefns;
-import apfe.dsl.vlogpp.Helper;
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBufState;
+import apfe.runtime.CharBuffer;
 import apfe.runtime.CharClass;
-import apfe.runtime.Marker;
 import apfe.runtime.CharSeq;
-import apfe.runtime.Memoize;
 import apfe.runtime.Repetition;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
@@ -41,14 +37,21 @@ import java.util.List;
  *
  * @author gburdell
  */
-public class TicMacroUsage extends Acceptor {
+public class TicMacroUsage extends AcceptorWithLocation{
 
+    public TicMacroUsage(CharBuffer.MarkerImpl loc) {
+        super(loc);
+    }
+
+    private TicMacroUsage() {
+        super(null);
+    }
+    
     private static final String stTokenPaste = "``";
     
     @Override
     protected boolean accepti() {
         //TicMacroUsage <- '``'? '`'Identifier (Spacing '(' ListOfActualArguments ')')?
-        Location loc = Location.getCurrent();
         boolean hasTokPastePfx;
         //check for token paste prefix
         {
@@ -73,10 +76,12 @@ public class TicMacroUsage extends Acceptor {
                 if (0 < r1.sizeofAccepted()) {
                     m_args = Util.extractEle((Sequence) r1.getOnlyAccepted(), 2);
                 }
+            } else {
+                setParseError();
+                return false;
             }
-            assert match;
             m_str = super.toString();
-            expandMacro(loc, hasTokPastePfx);
+            expandMacro(getLocation(), hasTokPastePfx);
         }
         return match;
     }
@@ -121,18 +126,4 @@ public class TicMacroUsage extends Acceptor {
     public Acceptor create() {
         return new TicMacroUsage();
     }
-
-    @Override
-    protected void memoize(Marker mark, Marker endMark) {
-        stMemo.add(mark, this, endMark);
-    }
-
-    @Override
-    protected Memoize.Data hasMemoized(Marker mark) {
-        return stMemo.memoized(mark);
-    }
-    /**
-     * Memoize for all instances of TicMacroUsage.
-     */
-    private static final Memoize stMemo = new Memoize();
 }

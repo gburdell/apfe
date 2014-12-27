@@ -24,40 +24,45 @@
 package apfe.vlogpp2;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.MarkerImpl;
+import apfe.runtime.CharSeq;
+import apfe.runtime.Sequence;
+import apfe.runtime.Util;
 
 /**
  *
  * @author gburdell
  */
-public abstract class AcceptorWithLocation extends Acceptor {
-    protected AcceptorWithLocation(final MarkerImpl loc) {
-        m_currLoc = loc;
+public class TimeScale extends Acceptor {
+
+    @Override
+    protected boolean accepti() {
+        //TimeScale <- "`timescale" Spacing TimeValue Spacing '/' Spacing TimeValue
+        Sequence s1 = new Sequence(new CharSeq("`timescale"), new Spacing(),
+                new TimeValue(), new Spacing(), new CharSeq('/'), new Spacing(),
+                new TimeValue());
+        boolean match = (null != (s1 = match(s1)));
+        if (match) {
+            m_vals = new TimeValue[]{Util.extractEle(s1, 2),
+                Util.extractEle(s1, 6)};
+            m_text = super.toString();
+            if (Helper.getTheOne().getConditionalAllow()) {
+				;//TODO
+			}
+        }
+        return match;
     }
-    /*package*/ Location getLocation() {
-        return Parser.getLocation(m_currLoc);
+
+    private TimeValue m_vals[];
+    private String m_text;
+
+    @Override
+    public String toString() {
+        return m_text;
     }
-    /*package*/ boolean hasError() {
-        return (null != m_errMsgCode) || hasParseError();
+
+    @Override
+    public Acceptor create() {
+        return new TimeScale();
     }
-    protected void setError(final String msgCode, final Object... args) {
-        m_errMsgCode = msgCode;
-        m_args = args;
-    }
-    protected void setParseError() {
-        m_hasParseError = true;
-    }
-    protected boolean hasParseError() {
-        return m_hasParseError;
-    }
-    /*package*/ String getMsgCode() {
-        return m_errMsgCode;
-    }
-    /*package*/ Object[] getMsgArgs() {
-        return m_args;
-    }
-    private final MarkerImpl m_currLoc;
-    private String m_errMsgCode;
-    private Object m_args[];
-    private boolean m_hasParseError = false;
+
 }

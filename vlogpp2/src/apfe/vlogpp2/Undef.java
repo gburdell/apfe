@@ -24,61 +24,46 @@
 package apfe.vlogpp2;
 
 import apfe.runtime.Acceptor;
-import apfe.runtime.CharBuffer.MarkerImpl;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Sequence;
 import apfe.runtime.Util;
-import java.util.List;
 
 /**
  *
  * @author gburdell
  */
-public class TicDefine extends AcceptorWithLocation {
-    /*package*/ TicDefine(final MarkerImpl currLoc) {
-        super(currLoc);
-    }
-    
-    /**
-     * Parse `define statement.
-     * It is assumed the `define has been detected (but not accepted) upon
-     * entry.  Thus, if we have any issue here, we will mark as parse error.
-     * @return true on success; else false.
-     */
+public class Undef extends Acceptor {
+
     @Override
     protected boolean accepti() {
-        //TicDefine <- "`define" Spacing TextMacroName MacroText
-        Sequence s1 = new Sequence(new CharSeq("`define"), new Spacing(),
-                new TextMacroName(), new MacroText());
+        //Undef <- "`undef" Spacing Identifier
+        Location loc = Location.getCurrent();
+        Sequence s1 = new Sequence(new CharSeq("`undef"), new Spacing(),
+                new Identifier());
         boolean match = (null != (s1 = match(s1)));
-        if (!match) {
-            setParseError();
-        } else if (match && Helper.getTheOne().getConditionalAllow()) {
-            TextMacroName mname = Util.extractEle(s1, 2);
-            MacroText mtext = Util.extractEle(s1, 3);
-            if (mtext.toString().isEmpty()) {
-                mtext = null;
+        if (match) {
+            m_ident = Util.extractEleAsString(s1, 2);
+            m_text = super.toString();
+            //remove defn from just compilation unit
+            final Helper helper = Helper.getTheOne();
+            if (helper.getConditionalAllow()) {
+                final String cuFname = helper.getFname();
+                helper.getMacroDefns().undef(m_ident, cuFname, loc);
+                helper.replace(super.getStartMark());
             }
-            addDefn(mname, mtext, getLocation());
-            Helper.getTheOne().replace(super.getStartMark());
         }
         return match;
     }
+    private String m_text;
+    private String m_ident;
 
-    private void addDefn(TextMacroName mname, MacroText mtext, Location loc) {
-        Helper mn = Helper.getTheOne();
-        String macnm = mname.getId();
-        String text = (null != mtext) ? mtext.toString() : null;
-        List<Parm> parms = Parm.createList(mname.getFormalArgs());
-        mn.getMacroDefns().add(macnm, parms, text, loc);
+    @Override
+    public String toString() {
+        return m_text;
     }
 
     @Override
     public Acceptor create() {
-        return new TicDefine();
-    }
-    
-    private TicDefine() {
-        super(null);
+        return new Undef();
     }
 }

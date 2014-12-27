@@ -121,6 +121,12 @@ public class TicConditional extends AcceptorWithLocation {
     private EState m_next = null;
     private String m_tok = null, m_sid = null;
 
+    /**
+     * Parse conditional statement.
+     * It is assumed the `ifdef, ... has been detected (but not accepted) upon
+     * entry.  Thus, if we have any issue here, we will mark as parse error.
+     * @return true on success; else false.
+     */
     @Override
     protected boolean accepti() {
         PrioritizedChoice pc1 = new PrioritizedChoice(
@@ -145,7 +151,7 @@ public class TicConditional extends AcceptorWithLocation {
                 }
             }
             if (!match) {
-                setError("VPP-UNEXPECT-2", m_tok);
+                setParseError();
                 return false;
             }
         } else if (matchTrue(new CharSeq("`else"))) {
@@ -159,6 +165,7 @@ public class TicConditional extends AcceptorWithLocation {
                 return false;
             }
         } else {
+            setParseError();
             return false;
         }
         final Helper main = Helper.getTheOne();
