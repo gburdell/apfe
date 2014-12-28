@@ -81,7 +81,7 @@ public class TicMacroUsage extends AcceptorWithLocation{
                 return false;
             }
             m_str = super.toString();
-            expandMacro(getLocation(), hasTokPastePfx);
+            match = expandMacro(getLocation(), hasTokPastePfx);
         }
         return match;
     }
@@ -96,25 +96,27 @@ public class TicMacroUsage extends AcceptorWithLocation{
      * @param loc location of instance.
      * @param hasTokPastePfx token paste detected immediately before macro.
      */
-    private void expandMacro(final Location loc, final boolean hasTokPastePfx) {
+    private boolean expandMacro(final Location loc, final boolean hasTokPastePfx) {
         Helper mn = Helper.getTheOne();
         if (false == mn.getConditionalAllow()) {
-            return;
+            return true;
         }
         if (false == mn.isDefined(m_ident)) {
-            Helper.error("VPP-NODEFN", loc, m_ident);
-            return;
+            //Helper.error("VPP-NODEFN", loc, m_ident);
+            setError("VPP-NODEFN", m_ident);
+            return false;
         }
         List<String> instArgs = (null != m_args) ? m_args.getArgs() : null;
         MacroDefns defns = mn.getMacroDefns();
         String expanded = defns.expandMacro(m_ident, instArgs, loc);
         if (null == expanded) {
-            return; //had error
+            return false; //had error
         }
         if (hasTokPastePfx) {
             expanded = "``" + expanded;
         }
         mn.replace(super.getStartMark(), expanded);
+        return true;
     }
 
     @Override

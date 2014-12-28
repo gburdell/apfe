@@ -75,23 +75,17 @@ public class TicConditional extends AcceptorWithLocation {
             case eIfndef:
                 stStateStk.push(nstate);
                 break;
+            case eElse: //fall through
             case eElseif:
-                if ((EState.eIfdef == top) || (EState.eIfndef == top)) {
-                    stStateStk.push(nstate);
-                } else {
-                    setError("VPP-UNEXPECT-1", tok, "(only valid after [`ifdef, `ifndef])");
-                }
-                break;
-            case eElse:
                 if ((EState.eUnconditional == top) || (EState.eElse == top)) {
-                    setError("VPP-UNEXPECT-1", tok, "(only valid after [`ifdef, `ifndef, `elsif])");
+                    setError("VPP-UNEXPECT-2", tok);
                 } else {
                     stStateStk.push(nstate);
                 }
                 break;
             case eEndif:
                 if (EState.eUnconditional == top) {
-                    setError("VPP-UNEXPECT-1", tok, "(only valid after [`ifdef, `ifndef, `elsif, `else])");
+                    setError("VPP-UNEXPECT-3", tok);
                 } else {
                     while (true) {
                         assert !stStateStk.empty();
@@ -122,9 +116,10 @@ public class TicConditional extends AcceptorWithLocation {
     private String m_tok = null, m_sid = null;
 
     /**
-     * Parse conditional statement.
-     * It is assumed the `ifdef, ... has been detected (but not accepted) upon
-     * entry.  Thus, if we have any issue here, we will mark as parse error.
+     * Parse conditional statement. It is assumed the `ifdef, ... has been
+     * detected (but not accepted) upon entry. Thus, if we have any issue here,
+     * we will mark as parse error.
+     *
      * @return true on success; else false.
      */
     @Override

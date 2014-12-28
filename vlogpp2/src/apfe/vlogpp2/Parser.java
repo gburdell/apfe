@@ -23,7 +23,6 @@
  */
 package apfe.vlogpp2;
 
-import apfe.runtime.Acceptor;
 import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
 import apfe.runtime.CharBuffer.MarkerImpl;
@@ -43,28 +42,43 @@ import java.util.Stack;
 public class Parser {
 
     public static void main(final String argv[]) {
-        final PrintWriter pw = new PrintWriter(System.out, true);
         for (String f : argv) {
-            try {
-                final CharBuffer cbuf = InputStream.create(f);
-                final boolean ok = parse(cbuf, pw);
-            } catch (Exception ex) {
-                Util.abnormalExit(ex);
-            }
+            parse(f);
         }
     }
 
-    public static boolean parse(final CharBuffer cbuf, final PrintWriter os) {
-        final Parser parser = new Parser(cbuf, os);
+    public static boolean parse(final String fname) {
+        return parse(fname, new PrintWriter(System.out, true));
+    }
+
+    public static boolean parse(final String fname, final PrintWriter... oses) {
+        boolean ok = false;
+        try {
+            final CharBuffer cbuf = InputStream.create(fname);
+            ok = parse(cbuf, oses);
+        } catch (Exception ex) {
+            Util.abnormalExit(ex);
+        }
+        return ok;
+    }
+
+    public static boolean parse(final CharBuffer cbuf, final PrintWriter... oses) {
+        final Parser parser = new Parser(cbuf, oses);
         return parser.parse();
     }
 
-    public Parser(final CharBuffer cbuf, final PrintWriter os) {
+    public Parser(final CharBuffer cbuf, final PrintWriter... oses) {
         m_buf = cbuf;
-        m_os = os;
-        reset();
+        m_oses = oses;
+        init(cbuf.getFileName());
     }
 
+    private void init(final String fname) {
+        String fn = File.getCanonicalPath(fname);
+        print("`line 1 \"").print(fn).print("\" 1").print(CharBuffer.NL);
+        
+    }
+    
     /**
      * Parse contents of CharBuffer.
      *
@@ -75,6 +89,10 @@ public class Parser {
         char c;
         try {
             while (true) {
+                if (hadError()) {
+                    ok = false;
+                    break;
+                }
                 c = la();
                 if (CharBuffer.EOF == c) {
                     if (!pop()) {
@@ -101,8 +119,15 @@ public class Parser {
             //remember, finally blocks always execute
             flush();
         }
-        //TODO: Get here via EOF, ????
+        if (ok) {
+            //one last check before we leave
+            Util.assertTrue(m_bufStk.isEmpty(), "Expected empty include file stack.");
+        }
         return ok;
+    }
+
+    private static boolean hadError() {
+        return (0 < gblib.MessageMgr.getErrorCnt());
     }
 
     private class ParseException extends Throwable {
@@ -118,16 +143,25 @@ public class Parser {
             m_args = args;
         }
 
+        private ParseException(final String msg, MarkerImpl mark, Object[] args) {
+            m_msg = msg;
+            m_args = new Object[args.length + 1];
+            m_args[0] = mark;
+            System.arraycopy(args, 0, m_args, 1, args.length);
+        }
+
         private ParseException(final String msg) {
             this(msg, getMark());
         }
 
         private void printErrorMsg() {
             if (null != m_args[0]) {
-                MarkerImpl mark = Util.downCast(m_args[0]);
-                final String loc = gblib.File.getCanonicalPath(mark.getFileName())
-                        + ":" + mark.toString();
-                m_args[0] = loc;
+                if (m_args[0] instanceof MarkerImpl) {
+                    MarkerImpl mark = Util.downCast(m_args[0]);
+                    final String loc = gblib.File.getCanonicalPath(mark.getFileName())
+                            + ":" + mark.toString();
+                    m_args[0] = loc;
+                }
             } else {
                 //skip the [0]==null
                 m_args = Arrays.copyOfRange(m_args, 1, m_args.length);
@@ -167,21 +201,21 @@ public class Parser {
             assert (null != acc);
             final boolean hasError = !acc.acceptTrue();
             if (hasError) {
-                assert acc.hasError();
-                if (acc.hasParseError()) {
-                    throw new ParseException(ParseError.stErrCode, null, ParseError.getMessageArgs());
+                if (acc.hasError()) {
+                    if (acc.hasParseError()) {
+                        throw new ParseException(ParseError.stErrCode, null, ParseError.getMessageArgs());
+                    } else {
+                        throw new ParseException(acc.getMsgCode(), mark, acc.getMsgArgs());
+                    }
                 } else {
-                    throw new ParseException(acc.getMsgCode(), mark, acc.getMsgArgs());
+                    //accumulate non-whitespace
+                    throw new ParseException("VPP-UNEXPECT-1", mark, getAllNonWhiteSpace(), "(expected tic-directive)");
                 }
-            } else {
-                //accumulate non-whitespace
-                throw new ParseException("VPP-UNEXPECT-1", mark, getAllNonWhiteSpace(), "(expected tic-directive)");
             }
-            
         }
         m_noPrint = false;
     }
-    
+
     private String getAllNonWhiteSpace() {
         StringBuilder sb = new StringBuilder();
         char c;
@@ -190,16 +224,17 @@ public class Parser {
             if (Character.isWhitespace(c)) {
                 break;
             }
-                sb.append(accept());
+            sb.append(accept());
         }
         return sb.toString();
     }
-    
+
     private static final String stConds[] = new String[]{
         "`ifdef", "`ifndef", "`else", "`elsif", "`endif"
     };
-    
-    private static final String stReserved[] = new String[] {
+
+    private static final String stReserved[] = new String[]{
+        "`timescale",
         "`undef",
         "`__FILE__",
         "`resetall",
@@ -210,7 +245,7 @@ public class Parser {
         "`__LINE__",
         "`begin_keywords"
     };
-    
+
     private boolean matches(final String... oneOf) {
         for (String s : oneOf) {
             if (match(s, false)) {
@@ -400,26 +435,34 @@ public class Parser {
     }
 
     private void flush() {
-        m_os.flush();
+        for (PrintWriter os : m_oses) {
+            os.flush();
+        }
     }
 
     private Parser print(final char c) {
         if (!m_noPrint && condTrue()) {
-            m_os.print(c);
+            for (PrintWriter os : m_oses) {
+                os.print(c);
+            }
         }
         return this;
     }
 
     private Parser print(final String s) {
         if (!m_noPrint && condTrue()) {
-            m_os.print(s);
+            for (PrintWriter os : m_oses) {
+                os.print(s);
+            }
         }
         return this;
     }
 
     private Parser print(final int v) {
         if (!m_noPrint && condTrue()) {
-            m_os.print(v);
+            for (PrintWriter os : m_oses) {
+                os.print(v);
+            }
         }
         return this;
     }
@@ -431,11 +474,11 @@ public class Parser {
     /*package*/ static Location getLocation(final MarkerImpl mark) {
         return Location.create(mark);
     }
-    
+
     private Location getLocation() {
         return getLocation(getMark());
     }
-    
+
     private MarkerImpl getMark() {
         return Util.downCast(m_buf.mark());
     }
@@ -456,11 +499,7 @@ public class Parser {
         return m_buf.la(n);
     }
 
-    private void reset() {
-        ;
-    }
-
-    private void push(final File fn) throws ParseException {
+     private void push(final File fn) throws ParseException {
         assert condTrue();
         //start new buffer
         m_noPrint = false;
@@ -515,7 +554,7 @@ public class Parser {
 
     private final Stack<CharBuffer> m_bufStk = new Stack<>();
     private CharBuffer m_buf;
-    private final PrintWriter m_os;
+    private final PrintWriter m_oses[];
     //Disable printing during "in-between" processing.
     private boolean m_noPrint;
 }

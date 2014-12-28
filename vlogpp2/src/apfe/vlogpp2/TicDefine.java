@@ -69,6 +69,7 @@ public class TicDefine extends AcceptorWithLocation {
         Helper mn = Helper.getTheOne();
         String macnm = mname.getId();
         String text = (null != mtext) ? mtext.toString() : null;
+        //System.err.println("DEBUG: "+macnm+" defined at "+loc.toStringAbsFn());
         List<Parm> parms = Parm.createList(mname.getFormalArgs());
         mn.getMacroDefns().add(macnm, parms, text, loc);
     }
