@@ -1,12 +1,10 @@
 package apfe.sv2009;
 
-import apfe.dsl.vlogpp.WriterThread;
+import apfe.vlogpp2.WriterThread;
 import apfe.runtime.State;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import gblib.Timer;
 import static gblib.Util.error;
 import static gblib.Util.info;
@@ -27,6 +25,7 @@ public class MtMain {
      */
     public static void process(String argv[]) {
         SvScanner toks = null;
+        State.clear(); //reset and load (messages)
         Timer timer = new Timer();
         try {
             WriterThread vlogpp = new WriterThread(argv);

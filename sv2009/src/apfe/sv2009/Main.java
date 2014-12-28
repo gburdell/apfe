@@ -5,15 +5,12 @@ import apfe.runtime.ParseError;
 import apfe.runtime.ScannerState;
 import apfe.runtime.State;
 import apfe.runtime.Token;
-import apfe.dsl.vlogpp.WriterThread;
 import apfe.sv2009.generated.*;
 import gblib.Util;
 import static gblib.Util.error;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

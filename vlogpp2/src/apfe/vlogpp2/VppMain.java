@@ -30,10 +30,14 @@ import static gblib.Util.nl;
 import static gblib.Util.info;
 import static gblib.Util.appendIfNotNull;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -123,19 +127,19 @@ public class VppMain {
     private boolean parse(final List<String> srcs) {
         boolean ok = false;
         PrintWriter vpp = null;
-        //TODO: add -E dump file option
         if (null != stDumpVpp) {
             try {
                 Helper.info(1, "VPPE-1", stDumpVpp);
-                vpp = new PrintWriter(stDumpVpp);
-            } catch (FileNotFoundException ex) {
+                //append to existing file
+                vpp = new PrintWriter(new FileWriter(stDumpVpp,true));
+            } catch (IOException ex) {
                 Util.abnormalExit(ex);
             }
         }
         for (String fn : srcs) {
             Helper.info(2, "VPP-PROC", fn);
             IncludeDirs.setCurrentDir(fn);
-            ok = Parser.parse(fn);
+            ok = (null == vpp) ? Parser.parse(fn, m_os) : Parser.parse(fn, m_os, vpp);
             IncludeDirs.resetCurrentDir();
             if (!ok) {
                 break;
