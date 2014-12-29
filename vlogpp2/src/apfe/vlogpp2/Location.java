@@ -49,7 +49,7 @@ public class Location {
     }
 
     public static Location getCurrent() {
-        return create(Util.downCast(getBuf().mark()));
+        return create(Util.<MarkerImpl>downCast(getBuf().mark()));
     }
 
     /**

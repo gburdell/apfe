@@ -76,9 +76,9 @@ public class Parser {
     private void init(final String fname) {
         String fn = File.getCanonicalPath(fname);
         print("`line 1 \"").print(fn).print("\" 1").print(CharBuffer.NL);
-        
+
     }
-    
+
     /**
      * Parse contents of CharBuffer.
      *
@@ -88,25 +88,29 @@ public class Parser {
         boolean ok = true;
         char c;
         try {
+            boolean resetBuffer;
             while (true) {
                 if (hadError()) {
                     ok = false;
                     break;
                 }
                 c = la();
-                if (CharBuffer.EOF == c) {
+                resetBuffer = (CharBuffer.EOF == c);
+                if (resetBuffer) {
                     if (!pop()) {
                         break;  //while
                     }
                 }
-                if (!string()) {
-                    if (!lineComment()) {
-                        if (!blockComment()) {
-                            if ('`' == c) {
-                                ticDirective();
-                            } else {
-                                c = accept();
-                                print(c);
+                if (!resetBuffer) {
+                    if (!string()) {
+                        if (!lineComment()) {
+                            if (!blockComment()) {
+                                if ('`' == c) {
+                                    ticDirective();
+                                } else {
+                                    c = accept();
+                                    print(c);
+                                }
                             }
                         }
                     }
@@ -499,7 +503,7 @@ public class Parser {
         return m_buf.la(n);
     }
 
-     private void push(final File fn) throws ParseException {
+    private void push(final File fn) throws ParseException {
         assert condTrue();
         //start new buffer
         m_noPrint = false;

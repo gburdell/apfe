@@ -22,4 +22,3 @@ PARSE-2  %s:%d: syntax error at '%s'.
 PARSE-3  %s: unexpected char '%c'.
 PARSE-4  %s: parse failed.
 PARSE-5  %s:%s: found '%s', expected %s.
-VPPE-1   %s: post-preprocessor output.

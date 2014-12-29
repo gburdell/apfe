@@ -29,10 +29,12 @@ import static gblib.Util.asEmpty;
 import static gblib.Util.nl;
 import static gblib.Util.info;
 import static gblib.Util.appendIfNotNull;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +117,7 @@ public class VppMain {
                 info(3, "VPP-CLARG-1", "-D", appendIfNotNull(md.v1, "=", md.v2));
             }
             for (String incdir : inclDirs) {
-                info(3, "VPP-CLARG-1", "-I", incdir); 
+                info(3, "VPP-CLARG-1", "-I", incdir);
             }
             for (String src : m_srcFiles) {
                 info(3, "VPP-CLARG-1", src, "");
@@ -131,7 +133,7 @@ public class VppMain {
             try {
                 Helper.info(1, "VPPE-1", stDumpVpp);
                 //append to existing file
-                vpp = new PrintWriter(new FileWriter(stDumpVpp,true));
+                vpp = new PrintWriter(new FileWriter(stDumpVpp, true));
             } catch (IOException ex) {
                 Util.abnormalExit(ex);
             }
@@ -190,11 +192,27 @@ public class VppMain {
         private final Map<String, List<String>> m_args;
     }
 
+    /**
+     * Set preprocessor output filename.
+     * We append to this file, so caller should normally delete/empty it
+     * before setting this.
+     * @param fname preprocessor output filename.
+     */
     public static void setDumpVpp(String fname) {
         stDumpVpp = fname;
     }
-    
-    private static String stDumpVpp
-            = System.getProperty("vlogpp.dumpVpp");
+
+    private static String stDumpVpp;
+
+    static {
+        stDumpVpp = System.getProperty("vlogpp.dumpVpp");
+        if (null != stDumpVpp) {
+            try {
+                Files.deleteIfExists(FileSystems.getDefault().getPath(stDumpVpp));
+            } catch (IOException ex) {
+                Util.abnormalExit(ex);
+            }
+        }
+    }
 
 }
