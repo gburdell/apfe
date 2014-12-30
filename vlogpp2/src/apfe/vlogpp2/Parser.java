@@ -55,7 +55,9 @@ public class Parser {
         boolean ok = false;
         try {
             final CharBuffer cbuf = InputStream.create(fname);
+            Helper.getTheOne().setFname(fname);
             ok = parse(cbuf, oses);
+            Helper.getTheOne().setFname(null);
         } catch (Exception ex) {
             Util.abnormalExit(ex);
         }
@@ -106,7 +108,14 @@ public class Parser {
                         if (!lineComment()) {
                             if (!blockComment()) {
                                 if ('`' == c) {
-                                    ticDirective();
+                                    if ('`' == la(1)) {
+                                        //token paste: squeeze out ``
+                                        final MarkerImpl start = getMark();
+                                        accept(2);
+                                        m_buf.replace(start, null);
+                                    } else {
+                                        ticDirective();
+                                    }
                                 } else {
                                     c = accept();
                                     print(c);
@@ -213,7 +222,7 @@ public class Parser {
                     }
                 } else {
                     //accumulate non-whitespace
-                    throw new ParseException("VPP-UNEXPECT-1", mark, getAllNonWhiteSpace(), "(expected tic-directive)");
+                    throw new ParseException("VPP-UNEXPECT-1", mark, getAllNonWhiteSpace());
                 }
             }
         }
@@ -238,10 +247,13 @@ public class Parser {
     };
 
     private static final String stReserved[] = new String[]{
+        //NOTE: these are in order of most likely occurance
         "`timescale",
         "`undef",
+        "`default_nettype",
         "`__FILE__",
         "`resetall",
+        "`undefineall",
         "`end_keywords",
         "`line",
         "`celldefine",

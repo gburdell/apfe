@@ -98,6 +98,15 @@ public class Helper {
      return gram;
      }
      */
+    /**
+     * Set filename we are currently processing.
+     * 
+     * @param fname 
+     */
+    public void setFname(final String fname) {
+        m_fname = fname;
+    }
+    
     public String getFname() {
         return m_fname;
     }
