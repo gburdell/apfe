@@ -37,7 +37,7 @@ import java.util.List;
  *
  * @author gburdell
  */
-public class TicMacroUsage extends AcceptorWithLocation{
+public class TicMacroUsage extends AcceptorWithLocation {
 
     public TicMacroUsage(CharBuffer.MarkerImpl loc) {
         super(loc);
@@ -46,9 +46,9 @@ public class TicMacroUsage extends AcceptorWithLocation{
     private TicMacroUsage() {
         super(null);
     }
-    
+
     private static final String stTokenPaste = "``";
-    
+
     @Override
     protected boolean accepti() {
         //TicMacroUsage <- '``'? '`'Identifier (Spacing '(' ListOfActualArguments ')')?
@@ -58,9 +58,9 @@ public class TicMacroUsage extends AcceptorWithLocation{
             Acceptor tp = new CharSeq(stTokenPaste);
             hasTokPastePfx = tp.acceptTrue();
             if (hasTokPastePfx) {
-               if (CharBufState.asMe().getBuf().la() != '`') {
-                   Helper.getTheOne().replace(super.getStartMark(), null);
-               }
+                if (CharBufState.asMe().getBuf().la() != '`') {
+                    Helper.getTheOne().replace(super.getStartMark(), null);
+                }
             }
         }
         Repetition ws = new Repetition(new CharClass(" \t"), Repetition.ERepeat.eZeroOrMore);
@@ -113,7 +113,14 @@ public class TicMacroUsage extends AcceptorWithLocation{
             return false; //had error
         }
         if (hasTokPastePfx) {
-            expanded = "``" + expanded;
+            expanded = stTokenPaste + expanded;
+        }
+        {
+            //NOTE: we'll only expect these funky chars during expansion
+            String postFunky = expanded.replace(stTokenPaste, "")
+                    .replace("`\\`\"", "\\\"")
+                    .replace("`\"", "\"");
+            expanded = postFunky;
         }
         mn.replace(super.getStartMark(), expanded);
         return true;

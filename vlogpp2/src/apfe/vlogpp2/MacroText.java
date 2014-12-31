@@ -49,17 +49,28 @@ public class MacroText extends Acceptor {
             if (0 < a.sizeofAccepted()) {
                 sb.append(a.toString());
             }
-            if (cbuf.la() == CharBuffer.NL) {
+            if ((cbuf.la() == CharBuffer.NL) || (cbuf.la() == CharBuffer.EOF)) {
                 ok = false;
-            } else if ((new Comment.SL_COMMENT()).acceptTrue()) {
-                ok = false;
-            } else if ((new Comment.ML_COMMENT()).acceptTrue()) {
-                ; //stay here
-            } else if ((new Sequence(new CharSeq("\\"), new EndOfLine())).acceptTrue()) {
-                sb.append(CharBuffer.NL);
-                ;//stay here
             } else {
-                sb.append(cbuf.accept());
+                //Check for SL_COMMENT with trailing \\
+                Acceptor slc = new Comment.SL_COMMENT();
+                slc = slc.accept();
+                if (null != slc) {
+                    final String cmnt = slc.toString().trim();
+                    if (cmnt.endsWith("\\")) {
+                        //we have trailing \\
+                        sb.append(CharBuffer.NL);
+                    } else {
+                        ok = false;
+                    }
+                } else if ((new Comment.ML_COMMENT()).acceptTrue()) {
+                    ; //stay here
+                } else if ((new Sequence(new CharSeq("\\"), new EndOfLine())).acceptTrue()) {
+                    sb.append(CharBuffer.NL);
+                    ;//stay here
+                } else {
+                    sb.append(cbuf.accept());
+                }
             }
         }
         m_text = sb.toString().replace('\t', ' ');

@@ -12,4 +12,6 @@
 
 module m1 (input [`N-1:0] d);
 `PASTE
+reg a[3:0];
+reg b[3:0][4:0];
 endmodule

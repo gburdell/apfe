@@ -688,8 +688,8 @@ reject_limit_value <- limit_value
 limit_value <- mintypmax_expression
 
 variable_decl_assignment <-
-  identifier unsized_dimension variable_dimension?  (EQ dynamic_array_new)?
-/ identifier variable_dimension? (EQ expression)?
+  identifier unsized_dimension variable_dimension*  (EQ dynamic_array_new)?
+/ identifier variable_dimension* (EQ expression)?
 / identifier (EQ class_new)?
 
 class_new <- NEW_K (LPAREN list_of_arguments RPAREN / expression)?
@@ -1243,7 +1243,12 @@ named_checker_port_connection <-
 
 //A.4.2 Generated instantiation
 generate_region <-
-GENERATE_K ( generate_item )* ENDGENERATE_K
+GENERATE_K 
+	//begin/end for legacy
+	(	BEGIN_K (COLON identifier)? generate_item* END_K (COLON identifier)?
+	/	generate_item* 
+	)
+	ENDGENERATE_K
 
 loop_generate_construct <-
 FOR_K LPAREN genvar_initialization SEMI genvar_expression SEMI genvar_iteration RPAREN

@@ -108,14 +108,7 @@ public class Parser {
                         if (!lineComment()) {
                             if (!blockComment()) {
                                 if ('`' == c) {
-                                    if ('`' == la(1)) {
-                                        //token paste: squeeze out ``
-                                        final MarkerImpl start = getMark();
-                                        accept(2);
-                                        m_buf.replace(start, null);
-                                    } else {
-                                        ticDirective();
-                                    }
+                                    ticDirective();
                                 } else {
                                     c = accept();
                                     print(c);
