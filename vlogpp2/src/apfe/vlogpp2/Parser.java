@@ -217,6 +217,11 @@ public class Parser {
                     //accumulate non-whitespace
                     throw new ParseException("VPP-UNEXPECT-1", mark, getAllNonWhiteSpace());
                 }
+            } else {
+                //we've updated the buf during our tic processing, so dump the
+                //contents now
+                m_noPrint = false;
+                print(m_buf.substring(mark));
             }
         }
         m_noPrint = false;

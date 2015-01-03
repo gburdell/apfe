@@ -38,11 +38,12 @@ public class TicDefine extends AcceptorWithLocation {
     /*package*/ TicDefine(final MarkerImpl currLoc) {
         super(currLoc);
     }
-    
+
     /**
-     * Parse `define statement.
-     * It is assumed the `define has been detected (but not accepted) upon
-     * entry.  Thus, if we have any issue here, we will mark as parse error.
+     * Parse `define statement. It is assumed the `define has been detected (but
+     * not accepted) upon entry. Thus, if we have any issue here, we will mark
+     * as parse error.
+     *
      * @return true on success; else false.
      */
     @Override
@@ -60,8 +61,8 @@ public class TicDefine extends AcceptorWithLocation {
                 mtext = null;
             }
             addDefn(mname, mtext, getLocation());
-            Helper.getTheOne().replace(super.getStartMark());
         }
+        Helper.getTheOne().replace(super.getStartMark());
         return match;
     }
 
@@ -78,7 +79,7 @@ public class TicDefine extends AcceptorWithLocation {
     public Acceptor create() {
         return new TicDefine();
     }
-    
+
     private TicDefine() {
         super(null);
     }
