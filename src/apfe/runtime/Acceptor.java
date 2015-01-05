@@ -111,8 +111,8 @@ public abstract class Acceptor {
     private final long m_memoBar = Memoize.getTheBar();
     protected Acceptor m_baseAccepted;
     
-    public Acceptor getBaseAccepted() {
-        return m_baseAccepted;
+    public <T extends Acceptor> T getBaseAccepted() {
+        return downCast(m_baseAccepted);
     }
     
     public Marker getStartMark() {

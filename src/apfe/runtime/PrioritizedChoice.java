@@ -23,6 +23,8 @@
  */
 package apfe.runtime;
 
+import static gblib.Util.downCast;
+
 /**
  * A Definition consisting of choices: alts[0] / alts[1] / ...
  *
@@ -46,11 +48,13 @@ public class PrioritizedChoice extends Acceptor {
     /**
      * Get accepted choice (or null).
      *
+     * @param <T> subclass of Acceptor
      * @return accepted choice or null.
      */
-    public Acceptor getAccepted() {
-        return m_accepted;
+    public <T extends Acceptor> T getAccepted() {
+        return downCast(m_accepted);
     }
+    
     private final Choices m_alts;
     private Acceptor m_accepted;
     private int m_acceptedIx;
