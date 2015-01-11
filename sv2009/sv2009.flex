@@ -476,8 +476,8 @@ OctDigit = [0-7]
 HexDigit = [0-9a-fA-F]
 NonZeroUnsignedNumber = [1-9][_0-9]*
 UnsignedNumber        = [0-9][_0-9]*
-RealNumber = {UnsignedNumber} '.' {UnsignedNumber} ([eE] [+-]? {UnsignedNumber})?
-FixedPointNumber = {UnsignedNumber} '.' {UnsignedNumber}
+RealNumber = {UnsignedNumber} "." {UnsignedNumber} ([eE] [+-]? {UnsignedNumber})?
+FixedPointNumber = {UnsignedNumber} "." {UnsignedNumber}
 BinaryValue = [01xXzZ?][01xXzZ?_]* 
 OctalValue = [0-7xXzZ?][0-7xXzZ?_]*
 HexValue = [0-9a-fA-FxXzZ?][0-9a-fA-FxXzZ?_]*
@@ -498,7 +498,7 @@ NUMBER = {IntegralNumber} | {RealNumber}
 
 IntegralNumber = ({OctalNumber} | {BinaryNumber} | {HexNumber} | {DecimalNumber})
 
-DecimalNumber = {DecimalBase}? ({UnsignedNumber} | ([xXzZ?] '_'*))
+DecimalNumber = {DecimalBase}? ({UnsignedNumber} | ([xXzZ?] "_"*))
 BinaryNumber  = {BinaryBase} {BinaryValue}
 OctalNumber   = {OctalBase} {OctalValue}
 HexNumber     = {HexBase} {HexValue}
