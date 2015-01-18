@@ -123,12 +123,20 @@ public class VppMain {
         return parse(m_srcFiles);
     }
 
+    /**
+     * Track that we already fired message related to dumping vpp.
+     */
+    private static boolean stVppe1MsgDone = false;
+
     private boolean parse(final List<String> srcs) {
         boolean ok = false;
         PrintWriter vpp = null;
         if (null != stDumpVpp) {
-            try {
+            if (!stVppe1MsgDone) {
                 Helper.info(1, "VPPE-1", stDumpVpp);
+                stVppe1MsgDone = true;
+            }
+            try {
                 //append to existing file
                 vpp = new PrintWriter(new FileWriter(stDumpVpp, true));
             } catch (IOException ex) {
@@ -190,9 +198,9 @@ public class VppMain {
     }
 
     /**
-     * Set preprocessor output filename.
-     * We append to this file, so caller should normally delete/empty it
-     * before setting this.
+     * Set preprocessor output filename. We append to this file, so caller
+     * should normally delete/empty it before setting this.
+     *
      * @param fname preprocessor output filename.
      */
     public static void setDumpVpp(String fname) {

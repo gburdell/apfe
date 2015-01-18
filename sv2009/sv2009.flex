@@ -62,7 +62,7 @@ import java.util.StringTokenizer;
 
   private void error(String msg) {
       StringBuilder sb = new StringBuilder();
-      sb.append(getFileName()).append(':').append(yyline+1).append(':')
+      sb.append(getFileName()).append(':').append(yyline).append(':')
               .append(yycolumn+1).append(": ").append(msg)
               .append(": ").append(yytext());
       throw new RuntimeException(sb.toString());
@@ -466,11 +466,14 @@ ESC_IDENT = \\ ~{WhiteSpace}
 SYSTEM_IDENT = "$" {IDENT}
 
 /*No whitespace between number and unit*/
-TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {Space}* {TimeUnit}
+TIME_LITERAL = ({UnsignedNumber} | {FixedPointNumber}) {TimeUnit}
 TimeUnit = [munpf]? "s"
 
+/*Used only in `timescale since allows whitespace between num and unit */
+TIME_UNIT_OR_PRECISION = ({UnsignedNumber} | {FixedPointNumber}) {Space}* {TimeUnit}
+
 TicLine = "`line" {Space}+ [0-9]+ {Space}+ \" [^\"]+ \" {Space}+ [0-2]
-TimeScale = "`timescale" {Space}+ {TIME_LITERAL} {Space}* "/" {Space}* {TIME_LITERAL}
+TimeScale = "`timescale" {Space}+ {TIME_UNIT_OR_PRECISION} {Space}* "/" {Space}* {TIME_UNIT_OR_PRECISION}
 
 OctDigit = [0-7]
 HexDigit = [0-9a-fA-F]

@@ -147,7 +147,9 @@ DS_FATAL_K (LPAREN UNSIGNED_NUMBER (COMMA list_of_arguments)? RPAREN)? SEMI
 / DS_INFO_K (LPAREN list_of_arguments RPAREN)? SEMI
 
 module_common_item <-
-initial_construct
+//legacy to allow arbitrary named
+BEGIN_K (COLON IDENT)? module_common_item* END_K (COLON IDENT)?
+/ initial_construct
 / always_construct
 / interface_instantiation
 / program_instantiation

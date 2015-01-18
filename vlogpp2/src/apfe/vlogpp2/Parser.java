@@ -66,7 +66,9 @@ public class Parser {
 
     public static boolean parse(final CharBuffer cbuf, final PrintWriter... oses) {
         final Parser parser = new Parser(cbuf, oses);
-        return parser.parse();
+        final boolean ok = parser.parse();
+        parser.done(cbuf.getFileName());
+        return ok;
     }
 
     public Parser(final CharBuffer cbuf, final PrintWriter... oses) {
@@ -78,9 +80,13 @@ public class Parser {
     private void init(final String fname) {
         String fn = File.getCanonicalPath(fname);
         print("`line 1 \"").print(fn).print("\" 1").print(CharBuffer.NL);
-
     }
 
+    private void done(final String fname) {
+        String fn = File.getCanonicalPath(fname);
+        print("`line 0 \"").print(fn).print("\" 2").print(CharBuffer.NL);        
+    }
+    
     /**
      * Parse contents of CharBuffer.
      *

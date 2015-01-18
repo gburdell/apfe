@@ -1,5 +1,5 @@
 PEG  ?= sv2009.peg
-TOOL ?= /home/gburdell/projects/apfe/bin/generate
+TOOL ?= ${HOME}/projects/apfe/bin/generate
 DEPS ?= base.java.tmpl dlrbase.java.tmpl generate.props.txt ${PEG}
 
 FLEX_DIR ?= src/apfe/sv2009
