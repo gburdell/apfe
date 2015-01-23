@@ -261,6 +261,7 @@ public class Parser {
         "`end_keywords",
         "`line",
         "`celldefine",
+        "`endcelldefine",
         "`pragma",
         "`__LINE__",
         "`begin_keywords"
