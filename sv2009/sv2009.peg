@@ -1746,7 +1746,12 @@ rs_case_item <-
 
 //A.7 Specify section
 //A.7.1 Specify block declaration
+/*TODO: do this right.
+Currently have issue with use of posedge ...
 specify_block <- SPECIFY_K ( specify_item )* ENDSPECIFY_K
+*/
+//specify_block <- SPECIFY_K ( !ENDSPECIFY_K . )* ENDSPECIFY_K
+specify_block << MySpecifyBlock
 
 specify_item <-
 specparam_declaration
