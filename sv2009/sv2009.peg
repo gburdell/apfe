@@ -1293,15 +1293,22 @@ module_or_generate_item
 //A.5.1 UDP declaration
 udp_identifier <- identifier 
 
-udp_ansi_declaration <- ( attribute_instance )* PRIMITIVE_K udp_identifier LPAREN udp_declaration_port_list RPAREN SEMI
+udp_ansi_declaration <- 
+	( attribute_instance )* PRIMITIVE_K udp_identifier 
+		LPAREN 
+		(udp_port_list / udp_declaration_port_list)
+		RPAREN SEMI
 
+/*TODO: fix this
 udp_declaration <-
-  udp_ansi_declaration udp_body ENDPRIMITIVE_K ( COLON identifier )?
+  udp_ansi_declaration ( udp_port_declaration )* udp_body ENDPRIMITIVE_K ( COLON identifier )?
 / EXTERN_K udp_ansi_declaration
 / ( attribute_instance )* PRIMITIVE_K udp_identifier LPAREN DOT_STAR RPAREN SEMI
   ( udp_port_declaration )*
   udp_body
   ENDPRIMITIVE_K ( COLON identifier )?
+*/
+udp_declaration << MyUdpDeclaration
 
 //A.5.2 UDP ports
 udp_port_list <- identifier COMMA identifier ( COMMA identifier )*
