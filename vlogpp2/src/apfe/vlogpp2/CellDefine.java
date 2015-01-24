@@ -44,7 +44,7 @@ public class CellDefine extends Acceptor {
         if (match) {
             m_isBegin = (0 == p1.whichAccepted());
             m_text = super.toString();
-            Helper.getTheOne().replace(start);
+            //Helper.getTheOne().replace(start);
         }
         return match;
     }

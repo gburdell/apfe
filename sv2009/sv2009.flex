@@ -514,8 +514,10 @@ StringCharacter = [^\r\n\"\\]
 %%
 
 <YYINITIAL> {
-    {WhiteSpace}+ |
-	{Comment}     |
+    {WhiteSpace}+    |
+	{Comment}        |
+	"`celldefine"    |
+	"`endcelldefine" |
     {TimeScale}   { /* ignore */ }
 
 	//{insert 'create'
