@@ -27,6 +27,9 @@ public class MtMain {
         SvScanner toks = null;
         State.clear(); //reset and load (messages)
         Timer timer = new Timer();
+        //since we're re-entrant, track if any new errors introduced by 
+        //vlogpp/token part
+        int startErrCnt = getErrorCnt();
         try {
             WriterThread vlogpp = new WriterThread(argv);
             ReaderThread tokenizer = new ReaderThread(vlogpp.getWriter());
@@ -41,7 +44,8 @@ public class MtMain {
         }
         info(2, "TIM-1", "vlogpp + tokenizer", timer.toString());
         int errCnt = getErrorCnt();
-        if (0 < errCnt) {
+        //check for errors during vlogpp
+        if (0 < (errCnt - startErrCnt)) {
             error("VPP-EXIT");
             System.exit(errCnt);
         }
