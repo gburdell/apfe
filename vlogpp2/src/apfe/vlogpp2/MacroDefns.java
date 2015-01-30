@@ -139,6 +139,10 @@ public class MacroDefns {
         return (m_valsByName.containsKey(nm));
     }
 
+    public boolean hasParameters(String nm) {
+        return isDefined(nm) && lookup(nm).hasParms();
+    }
+    
     /**
      * Remove macro definition for 'macnm' for those definition locations within
      * compilation unit named by 'cuFname'.

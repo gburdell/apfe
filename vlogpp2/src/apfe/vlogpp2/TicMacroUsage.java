@@ -68,17 +68,28 @@ public class TicMacroUsage extends AcceptorWithLocation {
         boolean match = (null != (s1 = match(s1)));
         if (match) {
             m_ident = Util.extractEleAsString(s1, 2);
-            s1 = new Sequence(ws.create(), new CharSeq('('),
-                    new ListOfActualArguments(), new CharSeq(')'));
-            Repetition r1 = new Repetition(s1, Repetition.ERepeat.eOptional);
-            match &= (null != (r1 = match(r1)));
-            if (match) {
-                if (0 < r1.sizeofAccepted()) {
-                    m_args = Util.extractEle((Sequence) r1.getOnlyAccepted(), 2);
+            /*
+             * Since LRM allows spacing between  `MACRO...(
+             * we have pathological case where input has:
+             *      `MACRO (p1,p2);
+             * but, MACRO was not defined with parameters.
+             * In that case, the '(' is not processed as part of the macro (here).
+             */
+            if (hasParms(m_ident)) {
+                s1 = new Sequence(ws.create(), new CharSeq('('),
+                        new ListOfActualArguments(), new CharSeq(')'));
+                Repetition r1 = new Repetition(s1, Repetition.ERepeat.eOptional);
+                match &= (null != (r1 = match(r1)));
+                if (match) {
+                    if (0 < r1.sizeofAccepted()) {
+                        m_args = Util.extractEle((Sequence) r1.getOnlyAccepted(), 2);
+                    }
+                } else {
+                    setParseError();
+                    return false;
                 }
             } else {
-                setParseError();
-                return false;
+                ;//do nothing?
             }
             m_str = super.toString();
             match = expandMacro(getLocation(), hasTokPastePfx);
@@ -88,6 +99,10 @@ public class TicMacroUsage extends AcceptorWithLocation {
     private String m_ident;
     private ListOfActualArguments m_args;
     private String m_str;
+
+    private boolean hasParms(String nm) {
+        return Helper.getTheOne().getMacroDefns().hasParameters(nm);
+    }
 
     /**
      * Expand macro usage. The CharBuffer (in State) is then rewound to
