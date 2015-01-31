@@ -509,7 +509,11 @@ HexNumber     = {HexBase} {HexValue}
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
 
+Protected    = "`protected"
+EndProtected = "`endprotected"
+
 %state STRING
+%state PROTECTED
 
 %%
 
@@ -519,6 +523,8 @@ StringCharacter = [^\r\n\"\\]
 	"`celldefine"    |
 	"`endcelldefine" |
     {TimeScale}   { /* ignore */ }
+
+    {Protected} { yybegin(PROTECTED); }
 
 	//{insert 'create'
 	"accept_on" {return create(ACCEPT_ON_K);}
@@ -886,6 +892,12 @@ StringCharacter = [^\r\n\"\\]
 
   /* string literal */
   \"                             { yybegin(STRING); string.setLength(0); }
+}
+
+<PROTECTED> {
+  {EndProtected}	{ yybegin(YYINITIAL); }
+  [^]               { /*nothing*/ }
+  <<EOF>>           { return create(Token.EOF);  }
 }
 
 <STRING> {

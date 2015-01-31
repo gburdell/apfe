@@ -11,6 +11,6 @@ set memo="-Dapfe.runtime.EnableMemoize=true"
 set cls="apfe.sv2009.MtMain"
 set apfe=${rdir:h}
 set props="-Dapfe.messages=${apfe}/messages.txt"
-set props="${props} -Dvlogpp.messages=${apfe}/vlogpp/messages.txt"
+set props="${props} -Dvlogpp.messages=${apfe}/vlogpp2/messages.txt"
 set jars=${rdir}/dist/lib/apfe.jar:${rdir}/dist/sv2009.jar
 exec java -Xms4G -ea -Dtool.root=${rdir} ${props} -cp ${jars} ${cls} ${*}

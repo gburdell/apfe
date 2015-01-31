@@ -58,6 +58,7 @@ public class TicReserved extends AcceptorWithLocation {
          / LineExpand
          / BeginKeywords
          / EndKeywords
+         / Protected
          */
         m_contents = new PrioritizedChoice(new PrioritizedChoice.Choices() {
             @Override
@@ -99,6 +100,9 @@ public class TicReserved extends AcceptorWithLocation {
                         break;
                     case 11:
                         a = new EndKeywords();
+                        break;
+                    case 12:
+                        a = new Protected();
                         break;
                 }
                 return a;

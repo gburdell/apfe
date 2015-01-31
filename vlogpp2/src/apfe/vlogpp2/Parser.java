@@ -264,7 +264,8 @@ public class Parser {
         "`endcelldefine",
         "`pragma",
         "`__LINE__",
-        "`begin_keywords"
+        "`begin_keywords",
+        "`protected"
     };
 
     private boolean matches(final String... oneOf) {
