@@ -514,6 +514,7 @@ EndProtected = "`endprotected"
 
 %state STRING
 %state PROTECTED
+%state DELAY_VALUE
 
 %%
 
@@ -857,7 +858,17 @@ EndProtected = "`endprotected"
 	"+:" {return create(PLUS_COLON);}
 	"+=" {return create(PLUS_EQ);}
 	"##" {return create(POUND2);}
-	"#" {return create(POUND);}
+
+	//Need to detect whether delay_value (or not) follows '#'.
+	//In this case, we see a '(' and wont set state.
+	"#" / ({WhiteSpace}* "(") {return create(POUND);}
+
+	//No '(' trailing context, so we'll just focus on DELAY_VALUE.
+	//All this focus is necessary since we have case of input text 'lhs = #1 `d0;'
+	//which would return tokens: '#' and '1 `d0' (NUMBER)', otherwise.
+	//We need to return 3 tokens: '#' '1' (unsigned-number) and '`d0'
+	"#"   {yybegin(DELAY_VALUE); return create(POUND);}
+
 	"#=#" {return create(POUND_EQ_POUND);}
 	"#-#" {return create(POUND_MINUS_POUND);}
 	"?" {return create(QMARK);}
@@ -890,14 +901,30 @@ EndProtected = "`endprotected"
 
   	{TicLine}	{ ticLine(); }
 
-  /* string literal */
-  \"                             { yybegin(STRING); string.setLength(0); }
+    /* string literal */
+    \"                             { yybegin(STRING); string.setLength(0); }
 }
 
 <PROTECTED> {
   {EndProtected}	{ yybegin(YYINITIAL); }
   [^]               { /*nothing*/ }
   <<EOF>>           { return create(Token.EOF);  }
+}
+
+<DELAY_VALUE> {
+	{UNSIGNED_NUMBER} 	{yybegin(YYINITIAL); return create(UNSIGNED_NUMBER);}
+	{RealNumber}      	{yybegin(YYINITIAL); return create(NUMBER);}
+	{TIME_LITERAL}    	{yybegin(YYINITIAL); return create(TIME_LITERAL);}
+	"1step"           	{yybegin(YYINITIAL); return create(W1STEP_K);}
+	"local" 			{yybegin(YYINITIAL); return create(LOCAL_K);}
+	"$unit" 			{yybegin(YYINITIAL); return create(DS_UNIT_K);}
+	"$root" 			{yybegin(YYINITIAL); return create(DS_ROOT_K);}
+	"this" 				{yybegin(YYINITIAL); return create(THIS_K);}
+	"super" 			{yybegin(YYINITIAL); return create(SUPER_K);}
+	{IDENT} 			{yybegin(YYINITIAL); return create(IDENT);}
+	{ESC_IDENT} 		{yybegin(YYINITIAL); return create(ESC_IDENT);}
+  	[^]               	{ /*nothing*/ }
+  	<<EOF>>           	{ return create(Token.EOF);  }
 }
 
 <STRING> {
@@ -915,7 +942,7 @@ EndProtected = "`endprotected"
   "\\'"                          { string.append( '\'' ); }
   "\\\\"                         { string.append( '\\' ); }
   \\[0-3]?{OctDigit}?{OctDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),8); string.append( val ); }
-  \\h{HexDigit}?{HexDigit}  { char val = (char) Integer.parseInt(yytext().substring(1),16); string.append( val ); }
+  \\h{HexDigit}?{HexDigit}       { char val = (char) Integer.parseInt(yytext().substring(1),16); string.append( val ); }
   
   /* error cases */
   \\.                            { error("Illegal escape sequence"); }
