@@ -705,6 +705,7 @@ LBRACK range RBRACK
 
 packed_dimension <-
 LBRACK range RBRACK
+/ LBRACK expression RBRACK
 / unsized_dimension
 
 associative_dimension <-
