@@ -509,8 +509,8 @@ HexNumber     = {HexBase} {HexValue}
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
 
-Protected    = "`protected"
-EndProtected = "`endprotected"
+Protected    = `protect(ed)?
+EndProtected = `endprotect(ed)?
 
 %state STRING
 %state PROTECTED

@@ -29,9 +29,7 @@ import apfe.runtime.CharBuffer;
 import static apfe.runtime.CharBuffer.EOF;
 import apfe.runtime.CharSeq;
 import apfe.runtime.Marker;
-import apfe.runtime.NotPredicate;
-import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
+import apfe.runtime.PrioritizedChoice;
 
 /**
  * Handle `protected clause
@@ -48,11 +46,10 @@ public class Protected extends Acceptor {
         return new Protected();
     }
 
-    private static final String stKwrds[] = new String[]{"`protected", "`endprotected"};
     @Override
     protected boolean accepti() {
         final Marker start = getCurrentMark();
-        Acceptor acc = new CharSeq(stKwrds[0]);
+        Acceptor acc = new PrioritizedChoice(new CharSeq("`protected"), new CharSeq("`protect"));
         boolean match = (null != match(acc));
         if (match) {
             final CharBuffer cbuf = CharBufState.asMe().getBuf();
@@ -61,19 +58,19 @@ public class Protected extends Acceptor {
                     break;
                 }
             }
-            match = (new CharSeq(stKwrds[1])).acceptTrue();
+            match = (new PrioritizedChoice(new CharSeq("`endprotected"), new CharSeq("`endprotect"))).acceptTrue();
         }
         if (match) {
             m_text = super.toString();
         }
         return match;
     }
-    
+
     @Override
     public String toString() {
         return m_text;
     }
-    
+
     private String m_text;
 
 }

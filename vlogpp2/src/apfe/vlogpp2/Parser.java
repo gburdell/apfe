@@ -265,7 +265,8 @@ public class Parser {
         "`pragma",
         "`__LINE__",
         "`begin_keywords",
-        "`protected"
+        "`protected",
+        "`protect"
     };
 
     private boolean matches(final String... oneOf) {

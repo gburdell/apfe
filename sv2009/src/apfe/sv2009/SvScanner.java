@@ -128,27 +128,27 @@ public class SvScanner extends Scanner implements ITokenCodes {
     "\1\u0125\1\u0126\1\5\1\u0127\6\5\1\u0128\1\5\1\u0129"+
     "\4\5\1\u012a\4\5\1\0\4\57\1\u012b\1\57\1\u012c"+
     "\1\u012d\1\5\1\u012e\1\u012f\3\5\1\u0130\3\5\1\u0131"+
-    "\2\5\4\0\2\5\1\u0132\3\5\1\u0133\4\5\1\u0134"+
-    "\1\5\1\u0135\11\5\1\u0136\1\5\1\u0137\3\5\1\u0138"+
-    "\1\5\1\u0139\7\5\1\u013a\1\5\1\u013b\1\5\1\u013c"+
-    "\2\5\1\u013d\1\5\1\u013e\1\u013f\1\u0140\1\5\1\u0141"+
-    "\1\u0142\1\5\1\u0143\1\5\1\u0144\1\u0145\1\u0146\1\5"+
-    "\1\u0147\1\u0148\1\5\1\u0149\1\5\1\0\1\57\1\u014a"+
-    "\1\u014b\1\u014c\1\u014d\4\5\1\u014e\2\5\1\u014f\1\5"+
-    "\4\0\2\5\1\u0150\1\u0151\5\5\1\u0152\1\5\1\u0153"+
-    "\16\5\1\u0154\2\5\1\u0155\1\u0156\2\5\1\u0157\1\u0158"+
-    "\1\u0159\1\u015a\1\5\1\u015b\1\5\1\u015c\1\5\1\0"+
-    "\1\u015d\1\u015e\1\5\1\u015f\4\5\3\0\1\u0160\1\u0161"+
-    "\4\5\1\u0162\2\5\1\u0163\1\5\1\u0164\2\5\1\u0165"+
-    "\1\5\1\u0166\1\5\1\u0167\1\5\1\u0168\1\u0169\1\u016a"+
-    "\5\5\1\u016b\1\u016c\1\0\5\5\2\0\1\5\1\u016d"+
-    "\1\5\1\u016e\1\5\1\u016f\1\u0170\1\5\1\u0171\1\u0172"+
-    "\1\5\1\u0173\1\5\1\u0174\1\u0175\2\5\1\0\1\u0176"+
-    "\1\u0177\3\5\2\0\1\u0178\1\5\1\u0179\1\u017a\1\5"+
-    "\1\u017b\1\5\1\u017c\1\0\2\5\1\u017d\1\u017e\4\0"+
-    "\1\5\1\u017f\1\5\1\u0180\1\u0181\1\u0182\2\0\3\5"+
-    "\1\0\1\u0183\2\5\3\0\2\5\1\0\2\5\1\u0184"+
-    "\1\5\1\u0185";
+    "\2\5\3\0\1\u0132\2\5\1\u0133\3\5\1\u0134\4\5"+
+    "\1\u0135\1\5\1\u0136\11\5\1\u0137\1\5\1\u0138\3\5"+
+    "\1\u0139\1\5\1\u013a\7\5\1\u013b\1\5\1\u013c\1\5"+
+    "\1\u013d\2\5\1\u013e\1\5\1\u013f\1\u0140\1\u0141\1\5"+
+    "\1\u0142\1\u0143\1\5\1\u0144\1\5\1\u0145\1\u0146\1\u0147"+
+    "\1\5\1\u0148\1\u0149\1\5\1\u014a\1\5\1\0\1\57"+
+    "\1\u014b\1\u014c\1\u014d\1\u014e\4\5\1\u014f\2\5\1\u0150"+
+    "\1\5\4\0\2\5\1\u0151\1\u0152\5\5\1\u0153\1\5"+
+    "\1\u0154\16\5\1\u0155\2\5\1\u0156\1\u0157\2\5\1\u0158"+
+    "\1\u0159\1\u015a\1\u015b\1\5\1\u015c\1\5\1\u015d\1\5"+
+    "\1\0\1\u015e\1\u015f\1\5\1\u0160\4\5\3\0\1\u0132"+
+    "\1\u0161\4\5\1\u0162\2\5\1\u0163\1\5\1\u0164\2\5"+
+    "\1\u0165\1\5\1\u0166\1\5\1\u0167\1\5\1\u0168\1\u0169"+
+    "\1\u016a\5\5\1\u016b\1\u016c\1\0\5\5\2\0\1\5"+
+    "\1\u016d\1\5\1\u016e\1\5\1\u016f\1\u0170\1\5\1\u0171"+
+    "\1\u0172\1\5\1\u0173\1\5\1\u0174\1\u0175\2\5\1\u0176"+
+    "\1\u0177\1\u0178\3\5\2\0\1\u0179\1\5\1\u017a\1\u017b"+
+    "\1\5\1\u017c\1\5\1\u017d\1\0\2\5\1\u017e\1\u017f"+
+    "\4\0\1\5\1\u0180\1\5\1\u0176\1\u0181\1\u0182\2\0"+
+    "\3\5\1\0\1\u0183\2\5\3\0\2\5\1\0\2\5"+
+    "\1\u0184\1\5\1\u0185";
 
   private static int [] zzUnpackAction() {
     int [] result = new int[1421];
@@ -2701,12 +2701,11 @@ public class SvScanner extends Scanner implements ITokenCodes {
     "\1\11\1\0\51\1\5\0\124\1\1\0\66\1\3\11"+
     "\4\0\3\1\2\0\53\1\4\0\124\1\1\11\64\1"+
     "\1\0\1\1\1\0\2\11\2\1\1\11\43\1\4\0"+
-    "\172\1\1\0\36\1\4\0\133\1\1\0\25\1\4\0"+
-    "\102\1\1\0\16\1\4\0\52\1\1\0\10\1\3\0"+
-    "\1\11\35\1\1\0\5\1\2\0\21\1\1\0\5\1"+
-    "\2\0\10\1\1\0\3\1\1\11\4\0\3\1\1\11"+
-    "\2\1\2\0\3\1\1\0\3\1\3\0\2\1\1\0"+
-    "\5\1";
+    "\172\1\1\0\36\1\4\0\133\1\1\0\25\1\3\0"+
+    "\103\1\1\0\16\1\4\0\52\1\1\0\10\1\3\0"+
+    "\1\11\35\1\1\0\5\1\2\0\27\1\2\0\10\1"+
+    "\1\0\3\1\1\11\4\0\3\1\1\11\2\1\2\0"+
+    "\3\1\1\0\3\1\3\0\2\1\1\0\5\1";
 
   private static int [] zzUnpackAttribute() {
     int [] result = new int[1421];
@@ -4805,191 +4804,191 @@ public class SvScanner extends Scanner implements ITokenCodes {
           }
         case 694: break;
         case 306: 
-          { return create(INSTANCE_K);
+          { yybegin(PROTECTED);
           }
         case 695: break;
         case 307: 
-          { return create(NEXTTIME_K);
+          { return create(INSTANCE_K);
           }
         case 696: break;
         case 308: 
-          { return create(ENDTABLE_K);
+          { return create(NEXTTIME_K);
           }
         case 697: break;
         case 309: 
-          { return create(ENDCLASS_K);
+          { return create(ENDTABLE_K);
           }
         case 698: break;
         case 310: 
-          { return create(ENDGROUP_K);
+          { return create(ENDCLASS_K);
           }
         case 699: break;
         case 311: 
-          { return create(TIMEUNIT_K);
+          { return create(ENDGROUP_K);
           }
         case 700: break;
         case 312: 
-          { return create(CLOCKING_K);
+          { return create(TIMEUNIT_K);
           }
         case 701: break;
         case 313: 
-          { return create(CONTINUE_K);
+          { return create(CLOCKING_K);
           }
         case 702: break;
         case 314: 
-          { return create(FUNCTION_K);
+          { return create(CONTINUE_K);
           }
         case 703: break;
         case 315: 
-          { return create(FORKJOIN_K);
+          { return create(FUNCTION_K);
           }
         case 704: break;
         case 316: 
-          { return create(PULLDOWN_K);
+          { return create(FORKJOIN_K);
           }
         case 705: break;
         case 317: 
-          { return create(PRIORITY_K);
+          { return create(PULLDOWN_K);
           }
         case 706: break;
         case 318: 
-          { return create(PROPERTY_K);
+          { return create(PRIORITY_K);
           }
         case 707: break;
         case 319: 
-          { return create(RESTRICT_K);
+          { return create(PROPERTY_K);
           }
         case 708: break;
         case 320: 
-          { return create(REALTIME_K);
+          { return create(RESTRICT_K);
           }
         case 709: break;
         case 321: 
-          { return create(RTRANIF0_K);
+          { return create(REALTIME_K);
           }
         case 710: break;
         case 322: 
-          { return create(RTRANIF1_K);
+          { return create(RTRANIF0_K);
           }
         case 711: break;
         case 323: 
-          { return create(RANDCASE_K);
+          { return create(RTRANIF1_K);
           }
         case 712: break;
         case 324: 
-          { return create(DEASSIGN_K);
+          { return create(RANDCASE_K);
           }
         case 713: break;
         case 325: 
-          { return create(DEFPARAM_K);
+          { return create(DEASSIGN_K);
           }
         case 714: break;
         case 326: 
-          { return create(WILDCARD_K);
+          { return create(DEFPARAM_K);
           }
         case 715: break;
         case 327: 
-          { return create(GENERATE_K);
+          { return create(WILDCARD_K);
           }
         case 716: break;
         case 328: 
-          { return create(VECTORED_K);
+          { return create(GENERATE_K);
           }
         case 717: break;
         case 329: 
-          { return create(JOIN_ANY_K);
+          { return create(VECTORED_K);
           }
         case 718: break;
         case 330: 
-          { return create(DS_NOCHANGE_K);
+          { return create(JOIN_ANY_K);
           }
         case 719: break;
         case 331: 
-          { return create(DS_TIMESKEW_K);
+          { return create(DS_NOCHANGE_K);
           }
         case 720: break;
         case 332: 
-          { return create(DS_FULLSKEW_K);
+          { return create(DS_TIMESKEW_K);
           }
         case 721: break;
         case 333: 
-          { return create(DS_RECOVERY_K);
+          { return create(DS_FULLSKEW_K);
           }
         case 722: break;
         case 334: 
-          { return create(SPECPARAM_K);
+          { return create(DS_RECOVERY_K);
           }
         case 723: break;
         case 335: 
-          { return create(SHORTREAL_K);
+          { return create(SPECPARAM_K);
           }
         case 724: break;
         case 336: 
-          { return create(INTERSECT_K);
+          { return create(SHORTREAL_K);
           }
         case 725: break;
         case 337: 
-          { return create(INTERFACE_K);
+          { return create(INTERSECT_K);
           }
         case 726: break;
         case 338: 
-          { return create(ENDMODULE_K);
+          { return create(INTERFACE_K);
           }
         case 727: break;
         case 339: 
-          { return create(ENDCONFIG_K);
+          { return create(ENDMODULE_K);
           }
         case 728: break;
         case 340: 
-          { return create(AUTOMATIC_K);
+          { return create(ENDCONFIG_K);
           }
         case 729: break;
         case 341: 
-          { return create(ALWAYS_FF_K);
+          { return create(AUTOMATIC_K);
           }
         case 730: break;
         case 342: 
-          { return create(ACCEPT_ON_K);
+          { return create(ALWAYS_FF_K);
           }
         case 731: break;
         case 343: 
-          { return create(PARAMETER_K);
+          { return create(ACCEPT_ON_K);
           }
         case 732: break;
         case 344: 
-          { return create(PRIMITIVE_K);
+          { return create(PARAMETER_K);
           }
         case 733: break;
         case 345: 
-          { return create(PROTECTED_K);
+          { return create(PRIMITIVE_K);
           }
         case 734: break;
         case 346: 
-          { return create(REJECT_ON_K);
+          { return create(PROTECTED_K);
           }
         case 735: break;
         case 347: 
-          { return create(RANDOMIZE_K);
+          { return create(REJECT_ON_K);
           }
         case 736: break;
         case 348: 
-          { return create(JOIN_NONE_K);
+          { return create(RANDOMIZE_K);
           }
         case 737: break;
         case 349: 
-          { return create(DS_SETUPHOLD_K);
+          { return create(JOIN_NONE_K);
           }
         case 738: break;
         case 350: 
-          { return create(UNTIL_WITH_K);
+          { return create(DS_SETUPHOLD_K);
           }
         case 739: break;
         case 351: 
-          { return create(S_NEXTTIME_K);
+          { return create(UNTIL_WITH_K);
           }
         case 740: break;
         case 352: 
-          { yybegin(PROTECTED);
+          { return create(S_NEXTTIME_K);
           }
         case 741: break;
         case 353: 
@@ -5077,47 +5076,47 @@ public class SvScanner extends Scanner implements ITokenCodes {
           }
         case 762: break;
         case 374: 
-          { return create(S_UNTIL_WITH_K);
+          { yybegin(YYINITIAL);
           }
         case 763: break;
         case 375: 
-          { return create(S_EVENTUALLY_K);
+          { return create(S_UNTIL_WITH_K);
           }
         case 764: break;
         case 376: 
-          { return create(ILLEGAL_BINS_K);
+          { return create(S_EVENTUALLY_K);
           }
         case 765: break;
         case 377: 
-          { return create(ENDINTERFACE_K);
+          { return create(ILLEGAL_BINS_K);
           }
         case 766: break;
         case 378: 
-          { return create(ENDPRIMITIVE_K);
+          { return create(ENDINTERFACE_K);
           }
         case 767: break;
         case 379: 
-          { return create(ALWAYS_LATCH_K);
+          { return create(ENDPRIMITIVE_K);
           }
         case 768: break;
         case 380: 
-          { return create(RANDSEQUENCE_K);
+          { return create(ALWAYS_LATCH_K);
           }
         case 769: break;
         case 381: 
-          { return create(SHOWCANCELLED_K);
+          { return create(RANDSEQUENCE_K);
           }
         case 770: break;
         case 382: 
-          { ticLine();
+          { return create(SHOWCANCELLED_K);
           }
         case 771: break;
         case 383: 
-          { return create(TIMEPRECISION_K);
+          { ticLine();
           }
         case 772: break;
         case 384: 
-          { yybegin(YYINITIAL);
+          { return create(TIMEPRECISION_K);
           }
         case 773: break;
         case 385: 
