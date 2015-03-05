@@ -53,12 +53,17 @@ public class Protected extends Acceptor {
         boolean match = (null != match(acc));
         if (match) {
             final CharBuffer cbuf = CharBufState.asMe().getBuf();
-            while ('`' != cbuf.la(0)) {
+            while (true) {
+                if ('`' == cbuf.la(0)) {
+                    match = (new PrioritizedChoice(new CharSeq("`endprotected"), new CharSeq("`endprotect"))).acceptTrue();
+                    if (match) {
+                        break; //while
+                    }
+                }
                 if (EOF == cbuf.accept()) {
                     break;
                 }
             }
-            match = (new PrioritizedChoice(new CharSeq("`endprotected"), new CharSeq("`endprotect"))).acceptTrue();
         }
         if (match) {
             m_text = super.toString();

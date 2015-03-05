@@ -509,8 +509,8 @@ HexNumber     = {HexBase} {HexValue}
 /* string and character literals */
 StringCharacter = [^\r\n\"\\]
 
-Protected    = `protect(ed)?
-EndProtected = `endprotect(ed)?
+Protected    = `protected
+EndProtected = `endprotected
 
 %state STRING
 %state PROTECTED
@@ -526,6 +526,8 @@ EndProtected = `endprotect(ed)?
     {TimeScale}   { /* ignore */ }
 
     {Protected} { yybegin(PROTECTED); }
+
+	"`protect" | "`endprotect" {/*ignore*/}
 
 	//{insert 'create'
 	"accept_on" {return create(ACCEPT_ON_K);}
