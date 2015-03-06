@@ -84,9 +84,9 @@ public class Parser {
 
     private void done(final String fname) {
         String fn = File.getCanonicalPath(fname);
-        print("`line 0 \"").print(fn).print("\" 2").print(CharBuffer.NL);        
+        print("`line 0 \"").print(fn).print("\" 2").print(CharBuffer.NL);
     }
-    
+
     /**
      * Parse contents of CharBuffer.
      *
@@ -205,7 +205,7 @@ public class Parser {
                 acc = new TicDefine(mark);
             } else if (matches(stConds)) {
                 acc = new TicConditional(mark);
-            } else if (matches(stReserved)) {
+            } else if (matches(stReserved) || isProtectedKeyword()) {
                 acc = new TicReserved(mark);
             } else {
                 acc = new TicMacroUsage(mark);
@@ -264,11 +264,22 @@ public class Parser {
         "`endcelldefine",
         "`pragma",
         "`__LINE__",
-        "`begin_keywords",
-        "`protected",
-        "`protect"
+        "`begin_keywords"
     };
 
+    private boolean isProtectedKeyword() {
+        boolean isKwrd = false;
+        for (String k : stProtected) {
+            if (matches(k) && !Helper.getTheOne().isDefined(k.substring(1))) {
+                isKwrd = true;
+                break;
+            }
+        }
+        return isKwrd;
+    }
+    
+    private static final String stProtected[] = new String[] {"`protected", "`protect"};
+    
     private boolean matches(final String... oneOf) {
         for (String s : oneOf) {
             if (match(s, false)) {

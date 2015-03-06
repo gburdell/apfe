@@ -32,7 +32,7 @@ import apfe.runtime.PrioritizedChoice;
  * @author gburdell
  */
 public class TicReserved extends AcceptorWithLocation {
-
+    
     public TicReserved(CharBuffer.MarkerImpl loc) {
         super(loc);
     }
@@ -58,7 +58,7 @@ public class TicReserved extends AcceptorWithLocation {
          / LineExpand
          / BeginKeywords
          / EndKeywords
-         / Protected
+         / Protected  (maybe: see Parser)
          */
         m_contents = new PrioritizedChoice(new PrioritizedChoice.Choices() {
             @Override
@@ -116,6 +116,7 @@ public class TicReserved extends AcceptorWithLocation {
         }
         return match;
     }
+    
     private PrioritizedChoice m_contents;
     private String m_text;
 
