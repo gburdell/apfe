@@ -166,13 +166,13 @@ public class TicConditional extends AcceptorWithLocation {
         final Helper main = Helper.getTheOne();
         switch (m_next) {
             case eIfdef:
-                main.ticIfdef(m_sid);
+                main.ticIfdef(m_sid, getLocation());
                 break;
             case eIfndef:
-                main.ticIfndef(m_sid);
+                main.ticIfndef(m_sid, getLocation());
                 break;
             case eElseif:
-                main.ticElsif(m_sid);
+                main.ticElsif(m_sid, getLocation());
                 break;
             case eElse:
                 main.ticElse();

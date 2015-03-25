@@ -83,7 +83,7 @@ public class MacroDefns {
     private static String squeeze(String s) {
         return s.replaceAll("\\s", "");
     }
-    
+
     private static String trim(String s) {
         return (null != s) ? s.trim() : "";
     }
@@ -136,13 +136,21 @@ public class MacroDefns {
     }
 
     public boolean isDefined(String nm) {
-        return (m_valsByName.containsKey(nm));
+        return isDefined(nm, null);
+    }
+
+    public boolean isDefined(String nm, Location loc) {
+        boolean rval = m_valsByName.containsKey(nm);
+        if (rval && (null != loc)) {
+            m_macrosUsed.markUsed(nm, loc);
+        }
+        return rval;
     }
 
     public boolean hasParameters(String nm) {
         return isDefined(nm) && lookup(nm).hasParms();
     }
-    
+
     /**
      * Remove macro definition for 'macnm' for those definition locations within
      * compilation unit named by 'cuFname'.
@@ -458,10 +466,10 @@ public class MacroDefns {
             m_cuLoc = (null != cuFname) ? new gblib.File(cuFname) : null;
             m_origDefn = (null != origDefn) ? origDefn.trim() : null;
         }
-        
+
         public Val(List<Parm> parms, String defn, Location loc, String cuFname) {
             this(parms, defn, loc, cuFname, defn);
-        }        
+        }
 
         public boolean hasParms() {
             return (null != m_parms);

@@ -100,13 +100,13 @@ public class Helper {
      */
     /**
      * Set filename we are currently processing.
-     * 
-     * @param fname 
+     *
+     * @param fname
      */
     public void setFname(final String fname) {
         m_fname = fname;
     }
-    
+
     public String getFname() {
         return m_fname;
     }
@@ -122,7 +122,7 @@ public class Helper {
     public static CharBuffer getBuf() {
         return CharBufState.asMe().getBuf();
     }
-    
+
     /**
      * Replace current CharBuffer contents [start,current) with s. Optionally,
      * clear/invalidate any memoization too.
@@ -240,18 +240,22 @@ public class Helper {
         return (m_ifdefStack.isEmpty()) ? true : m_ifdefStack.peek().pass();
     }
 
+    public boolean isDefined(String key, Location loc) {
+        return m_macroDefns.isDefined(key, loc);
+    }
+
     public boolean isDefined(String key) {
         return m_macroDefns.isDefined(key);
     }
 
-    public void ticIfdef(String key) {
-        boolean rval = isDefined(key);
+    public void ticIfdef(String key, Location loc) {
+        boolean rval = isDefined(key, loc);
         m_ifdefStack.push(next(rval ? IfdefState.eDone
                 : IfdefState.eNotDone));
     }
 
-    public void ticIfndef(String key) {
-        boolean rval = !isDefined(key);
+    public void ticIfndef(String key, Location loc) {
+        boolean rval = !isDefined(key, loc);
         m_ifdefStack.push(next(rval ? IfdefState.eDone
                 : IfdefState.eNotDone));
     }
@@ -263,10 +267,10 @@ public class Helper {
         m_ifdefStack.push(next(nxt));
     }
 
-    public void ticElsif(String key) {
+    public void ticElsif(String key, Location loc) {
         IfdefState was = m_ifdefStack.pop();
         IfdefState nxt = (was != IfdefState.eNotDone) ? IfdefState.eBlockDone
-                : (isDefined(key) ? IfdefState.eDone : IfdefState.eNotDone);
+                : (isDefined(key, loc) ? IfdefState.eDone : IfdefState.eNotDone);
         m_ifdefStack.push(next(nxt));
     }
 
