@@ -2369,7 +2369,13 @@ ps_type_identifier <- selected_ident
 
 simple_identifier <- IDENT
 
-system_tf_identifier <- SYSTEM_IDENT
+system_tf_identifier <- 
+	SYSTEM_IDENT
+/	DS_FATAL_K
+/	DS_ERROR_K
+/	DS_WARNING_K
+/	DS_INFO_K
+;
 
 extern_tf_declaration <- 
   EXTERN_K FORKJOIN_K task_prototype SEMI
