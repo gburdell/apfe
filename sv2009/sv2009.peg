@@ -637,7 +637,7 @@ list_of_defparam_assignments <- defparam_assignment (COMMA defparam_assignment)*
 list_of_genvar_identifiers <- identifier (COMMA identifier)*
 
 list_of_interface_identifiers <- identifier param_assignment* (COMMA identifier param_assignment*)*
-list_of_port_identifiers      <- identifier param_assignment* (COMMA identifier param_assignment*)*
+list_of_port_identifiers      <- identifier unpacked_dimension* param_assignment* (COMMA identifier param_assignment*)*
 
 list_of_net_decl_assignments <- net_decl_assignment (COMMA net_decl_assignment)*
 
