@@ -80,6 +80,19 @@ public class MacroDefns {
         return m_macrosUsed.getMacroDefnFiles(usedSrcs);
     }
 
+    /**
+     * Get list of files where undef are used.
+     *
+     * @return list of files where undef are used.
+     */
+    public List<String> getUndefOnlyFiles() {
+        List<String> rval = new LinkedList<>();
+        for (File f : m_undefsUsed) {
+            rval.add(f.getFilename());
+        }
+        return rval;
+    }
+
     private static String squeeze(String s) {
         return s.replaceAll("\\s", "");
     }
@@ -169,6 +182,7 @@ public class MacroDefns {
             final Val curr = lookup(macnm);
             if (!stSingleCompilationUnits || cuLoc.equals(curr.m_cuLoc)) {
                 m_valsByName.remove(macnm);
+                addUndef(loc);
                 Helper.info(2, "VPP-UNDEF-3", aloc, macnm, macnm);
             } else {
                 Helper.warning("VPP-UNDEF-2", aloc, macnm, macnm, cuFname);
@@ -341,6 +355,21 @@ public class MacroDefns {
      * More detailed tracking of macro usage.
      */
     private MacrosUsed m_macrosUsed = new MacrosUsed();
+    /**
+     * Detailed tracking of undefs used. So we track files which just undef.
+     * (nasty mfcu usage).
+     */
+    private Set<File> m_undefsUsed = new HashSet<>();
+
+    /**
+     * Track where undef are used.
+     */
+    private void addUndef(Location loc) {
+        File f = new File(loc.getFilename());
+        if (!m_undefsUsed.contains(f)) {
+            m_undefsUsed.add(f);
+        }
+    }
 
     /**
      * Track where macros are defined and if they are used. From this info, can
