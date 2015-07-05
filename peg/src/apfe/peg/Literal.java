@@ -54,6 +54,7 @@ public class Literal extends Acceptor implements GenJava.IGen {
     @Override
     protected boolean accepti() {
         /* [’] ![’] '\\'? Char [’] Spacing
+         / ['] (!['] '\\'? Char)+ ['] Spacing
          / ["] (!["] '\\'? Char)+ ["] Spacing
          */
         PrioritizedChoice e4 = new PrioritizedChoice(new PrioritizedChoice.Choices() {
@@ -68,6 +69,15 @@ public class Literal extends Acceptor implements GenJava.IGen {
                     }
                     break;
                     case 1: {
+                        Sequence e2 = new Sequence(new NotPredicate(new Char('\'')),
+                                new Repetition(new Char('\\'), Repetition.ERepeat.eOptional),
+                                new Char());
+                        acc = new Sequence(new Char('\''), new Repetition(e2, Repetition.ERepeat.eOneOrMore),
+                                new Char('\''));
+
+                    }
+                    break;
+                    case 2: {
                         Sequence e2 = new Sequence(new NotPredicate(new Char('"')),
                                 new Repetition(new Char('\\'), Repetition.ERepeat.eOptional),
                                 new Char());

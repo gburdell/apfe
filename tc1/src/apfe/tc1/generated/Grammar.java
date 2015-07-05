@@ -1,6 +1,4 @@
-
-package apfe.tc1.generated ;
-
+package apfe.tc1.generated;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -8,20 +6,16 @@ import java.util.LinkedList;
 import apfe.runtime.*;
 import apfe.tc1.*;
 
-
-
-
-
-public  class Grammar extends Acceptor implements ITokenCodes {
+public class Grammar extends Acceptor implements ITokenCodes {
 
     public Grammar() {
     }
 
     @Override
     protected boolean accepti() {
-		Acceptor matcher = new source_text() ;
-		Acceptor accepted = match(matcher);
-		boolean match = (null != accepted);
+        Acceptor matcher = new source_text();
+        Acceptor accepted = match(matcher);
+        boolean match = (null != accepted);
 
         if (match && (null != getListeners())) {
             for (Listener cb : getListeners()) {
@@ -37,7 +31,7 @@ public  class Grammar extends Acceptor implements ITokenCodes {
         return new Grammar();
     }
 
- //Begin memoize
+    //Begin memoize
     @Override
     protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
@@ -52,26 +46,22 @@ public  class Grammar extends Acceptor implements ITokenCodes {
      */
     private static final Memoize stMemo = new Memoize();
 	//End memoize
- 
 
+    //Begin Listener
+    static //@Override
+    public void addListener(final Listener listener) {
+        if (null == stListeners) {
+            stListeners = new LinkedList<>();
+        }
+        stListeners.add(listener);
+    }
 
-	//Begin Listener
-	static //@Override
-	public void addListener(final Listener listener) {
-		if (null == stListeners) {
-			stListeners = new LinkedList<>();
-		}
-		stListeners.add(listener);
-	}
-
-	@Override
+    @Override
     protected Iterable<Listener> getListeners() {
-		return stListeners;
-	}
+        return stListeners;
+    }
 
-	private static List<Listener> stListeners;
-	//End Listener
+    private static List<Listener> stListeners;
+    //End Listener
 
 }
-
-

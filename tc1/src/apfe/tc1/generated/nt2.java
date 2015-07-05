@@ -36,15 +36,11 @@ public class nt2 extends Acceptor implements ITokenCodes {
     //Begin memoize
     @Override
     protected void memoize(Marker mark, Marker endMark) {
-        int dg1 = mark.hashCode();
         stMemo.add(mark, this, endMark);
-        Memoize.Data dbg2 = hasMemoized(mark);
-        assert null != dbg2;
     }
 
     @Override
     protected Memoize.Data hasMemoized(Marker mark) {
-        int dbg1 = mark.hashCode();
         return stMemo.memoized(mark);
     }
     /**

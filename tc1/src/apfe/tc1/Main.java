@@ -4,7 +4,6 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.ParseError;
 import apfe.runtime.ScannerState;
 import apfe.runtime.State;
-import apfe.runtime.Util;
 import apfe.tc1.generated.*;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -39,7 +38,8 @@ public class Main {
                 if (0 < stats[1]) {
                     pcnt = (100.0 * stats[0]) / stats[1];
                 }
-                Util.info(3, "APFE-STAT-1", stats[0], stats[1], pcnt);
+                //gblib.Util.info(0, "APFE-STAT-1", stats[0], stats[1], pcnt);
+                System.out.printf("Hit rate: (%d/%d): %.2f %%", stats[0], stats[1], pcnt);
             }
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);

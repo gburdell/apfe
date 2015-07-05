@@ -1,6 +1,4 @@
-
-package apfe.tc1.generated ;
-
+package apfe.tc1.generated;
 
 import java.util.List;
 import java.util.LinkedList;
@@ -8,21 +6,17 @@ import java.util.LinkedList;
 import apfe.runtime.*;
 import apfe.tc1.*;
 
-
-
-
-
-public  class source_text extends Acceptor implements ITokenCodes {
+public class source_text extends Acceptor implements ITokenCodes {
 
     public source_text() {
     }
 
     @Override
     protected boolean accepti() {
-		Acceptor matcher = new Sequence(new Repetition(new nt1(), Repetition.ERepeat.eZeroOrMore),
-new Terminal(EOF)) ;
-		Acceptor accepted = match(matcher);
-		boolean match = (null != accepted);
+        Acceptor matcher = new Sequence(new Repetition(new nt1(), Repetition.ERepeat.eZeroOrMore),
+                new Terminal(EOF));
+        Acceptor accepted = match(matcher);
+        boolean match = (null != accepted);
 
         if (match && (null != getListeners())) {
             for (Listener cb : getListeners()) {
@@ -38,7 +32,7 @@ new Terminal(EOF)) ;
         return new source_text();
     }
 
- //Begin memoize
+    //Begin memoize
     @Override
     protected void memoize(Marker mark, Marker endMark) {
         stMemo.add(mark, this, endMark);
@@ -53,26 +47,22 @@ new Terminal(EOF)) ;
      */
     private static final Memoize stMemo = new Memoize();
 	//End memoize
- 
 
+    //Begin Listener
+    static //@Override
+    public void addListener(final Listener listener) {
+        if (null == stListeners) {
+            stListeners = new LinkedList<>();
+        }
+        stListeners.add(listener);
+    }
 
-	//Begin Listener
-	static //@Override
-	public void addListener(final Listener listener) {
-		if (null == stListeners) {
-			stListeners = new LinkedList<>();
-		}
-		stListeners.add(listener);
-	}
-
-	@Override
+    @Override
     protected Iterable<Listener> getListeners() {
-		return stListeners;
-	}
+        return stListeners;
+    }
 
-	private static List<Listener> stListeners;
-	//End Listener
+    private static List<Listener> stListeners;
+    //End Listener
 
 }
-
-
