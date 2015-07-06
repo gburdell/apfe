@@ -23,13 +23,13 @@
  */
 package v2.apfe.peg;
 
-import apfe.peg.generate.GenJava;
-import apfe.peg.generate.Main;
-import apfe.runtime.Acceptor;
-import apfe.runtime.Marker;
-import apfe.runtime.Memoize;
-import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
+import v2.apfe.peg.generate.GenJava;
+import v2.apfe.peg.generate.Main;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.Repetition;
+import v2.apfe.runtime.Sequence;
 
 public class Identifier extends Acceptor implements GenJava.IGen {
 

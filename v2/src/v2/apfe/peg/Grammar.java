@@ -23,11 +23,11 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.EndOfFile;
-import apfe.runtime.Acceptor;
-import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
+import v2.apfe.runtime.EndOfFile;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.Repetition;
+import v2.apfe.runtime.Sequence;
+import v2.apfe.runtime.Util;
 import java.util.List;
 
 public class Grammar extends Acceptor {

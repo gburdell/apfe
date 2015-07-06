@@ -23,7 +23,7 @@
  */
 package v2.apfe.peg.generate;
 
-import apfe.peg.Definition;
+import v2.apfe.peg.Definition;
 
 /**
  *

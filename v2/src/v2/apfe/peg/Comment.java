@@ -23,19 +23,19 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.Char;
-import apfe.runtime.EndOfLine;
-import apfe.runtime.Acceptor;
-import static apfe.runtime.Acceptor.match;
-import apfe.runtime.Marker;
-import apfe.runtime.CharClass;
-import apfe.runtime.CharSeq;
-import apfe.runtime.ICharClass;
-import apfe.runtime.Memoize;
-import apfe.runtime.NotPredicate;
-import apfe.runtime.PrioritizedChoice;
-import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
+import v2.apfe.runtime.Char;
+import v2.apfe.runtime.EndOfLine;
+import v2.apfe.runtime.Acceptor;
+import static v2.apfe.runtime.Acceptor.match;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.CharClass;
+import v2.apfe.runtime.CharSeq;
+import v2.apfe.runtime.ICharClass;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.NotPredicate;
+import v2.apfe.runtime.PrioritizedChoice;
+import v2.apfe.runtime.Repetition;
+import v2.apfe.runtime.Sequence;
 
 public class Comment extends Acceptor {
 

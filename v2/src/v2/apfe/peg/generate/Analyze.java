@@ -23,14 +23,14 @@
  */
 package v2.apfe.peg.generate;
 
-import apfe.peg.Definition;
-import apfe.peg.Expression;
-import apfe.peg.Grammar;
-import apfe.peg.Identifier;
-import apfe.peg.PegSequence;
-import apfe.peg.Prefix;
-import apfe.peg.Primary;
-import apfe.peg.Suffix;
+import v2.apfe.peg.Definition;
+import v2.apfe.peg.Expression;
+import v2.apfe.peg.Grammar;
+import v2.apfe.peg.Identifier;
+import v2.apfe.peg.PegSequence;
+import v2.apfe.peg.Prefix;
+import v2.apfe.peg.Primary;
+import v2.apfe.peg.Suffix;
 import gblib.MessageMgr;
 import gblib.Util;
 import java.util.HashMap;
@@ -64,6 +64,9 @@ public class Analyze {
                 detailLeftRecursion();
             }
             m_errCnt = MessageMgr.getErrorCnt();
+            if (0 == m_errCnt) {
+                m_firstSetByDefnName = FirstSet.getFirstSets(m_defnByName);
+            }
         }
         return m_errCnt;
     }
@@ -220,7 +223,7 @@ public class Analyze {
             StringBuilder path = new StringBuilder();
             for (String e : this) {
                 if (0 != path.length()) {
-                    path.append("->");
+                    path.append(" -> ");
                 }
                 path.append(e);
             }
@@ -249,9 +252,9 @@ public class Analyze {
             cnt = ++ct.m_indirect;
         }
         if (kind.equals(indirect)) {
-            Util.error("LR-2", from, hopChk.toString() + "->" + from);
+            Util.error("LR-2", from, hopChk.toString() + " -> " + from);
         } else if (2 > cnt) {
-            Util.warn("LR-1", from, hopChk.toString() + "->" + from);
+            Util.warn("LR-1", from, hopChk.toString() + " -> " + from);
         }
         m_didLR.put(from, Boolean.TRUE);
     }
@@ -400,6 +403,7 @@ public class Analyze {
     private final Grammar m_gram;
     private Map<String, Definition> m_defnByName = new HashMap<>();
     private Map<String, EStatus> m_processed = new HashMap<>();
+    private Map<String, FirstSet> m_firstSetByDefnName;
     /**
      * Map of direct left recursion count by name. Value is number of
      * consecutive direct left recursions.

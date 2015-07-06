@@ -23,11 +23,11 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.Acceptor;
-import apfe.runtime.Marker;
-import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.Sequence;
+import v2.apfe.runtime.Util;
 
 public class Assign extends Acceptor {
 

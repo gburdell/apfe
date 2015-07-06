@@ -23,8 +23,8 @@
  */
 package v2.apfe.peg.generate;
 
-import apfe.peg.Definition;
-import apfe.peg.PegSequence;
+import v2.apfe.peg.Definition;
+import v2.apfe.peg.PegSequence;
 import gblib.Util;
 import static v2.apfe.peg.generate.Main.getProperty;
 import static v2.apfe.peg.generate.Main.getPropertyAsBoolean;

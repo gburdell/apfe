@@ -23,13 +23,13 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.Acceptor;
-import static apfe.runtime.Acceptor.match;
-import apfe.runtime.Marker;
-import apfe.runtime.CharSeq;
-import apfe.runtime.Memoize;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
+import v2.apfe.runtime.Acceptor;
+import static v2.apfe.runtime.Acceptor.match;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.CharSeq;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.Sequence;
+import v2.apfe.runtime.Util;
 
 /**
  * @author gburdell

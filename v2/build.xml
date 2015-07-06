@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="v2.apfe" default="default" basedir=".">
-    <description>Builds, tests, and runs the project v2.apfe.</description>
+<project name="apfev2" default="default" basedir=".">
+    <description>Builds, tests, and runs the project apfev2.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -58,7 +58,7 @@
 
     An example of overriding the target for project execution could look like this:
 
-        <target name="run" depends="v2.apfe-impl.jar">
+        <target name="run" depends="apfev2-impl.jar">
             <exec dir="bin" executable="launcher.exe">
                 <arg file="${dist.jar}"/>
             </exec>

@@ -23,17 +23,16 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.Char;
-import apfe.peg.generate.GenJava;
-import apfe.peg.generate.Main;
-import apfe.runtime.Acceptor;
-import apfe.runtime.Marker;
-import apfe.runtime.Memoize;
-import apfe.runtime.NotPredicate;
-import apfe.runtime.PrioritizedChoice;
-import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
+import v2.apfe.runtime.Char;
+import v2.apfe.peg.generate.GenJava;
+import v2.apfe.peg.generate.Main;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.NotPredicate;
+import v2.apfe.runtime.PrioritizedChoice;
+import v2.apfe.runtime.Repetition;
+import v2.apfe.runtime.Sequence;
 
 public class Literal extends Acceptor implements GenJava.IGen {
 

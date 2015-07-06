@@ -23,9 +23,9 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.Space;
-import apfe.runtime.Acceptor;
-import apfe.runtime.BaseSpacing;
+import v2.apfe.runtime.Space;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.BaseSpacing;
 
 /**
  * @author gburdell

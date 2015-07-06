@@ -23,13 +23,13 @@
  */
 package v2.apfe.peg.generate;
 
-import apfe.peg.Definition;
-import apfe.peg.Grammar;
-import apfe.runtime.CharBuffer;
-import apfe.runtime.InputStream;
-import apfe.runtime.ParseError;
+import v2.apfe.peg.Definition;
+import v2.apfe.peg.Grammar;
+import v2.apfe.runtime.CharBuffer;
+import v2.apfe.runtime.InputStream;
+import v2.apfe.runtime.ParseError;
 import gblib.Util;
-import apfe.runtime.CharBufState;
+import v2.apfe.runtime.CharBufState;
 import gblib.MessageMgr;
 import java.io.File;
 import java.io.FileReader;

@@ -23,12 +23,12 @@
  */
 package v2.apfe.peg;
 
-import apfe.runtime.Acceptor;
-import apfe.runtime.Marker;
-import apfe.runtime.CharClass;
-import apfe.runtime.ICharClass;
-import apfe.runtime.Memoize;
-import apfe.runtime.PrioritizedChoice;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.CharClass;
+import v2.apfe.runtime.ICharClass;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.PrioritizedChoice;
 
 public class IdentCont extends Acceptor {
 

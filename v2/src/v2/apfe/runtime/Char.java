@@ -123,6 +123,10 @@ public class Char extends Acceptor {
         return new String(cb);
     }
 
+    public char getRawChar() {
+        return m_char;
+    }
+    
     private final char m_expect;
     private char m_char;
 

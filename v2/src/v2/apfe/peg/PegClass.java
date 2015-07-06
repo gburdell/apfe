@@ -23,16 +23,16 @@
  */
 package v2.apfe.peg;
 
-import apfe.peg.generate.GenJava;
-import apfe.peg.generate.Main;
-import apfe.runtime.Acceptor;
-import apfe.runtime.Marker;
-import apfe.runtime.CharSeq;
-import apfe.runtime.Memoize;
-import apfe.runtime.NotPredicate;
-import apfe.runtime.Repetition;
-import apfe.runtime.Sequence;
-import apfe.runtime.Util;
+import v2.apfe.peg.generate.GenJava;
+import v2.apfe.peg.generate.Main;
+import v2.apfe.runtime.Acceptor;
+import v2.apfe.runtime.Marker;
+import v2.apfe.runtime.CharSeq;
+import v2.apfe.runtime.Memoize;
+import v2.apfe.runtime.NotPredicate;
+import v2.apfe.runtime.Repetition;
+import v2.apfe.runtime.Sequence;
+import v2.apfe.runtime.Util;
 import java.util.List;
 
 public class PegClass extends Acceptor implements GenJava.IGen {
