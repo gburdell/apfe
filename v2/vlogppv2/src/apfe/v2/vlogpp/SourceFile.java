@@ -23,37 +23,48 @@
  */
 package apfe.v2.vlogpp;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
+import gblib.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.PrintStream;
+import java.util.Stack;
 
 /**
  * SystemVerilog source file.
+ *
  * @author gburdell
  */
 public class SourceFile {
-    public SourceFile(final String fname) {
-        m_fname = fname;
+
+    public SourceFile(final String fname, final PrintStream os) throws FileNotFoundException {
+        m_os = os;
+        push(fname);
     }
-    
-    public boolean parse(final PrintWriter os) {
+
+    public boolean parse() {
         boolean ok = true;
-        try (final BufferedReader ifid = 
-                new BufferedReader(new FileReader(m_fname), stBufferSz)) {
+        char c;
+        while (EState.eDone != m_state) {
             
-        } catch (IOException ex) {
-            ok = false;
         }
         return ok;
     }
-       
-    private final String        m_fname;
-    
-    private static final int stBufferSz = 1 << 20;
+
+    private void push(final String fname) throws FileNotFoundException {
+        m_is = new FileCharReader(fname);
+        if (!m_stack.empty()) {
+            //include file would be on non-empty stack
+            m_os.printf("`line %d \"%s\" %d\n", m_is.getLineNum(), m_is.getFile().getCanonicalPath(), 1);
+        }
+        m_stack.push(m_is);
+    }
+
+    private static enum EState {
+        eStart,
+        eDone
+    };
+
+    private final Stack<FileCharReader> m_stack = new Stack<>();
+    private final PrintStream m_os;
+    private FileCharReader m_is;
+    private EState m_state = EState.eStart;
 }

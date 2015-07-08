@@ -26,12 +26,7 @@ package apfe.v2.vlogpp;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -42,7 +37,8 @@ public class FileCharReaderTest {
     @Test
     public void testAll() {
         try {
-            final String fname = "/home/gburdell/projects/./vlog/s1_core/hdl/s1_top.flat.v";
+            //final String fname = "/home/gburdell/projects/./vlog/s1_core/hdl/s1_top.flat.v";
+            final String fname = "/home/gburdell/projects/privData/top.all.v";
             System.out.println("testAll: " + fname);
             FileCharReader instance = new FileCharReader(fname);
             int c, nchar = 0;

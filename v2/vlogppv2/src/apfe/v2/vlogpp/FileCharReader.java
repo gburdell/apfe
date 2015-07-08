@@ -41,7 +41,7 @@ public class FileCharReader {
     
     public FileCharReader(final String fname) throws FileNotFoundException {
         m_file = new File(fname);
-        m_ifs = new BufferedReader(new FileReader(m_file), stSize);
+        m_ifs = new BufferedReader(new FileReader(m_file), stFileBufSize);
         nextLine();
     }
 
@@ -81,6 +81,32 @@ public class FileCharReader {
         return c;
     }
     
+    /**
+     * Get substring or n chars starting at current position.
+     * @param n substring length.
+     * @return substring of length n starting at current position or rest of line
+     * if n greater than number or remaining.
+     */
+    public String substring(final int n) {
+        int end = m_pos + n;
+        if (end > length()) {
+            end = length();
+        }
+        return m_buf.substring(m_pos, end);
+    }
+    
+    /**
+     * Get remainder of line starting at current  position.
+     * @return remainder of line.
+     */
+    public String remainder() {
+        return substring(length());
+    }
+    
+    public int length() {
+        return m_buf.length();
+    }
+    
     private boolean nextLine() {
         if (!m_eof) {
             try {
@@ -106,13 +132,30 @@ public class FileCharReader {
         return m_eof;
     }
     
+    public String getLocation() {
+        return getFile().getFilename() + ":" + getLineNum() + ":" + getColNum();
+    }
+    
+    public int getLineNum() {
+        return m_lnum;
+    }
+    
+    public int getColNum() {
+        return m_col + 1;
+    }
+    
+    public File getFile() {
+        return m_file;
+    }
+    
     private int m_lnum = 0;
     private int m_col = 0;
     private final File m_file;
     private final BufferedReader m_ifs;
     private int m_pos = 0;
-    private StringBuilder m_buf = new StringBuilder(256);
+    private final StringBuilder m_buf = new StringBuilder(stLineBufSize);
     private boolean m_eof = false;
     
-    private static final int stSize = 1 << 20;
+    private static final int stFileBufSize = 1 << 20;
+    private static final int stLineBufSize = 1024;
 }
