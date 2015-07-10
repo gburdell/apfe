@@ -81,6 +81,12 @@ public class FileCharReader {
         return c;
     }
     
+    public void accept(final int n) {
+        for (int i = 0; i < n; i++) {
+            next();
+        }
+    }
+    
     /**
      * Get substring or n chars starting at current position.
      * @param n substring length.
@@ -95,6 +101,19 @@ public class FileCharReader {
         return m_buf.substring(m_pos, end);
     }
     
+    /**
+     * Match substring with current position.
+     * @param to match substring.
+     * @return true on match and also accept: advance current position past match;
+     * else false and do not advance.
+     */
+    public boolean acceptOnMatch(final String to) {
+        final boolean match = to.equals(substring(to.length()));
+        if (match) {
+            accept(to.length());
+        }
+        return match;
+    }
     /**
      * Get remainder of line starting at current  position.
      * @return remainder of line.
@@ -146,6 +165,10 @@ public class FileCharReader {
     
     public File getFile() {
         return m_file;
+    }
+    
+    public void close() throws IOException {
+        m_ifs.close();
     }
     
     private int m_lnum = 0;

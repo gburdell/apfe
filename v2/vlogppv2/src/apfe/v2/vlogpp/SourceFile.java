@@ -25,8 +25,11 @@ package apfe.v2.vlogpp;
 
 import gblib.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * SystemVerilog source file.
@@ -37,28 +40,54 @@ public class SourceFile {
 
     public SourceFile(final String fname, final PrintStream os) throws FileNotFoundException {
         m_os = os;
-        push(fname);
+        push(fname, 0);
     }
 
     public boolean parse() {
         boolean ok = true;
         char c;
-        while (EState.eDone != m_state) {
-            
+        while (null != m_is) {
+            try {
+                while (!m_is.isEOF()) {
+                    if (m_is.acceptOnMatch("/*")) {
+                        blockComment();
+                    }
+                }
+                m_is.close();
+                m_is = m_stack.empty() ? null : m_stack.pop();
+            } catch (IOException ex) {
+                Logger.getLogger(SourceFile.class.getName()).log(Level.SEVERE, null, ex);
+                ok = false;
+                break;
+            }
         }
         return ok;
     }
 
-    private void push(final String fname) throws FileNotFoundException {
+    private void blockComment() {
+        while (!m_is.isEOF()) {
+            if (m_is.acceptOnMatch("*/")) {
+                return;
+            }
+            m_is.next();
+        }
+        if (m_is.isEOF()) {
+            
+        }
+    }
+
+    private void push(final String fname, final int lvl) throws FileNotFoundException {
         m_is = new FileCharReader(fname);
-        if (!m_stack.empty()) {
+        if (0 <= lvl) {
+            assert 2 >= lvl;
             //include file would be on non-empty stack
-            m_os.printf("`line %d \"%s\" %d\n", m_is.getLineNum(), m_is.getFile().getCanonicalPath(), 1);
+            m_os.printf("`line %d \"%s\" %d\n", m_is.getLineNum(), m_is.getFile().getCanonicalPath(), lvl);
         }
         m_stack.push(m_is);
     }
 
     private static enum EState {
+
         eStart,
         eDone
     };
