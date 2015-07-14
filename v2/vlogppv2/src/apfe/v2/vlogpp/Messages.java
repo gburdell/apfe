@@ -23,36 +23,30 @@
  */
 package apfe.v2.vlogpp;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import static apfe.v2.vlogpp.Global.stToolRoot;
+import gblib.File;
+import gblib.MessageMgr;
+import gblib.MessageMgr.Message;
 
 /**
- * Track global state here.
+ *
  * @author gburdell
  */
-public class Global {
-    private Global() {        
+public class Messages {
+
+    public static void message(char severity, String code, Object... args) {
+        MessageMgr.message(severity, code, args);
     }
     
-    public static Global getTheOne() {
-        return stTheOne;
+    public static void print(final Message msg) {
+        MessageMgr.print(msg);
     }
     
-    public List<Incdir> addInclDir(final String dirName) throws Incdir.Invalid {
-        m_inclDirs.add(new Incdir(dirName));
-        return getInclDirs();
+    private static final boolean stLoaded = load();
+
+    private static boolean load() {
+        final File fname = new File(stToolRoot, "messages.txt");
+        MessageMgr.addMessages(fname);
+        return true;
     }
-    
-    public List<Incdir> getInclDirs() {
-        return Collections.unmodifiableList(m_inclDirs);
-    }
-    
-    private final List<Incdir>    m_inclDirs = new LinkedList<>();
-    
-    private static final Global stTheOne = new Global();
-    
-    // Property values
-    public final static String stToolRoot = System.getProperty("toolRoot", 
-                "/home/gburdell/projects/apfe/v2/vlogppv2");
 }

@@ -34,7 +34,7 @@ import java.io.IOException;
  *
  * @author gburdell
  */
-public class FileCharReader {
+public class FileCharReader implements AutoCloseable {
     
     public static final int EOF = -1;
     public static final int NL = '\n';
@@ -167,6 +167,7 @@ public class FileCharReader {
         return m_file;
     }
     
+    @Override
     public void close() throws IOException {
         m_ifs.close();
     }

@@ -46,34 +46,51 @@ public class SourceFile {
     public boolean parse() {
         boolean ok = true;
         char c;
+        ParseError error = null;
         while (null != m_is) {
-            try {
-                while (!m_is.isEOF()) {
-                    if (m_is.acceptOnMatch("/*")) {
+            while (!m_is.isEOF() && (null == error)) {
+                try {
+                    if (acceptOnMatch("/*")) {
                         blockComment();
                     }
+                } catch (final ParseError pe) {
+                    error = pe;
                 }
+            }
+            try {
                 m_is.close();
-                m_is = m_stack.empty() ? null : m_stack.pop();
             } catch (IOException ex) {
                 Logger.getLogger(SourceFile.class.getName()).log(Level.SEVERE, null, ex);
-                ok = false;
-                break;
+                error = new ParseError("VPP-EXIT");
             }
+            m_is = m_stack.empty() ? null : m_stack.pop();
         }
         return ok;
     }
 
-    private void blockComment() {
+    private void blockComment() throws ParseError {
         while (!m_is.isEOF()) {
-            if (m_is.acceptOnMatch("*/")) {
+            if (acceptOnMatch("*/")) {
                 return;
             }
-            m_is.next();
+            next();
         }
         if (m_is.isEOF()) {
-            
+            throw new ParseError("VPP-EOF-1", m_is, "<block-comment>");
         }
+    }
+
+    private boolean acceptOnMatch(final String s) {
+        final boolean match = m_is.acceptOnMatch(s);
+        if (match) {
+            m_os.print(s);
+        }
+        return match;
+    }
+
+    private void next() {
+        final char c = (char) m_is.next();
+        m_os.print(c);
     }
 
     private void push(final String fname, final int lvl) throws FileNotFoundException {

@@ -23,36 +23,38 @@
  */
 package apfe.v2.vlogpp;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import gblib.MessageMgr.Message;
 
 /**
- * Track global state here.
+ *
  * @author gburdell
  */
-public class Global {
-    private Global() {        
+public class ParseError extends Exception {
+
+    public ParseError(final String code) {
+        this(code, null);
     }
-    
-    public static Global getTheOne() {
-        return stTheOne;
+
+    public ParseError(final String code, final FileCharReader loc, Object... args) {
+        Object nargs[] = null;
+        if (null != loc) {
+            nargs = new Object[1 + args.length];
+            nargs[0] = loc.getLocation();
+            System.arraycopy(args, 0, nargs, 1, args.length);
+        } else {
+            assert null == args;
+        }
+        m_msg = new Message('E', code, nargs);
     }
-    
-    public List<Incdir> addInclDir(final String dirName) throws Incdir.Invalid {
-        m_inclDirs.add(new Incdir(dirName));
-        return getInclDirs();
+
+    @Override
+    public String getMessage() {
+        return m_msg.getMessage();
     }
-    
-    public List<Incdir> getInclDirs() {
-        return Collections.unmodifiableList(m_inclDirs);
+
+    public void print() {
+        Messages.print(m_msg);
     }
-    
-    private final List<Incdir>    m_inclDirs = new LinkedList<>();
-    
-    private static final Global stTheOne = new Global();
-    
-    // Property values
-    public final static String stToolRoot = System.getProperty("toolRoot", 
-                "/home/gburdell/projects/apfe/v2/vlogppv2");
+
+    private final Message m_msg;
 }
