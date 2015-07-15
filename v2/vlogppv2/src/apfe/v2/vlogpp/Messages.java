@@ -26,7 +26,6 @@ package apfe.v2.vlogpp;
 import static apfe.v2.vlogpp.Global.stToolRoot;
 import gblib.File;
 import gblib.MessageMgr;
-import gblib.MessageMgr.Message;
 
 /**
  *
@@ -36,6 +35,10 @@ public class Messages {
 
     public static void message(char severity, String code, Object... args) {
         MessageMgr.message(severity, code, args);
+    }
+    
+    public static Message getMessage(char severity, String code, Object... args) {
+        return new Message(severity, code, args);
     }
     
     public static void print(final Message msg) {
@@ -48,5 +51,13 @@ public class Messages {
         final File fname = new File(stToolRoot, "messages.txt");
         MessageMgr.addMessages(fname);
         return true;
+    }
+    
+    public static class Message extends MessageMgr.Message {
+
+        public Message(char severity, String code, Object... args) {
+            super(severity, code, args);
+        }
+        
     }
 }

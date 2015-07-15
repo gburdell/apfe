@@ -25,6 +25,7 @@ package apfe.v2.vlogpp;
 
 import gblib.File;
 import gblib.Util;
+import static gblib.Util.invariant;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -37,7 +38,7 @@ import java.io.IOException;
 public class FileCharReader implements AutoCloseable {
     
     public static final int EOF = -1;
-    public static final int NL = '\n';
+    public static final char NL = '\n';
     
     public FileCharReader(final String fname) throws FileNotFoundException {
         m_file = new File(fname);
@@ -60,7 +61,6 @@ public class FileCharReader implements AutoCloseable {
             if (pos < m_buf.length()) {
                 c = m_buf.charAt(pos);
             } else {
-                assert 0 == n;
                 if (nextLine()) {
                     c = m_buf.charAt(n);
                 }
@@ -90,10 +90,12 @@ public class FileCharReader implements AutoCloseable {
     /**
      * Get substring or n chars starting at current position.
      * @param n substring length.
-     * @return substring of length n starting at current position or rest of line
-     * if n greater than number or remaining.
+     * @return substring of length n starting at current position.
      */
     public String substring(final int n) {
+        if (m_pos >= length()) {
+            nextLine();
+        }
         int end = m_pos + n;
         if (end > length()) {
             end = length();

@@ -22,8 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.v2.vlogpp;
-
-import gblib.MessageMgr.Message;
+import apfe.v2.vlogpp.Messages.Message;
 
 /**
  *
@@ -44,7 +43,7 @@ public class ParseError extends Exception {
         } else {
             assert null == args;
         }
-        m_msg = new Message('E', code, nargs);
+        m_msg = Messages.getMessage('E', code, nargs);
     }
 
     @Override

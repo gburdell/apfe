@@ -23,7 +23,6 @@
  */
 package apfe.v2.vlogpp;
 
-import gblib.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,18 +42,22 @@ public class SourceFile {
         push(fname, 0);
     }
 
-    public boolean parse() {
+    public boolean parse() throws ParseError {
         boolean ok = true;
         char c;
         ParseError error = null;
         while (null != m_is) {
-            while (!m_is.isEOF() && (null == error)) {
+            while (!m_is.isEOF()) {
                 try {
                     if (acceptOnMatch("/*")) {
                         blockComment();
+                        //TODO: more if...
+                    } else {
+                        next();
                     }
                 } catch (final ParseError pe) {
                     error = pe;
+                    break;
                 }
             }
             try {
@@ -62,6 +65,9 @@ public class SourceFile {
             } catch (IOException ex) {
                 Logger.getLogger(SourceFile.class.getName()).log(Level.SEVERE, null, ex);
                 error = new ParseError("VPP-EXIT");
+            }
+            if (null != error) {
+                throw error;
             }
             m_is = m_stack.empty() ? null : m_stack.pop();
         }
@@ -82,7 +88,7 @@ public class SourceFile {
 
     private boolean acceptOnMatch(final String s) {
         final boolean match = m_is.acceptOnMatch(s);
-        if (match) {
+        if (match && m_echoOn) {
             m_os.print(s);
         }
         return match;
@@ -90,7 +96,9 @@ public class SourceFile {
 
     private void next() {
         final char c = (char) m_is.next();
-        m_os.print(c);
+        if (m_echoOn) {
+            m_os.print(c);
+        }
     }
 
     private void push(final String fname, final int lvl) throws FileNotFoundException {
@@ -113,4 +121,5 @@ public class SourceFile {
     private final PrintStream m_os;
     private FileCharReader m_is;
     private EState m_state = EState.eStart;
+    private boolean m_echoOn = true;
 }
