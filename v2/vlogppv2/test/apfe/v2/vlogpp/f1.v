@@ -1,2 +1,4 @@
 
-/* this is a file with a missing closing comment.
+/* a block comment
+which is *
+missing a close

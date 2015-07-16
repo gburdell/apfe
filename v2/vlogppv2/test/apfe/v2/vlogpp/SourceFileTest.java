@@ -41,8 +41,15 @@ public class SourceFileTest {
     private static final String stDir = "/home/gburdell/projects/apfe/v2/vlogppv2/test/apfe/v2/vlogpp";
     private static final List<Pair<String, Boolean>> stTests = new LinkedList<>();
 
+    private static void add(final String fname, boolean pass) {
+        stTests.add(new Pair(stDir + "/" + fname, pass));
+    }
+    
     static {
-        stTests.add(new Pair(stDir + "/f1.v", false));
+        add("f1.v", false);
+        add("f2.v", true);
+        add("f3.v", false);
+        add("f4.v", true);
     }
 
     /**

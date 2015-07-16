@@ -49,9 +49,12 @@ public class SourceFile {
         while (null != m_is) {
             while (!m_is.isEOF()) {
                 try {
-                    if (acceptOnMatch("/*")) {
+                    if (acceptOnMatch("\"")) {
+                        stringLiteral();
+                    } else if (acceptOnMatch("/*")) {
                         blockComment();
-                        //TODO: more if...
+                    } else if (acceptOnMatch("//")) {
+                        lineComment();
                     } else {
                         next();
                     }
@@ -78,6 +81,8 @@ public class SourceFile {
         while (!m_is.isEOF()) {
             if (acceptOnMatch("*/")) {
                 return;
+            } else if (acceptOnMatch("/*")) {
+                throw new ParseError("VPP-CMNT-2", m_is);
             }
             next();
         }
@@ -86,19 +91,60 @@ public class SourceFile {
         }
     }
 
+    private void lineComment() throws ParseError {
+        //slurp entire line
+        final String rem = m_is.remainder();
+        m_is.accept(rem.length());
+        print(rem);
+    }
+
+    /**
+     * IEEE Std 1800-2012 5.9 String literals A string literal is a sequence of
+     * characters enclosed by double quotes (""). Nonprinting and other special
+     * characters are preceded with a backslash. A string literal shall be
+     * contained in a single line unless the new line is immediately preceded by
+     * a \ (backslash). In this case, the backslash and the newline are ignored.
+     * There is no predefined limit to the length of a string literal.
+     */
+    private void stringLiteral() throws ParseError {
+        char c;
+        final int started[] = new int[]{m_is.getLineNum(), m_is.getColNum()};
+        while (!m_is.isEOF()) {
+            if (acceptOnMatch("\\\n")) {
+                //do nothing                
+            } else {
+                c = (char) m_is.la(0);
+                switch (c) {
+                    case '\\':
+                        print(m_is.substring(2));
+                        m_is.accept(2);
+                        break;
+                    case '"':
+                        print(c);
+                        next();
+                        return;
+                    default:
+                        next();
+                }
+            }
+        }
+        if (m_is.isEOF()) {
+            //VPP-STRING %s: unterminated string (started at %d:%d (line:col))
+            throw new ParseError("VPP-STRING", m_is, started[0], started[1]);
+        }
+    }
+
     private boolean acceptOnMatch(final String s) {
         final boolean match = m_is.acceptOnMatch(s);
-        if (match && m_echoOn) {
-            m_os.print(s);
+        if (match) {
+            print(s);
         }
         return match;
     }
 
     private void next() {
         final char c = (char) m_is.next();
-        if (m_echoOn) {
-            m_os.print(c);
-        }
+        print(c);
     }
 
     private void push(final String fname, final int lvl) throws FileNotFoundException {
@@ -109,6 +155,18 @@ public class SourceFile {
             m_os.printf("`line %d \"%s\" %d\n", m_is.getLineNum(), m_is.getFile().getCanonicalPath(), lvl);
         }
         m_stack.push(m_is);
+    }
+
+    private void print(final char c) {
+        if (m_echoOn) {
+            m_os.print(c);
+        }
+    }
+
+    private void print(final String s) {
+        if (m_echoOn) {
+            m_os.print(s);
+        }
     }
 
     private static enum EState {
