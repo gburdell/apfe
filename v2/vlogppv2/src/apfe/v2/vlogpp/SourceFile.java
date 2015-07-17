@@ -29,6 +29,7 @@ import java.io.PrintStream;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import static apfe.v2.vlogpp.FileCharReader.NL;
 
 /**
  * SystemVerilog source file.
@@ -109,26 +110,29 @@ public class SourceFile {
     private void stringLiteral() throws ParseError {
         char c;
         final int started[] = new int[]{m_is.getLineNum(), m_is.getColNum()};
-        while (!m_is.isEOF()) {
+        boolean isUnterminated = false;
+        while (!isUnterminated && !m_is.isEOF()) {
             if (acceptOnMatch("\\\n")) {
                 //do nothing                
             } else {
                 c = (char) m_is.la(0);
                 switch (c) {
-                    case '\\':
+                    case '\\':  //escaped char
                         print(m_is.substring(2));
                         m_is.accept(2);
                         break;
                     case '"':
-                        print(c);
                         next();
                         return;
+                    case NL:
+                        isUnterminated = true;
+                        break;
                     default:
                         next();
                 }
             }
         }
-        if (m_is.isEOF()) {
+        if (isUnterminated || m_is.isEOF()) {
             //VPP-STRING %s: unterminated string (started at %d:%d (line:col))
             throw new ParseError("VPP-STRING", m_is, started[0], started[1]);
         }
@@ -178,6 +182,5 @@ public class SourceFile {
     private final Stack<FileCharReader> m_stack = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;
-    private EState m_state = EState.eStart;
     private boolean m_echoOn = true;
 }

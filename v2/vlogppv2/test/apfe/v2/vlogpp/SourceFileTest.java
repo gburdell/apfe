@@ -50,6 +50,8 @@ public class SourceFileTest {
         add("f2.v", true);
         add("f3.v", false);
         add("f4.v", true);
+        add("f5.v", false);
+        add("sparc.v", true);
     }
 
     /**
