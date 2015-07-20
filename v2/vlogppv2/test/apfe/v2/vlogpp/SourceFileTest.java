@@ -51,7 +51,8 @@ public class SourceFileTest {
         add("f3.v", false);
         add("f4.v", true);
         add("f5.v", false);
-        add("sparc.v", true);
+        //long runtime: add("sparc.v", true);
+        add("f6.v", false);
     }
 
     /**

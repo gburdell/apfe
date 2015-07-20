@@ -62,6 +62,10 @@ public class FileCharReader implements AutoCloseable {
         }
         return c;
     }
+    
+    public int la() {
+        return la(0);
+    }
 
     /**
      * Get next character in current line or EOF;
@@ -78,9 +82,27 @@ public class FileCharReader implements AutoCloseable {
         return c;
     }
 
-    public void accept(final int n) {
-        for (int i = 0; i < n; i++) {
-            next();
+    /**
+     * Unconditionally accept n chars from current position.
+     * @param n number of chars to accept.
+     * foobar\n
+     * 0123456  length=7
+     *    ^
+     * mpos=3
+     * n=3: m=6. (6<7), m_pos=6
+     *   4: m=7. (7!<7), n=7-6=1, m_pos=6
+     *   5: m=8, (8!<7), n=8-6=2, m_pos=6
+     */
+    public void accept(int n) {
+        int m = n + m_pos;
+        if (m < length()) {
+            m_pos = m;
+        } else {
+            n = m - (length() - 1);
+            m_pos = length() - 1;
+            for (int i = 0; i < n; i++) {
+                next();
+            }
         }
     }
 
@@ -123,7 +145,12 @@ public class FileCharReader implements AutoCloseable {
         return substring(length());
     }
 
-    public int length() {
+    /**
+     * Get length of buffer.
+     *
+     * @return length of buffer.
+     */
+    private int length() {
         return m_buf.length();
     }
 

@@ -30,6 +30,8 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static apfe.v2.vlogpp.FileCharReader.NL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * SystemVerilog source file.
@@ -57,7 +59,13 @@ public class SourceFile {
                     } else if (acceptOnMatch("//")) {
                         lineComment();
                     } else {
-                        next();
+                        final String str = m_is.remainder();
+                        Matcher matcher = stTicDefine1.matcher(str);
+                        if (matcher.matches()) {
+                            ticDefine(matcher);
+                        } else {
+                            next();
+                        }
                     }
                 } catch (final ParseError pe) {
                     error = pe;
@@ -76,6 +84,37 @@ public class SourceFile {
             m_is = m_stack.empty() ? null : m_stack.pop();
         }
         return ok;
+    }
+
+    private static final Pattern stTicDefine1 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s*)");
+
+    private void ticDefine(Matcher matcher) throws ParseError {
+        int n = matcher.start(1);
+        accept(n);
+        final int[] started = getStartMark();
+        final String macroNm = matcher.group(2);
+        int m = matcher.start(3);
+        accept(m-n);
+        //TODO: we are just past macroNm
+    }
+
+    private void accept(int n) {
+        m_is.accept(n);
+    }
+
+    private int la(int n) {
+        return m_is.la(n);
+    }
+
+    private int la() {
+        return la(0);
+    }
+
+    private boolean skipWhiteSpace() {
+        while (0 <= " \t".indexOf(la())) {
+            m_is.next();
+        }
+        return m_is.isEOF();
     }
 
     private void blockComment() throws ParseError {
@@ -99,6 +138,10 @@ public class SourceFile {
         print(rem);
     }
 
+    private int[] getStartMark() {
+        return new int[]{m_is.getLineNum(), m_is.getColNum()};
+    }
+
     /**
      * IEEE Std 1800-2012 5.9 String literals A string literal is a sequence of
      * characters enclosed by double quotes (""). Nonprinting and other special
@@ -109,13 +152,13 @@ public class SourceFile {
      */
     private void stringLiteral() throws ParseError {
         char c;
-        final int started[] = new int[]{m_is.getLineNum(), m_is.getColNum()};
+        final int started[] = getStartMark();
         boolean isUnterminated = false;
         while (!isUnterminated && !m_is.isEOF()) {
             if (acceptOnMatch("\\\n")) {
                 //do nothing                
             } else {
-                c = (char) m_is.la(0);
+                c = (char) la();
                 switch (c) {
                     case '\\':  //escaped char
                         print(m_is.substring(2));

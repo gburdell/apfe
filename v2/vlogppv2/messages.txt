@@ -1,8 +1,9 @@
 // Add messages for vlogpp
 
 VPP-CMNT-2 %s: nested block comment
-VPP-EOF-1 %s: unexpected end-of-file while processing %s
-VPP-EXIT 'Exiting due to previous error(s)'
+VPP-DEFN-1 %s: malformed '`define' (started at %d:%d (line:col))
+VPP-EOF-1 %s: unexpected end-of-file while processing '%s'
+VPP-EXIT Exiting due to previous error(s)
 VPP-STRING %s: unterminated string (started at %d:%d (line:col))
 
 // VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d
