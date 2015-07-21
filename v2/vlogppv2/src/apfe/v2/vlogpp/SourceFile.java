@@ -60,9 +60,9 @@ public class SourceFile {
                         lineComment();
                     } else {
                         final String str = m_is.remainder();
-                        Matcher matcher = stTicDefine1.matcher(str);
+                        Matcher matcher = TicDefine.stPatt1.matcher(str);
                         if (matcher.matches()) {
-                            ticDefine(matcher);
+                            TicDefine.parse(this, matcher);
                         } else {
                             next();
                         }
@@ -86,19 +86,7 @@ public class SourceFile {
         return ok;
     }
 
-    private static final Pattern stTicDefine1 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s*)");
-
-    private void ticDefine(Matcher matcher) throws ParseError {
-        int n = matcher.start(1);
-        accept(n);
-        final int[] started = getStartMark();
-        final String macroNm = matcher.group(2);
-        int m = matcher.start(3);
-        accept(m-n);
-        //TODO: we are just past macroNm
-    }
-
-    private void accept(int n) {
+    void accept(int n) {
         m_is.accept(n);
     }
 
@@ -106,7 +94,7 @@ public class SourceFile {
         return m_is.la(n);
     }
 
-    private int la() {
+    int la() {
         return la(0);
     }
 
@@ -138,7 +126,7 @@ public class SourceFile {
         print(rem);
     }
 
-    private int[] getStartMark() {
+    int[] getStartMark() {
         return new int[]{m_is.getLineNum(), m_is.getColNum()};
     }
 
