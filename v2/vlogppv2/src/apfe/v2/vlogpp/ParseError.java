@@ -31,19 +31,23 @@ import apfe.v2.vlogpp.Messages.Message;
 public class ParseError extends Exception {
 
     public ParseError(final String code) {
-        this(code, null);
+        this(code, (String)null);
     }
 
-    public ParseError(final String code, final FileCharReader loc, Object... args) {
+    public ParseError(final String code, final FileCharReader loc, final Object... args) {
+        this(code, loc.getLocation(), args);
+    }
+    
+    public ParseError(final String code, final String loc, final Object... args) {
         Object nargs[] = null;
         if (null != loc) {
             nargs = new Object[1 + args.length];
-            nargs[0] = loc.getLocation();
+            nargs[0] = loc;
             System.arraycopy(args, 0, nargs, 1, args.length);
         } else {
             assert null == args;
         }
-        m_msg = Messages.getMessage('E', code, nargs);
+        m_msg = Messages.getMessage('E', code, nargs);        
     }
 
     @Override

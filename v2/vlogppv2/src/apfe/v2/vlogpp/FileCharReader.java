@@ -68,8 +68,7 @@ public class FileCharReader implements AutoCloseable {
     }
 
     /**
-     * Get next character in current line or EOF;
-     *
+     * Get current character and advance position.
      * @return
      */
     public int next() {
@@ -176,6 +175,10 @@ public class FileCharReader implements AutoCloseable {
 
     public boolean isEOF() {
         return m_eof;
+    }
+    
+    public boolean isEOL() {
+        return (la() == NL);
     }
 
     public String getLocation() {

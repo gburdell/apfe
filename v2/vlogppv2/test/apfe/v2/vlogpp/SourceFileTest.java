@@ -44,8 +44,9 @@ public class SourceFileTest {
     private static void add(final String fname, boolean pass) {
         stTests.add(new Pair(stDir + "/" + fname, pass));
     }
-    
+
     static {
+        /**/
         add("f1.v", false);
         add("f2.v", true);
         add("f3.v", false);
@@ -53,6 +54,8 @@ public class SourceFileTest {
         add("f5.v", false);
         //long runtime: add("sparc.v", true);
         add("f6.v", false);
+        /**/
+        add("f7.v", true);
     }
 
     /**

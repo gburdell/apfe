@@ -50,7 +50,7 @@ public class SourceFile {
         char c;
         ParseError error = null;
         while (null != m_is) {
-            while (!m_is.isEOF()) {
+            while (!isEOF()) {
                 try {
                     if (acceptOnMatch("\"")) {
                         stringLiteral();
@@ -62,7 +62,7 @@ public class SourceFile {
                         final String str = m_is.remainder();
                         Matcher matcher = TicDefine.stPatt1.matcher(str);
                         if (matcher.matches()) {
-                            TicDefine.parse(this, matcher);
+                            TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
                         } else {
                             next();
                         }
@@ -90,7 +90,7 @@ public class SourceFile {
         m_is.accept(n);
     }
 
-    private int la(int n) {
+    int la(int n) {
         return m_is.la(n);
     }
 
@@ -98,15 +98,23 @@ public class SourceFile {
         return la(0);
     }
 
-    private boolean skipWhiteSpace() {
+    boolean skipWhiteSpace() {
         while (0 <= " \t".indexOf(la())) {
-            m_is.next();
+            next();
         }
+        return isEOF();
+    }
+
+    public boolean isEOF() {
         return m_is.isEOF();
     }
 
+    public boolean isEOL() {
+        return m_is.isEOL();
+    }
+
     private void blockComment() throws ParseError {
-        while (!m_is.isEOF()) {
+        while (!isEOF()) {
             if (acceptOnMatch("*/")) {
                 return;
             } else if (acceptOnMatch("/*")) {
@@ -114,7 +122,7 @@ public class SourceFile {
             }
             next();
         }
-        if (m_is.isEOF()) {
+        if (isEOF()) {
             throw new ParseError("VPP-EOF-1", m_is, "<block-comment>");
         }
     }
@@ -138,11 +146,11 @@ public class SourceFile {
      * a \ (backslash). In this case, the backslash and the newline are ignored.
      * There is no predefined limit to the length of a string literal.
      */
-    private void stringLiteral() throws ParseError {
+    void stringLiteral() throws ParseError {
         char c;
         final int started[] = getStartMark();
         boolean isUnterminated = false;
-        while (!isUnterminated && !m_is.isEOF()) {
+        while (!isUnterminated && !isEOF()) {
             if (acceptOnMatch("\\\n")) {
                 //do nothing                
             } else {
@@ -163,7 +171,7 @@ public class SourceFile {
                 }
             }
         }
-        if (isUnterminated || m_is.isEOF()) {
+        if (isUnterminated || isEOF()) {
             //VPP-STRING %s: unterminated string (started at %d:%d (line:col))
             throw new ParseError("VPP-STRING", m_is, started[0], started[1]);
         }
@@ -177,9 +185,10 @@ public class SourceFile {
         return match;
     }
 
-    private void next() {
-        final char c = (char) m_is.next();
-        print(c);
+    int next() {
+        final int c = (char) m_is.next();
+        print((char) c);
+        return c;
     }
 
     private void push(final String fname, final int lvl) throws FileNotFoundException {
@@ -210,6 +219,16 @@ public class SourceFile {
         eDone
     };
 
+    boolean setEchoOn(final boolean val) {
+        final boolean was = m_echoOn;
+        m_echoOn = val;
+        return was;
+    }
+
+    String getLocation() {
+        return m_is.getLocation();
+    }
+    
     private final Stack<FileCharReader> m_stack = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;

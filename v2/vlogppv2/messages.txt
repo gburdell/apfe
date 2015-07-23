@@ -2,8 +2,11 @@
 
 VPP-CMNT-2 %s: nested block comment
 VPP-DEFN-1 %s: malformed '`define' (started at %d:%d (line:col))
+VPP-DEFN-2 %s: malformed '`define'
 VPP-EOF-1 %s: unexpected end-of-file while processing '%s'
+VPP-EOF-2 %s: unexpected end-of-file while processing '%s' (started at %d:%d (line:col))
 VPP-EXIT Exiting due to previous error(s)
+VPP-FARG-1 %s: empty formal arg. while processing '`define' (started at %d:%d (line:col))
 VPP-STRING %s: unterminated string (started at %d:%d (line:col))
 
 // VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d

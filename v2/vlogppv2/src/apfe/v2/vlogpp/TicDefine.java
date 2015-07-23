@@ -27,6 +27,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static apfe.v2.vlogpp.FileCharReader.EOF;
+import static apfe.v2.vlogpp.FileCharReader.NL;
+import gblib.Pair;
 
 /**
  *
@@ -34,31 +37,189 @@ import java.util.regex.Pattern;
  */
 class TicDefine {
 
-    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s*)");
+    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]*.*\\s");
+    static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s)");
 
-    static void parse(final SourceFile src, Matcher matcher) {
-        int n = matcher.start(1);
-        src.accept(n);
-        final int[] started = src.getStartMark();
-        final String macroName = matcher.group(2);
-        int m = matcher.start(3);
-        src.accept(m - n);
+    private TicDefine(final SourceFile src, final Matcher matcher) throws ParseError {
+        if (! matcher.matches()) {
+            throw new ParseError("VPP-DEFN-2", src.getLocation());
+        }
+        m_src = src;
+        m_matcher = matcher;
+        m_echoOn = m_src.setEchoOn(false);
+    }
+
+    static class FormalArg {
+
+        public String getIdent() {
+            return m_arg.v1;
+        }
+
+        public boolean hasDefaultText() {
+            return (null != getDefaultText());
+        }
+
+        public String getDefaultText() {
+            return m_arg.v2;
+        }
+
+        private FormalArg(final Pair<String, String> ele) {
+            m_arg = ele;
+        }
+        private Pair<String, String> m_arg;
+    }
+
+    private int[] m_started;
+    private String m_macroName;
+    private final SourceFile m_src;
+    private final Matcher m_matcher;
+    private List<FormalArg> m_formalArgs;
+    private final boolean m_echoOn;
+    private String m_macroText;
+
+    static void parse(final SourceFile src, final Matcher matcher) throws ParseError {
+        TicDefine ticDefn = new TicDefine(src, matcher);
+        ticDefn.parse();
+    }
+
+    private void parse() throws ParseError {
+        int n = m_matcher.start(1);
+        m_src.accept(n);
+        m_started = m_src.getStartMark();
+        m_macroName = m_matcher.group(2);
+        int m = m_matcher.start(3);
+        m_src.accept(m - n);
         //we are just past macroNm
         //The left parenthesis shall follow the text macro name immediately
         //The `define macro text can also include `", `\`", and ``
-        if ('(' == src.la()) {
+        if ('(' == la()) {
+            formalArguments();
+        }
+        m_arg.setLength(0);
+        boolean loop = true;
+        int c;
+        while (loop) {
+            c = next();
+            if ('\\' == c) {
+                c = next();
+                if (NL == c) {
+                    append(NL);
+                } else {
+                    append('\\').append(c);
+                }
+            } else {
+                loop = (NL != c);
+                if (loop) {
+                    if (EOF == c) {
+                        throw new ParseError("VPP-EOF-2", getLocation(),
+                                "`define", m_started);
+                    }
+                    append(c);
+                }
+            }
+        }
+        m_macroText = m_arg.toString().trim();
+        //TODO: embed parm markers in macroText
+        m_src.setEchoOn(m_echoOn);
+    }
 
+    private final StringBuilder m_arg = new StringBuilder();
+
+    private static final String[] stBalanced = new String[]{
+        "({[\"", ")}]\""
+    };
+
+    /**
+     * Split (...) contents at commas.
+     */
+    private void formalArguments() throws ParseError {
+        List<String> args = new LinkedList<>();
+        char c;
+        String arg;
+        boolean loop = true;
+        next(); // (.
+        while (loop) {
+            c = parse(new char[]{',', ')'}, 0);
+            arg = m_arg.toString().trim();
+            if (arg.isEmpty()) {
+                throw new ParseError("VPP-FARG-1", getLocation(), m_started);
+            }
+            args.add(m_arg.toString().trim());
+            m_arg.setLength(0);
+            loop = (')' != c);
+            assert (!m_src.isEOF());
+        }
+        m_formalArgs = new LinkedList<>();
+        for (final Pair<String, String> farg : Pair.factory(args)) {
+            m_formalArgs.add(new FormalArg(farg));
         }
     }
-    
-    /**
-     * Split (...) contents at comma.
-     * Return list of formal arguments.
-     * @param src character source starting at '('.
-     * @return list of formal arguments.
-     */
-    private static List<String> formalArguments(final SourceFile src) {
-        List<String> formalArgs = new LinkedList<>();
-        return formalArgs;
+
+    private int next() {
+        return m_src.next();
+    }
+
+    private int la(int n) {
+        return m_src.la(n);
+    }
+
+    private int la() {
+        return la(0);
+    }
+
+    private StringBuilder append(final int c) {
+        return m_arg.append((char) c);
+    }
+
+    private String getLocation() {
+        return m_src.getLocation();
+    }
+
+    private char parse(final char[] returnOn, final int depth) {
+        int c, n;
+        while (true) {
+            c = next();
+            switch (c) {
+                case EOF:
+                    //todo: throw...
+                    break;
+                case NL:
+                    //todo: throw...
+                    break;
+                case '\\':
+                    append(c).append(next());
+                    break;
+                case '`':
+                    // `", `\`", and ``
+                    if ('`' == la() || '"' == la()) {
+                        append(c).append(next());
+                    } else if ('\\' == la() && '`' == la(1) && '"' == la(2)) {
+                        append(c).append(next()).append(next()).append(next());
+                    } else {
+                        append(c);
+                    }
+                    break;
+                default:
+                    n = search(returnOn, (char) c);
+                    if (0 <= n) {
+                        return (char) c;
+                    }
+                    append(c);
+                    n = stBalanced[0].indexOf(c);
+                    if (0 <= n) {
+                        parse(new char[]{stBalanced[1].charAt(n)}, depth + 1);
+                        append(next());
+                    }
+            }
+        }
+    }
+
+    private static int search(final char[] eles, final int c) {
+        for (int i = 0; i < eles.length; i++) {
+            if (eles[i] == c) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
