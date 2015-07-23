@@ -35,12 +35,14 @@ import gblib.Pair;
  *
  * @author gburdell
  */
-class TicDefine {
+class TicConditional {
 
-    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]+.*\\s");
+    //`ifdef, `else, `elsif, `endif, `ifndef
+    static final Pattern stPatt1 = 
+            Pattern.compile("[ \t]*((`(ifn?def|elsif)[ \t]+.*\\s)|(`(else|endif)([ \t]+.*)?\\s+))");
     static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s)");
 
-    private TicDefine(final SourceFile src, final Matcher matcher) throws ParseError {
+    private TicConditional(final SourceFile src, final Matcher matcher) throws ParseError {
         if (! matcher.matches()) {
             throw new ParseError("VPP-DEFN-2", src.getLocation());
         }
@@ -49,36 +51,13 @@ class TicDefine {
         m_echoOn = m_src.setEchoOn(false);
     }
 
-    static class FormalArg {
-
-        public String getIdent() {
-            return m_arg.v1;
-        }
-
-        public boolean hasDefaultText() {
-            return (null != getDefaultText());
-        }
-
-        public String getDefaultText() {
-            return m_arg.v2;
-        }
-
-        private FormalArg(final Pair<String, String> ele) {
-            m_arg = ele;
-        }
-        private final Pair<String, String> m_arg;
-    }
-
     private int[] m_started;
-    private String m_macroName;
     private final SourceFile m_src;
     private final Matcher m_matcher;
-    private List<FormalArg> m_formalArgs;
     private final boolean m_echoOn;
-    private String m_macroText;
 
     static void parse(final SourceFile src, final Matcher matcher) throws ParseError {
-        TicDefine ticDefn = new TicDefine(src, matcher);
+        TicConditional ticDefn = new TicConditional(src, matcher);
         ticDefn.parse();
     }
 
@@ -130,32 +109,6 @@ class TicDefine {
     private static final String[] stBalanced = new String[]{
         "({[\"", ")}]\""
     };
-
-    /**
-     * Split (...) contents at commas.
-     */
-    private void formalArguments() throws ParseError {
-        List<String> args = new LinkedList<>();
-        char c;
-        String arg;
-        boolean loop = true;
-        next(); // (.
-        while (loop) {
-            c = parse(new char[]{',', ')'}, 0);
-            arg = m_arg.toString().trim();
-            if (arg.isEmpty()) {
-                throw new ParseError("VPP-FARG-1", getLocation(), m_started);
-            }
-            args.add(m_arg.toString().trim());
-            m_arg.setLength(0);
-            loop = (')' != c);
-            assert (!m_src.isEOF());
-        }
-        m_formalArgs = new LinkedList<>();
-        for (final Pair<String, String> farg : Pair.factory(args)) {
-            m_formalArgs.add(new FormalArg(farg));
-        }
-    }
 
     private int next() {
         return m_src.next();
@@ -216,42 +169,4 @@ class TicDefine {
         }
     }
 
-    private static int search(final char[] eles, final int c) {
-        for (int i = 0; i < eles.length; i++) {
-            if (eles[i] == c) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    
-    private static final String stParmMarks[] = new String[] {
-        "<'/~@", "@:/'>"    //gibberish characters
-    };
-    
-    /**
-     * Replace each occurence of named paramter in macro text with its
-     * position (1-origin).
-     */
-    private void addMarkers() {
-        //Convert to pair of name by position
-        List<Pair<String,Integer>> nmPos = new LinkedList<>();
-        int i = 1;
-        for (final FormalArg farg : m_formalArgs) {
-            nmPos.add(new Pair(farg.getIdent(), i++));
-        }
-        //Sort in descending order by arg name length
-        nmPos.sort((Pair<String, Integer> o1, Pair<String, Integer> o2) -> {
-            final int len[] = new int []{o1.v1.length(), o2.v1.length()};
-            return (len[0]==len[1]) ? 0 : ((len[0] < len[1]) ? 1 : -1);
-        });
-        //Go through macroText by parms (longest to shortest).
-        String replaced = m_macroText;
-        String repl;
-        for (final Pair<String,Integer> ele : nmPos) {
-            repl = stParmMarks[0] + ele.v2.toString() + stParmMarks[1];
-            replaced = replaced.replace(ele.v1, repl);
-        }
-        m_macroText = replaced;
-    }
 }
