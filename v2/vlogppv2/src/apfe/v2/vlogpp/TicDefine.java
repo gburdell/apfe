@@ -36,7 +36,10 @@ import gblib.Pair;
  * @author gburdell
  */
 class TicDefine {
-
+    MacroDefns.Defn getDefn() {
+        return new MacroDefns.Defn(m_macroName, m_formalArgs, m_macroText);
+    } 
+    
     static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]+.*\\s");
     static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s)");
 
@@ -76,15 +79,19 @@ class TicDefine {
     private List<FormalArg> m_formalArgs;
     private final boolean m_echoOn;
     private String m_macroText;
+    // Where `define begins
+    private FileLocation m_loc;
 
-    static void parse(final SourceFile src, final Matcher matcher) throws ParseError {
+    static TicDefine parse(final SourceFile src, final Matcher matcher) throws ParseError {
         TicDefine ticDefn = new TicDefine(src, matcher);
         ticDefn.parse();
+        return ticDefn;
     }
 
     private void parse() throws ParseError {
         int n = m_matcher.start(1);
         m_src.accept(n);
+        m_loc = m_src.getFileLocation();
         m_started = m_src.getStartMark();
         m_macroName = m_matcher.group(2);
         int m = m_matcher.start(3);

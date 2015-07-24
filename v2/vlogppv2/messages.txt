@@ -1,6 +1,8 @@
 // Add messages for vlogpp
 
 VPP-CMNT-2 %s: nested block comment
+VPP-COND-1 %s: malformed '<tic-conditional>'
+VPP-COND-2 %s: unexpected '%s' after '`%s'
 VPP-DEFN-1 %s: malformed '`define' (started at %d:%d (line:col))
 VPP-DEFN-2 %s: malformed '`define'
 VPP-EOF-1 %s: unexpected end-of-file while processing '%s'

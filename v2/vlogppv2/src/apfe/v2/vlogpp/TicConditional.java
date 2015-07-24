@@ -23,13 +23,10 @@
  */
 package apfe.v2.vlogpp;
 
-import java.util.LinkedList;
-import java.util.List;
+import gblib.Util.Pair;
+import static gblib.Util.invariant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static apfe.v2.vlogpp.FileCharReader.EOF;
-import static apfe.v2.vlogpp.FileCharReader.NL;
-import gblib.Pair;
 
 /**
  *
@@ -37,136 +34,75 @@ import gblib.Pair;
  */
 class TicConditional {
 
+    public static enum EType {
+
+        eIfdef, eIfndef, eElsif, eElse, eEndif
+    }
+
     //`ifdef, `else, `elsif, `endif, `ifndef
-    static final Pattern stPatt1 = 
-            Pattern.compile("[ \t]*((`(ifn?def|elsif)[ \t]+.*\\s)|(`(else|endif)([ \t]+.*)?\\s+))");
-    static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s)");
+    static final Pattern stPatt1
+            = Pattern.compile("[ \t]*((`(ifn?def|elsif)[ \t]+.*\\s)|(`(else|endif)([ \t]+.*)?\\s))");
+    static final Pattern stPatt2
+            = Pattern.compile("[ \t]*`(ifn?def|elsif|else|endif)[ \t]*([_a-zA-Z][_a-zA-Z0-9]*)?(.*)(\\s)");
 
     private TicConditional(final SourceFile src, final Matcher matcher) throws ParseError {
-        if (! matcher.matches()) {
-            throw new ParseError("VPP-DEFN-2", src.getLocation());
+        if (!matcher.matches()) {
+            throw new ParseError("VPP-COND-1", src.getLocation());
         }
         m_src = src;
         m_matcher = matcher;
         m_echoOn = m_src.setEchoOn(false);
     }
 
-    private int[] m_started;
     private final SourceFile m_src;
     private final Matcher m_matcher;
     private final boolean m_echoOn;
+    private EType m_type;
+    private String m_macroNm;
 
-    static void parse(final SourceFile src, final Matcher matcher) throws ParseError {
-        TicConditional ticDefn = new TicConditional(src, matcher);
-        ticDefn.parse();
+    static TicConditional parse(final SourceFile src, final Matcher matcher) throws ParseError {
+        TicConditional cond = new TicConditional(src, matcher);
+        cond.parse();
+        return cond;
     }
 
+    public EType getType() {
+        return m_type;
+    }
+    
+    public String getMacroNm() {
+        return m_macroNm;
+    }
+    
     private void parse() throws ParseError {
-        int n = m_matcher.start(1);
-        m_src.accept(n);
-        m_started = m_src.getStartMark();
-        m_macroName = m_matcher.group(2);
+        m_src.accept(m_matcher.start(1));
+        final String directive = m_matcher.group(1);
+        switch (directive) {
+            case "ifdef":
+                m_type = EType.eIfdef;
+                break;
+            case "ifndef":
+                m_type = EType.eIfndef;
+                break;
+            case "elsif":
+                m_type = EType.eElsif;
+                break;
+            case "else":
+                m_type = EType.eElse;
+                break;
+            case "endif":
+                m_type = EType.eEndif;
+                break;
+            default:
+                invariant(false);
+        }
+        m_macroNm = m_matcher.group(2);
+        m_src.accept(m_matcher.start(2) - m_matcher.start(1));
+        if ((null != m_macroNm) && !m_macroNm.isEmpty() && (EType.eEndif==m_type || EType.eElse==m_type)) {
+            throw new ParseError("VPP-COND-2", m_src.getLocation(), m_macroNm, directive);
+        }
         int m = m_matcher.start(3);
-        m_src.accept(m - n);
-        //we are just past macroNm
-        //The left parenthesis shall follow the text macro name immediately
-        //The `define macro text can also include `", `\`", and ``
-        if ('(' == la()) {
-            formalArguments();
-        }
-        m_arg.setLength(0);
-        boolean loop = true;
-        int c;
-        while (loop) {
-            c = next();
-            if ('\\' == c) {
-                c = next();
-                if (NL == c) {
-                    append(NL);
-                } else {
-                    append('\\').append(c);
-                }
-            } else {
-                loop = (NL != c);
-                if (loop) {
-                    if (EOF == c) {
-                        throw new ParseError("VPP-EOF-2", getLocation(),
-                                "`define", m_started);
-                    }
-                    append(c);
-                }
-            }
-        }
-        m_macroText = m_arg.toString().trim();
-        if (null != m_formalArgs) {
-            addMarkers();
-        }
+        m_src.accept(m_matcher.start(3) - m_matcher.start(2));
         m_src.setEchoOn(m_echoOn);
     }
-
-    private final StringBuilder m_arg = new StringBuilder();
-
-    private static final String[] stBalanced = new String[]{
-        "({[\"", ")}]\""
-    };
-
-    private int next() {
-        return m_src.next();
-    }
-
-    private int la(int n) {
-        return m_src.la(n);
-    }
-
-    private int la() {
-        return la(0);
-    }
-
-    private StringBuilder append(final int c) {
-        return m_arg.append((char) c);
-    }
-
-    private String getLocation() {
-        return m_src.getLocation();
-    }
-
-    private char parse(final char[] returnOn, final int depth) {
-        int c, n;
-        while (true) {
-            c = next();
-            switch (c) {
-                case EOF:
-                    //todo: throw...
-                    break;
-                case NL:
-                    //todo: throw...
-                    break;
-                case '\\':
-                    append(c).append(next());
-                    break;
-                case '`':
-                    // `", `\`", and ``
-                    if ('`' == la() || '"' == la()) {
-                        append(c).append(next());
-                    } else if ('\\' == la() && '`' == la(1) && '"' == la(2)) {
-                        append(c).append(next()).append(next()).append(next());
-                    } else {
-                        append(c);
-                    }
-                    break;
-                default:
-                    n = search(returnOn, (char) c);
-                    if (0 <= n) {
-                        return (char) c;
-                    }
-                    append(c);
-                    n = stBalanced[0].indexOf(c);
-                    if (0 <= n) {
-                        parse(new char[]{stBalanced[1].charAt(n)}, depth + 1);
-                        append(next());
-                    }
-            }
-        }
-    }
-
 }

@@ -56,6 +56,8 @@ public class SourceFileTest {
         add("f6.v", false);
         /**/
         add("f7.v", true);
+        add("f8.v", false);
+        add("f9.v", true);
     }
 
     /**

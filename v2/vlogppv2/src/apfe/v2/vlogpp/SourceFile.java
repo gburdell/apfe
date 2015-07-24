@@ -31,7 +31,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static apfe.v2.vlogpp.FileCharReader.NL;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * SystemVerilog source file.
@@ -61,10 +60,18 @@ public class SourceFile {
                     } else {
                         final String str = m_is.remainder();
                         Matcher matcher = TicDefine.stPatt1.matcher(str);
+                        //NOTE: matches() pattern is anchored w/ implied ^...$
                         if (matcher.matches()) {
-                            TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
+                            final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
+                            //TODO: ticDefine
                         } else {
-                            next();
+                            matcher = TicConditional.stPatt1.matcher(str);
+                            if (matcher.matches()) {
+                                final TicConditional ticConditional = TicConditional.parse(this, TicConditional.stPatt2.matcher(str));
+                                //TODO: ticConditional
+                            } else {
+                                next();
+                            }
                         }
                     }
                 } catch (final ParseError pe) {
@@ -86,11 +93,13 @@ public class SourceFile {
         return ok;
     }
 
-    void accept(int n) {
+    void accept(int n
+    ) {
         m_is.accept(n);
     }
 
-    int la(int n) {
+    int la(int n
+    ) {
         return m_is.la(n);
     }
 
@@ -229,6 +238,10 @@ public class SourceFile {
         return m_is.getLocation();
     }
     
+    FileLocation getFileLocation() {
+        return new FileLocation(m_is.getFile(), m_is.getLineNum(), m_is.getColNum());
+    }
+
     private final Stack<FileCharReader> m_stack = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;
