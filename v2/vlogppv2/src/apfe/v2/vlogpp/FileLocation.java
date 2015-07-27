@@ -30,11 +30,35 @@ import gblib.File;
  * @author gburdell
  */
 public class FileLocation {
+
     public FileLocation(final File file, final int lnum, final int col) {
         m_file = file;
         m_lnum = lnum;
         m_col = col;
     }
-    private final File  m_file;
-    private final int   m_lnum, m_col;
+
+    public static boolean equals(final FileLocation l1, final FileLocation l2) {
+        if (null==l1 && null==l2) {
+            return true;
+        }
+        if ((null==l1 && null!=l2) || (null!=l1 && null==l2)) {
+            return false;
+        }
+        if (!l1.m_file.equals(l2.m_file)) {
+            return false;
+        }
+        return (l1.m_lnum==l2.m_lnum && l1.m_col==l2.m_col);
+    }
+    
+    public static String toString(final File file, final int lnum, final int col) {
+        return file.getFilename() + ":" + lnum + ":" + col;
+    }
+
+    @Override
+    public String toString() {
+        return toString(m_file, m_lnum, m_col);
+    }
+
+    private final File m_file;
+    private final int m_lnum, m_col;
 }

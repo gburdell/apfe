@@ -45,7 +45,7 @@ class TicDefine {
 
     private TicDefine(final SourceFile src, final Matcher matcher) throws ParseError {
         if (! matcher.matches()) {
-            throw new ParseError("VPP-DEFN-2", src.getLocation());
+            throw new ParseError("VPP-DEFN-2", src);
         }
         m_src = src;
         m_matcher = matcher;

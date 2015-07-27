@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.v2.vlogpp;
+
 import apfe.v2.vlogpp.Messages.Message;
 
 /**
@@ -31,13 +32,21 @@ import apfe.v2.vlogpp.Messages.Message;
 public class ParseError extends Exception {
 
     public ParseError(final String code) {
-        this(code, (String)null);
+        this(code, (String) null);
     }
 
     public ParseError(final String code, final FileCharReader loc, final Object... args) {
         this(code, loc.getLocation(), args);
     }
-    
+
+    public ParseError(final String code, final SourceFile loc, final Object... args) {
+        this(code, loc.getLocation(), args);
+    }
+
+    public ParseError(final String code, final FileLocation loc, final Object... args) {
+        this(code, loc.toString(), args);
+    }
+
     public ParseError(final String code, final String loc, final Object... args) {
         Object nargs[] = null;
         if (null != loc) {
@@ -47,7 +56,7 @@ public class ParseError extends Exception {
         } else {
             assert null == args;
         }
-        m_msg = Messages.getMessage('E', code, nargs);        
+        m_msg = Messages.getMessage('E', code, nargs);
     }
 
     @Override

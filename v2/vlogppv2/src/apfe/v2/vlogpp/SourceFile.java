@@ -63,12 +63,13 @@ public class SourceFile {
                         //NOTE: matches() pattern is anchored w/ implied ^...$
                         if (matcher.matches()) {
                             final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
-                            //TODO: ticDefine
+                            if (isEnabled()) {
+                                addDefn(ticDefine);
+                            }
                         } else {
                             matcher = TicConditional.stPatt1.matcher(str);
                             if (matcher.matches()) {
-                                final TicConditional ticConditional = TicConditional.parse(this, TicConditional.stPatt2.matcher(str));
-                                //TODO: ticConditional
+                                TicConditional.process(this, TicConditional.stPatt2.matcher(str));
                             } else {
                                 next();
                             }
@@ -88,18 +89,31 @@ public class SourceFile {
             if (null != error) {
                 throw error;
             }
-            m_is = m_stack.empty() ? null : m_stack.pop();
+            m_is = m_files.empty() ? null : m_files.pop();
         }
         return ok;
     }
 
-    void accept(int n
-    ) {
+    private boolean isEnabled() {
+        return true;
+    }
+
+    private void addDefn(final TicDefine defn) throws ParseError {
+        if (null == m_macros) {
+            m_macros = new MacroDefns();
+        }
+        m_macros.addDefn(defn);
+    }
+
+    boolean hasDefn(final String macroNm) {
+        return m_macros.hasDefn(macroNm);
+    }
+    
+    void accept(final int n) {
         m_is.accept(n);
     }
 
-    int la(int n
-    ) {
+    int la(final int n) {
         return m_is.la(n);
     }
 
@@ -207,7 +221,7 @@ public class SourceFile {
             //include file would be on non-empty stack
             m_os.printf("`line %d \"%s\" %d\n", m_is.getLineNum(), m_is.getFile().getCanonicalPath(), lvl);
         }
-        m_stack.push(m_is);
+        m_files.push(m_is);
     }
 
     private void print(final char c) {
@@ -237,13 +251,16 @@ public class SourceFile {
     String getLocation() {
         return m_is.getLocation();
     }
-    
+
     FileLocation getFileLocation() {
         return new FileLocation(m_is.getFile(), m_is.getLineNum(), m_is.getColNum());
     }
-
-    private final Stack<FileCharReader> m_stack = new Stack<>();
+    
+    private final Stack<FileCharReader> m_files = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;
     private boolean m_echoOn = true;
+    private MacroDefns m_macros;
+    // We'll share conditional stack with TicConditional.
+    Object m_cond;
 }

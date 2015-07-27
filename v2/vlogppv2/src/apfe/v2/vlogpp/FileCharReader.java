@@ -182,7 +182,7 @@ public class FileCharReader implements AutoCloseable {
     }
 
     public String getLocation() {
-        return getFile().getFilename() + ":" + getLineNum() + ":" + getColNum();
+        return FileLocation.toString(getFile(), getLineNum(), getColNum());
     }
 
     public int getLineNum() {

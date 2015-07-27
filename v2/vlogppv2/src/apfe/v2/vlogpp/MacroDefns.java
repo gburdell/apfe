@@ -54,10 +54,18 @@ public class MacroDefns {
         setStrictness(true, flags);
     }
 
+    public static void clrStrictness(final EStrictness... flags) {
+        setStrictness(false, flags);
+    }
+
     public static boolean getStrictness(final EStrictness flag) {
         return stStrictness.get(flag.ordinal());
     }
 
+    public boolean hasDefn(final String macroNm) {
+        return m_defns.containsKey(macroNm);
+    }
+    
     public static class Defn {
 
         Defn(final FileLocation loc, final String macroNm, final List<FormalArg> formalArgs,
@@ -84,20 +92,54 @@ public class MacroDefns {
         private final String m_macroText;
     }
 
-    public void addDefn(final Defn defn) {
+    public void addDefn(final TicDefine defn) throws ParseError {
+        addDefn(defn.getDefn());
+    }
+    
+    public void addDefn(final Defn defn) throws ParseError {
         if (m_defns.containsKey(defn.m_macroNm)) {
             redefnDetected(defn);
         }
         m_defns.put(defn.m_macroNm, defn);
     }
 
-    private void redefnDetected(final Defn defn) {
+    public static final String stCmdLine = "<cmdline>";
+
+    private void redefnDetected(final Defn defn) throws ParseError {
+        final Defn prev = m_defns.get(defn.m_macroNm);
+        final String prevLoc = getLocation(prev.m_loc),
+                currLoc = getLocation(defn.m_loc);
         if (false == getStrictness(EStrictness.eAllowRedefn)) {
-            //todo
+            throw new ParseError("VPP-REDEFN-1", currLoc, defn.m_macroNm, prevLoc);
         }
+        //OK. We allow redefinition, ...
+        final String prevVal = (null != prev.m_macroText) ? squeeze(prev.m_macroText) : "";
+        final String val = (null != defn.m_macroText) ? squeeze(defn.m_macroText) : "";
+        if (!val.equals(prevVal) && getStrictness(EStrictness.eRedefnSameValue)) {
+            throw new ParseError("VPP-REDEFN-2", currLoc, defn.m_macroNm, prevLoc);
+        }
+        if (!FileLocation.equals(prev.m_loc, defn.m_loc) && getStrictness(EStrictness.eRedefnSameLocation)) {
+            throw new ParseError("VPP-REDEFN-3", currLoc, defn.m_macroNm, prevLoc);
+        }
+        if (getStrictness(EStrictness.eRedefnWarning)) {
+            Messages.message('W', "VPP-REDEFN-1", currLoc, defn.m_macroNm, prevLoc);
+        }
+    }
+
+    private static String getLocation(final FileLocation loc) {
+        return (null != loc) ? loc.toString() : stCmdLine;
+    }
+
+    private static String squeeze(String s) {
+        return s.replaceAll("\\s", "");
     }
 
     private final Map<String, Defn> m_defns = new HashMap<>();
     private static final BitSet stStrictness = new BitSet(EStrictness.eNotUsed.ordinal());
+
+    static {    //default: allow redefn with warning
+        setStrictness(EStrictness.eAllowRedefn, EStrictness.eRedefnWarning);
+        clrStrictness(EStrictness.eRedefnSameLocation, EStrictness.eRedefnSameValue);
+    }
 
 }
