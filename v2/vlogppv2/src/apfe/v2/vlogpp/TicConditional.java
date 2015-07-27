@@ -41,12 +41,16 @@ class TicConditional {
     }
 
     private static class State {
+
         private static enum EAlive {
+
             eNotYet, //nothing taken yet
             eActive, //currently taking/alive
-            eDone   //eActive->eDone; or start new if(n)def w/in !eActive
+            eDone, //eActive->eDone; or start new if(n)def w/in !eActive
+            eInvalid //not expected
         }
-        State(final FileLocation started, final EType type,
+
+        private State(final FileLocation started, final EType type,
                 final EAlive alive) {
             m_where = type;
             m_alive = alive;
@@ -126,6 +130,12 @@ class TicConditional {
         m_src.accept(m_matcher.start(3) - m_matcher.start(2));
     }
 
+    private State.EAlive getIfdefAlive() {
+        boolean ok = m_src.hasDefn(m_macroNm);
+        ok = (EType.eIfndef == getType()) ? !ok : ok;
+        return (ok) ? State.EAlive.eActive : State.EAlive.eNotYet;
+    }
+
     private void update() throws ParseError {
         //update SourceFile state
         Stack<State> stack;
@@ -136,12 +146,19 @@ class TicConditional {
         }
         //Account for nested ifdef.
         //A new if(n)def inherits liveliness from enclosing.
+        State.EAlive alive = State.EAlive.eInvalid;
         if (oneOf(getType(), EType.eIfdef, EType.eIfndef)) {
-            //TODO
+            if (stack.empty() || (stack.peek().m_alive == State.EAlive.eActive)) {
+                alive = getIfdefAlive();
+            } else {
+                assert State.EAlive.eInvalid != stack.peek().m_alive;
+                //This new if(n)def is totally dead
+                alive = State.EAlive.eDone;
+            }
             if (stack.size() >= stMaxConditionalDepth) {
                 throw new ParseError("VPP-COND-3", m_started, stMaxConditionalDepth);
             }
-            //TODO: stack.push(new State(m_started, getType(), enclosingAlive, alive));
+            stack.push(new State(m_started, getType(), alive));
         } else if (stack.empty()) {
             throw new ParseError("VPP-COND-1", m_started);
         } else {
@@ -149,15 +166,29 @@ class TicConditional {
             switch (getType()) {
                 case eElse:
                     switch (top.m_where) {
-                        case eIfdef:
+                        case eIfdef:  // if(ndef) ... else_
                         case eIfndef:
-                            //flip the state
-                            //TODO
-                            top.m_where = getType();
+                            if (State.EAlive.eNotYet == top.m_alive) {
+                                alive = State.EAlive.eActive;
+                            } else {
+                                assert State.EAlive.eActive == top.m_alive;
+                                alive = State.EAlive.eDone;
+                            }
+                            update(top, alive);
                             break;
-                        case eElsif:
-                            //TODO
-                            top.m_where = getType();
+                        case eElsif:    // elsif ... else_
+                            switch (top.m_alive) {
+                                case eActive:
+                                case eDone:
+                                    alive = State.EAlive.eDone;
+                                    break;
+                                case eNotYet:
+                                    alive = State.EAlive.eActive;
+                                    break;
+                                default:
+                                    assert false;
+                            }
+                            update(top, alive);
                             break;
                         default:
                             throw new ParseError("VPP-COND-4", m_src, m_directive, top.m_started);
@@ -165,26 +196,45 @@ class TicConditional {
                     break;
                 case eElsif:
                     switch (top.m_where) {
-                        case eIfdef:
-                        case eIfndef:
-                        case eElsif:
-                            //TODO
-                            top.m_where = getType();
+                        case eIfdef:    //ifdef ...  elsif_
+                        case eIfndef:   //ifndef ... elsif_
+                        case eElsif:    //elsif ... elsif_
+                            switch (top.m_alive) {
+                                case eActive:
+                                case eDone:
+                                    alive = State.EAlive.eDone;
+                                    break;
+                                case eNotYet:
+                                    alive = getIfdefAlive();
+                                    break;
+                                default:
+                                    assert false;
+                            }
+                            update(top, alive);
                             break;
                         default:
                             throw new ParseError("VPP-COND-4", m_src, m_directive, top.m_started);
                     }
                     break;
                 case eEndif:
+                    if (stack.empty()) {
+                        throw new ParseError("VPP-COND-5", m_src);
+                    }
                     stack.pop();
-                    //TODO
                     break;
                 default:
                     invariant(false);
             }
         }
-        //TODO
-        //TODO m_src.setEchoOn(alive);
+        assert State.EAlive.eInvalid != alive;
+        final boolean echo = m_echoOn && 
+                ((!stack.empty()) ? (State.EAlive.eActive==stack.peek().m_alive) : true); 
+        m_src.setEchoOn(echo);
+    }
+
+    private void update(final State top, final State.EAlive alive) {
+        top.m_where = getType();
+        top.m_alive = alive;
     }
 
     private static boolean oneOf(final EType ele, final EType... in) {
