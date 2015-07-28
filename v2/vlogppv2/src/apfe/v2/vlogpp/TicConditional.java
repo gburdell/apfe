@@ -63,9 +63,9 @@ class TicConditional {
 
     //`ifdef, `else, `elsif, `endif, `ifndef
     static final Pattern stPatt1
-            = Pattern.compile("[ \t]*((`(ifn?def|elsif)[ \t]+.*\\s)|(`(else|endif)([ \t]+.*)?\\s))");
+            = Pattern.compile("[ \t]*(((`ifn?def|`elsif)[ \t]+.*\\s)|((`else|`endif)([ \t]+.*)?\\s))");
     static final Pattern stPatt2
-            = Pattern.compile("[ \t]*`(ifn?def|elsif|else|endif)[ \t]*([_a-zA-Z][_a-zA-Z0-9]*)?(.*)(\\s)");
+            = Pattern.compile("[ \t]*(`ifn?def|`elsif|`else|`endif)[ \t]*([_a-zA-Z][_a-zA-Z0-9]*)?(.*)(\\s)");
 
     private TicConditional(final SourceFile src, final Matcher matcher) throws ParseError {
         if (!matcher.matches()) {
@@ -73,20 +73,18 @@ class TicConditional {
         }
         m_src = src;
         m_matcher = matcher;
-        m_echoOn = m_src.setEchoOn(false);
     }
 
     private final SourceFile m_src;
     private final Matcher m_matcher;
-    private final boolean m_echoOn;
     private EType m_type;
     private String m_macroNm, m_directive;
     private FileLocation m_started;
 
-    static void process(final SourceFile src, final Matcher matcher) throws ParseError {
+    static boolean process(final SourceFile src, final Matcher matcher) throws ParseError {
         TicConditional cond = new TicConditional(src, matcher);
         cond.parse();
-        cond.update();
+        return cond.update();
     }
 
     public EType getType() {
@@ -101,21 +99,21 @@ class TicConditional {
         m_src.accept(m_matcher.start(1));
         m_started = m_src.getFileLocation();
         final String directive = m_matcher.group(1);
-        m_directive = "`" + directive;
+        m_directive = directive;
         switch (directive) {
-            case "ifdef":
+            case "`ifdef":
                 m_type = EType.eIfdef;
                 break;
-            case "ifndef":
+            case "`ifndef":
                 m_type = EType.eIfndef;
                 break;
-            case "elsif":
+            case "`elsif":
                 m_type = EType.eElsif;
                 break;
-            case "else":
+            case "`else":
                 m_type = EType.eElse;
                 break;
-            case "endif":
+            case "`endif":
                 m_type = EType.eEndif;
                 break;
             default:
@@ -136,7 +134,7 @@ class TicConditional {
         return (ok) ? State.EAlive.eActive : State.EAlive.eNotYet;
     }
 
-    private void update() throws ParseError {
+    private boolean update() throws ParseError {
         //update SourceFile state
         Stack<State> stack;
         if (null != m_src.m_cond) {
@@ -226,10 +224,9 @@ class TicConditional {
                     invariant(false);
             }
         }
-        assert State.EAlive.eInvalid != alive;
-        final boolean echo = m_echoOn && 
+        final boolean echo =
                 ((!stack.empty()) ? (State.EAlive.eActive==stack.peek().m_alive) : true); 
-        m_src.setEchoOn(echo);
+        return echo;
     }
 
     private void update(final State top, final State.EAlive alive) {

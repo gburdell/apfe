@@ -2,7 +2,7 @@
 
 VPP-CMNT-2 %s: nested block comment
 VPP-COND-1 %s: malformed '<tic-conditional>'
-VPP-COND-2 %s: unexpected '%s' after '`%s'
+VPP-COND-2 %s: unexpected '%s' after '%s'
 VPP-COND-3 %s: depth of nested conditional directives > %d
 VPP-COND-4 %s: unexpected '%s' conditional directive.\n           %s: start of `if(n)def
 VPP-COND-5 %s: '`endif' without opening '`ifdef' or '`ifndef'

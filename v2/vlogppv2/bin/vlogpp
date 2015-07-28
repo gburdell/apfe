@@ -1,0 +1,20 @@
+#!/bin/csh -f
+
+set cmd=$0
+if (1 > `echo $cmd | egrep -c '^/'`) then
+	set cmd=$PWD/${cmd}
+endif
+set rdir=$cmd:h:h
+
+#echo "DBG: $rdir"
+#exit 1
+
+set toolRoot=${rdir}
+
+set cls="apfe.v2.vlogpp.SourceFile"
+set props=""
+set jars=${rdir}/dist/lib/gblib.jar
+set jars=${jars}:${rdir}/dist/vlogppv2.jar
+set cmd="java -Xms1G -ea -Dtool.root=${rdir} ${props} -cp ${jars} ${cls} ${*}"
+#echo "DBG: cmd: $cmd"
+exec $cmd

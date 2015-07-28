@@ -39,6 +39,21 @@ import java.util.regex.Matcher;
  */
 public class SourceFile {
 
+    public static void main(final String argv[]) {
+        for (final String arg : argv) {
+           process(arg); 
+        }
+    }
+    
+    private static void process(final String fname) {
+        try {
+            final SourceFile src = new SourceFile(fname, System.out);
+            src.parse();
+        } catch (FileNotFoundException | ParseError ex) {
+            Logger.getLogger(SourceFile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public SourceFile(final String fname, final PrintStream os) throws FileNotFoundException {
         m_os = os;
         push(fname, 0);
@@ -69,7 +84,8 @@ public class SourceFile {
                         } else {
                             matcher = TicConditional.stPatt1.matcher(str);
                             if (matcher.matches()) {
-                                TicConditional.process(this, TicConditional.stPatt2.matcher(str));
+                                final boolean echo = TicConditional.process(this, TicConditional.stPatt2.matcher(str));
+                                setEchoOn(echo);
                             } else {
                                 next();
                             }
@@ -106,7 +122,7 @@ public class SourceFile {
     }
 
     boolean hasDefn(final String macroNm) {
-        return m_macros.hasDefn(macroNm);
+        return (null == m_macros) ? false : m_macros.hasDefn(macroNm);
     }
     
     void accept(final int n) {

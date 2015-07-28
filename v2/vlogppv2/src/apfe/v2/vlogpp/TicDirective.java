@@ -23,36 +23,31 @@
  */
 package apfe.v2.vlogpp;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Track global state here.
+ * Other compiler directives. `__FILE__ `__LINE__ `begin_keywords `celldefine
+ * `default_nettype `define `else `elsif `end_keywords `endcelldefine `endif
+ * `ifdef `ifndef `include `line `nounconnected_drive `pragma `resetall
+ * `timescale `unconnected_drive `undef `undefineall
+ *
  * @author gburdell
  */
-public class Global {
-    private Global() {        
+public class TicDirective {
+
+    static final Pattern stFile = Pattern.compile("[ \t]*(`__FILE__)([ \t]+.*)?\\s");
+
+    static boolean process(final SourceFile src, final String line) {
+        boolean accepted = false;
+        final Matcher matcher = stFile.matcher(line);
+        if (matcher.matches()) {
+            //`__FILE__ expands to the name of the current input file, 
+            //in the form of a string literal. This is the path by
+            //which a tool opened the file, not the short name specified 
+            //in `include or as a tool’s input file name argument.
+            //TODO: stuff 
+        }
+        return accepted;
     }
-    
-    public static Global getTheOne() {
-        return stTheOne;
-    }
-    
-    public List<Incdir> addInclDir(final String dirName) throws Incdir.Invalid {
-        m_inclDirs.add(new Incdir(dirName));
-        return getInclDirs();
-    }
-    
-    public List<Incdir> getInclDirs() {
-        return Collections.unmodifiableList(m_inclDirs);
-    }
-    
-    private final List<Incdir>    m_inclDirs = new LinkedList<>();
-    
-    private static final Global stTheOne = new Global();
-    
-    // Property values
-    public final static String stToolRoot = System.getProperty("tool.root", 
-                "/home/gburdell/projects/apfe/v2/vlogppv2");
 }
