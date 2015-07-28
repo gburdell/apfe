@@ -41,10 +41,10 @@ public class SourceFile {
 
     public static void main(final String argv[]) {
         for (final String arg : argv) {
-           process(arg); 
+            process(arg);
         }
     }
-    
+
     private static void process(final String fname) {
         try {
             final SourceFile src = new SourceFile(fname, System.out);
@@ -53,7 +53,7 @@ public class SourceFile {
             Logger.getLogger(SourceFile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public SourceFile(final String fname, final PrintStream os) throws FileNotFoundException {
         m_os = os;
         push(fname, 0);
@@ -74,21 +74,19 @@ public class SourceFile {
                         lineComment();
                     } else {
                         final String str = m_is.remainder();
-                        Matcher matcher = TicDefine.stPatt1.matcher(str);
                         //NOTE: matches() pattern is anchored w/ implied ^...$
-                        if (matcher.matches()) {
+                        if (TicDefine.stPatt1.matcher(str).matches()) {
                             final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
                             if (isEnabled()) {
                                 addDefn(ticDefine);
                             }
+                        } else if (TicConditional.stPatt1.matcher(str).matches()) {
+                            final boolean echo = TicConditional.process(this, TicConditional.stPatt2.matcher(str));
+                            setEchoOn(echo);
+                        } else if (TicDirective.process(this, str)) {
+                            //do nothing: need to rescan
                         } else {
-                            matcher = TicConditional.stPatt1.matcher(str);
-                            if (matcher.matches()) {
-                                final boolean echo = TicConditional.process(this, TicConditional.stPatt2.matcher(str));
-                                setEchoOn(echo);
-                            } else {
-                                next();
-                            }
+                            next();
                         }
                     }
                 } catch (final ParseError pe) {
@@ -110,6 +108,10 @@ public class SourceFile {
         return ok;
     }
 
+    void replace(final int[] span, final String repl) {
+        m_is.replace(span, repl);
+    }
+
     private boolean isEnabled() {
         return true;
     }
@@ -124,7 +126,7 @@ public class SourceFile {
     boolean hasDefn(final String macroNm) {
         return (null == m_macros) ? false : m_macros.hasDefn(macroNm);
     }
-    
+
     void accept(final int n) {
         m_is.accept(n);
     }
@@ -249,6 +251,7 @@ public class SourceFile {
     private void print(final String s) {
         if (m_echoOn) {
             m_os.print(s);
+
         }
     }
 
@@ -271,7 +274,7 @@ public class SourceFile {
     FileLocation getFileLocation() {
         return new FileLocation(m_is.getFile(), m_is.getLineNum(), m_is.getColNum());
     }
-    
+
     private final Stack<FileCharReader> m_files = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;

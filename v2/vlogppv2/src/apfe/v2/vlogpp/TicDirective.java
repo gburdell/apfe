@@ -38,16 +38,31 @@ public class TicDirective {
 
     static final Pattern stFile = Pattern.compile("[ \t]*(`__FILE__)([ \t]+.*)?\\s");
 
+    /**
+     * Attempt to match line to a compiler directive.
+     * @param src source file.
+     * @param line current line in source file.
+     * @return true on match.  If true, caller should rescan line.
+     */
     static boolean process(final SourceFile src, final String line) {
-        boolean accepted = false;
+        boolean accepted = true;
         final Matcher matcher = stFile.matcher(line);
         if (matcher.matches()) {
             //`__FILE__ expands to the name of the current input file, 
             //in the form of a string literal. This is the path by
             //which a tool opened the file, not the short name specified 
             //in `include or as a tool’s input file name argument.
-            //TODO: stuff 
+            //TODO: stuff
+            final String repl = src.getFileLocation().getFile().getCanonicalPath();
+            final int span[] = getSpan(matcher, 1);
+            src.replace(span, repl);
+        } else {
+            accepted = false;
         }
         return accepted;
+    }
+    
+    private static int[] getSpan(final Matcher matcher, final int grp) {
+        return new int[] {matcher.start(grp), matcher.end(grp)};
     }
 }

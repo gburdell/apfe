@@ -54,6 +54,10 @@ public class FileLocation {
         return file.getFilename() + ":" + lnum + ":" + col;
     }
 
+    public File getFile() {
+        return m_file;
+    }
+    
     @Override
     public String toString() {
         return toString(m_file, m_lnum, m_col);

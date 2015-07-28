@@ -197,6 +197,17 @@ public class FileCharReader implements AutoCloseable {
         return m_file;
     }
 
+    /**
+     * Replace substring in m_buf[span[0],span[1]) with repl.
+     * @param span position in buffer to replace.
+     * @param repl replacement string.
+     */
+    public void replace(final int[] span, final String repl) {
+        // Only replace where we are (or after); not before.
+        invariant (m_pos <= span[0] && span[1] <= m_buf.length());
+        m_buf.replace(span[0], span[1], repl);
+    }
+    
     @Override
     public void close() throws IOException {
         m_ifs.close();
