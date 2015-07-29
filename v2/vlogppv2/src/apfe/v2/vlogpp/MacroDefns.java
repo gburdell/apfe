@@ -41,6 +41,7 @@ public class MacroDefns {
         eRedefnSameValue,
         eRedefnSameLocation,
         eRedefnWarning, //show any redefn as warning (except when error)
+        eUndefWarning, //undef of not-defined is warning
         eNotUsed    //mark last ordinal
     }
 
@@ -65,7 +66,7 @@ public class MacroDefns {
     public boolean hasDefn(final String macroNm) {
         return m_defns.containsKey(macroNm);
     }
-    
+
     public static class Defn {
 
         Defn(final FileLocation loc, final String macroNm, final List<FormalArg> formalArgs,
@@ -95,12 +96,18 @@ public class MacroDefns {
     public void addDefn(final TicDefine defn) throws ParseError {
         addDefn(defn.getDefn());
     }
-    
+
     public void addDefn(final Defn defn) throws ParseError {
         if (m_defns.containsKey(defn.m_macroNm)) {
             redefnDetected(defn);
         }
         m_defns.put(defn.m_macroNm, defn);
+    }
+
+    public void undef(final String loc, final String macroNm) {
+        if (!m_defns.containsKey(macroNm) && getStrictness(EStrictness.eUndefWarning)) {
+            Messages.message('W', "VPP-UNDEF-1", loc, macroNm, macroNm);
+        }
     }
 
     public static final String stCmdLine = "<cmdline>";
@@ -138,7 +145,10 @@ public class MacroDefns {
     private static final BitSet stStrictness = new BitSet(EStrictness.eNotUsed.ordinal());
 
     static {    //default: allow redefn with warning
-        setStrictness(EStrictness.eAllowRedefn, EStrictness.eRedefnWarning);
+        setStrictness(
+                EStrictness.eAllowRedefn,
+                EStrictness.eRedefnWarning,
+                EStrictness.eUndefWarning);
         clrStrictness(EStrictness.eRedefnSameLocation, EStrictness.eRedefnSameValue);
     }
 

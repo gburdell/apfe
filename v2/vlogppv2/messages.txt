@@ -4,7 +4,7 @@ VPP-CMNT-2 %s: nested block comment
 VPP-COND-1 %s: malformed '<tic-conditional>'
 VPP-COND-2 %s: unexpected '%s' after '%s'
 VPP-COND-3 %s: depth of nested conditional directives > %d
-VPP-COND-4 %s: unexpected '%s' conditional directive.\n           %s: start of `if(n)def
+VPP-COND-4 %s: unexpected '%s' conditional directive.\n       %s: start of `if(n)def
 VPP-COND-5 %s: '`endif' without opening '`ifdef' or '`ifndef'
 VPP-DEFN-1 %s: malformed '`define' (started at %d:%d (line:col))
 VPP-DEFN-2 %s: malformed '`define'
@@ -12,10 +12,11 @@ VPP-EOF-1 %s: unexpected end-of-file while processing '%s'
 VPP-EOF-2 %s: unexpected end-of-file while processing '%s' (started at %d:%d (line:col))
 VPP-EXIT Exiting due to previous error(s)
 VPP-FARG-1 %s: empty formal arg. while processing '`define' (started at %d:%d (line:col))
-VPP-REDEFN-1 %s: macro '%s' redefined.\n             %s: previously defined
-VPP-REDEFN-2 %s: macro '%s' redefined with different value.\n             %s: previously defined
-VPP-REDEFN-3 %s: macro '%s' redefined at different location.\n             %s: previously defined
+VPP-REDEFN-1 %s: macro '%s' redefined.\n       %s: previously defined
+VPP-REDEFN-2 %s: macro '%s' redefined with different value.\n       %s: previously defined
+VPP-REDEFN-3 %s: macro '%s' redefined at different location.\n       %s: previously defined
 VPP-STRING %s: unterminated string (started at %d:%d (line:col))
+VPP-UNDEF-1 %s: '`undef %s' has no effect since macro '%s' was never defined
 
 // VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d
 // VPP-CLARG-1  %s %s

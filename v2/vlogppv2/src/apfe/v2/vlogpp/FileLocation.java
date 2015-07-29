@@ -57,6 +57,10 @@ public class FileLocation {
     public File getFile() {
         return m_file;
     }
+
+    public int getLineNum() {
+        return m_lnum;
+    }
     
     @Override
     public String toString() {

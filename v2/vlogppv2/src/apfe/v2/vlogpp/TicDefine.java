@@ -35,9 +35,9 @@ import gblib.Pair;
  *
  * @author gburdell
  */
-class TicDefine {
+public class TicDefine {
     MacroDefns.Defn getDefn() {
-        return new MacroDefns.Defn(m_macroName, m_formalArgs, m_macroText);
+        return new MacroDefns.Defn(m_loc, m_macroName, m_formalArgs, m_macroText);
     } 
     
     static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]+.*\\s");

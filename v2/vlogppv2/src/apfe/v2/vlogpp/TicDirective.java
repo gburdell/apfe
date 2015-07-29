@@ -28,41 +28,87 @@ import java.util.regex.Pattern;
 
 /**
  * Other compiler directives. `__FILE__ `__LINE__ `begin_keywords `celldefine
- * `default_nettype `define `else `elsif `end_keywords `endcelldefine `endif
- * `ifdef `ifndef `include `line `nounconnected_drive `pragma `resetall
- * `timescale `unconnected_drive `undef `undefineall
+ * `default_nettype `end_keywords `endcelldefine `nounconnected_drive `pragma
+ * `resetall `timescale `unconnected_drive `undef `undefineall
  *
  * @author gburdell
  */
 public class TicDirective {
 
     static final Pattern stFile = Pattern.compile("[ \t]*(`__FILE__)([ \t]+.*)?\\s");
+    static final Pattern stLine = Pattern.compile("[ \t]*(`__LINE__)([ \t]+.*)?\\s");
+    static final Pattern stUndef
+            = Pattern.compile("[ \t]*((`undef)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*))(.*)(\\s)");
+    static final Pattern stProtect
+            = Pattern.compile("[ \t]*(`protect(ed)?)([ \t]+.*)?\\s");
+    static final Pattern stEndProtect
+            = Pattern.compile("[ \t]*(`endprotect(ed)?)([ \t]+.*)?\\s");
 
     /**
      * Attempt to match line to a compiler directive.
+     *
      * @param src source file.
      * @param line current line in source file.
-     * @return true on match.  If true, caller should rescan line.
+     * @return true on match. If true, caller should rescan line.
      */
     static boolean process(final SourceFile src, final String line) {
         boolean accepted = true;
-        final Matcher matcher = stFile.matcher(line);
-        if (matcher.matches()) {
+        Matcher matcher;
+        if (null != (matcher = match(stFile, line))) {
             //`__FILE__ expands to the name of the current input file, 
             //in the form of a string literal. This is the path by
             //which a tool opened the file, not the short name specified 
             //in `include or as a tool’s input file name argument.
-            //TODO: stuff
-            final String repl = src.getFileLocation().getFile().getCanonicalPath();
-            final int span[] = getSpan(matcher, 1);
-            src.replace(span, repl);
+            update(src, getSpan(matcher, 1),
+                    "\"" + src.getFileLocation().getFile().getCanonicalPath() + "\"");
+        } else if (null != (matcher = match(stLine, line))) {
+            //`__LINE__ expands to the current input line number, 
+            //in the form of a simple decimal number.
+            update(src, getSpan(matcher, 1),
+                    Integer.toString(src.getFileLocation().getLineNum()));
+        } else if (null != (matcher = match(stUndef, line))) {
+            if (src.getEchoOn()) {
+                src.undef(matcher.group(3));
+            }
+            update(src, getSpan(matcher, 1), stEmpty);
+        } else if (null != (matcher = match(stProtect, line))) {
+            boolean loop = true;
+            while (loop) {
+                if (src.isEOF()) {
+                    
+                }
+            }
         } else {
             accepted = false;
         }
         return accepted;
     }
-    
+
+    /**
+     * Update source buffer with replacement text if source is doing echo. Else,
+     * just update the source buffer directly to skip over this match.
+     *
+     * @param src source.
+     * @param span span of match to replace (if applicable).
+     * @param repl replacement text (if applicable).
+     */
+    private static void update(final SourceFile src, final int[] span,
+            final String repl) {
+        if (src.getEchoOn()) {
+            src.accept(span[1] + 1);
+        } else {
+            src.replace(span, repl);
+        }
+    }
+
+    private static final String stEmpty = " ";
+
+    private static Matcher match(final Pattern patt, final String str) {
+        final Matcher matcher = patt.matcher(str);
+        return (matcher.matches()) ? matcher : null;
+    }
+
     private static int[] getSpan(final Matcher matcher, final int grp) {
-        return new int[] {matcher.start(grp), matcher.end(grp)};
+        return new int[]{matcher.start(grp), matcher.end(grp)};
     }
 }

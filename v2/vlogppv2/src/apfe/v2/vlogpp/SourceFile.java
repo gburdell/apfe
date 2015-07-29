@@ -30,7 +30,6 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static apfe.v2.vlogpp.FileCharReader.NL;
-import java.util.regex.Matcher;
 
 /**
  * SystemVerilog source file.
@@ -73,7 +72,7 @@ public class SourceFile {
                     } else if (acceptOnMatch("//")) {
                         lineComment();
                     } else {
-                        final String str = m_is.remainder();
+                        final String str = remainder();
                         //NOTE: matches() pattern is anchored w/ implied ^...$
                         if (TicDefine.stPatt1.matcher(str).matches()) {
                             final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
@@ -112,6 +111,10 @@ public class SourceFile {
         m_is.replace(span, repl);
     }
 
+    String remainder() {
+        return m_is.remainder();
+    }
+    
     private boolean isEnabled() {
         return true;
     }
@@ -170,8 +173,8 @@ public class SourceFile {
 
     private void lineComment() throws ParseError {
         //slurp entire line
-        final String rem = m_is.remainder();
-        m_is.accept(rem.length());
+        final String rem = remainder();
+        accept(rem.length());
         print(rem);
     }
 
@@ -199,7 +202,7 @@ public class SourceFile {
                 switch (c) {
                     case '\\':  //escaped char
                         print(m_is.substring(2));
-                        m_is.accept(2);
+                        accept(2);
                         break;
                     case '"':
                         next();
@@ -275,6 +278,18 @@ public class SourceFile {
         return new FileLocation(m_is.getFile(), m_is.getLineNum(), m_is.getColNum());
     }
 
+    void undef(final String macroNm) {
+        if (null != m_macros) {
+            m_macros.undef(m_is.getLocation(), macroNm);
+        } else if (MacroDefns.getStrictness(MacroDefns.EStrictness.eUndefWarning)) {
+            Messages.message('W', "VPP-UNDEF-1", m_is.getLocation(), macroNm, macroNm);
+        }
+    }
+    
+    boolean getEchoOn() {
+        return m_echoOn;
+    }
+    
     private final Stack<FileCharReader> m_files = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;

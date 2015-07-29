@@ -47,6 +47,10 @@ public class ParseError extends Exception {
         this(code, loc.toString(), args);
     }
 
+    public ParseError(final String code, final String loc, final int[] loc2) {
+        this(code, loc, loc2[0], loc2[1]);
+    }
+
     public ParseError(final String code, final String loc, final Object... args) {
         Object nargs[] = null;
         if (null != loc) {
