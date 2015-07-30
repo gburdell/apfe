@@ -42,7 +42,7 @@ public class TicDirective {
     static final Pattern stProtect
             = Pattern.compile("[ \t]*(`protect(ed)?)([ \t]+.*)?\\s");
     static final Pattern stEndProtect
-            = Pattern.compile("[ \t]*(`endprotect(ed)?)([ \t]+.*)?\\s");
+            = Pattern.compile("([ \t]*(`endprotect(ed)?))([ \t]+.*)?\\s");
 
     /**
      * Attempt to match line to a compiler directive.
@@ -51,7 +51,7 @@ public class TicDirective {
      * @param line current line in source file.
      * @return true on match. If true, caller should rescan line.
      */
-    static boolean process(final SourceFile src, final String line) {
+    static boolean process(final SourceFile src, String line) throws ParseError {
         boolean accepted = true;
         Matcher matcher;
         if (null != (matcher = match(stFile, line))) {
@@ -72,12 +72,24 @@ public class TicDirective {
             }
             update(src, getSpan(matcher, 1), stEmpty);
         } else if (null != (matcher = match(stProtect, line))) {
+            /**
+             * NOTE: We unconditionally process the `protect block.
+             */
+            final int[] started = src.getStartMark();
+            final String startTok = matcher.group(1);
             boolean loop = true;
             while (loop) {
+                src.printNL();
                 if (src.isEOF()) {
-                    
+                    throw new ParseError("VPP-EOF-2", src.getLocation(), 
+                            startTok, started[0], started[1]);
                 }
+                src.accept(line.length());
+                line = src.remainder();
+                loop = (null == (matcher = match(stEndProtect, line)));
             }
+            assert !loop && (null != matcher);
+            update(src, getSpan(matcher, 1), stEmpty);
         } else {
             accepted = false;
         }
@@ -95,7 +107,12 @@ public class TicDirective {
     private static void update(final SourceFile src, final int[] span,
             final String repl) {
         if (src.getEchoOn()) {
-            src.accept(span[1] + 1);
+            //TODO: +1 throws off call from `endprotect.
+            //since span[1] will be at next char after match end,
+            //not sure why I had this +1.
+            //The caller will do scan from this point anyway.
+            //Test and see.
+            src.accept(span[1]);// + 1);
         } else {
             src.replace(span, repl);
         }

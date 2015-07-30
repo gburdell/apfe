@@ -254,8 +254,16 @@ public class SourceFile {
     private void print(final String s) {
         if (m_echoOn) {
             m_os.print(s);
-
         }
+    }
+    
+    /**
+     * Allow our friendly class like TicConditional to forcePrint,
+     * as necessary to keep line counts in sync.
+     * @param c 
+     */
+    void printNL() {
+        m_os.print(NL);
     }
 
     private static enum EState {

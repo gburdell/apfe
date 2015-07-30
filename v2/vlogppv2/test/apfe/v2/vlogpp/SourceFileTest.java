@@ -60,6 +60,8 @@ public class SourceFileTest {
         add("f10.v", true);
         */
         add("f11.v", true);
+        add("f12.v", false);
+        add("f13.v", true);
     }
 
     /**
