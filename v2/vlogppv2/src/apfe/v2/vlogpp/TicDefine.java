@@ -41,7 +41,7 @@ public class TicDefine {
     } 
     
     static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]+.*\\s");
-    static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*)(.*)(\\s)");
+    static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z]\\w*)(.*)(\\s)");
 
     private TicDefine(final SourceFile src, final Matcher matcher) throws ParseError {
         if (! matcher.matches()) {
