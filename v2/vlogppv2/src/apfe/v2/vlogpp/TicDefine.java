@@ -40,7 +40,7 @@ public class TicDefine {
         return new MacroDefns.Defn(m_loc, m_macroName, m_formalArgs, m_macroText);
     } 
     
-    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)[ \t]+.*\\s");
+    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)(\\W.*)?\\s");
     static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z]\\w*)(.*)(\\s)");
 
     private TicDefine(final SourceFile src, final Matcher matcher) throws ParseError {

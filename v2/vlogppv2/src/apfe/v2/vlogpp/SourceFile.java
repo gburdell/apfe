@@ -30,6 +30,8 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static apfe.v2.vlogpp.FileCharReader.NL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * SystemVerilog source file.
@@ -58,6 +60,18 @@ public class SourceFile {
         push(fname, 0);
     }
 
+    boolean matches(final Pattern patt, final String line) {
+        m_matcher = patt.matcher(line);
+        return (null != m_matcher);
+    }
+
+    void acceptMatch(int group) {
+        m_matched[0] = m_matched[1];
+        m_matched[1] = m_matcher.group(group);
+        int end = m_matcher.end(group);
+        accept(end);
+    }
+
     public boolean parse() throws ParseError {
         boolean ok = true;
         char c;
@@ -73,18 +87,28 @@ public class SourceFile {
                         lineComment();
                     } else {
                         final String str = remainder();
-                        //NOTE: matches() pattern is anchored w/ implied ^...$
-                        if (TicDefine.stPatt1.matcher(str).matches()) {
-                            final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
-                            if (isEnabled()) {
-                                addDefn(ticDefine);
-                            }
-                        } else if (TicConditional.stPatt1.matcher(str).matches()) {
-                            final boolean echo = TicConditional.process(this, TicConditional.stPatt2.matcher(str));
-                            setEchoOn(echo);
-                        } else if (TicDirective.process(this, str)) {
-                            //do nothing: need to rescan
-                        } else {
+                        if (matches(TicDefine.stPatt1, str)) {
+                            acceptMatch(1);
+                            m_state = EState.eTicDefineWaitForTextMacroName;
+                        } else if (matches(TicConditional.stPatt1, str)) {
+                            acceptMatch(1);
+                            m_state = EState.eTicCondWaitForTextMacroIdent;
+                        } else if (matches(TicConditional.stPatt2, str)) {
+                            acceptMatch(1);
+                            //TODO: process
+                            m_state = EState.eStart;
+                        } /*
+                         if (TicDefine.stPatt1.matcher(str).matches()) {
+                         final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
+                         if (isEnabled()) {
+                         addDefn(ticDefine);
+                         }
+                         } else if (TicConditional.stPatt1.matcher(str).matches()) {
+                         final boolean echo = TicConditional.process(this, TicConditional.stPatt2.matcher(str));
+                         setEchoOn(echo);
+                         } else if (TicDirective.process(this, str)) {
+                         //do nothing: need to rescan
+                         */ else {
                             next();
                         }
                     }
@@ -114,7 +138,7 @@ public class SourceFile {
     String remainder() {
         return m_is.remainder();
     }
-    
+
     private boolean isEnabled() {
         return true;
     }
@@ -256,11 +280,12 @@ public class SourceFile {
             m_os.print(s);
         }
     }
-    
+
     /**
-     * Allow our friendly class like TicConditional to forcePrint,
-     * as necessary to keep line counts in sync.
-     * @param c 
+     * Allow our friendly class like TicConditional to forcePrint, as necessary
+     * to keep line counts in sync.
+     *
+     * @param c
      */
     void printNL() {
         m_os.print(NL);
@@ -269,6 +294,8 @@ public class SourceFile {
     private static enum EState {
 
         eStart,
+        eTicDefineWaitForTextMacroName,
+        eTicCondWaitForTextMacroIdent,
         eDone
     };
 
@@ -293,11 +320,11 @@ public class SourceFile {
             Messages.message('W', "VPP-UNDEF-1", m_is.getLocation(), macroNm, macroNm);
         }
     }
-    
+
     boolean getEchoOn() {
         return m_echoOn;
     }
-    
+
     private final Stack<FileCharReader> m_files = new Stack<>();
     private final PrintStream m_os;
     private FileCharReader m_is;
@@ -305,4 +332,7 @@ public class SourceFile {
     private MacroDefns m_macros;
     // We'll share conditional stack with TicConditional.
     Object m_cond;
+    private EState m_state = EState.eStart;
+    private Matcher m_matcher;
+    private String m_matched[] = new String[]{null, null};
 }
