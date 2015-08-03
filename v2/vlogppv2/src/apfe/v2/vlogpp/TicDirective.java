@@ -35,14 +35,10 @@ import java.util.regex.Pattern;
  */
 public class TicDirective {
 
-    static final Pattern stFile = Pattern.compile("[ \t]*(`__FILE__)([ \t]+.*)?\\s");
-    static final Pattern stLine = Pattern.compile("[ \t]*(`__LINE__)([ \t]+.*)?\\s");
-    static final Pattern stUndef
-            = Pattern.compile("[ \t]*((`undef)[ \t]+([_a-zA-Z][_a-zA-Z0-9]*))(.*)(\\s)");
-    static final Pattern stProtect
-            = Pattern.compile("[ \t]*(`protect(ed)?)([ \t]+.*)?\\s");
-    static final Pattern stEndProtect
-            = Pattern.compile("([ \t]*(`endprotect(ed)?))([ \t]+.*)?\\s");
+    static final Pattern stFile = Pattern.compile("[ \t]*(`__FILE__)\\W");
+    static final Pattern stLine = Pattern.compile("[ \t]*(`__LINE__)\\W");
+    static final Pattern stProtect = Pattern.compile("[ \t]*(`protect(ed)?)\\W");
+    static final Pattern stEndProtect = Pattern.compile("[ \t]*(`endprotect(ed)?)\\W");
 
     /**
      * Attempt to match line to a compiler directive.
@@ -66,11 +62,6 @@ public class TicDirective {
             //in the form of a simple decimal number.
             update(src, getSpan(matcher, 1),
                     Integer.toString(src.getFileLocation().getLineNum()));
-        } else if (null != (matcher = match(stUndef, line))) {
-            if (src.getEchoOn()) {
-                src.undef(matcher.group(3));
-            }
-            update(src, getSpan(matcher, 1), stEmpty);
         } else if (null != (matcher = match(stProtect, line))) {
             /**
              * NOTE: We unconditionally process the `protect block.
@@ -81,7 +72,7 @@ public class TicDirective {
             while (loop) {
                 src.printNL();
                 if (src.isEOF()) {
-                    throw new ParseError("VPP-EOF-2", src.getLocation(), 
+                    throw new ParseError("VPP-EOF-2", src.getLocation(),
                             startTok, started[0], started[1]);
                 }
                 src.accept(line.length());
@@ -107,14 +98,9 @@ public class TicDirective {
     private static void update(final SourceFile src, final int[] span,
             final String repl) {
         if (src.getEchoOn()) {
-            //TODO: +1 throws off call from `endprotect.
-            //since span[1] will be at next char after match end,
-            //not sure why I had this +1.
-            //The caller will do scan from this point anyway.
-            //Test and see.
-            src.accept(span[1]);// + 1);
-        } else {
             src.replace(span, repl);
+        } else {
+            src.accept(span[1]);
         }
     }
 

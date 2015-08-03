@@ -62,11 +62,19 @@ public class FileLocation {
         return m_lnum;
     }
     
+    public int getColNum() {
+        return m_col;
+    }
+        
     @Override
     public String toString() {
         return toString(m_file, m_lnum, m_col);
     }
 
+    public int[] getLineColNum() {
+        return new int[]{getLineNum(), getColNum()};
+    }
+    
     private final File m_file;
     private final int m_lnum, m_col;
 }

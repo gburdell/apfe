@@ -16,6 +16,7 @@ VPP-REDEFN-1 %s: macro '%s' redefined.\n       %s: previously defined
 VPP-REDEFN-2 %s: macro '%s' redefined with different value.\n       %s: previously defined
 VPP-REDEFN-3 %s: macro '%s' redefined at different location.\n       %s: previously defined
 VPP-STRING %s: unterminated string (started at %d:%d (line:col))
+VPP-SYNTAX-1 %s: unexpected '%c'
 VPP-UNDEF-1 %s: '`undef %s' has no effect since macro '%s' was never defined
 
 // VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d

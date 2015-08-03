@@ -26,7 +26,6 @@ package apfe.v2.vlogpp;
 import gblib.Util;
 import static gblib.Util.invariant;
 import java.util.Stack;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -63,26 +62,21 @@ class TicConditional {
 
     //`ifdef, `else, `elsif, `endif, `ifndef
     static final Pattern stPatt1
-            = Pattern.compile("[ \t]*(`ifn?def|`elsif)(\\W.*)?\\s");
+            = Pattern.compile("[ \t]*(`ifn?def|`elsif)\\W");
     static final Pattern stPatt2
-            = Pattern.compile("[ \t]*(`else|`endif)(\\W.*)?\\s");
+            = Pattern.compile("[ \t]*(`else|`endif)\\W");
 
-    private TicConditional(final SourceFile src, final Matcher matcher) throws ParseError {
-        if (!matcher.matches()) {
-            throw new ParseError("VPP-COND-1", src);
-        }
+    private TicConditional(final SourceFile src) throws ParseError {
         m_src = src;
-        m_matcher = matcher;
     }
 
     private final SourceFile m_src;
-    private final Matcher m_matcher;
     private EType m_type;
     private String m_macroNm, m_directive;
     private FileLocation m_started;
 
-    static boolean process(final SourceFile src, final Matcher matcher) throws ParseError {
-        TicConditional cond = new TicConditional(src, matcher);
+    static boolean process(final SourceFile src) throws ParseError {
+        TicConditional cond = new TicConditional(src);
         cond.parse();
         return cond.update();
     }
@@ -96,11 +90,9 @@ class TicConditional {
     }
 
     private void parse() throws ParseError {
-        m_src.accept(m_matcher.start(1));
-        m_started = m_src.getFileLocation();
-        final String directive = m_matcher.group(1);
-        m_directive = directive;
-        switch (directive) {
+        m_started = m_src.getMatched().peek().e1;
+        m_directive = m_src.getMatched().remove().e2;
+        switch (m_directive) {
             case "`ifdef":
                 m_type = EType.eIfdef;
                 break;
@@ -119,13 +111,12 @@ class TicConditional {
             default:
                 invariant(false);
         }
-        m_macroNm = m_matcher.group(2);
-        m_src.accept(m_matcher.start(2) - m_matcher.start(1));
-        if ((null != m_macroNm) && !m_macroNm.isEmpty() && (EType.eEndif == m_type || EType.eElse == m_type)) {
-            throw new ParseError("VPP-COND-2", m_src, m_macroNm, directive);
+        if (!m_src.getMatched().isEmpty()) {
+            m_macroNm = m_src.getMatched().remove().e2;
         }
-        int m = m_matcher.start(3);
-        m_src.accept(m_matcher.start(3) - m_matcher.start(2));
+        if ((null != m_macroNm) && !m_macroNm.isEmpty() && (EType.eEndif == m_type || EType.eElse == m_type)) {
+            throw new ParseError("VPP-COND-2", m_src, m_macroNm, m_directive);
+        }
     }
 
     private State.EAlive getIfdefAlive() {
@@ -224,8 +215,8 @@ class TicConditional {
                     invariant(false);
             }
         }
-        final boolean echo =
-                ((!stack.empty()) ? (State.EAlive.eActive==stack.peek().m_alive) : true); 
+        final boolean echo
+                = ((!stack.empty()) ? (State.EAlive.eActive == stack.peek().m_alive) : true);
         return echo;
     }
 

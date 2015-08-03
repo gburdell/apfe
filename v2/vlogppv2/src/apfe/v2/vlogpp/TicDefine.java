@@ -25,7 +25,6 @@ package apfe.v2.vlogpp;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import static apfe.v2.vlogpp.FileCharReader.EOF;
 import static apfe.v2.vlogpp.FileCharReader.NL;
@@ -40,15 +39,10 @@ public class TicDefine {
         return new MacroDefns.Defn(m_loc, m_macroName, m_formalArgs, m_macroText);
     } 
     
-    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)(\\W.*)?\\s");
-    static final Pattern stPatt2 = Pattern.compile("[ \t]*(`define)[ \t]+([_a-zA-Z]\\w*)(.*)(\\s)");
-
-    private TicDefine(final SourceFile src, final Matcher matcher) throws ParseError {
-        if (! matcher.matches()) {
-            throw new ParseError("VPP-DEFN-2", src);
-        }
+    static final Pattern stPatt1 = Pattern.compile("[ \t]*(`define)\\W");
+    
+    private TicDefine(final SourceFile src) throws ParseError {
         m_src = src;
-        m_matcher = matcher;
         m_echoOn = m_src.setEchoOn(false);
     }
 
@@ -75,27 +69,22 @@ public class TicDefine {
     private int[] m_started;
     private String m_macroName;
     private final SourceFile m_src;
-    private final Matcher m_matcher;
     private List<FormalArg> m_formalArgs;
     private final boolean m_echoOn;
     private String m_macroText;
     // Where `define begins
     private FileLocation m_loc;
 
-    static TicDefine parse(final SourceFile src, final Matcher matcher) throws ParseError {
-        TicDefine ticDefn = new TicDefine(src, matcher);
+    static TicDefine process(final SourceFile src) throws ParseError {
+        TicDefine ticDefn = new TicDefine(src);
         ticDefn.parse();
         return ticDefn;
     }
 
     private void parse() throws ParseError {
-        int n = m_matcher.start(1);
-        m_src.accept(n);
-        m_loc = m_src.getFileLocation();
-        m_started = m_src.getStartMark();
-        m_macroName = m_matcher.group(2);
-        int m = m_matcher.start(3);
-        m_src.accept(m - n);
+        m_started = m_src.getMatched().remove().e1.getLineColNum();
+        m_loc = m_src.getMatched().peek().e1;
+        m_macroName = m_src.getMatched().remove().e2;
         //we are just past macroNm
         //The left parenthesis shall follow the text macro name immediately
         //The `define macro text can also include `", `\`", and ``

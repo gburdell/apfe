@@ -30,6 +30,9 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static apfe.v2.vlogpp.FileCharReader.NL;
+import gblib.Util.Pair;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,16 +63,43 @@ public class SourceFile {
         push(fname, 0);
     }
 
-    boolean matches(final Pattern patt, final String line) {
-        m_matcher = patt.matcher(line);
-        return (null != m_matcher);
+    private boolean matches(final Pattern patt) {
+        m_matcher = patt.matcher(m_str);
+        //match begin of pattern to being of line (not require entire region).
+        return m_matcher.lookingAt();
     }
 
-    void acceptMatch(int group) {
-        m_matched[0] = m_matched[1];
-        m_matched[1] = m_matcher.group(group);
+    SourceFile acceptMatch(final int group, final boolean save) {
+        if (save) {
+            m_matched.add(new Pair<>(getFileLocation(), m_matcher.group(1)));
+        }
         int end = m_matcher.end(group);
         accept(end);
+        return this;
+    }
+
+    SourceFile acceptMatch(final int group) {
+        return acceptMatch(group, false);
+    }
+
+    SourceFile acceptMatchSave(final int group) {
+        return acceptMatch(group, true);
+    }
+
+    Queue<Pair<FileLocation, String>> getMatched() {
+        return m_matched;
+    }
+
+    private static final Pattern stWordPatt = Pattern.compile("([a-zA-Z_]\\w*)\\W");
+    private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
+    private static final Pattern stUndef = Pattern.compile("[ \t]*(`undef)\\W");
+    private static final Pattern stTimescale = Pattern.compile("[ \t]*(`timescale)\\W");
+    private static final Pattern stTimeUnit = Pattern.compile("(10?0?)\\s*([munpf]s)");
+    private static final Pattern stTimePrecision = Pattern.compile("(10?0?)\\s*([munpf]s)");
+    private static final Pattern stSlash = Pattern.compile("[ \t]*/");
+
+    private void syntaxError() throws ParseError {
+        throw new ParseError("VPP-SYNTAX-1", m_is, m_str.charAt(0));
     }
 
     public boolean parse() throws ParseError {
@@ -86,30 +116,70 @@ public class SourceFile {
                     } else if (acceptOnMatch("//")) {
                         lineComment();
                     } else {
-                        final String str = remainder();
-                        if (matches(TicDefine.stPatt1, str)) {
+                        m_str = remainder();
+                        if (matches(stSpacePatt)) {
                             acceptMatch(1);
-                            m_state = EState.eTicDefineWaitForTextMacroName;
-                        } else if (matches(TicConditional.stPatt1, str)) {
-                            acceptMatch(1);
-                            m_state = EState.eTicCondWaitForTextMacroIdent;
-                        } else if (matches(TicConditional.stPatt2, str)) {
-                            acceptMatch(1);
-                            //TODO: process
-                            m_state = EState.eStart;
-                        } /*
-                         if (TicDefine.stPatt1.matcher(str).matches()) {
-                         final TicDefine ticDefine = TicDefine.parse(this, TicDefine.stPatt2.matcher(str));
-                         if (isEnabled()) {
-                         addDefn(ticDefine);
-                         }
-                         } else if (TicConditional.stPatt1.matcher(str).matches()) {
-                         final boolean echo = TicConditional.process(this, TicConditional.stPatt2.matcher(str));
-                         setEchoOn(echo);
-                         } else if (TicDirective.process(this, str)) {
-                         //do nothing: need to rescan
-                         */ else {
-                            next();
+                        } else {
+                            switch (getState()) {
+                                case eTicCondWaitForTextMacroIdent:
+                                case eTicDefineWaitForTextMacroName:
+                                case eTicUndefWaitForTextMacroIdent:
+                                    if (matches(stWordPatt)) {
+                                        acceptMatchSave(1);
+                                        nextState();
+                                    } else {
+                                        syntaxError();
+                                    }
+                                    break;
+                                case eTicTimescaleWaitForTimeUnit:
+                                    if (matches(stTimeUnit)) {
+                                        acceptMatchSave(1).acceptMatchSave(2);
+                                        setState(EState.eTicTimescaleWaitForSlash);
+                                    } else {
+                                        syntaxError();
+                                    }
+                                    break;
+                                case eTicTimescaleWaitForTimePrecision:
+                                    if (matches(stTimeUnit)) {
+                                        acceptMatchSave(1).acceptMatchSave(2);
+                                        setState(EState.eTicTimescaleWaitForSlash);
+                                        nextState();
+                                    } else {
+                                        syntaxError();
+                                    }
+                                    break;
+                                case eTicTimescaleWaitForSlash:
+                                    if (matches(stSlash)) {
+                                        accept(1);
+                                        setState(EState.eTicTimescaleWaitForTimePrecision);
+                                    } else {
+                                        syntaxError();
+                                    }
+                                    break;
+                                default:
+                                    assert EState.eStart == getState();
+                                    if (matches(TicDefine.stPatt1)) {
+                                        acceptMatchSave(1);
+                                        setState(EState.eTicDefineWaitForTextMacroName);
+                                    } else if (matches(TicConditional.stPatt1)) {
+                                        acceptMatchSave(1);
+                                        setState(EState.eTicCondWaitForTextMacroIdent);
+                                    } else if (matches(TicConditional.stPatt2)) {
+                                        acceptMatchSave(1);
+                                        final boolean echo = TicConditional.process(this);
+                                        setEchoOn(echo);
+                                    } else if (matches(stUndef)) {
+                                        acceptMatchSave(1);
+                                        setState(EState.eTicUndefWaitForTextMacroIdent);
+                                    } else if (matches(stTimescale)) {
+                                        acceptMatchSave(1);
+                                        setState(EState.eTicTimescaleWaitForTimeUnit);
+                                    } else if (TicDirective.process(this, m_str)) {
+                                        //TODO: process
+                                    } else {
+                                        next();
+                                    }
+                            }
                         }
                     }
                 } catch (final ParseError pe) {
@@ -129,6 +199,45 @@ public class SourceFile {
             m_is = m_files.empty() ? null : m_files.pop();
         }
         return ok;
+    }
+
+    private void nextState() throws ParseError {
+        switch (getState()) {
+            case eTicCondWaitForTextMacroIdent:
+                final boolean echo = TicConditional.process(this);
+                setEchoOn(echo);
+                break;
+            case eTicDefineWaitForTextMacroName:
+                final TicDefine defn = TicDefine.process(this);
+                if (getEchoOn()) {
+                    addDefn(defn);
+                }
+                break;
+            case eTicUndefWaitForTextMacroIdent:
+                assert 2 == m_matched.size();
+                m_matched.remove(); //`undef
+                final String macNm = m_matched.remove().e2;
+                if (getEchoOn()) {
+                    undef(macNm);
+                }
+                break;
+            case eTicTimescaleWaitForTimePrecision:
+                assert 5 == m_matched.size();
+                //TODO: don't really need to do anything w/ this for vpp??
+                m_matched.clear();
+                break;
+            default:
+                assert (false);
+        }
+        setState(EState.eStart);
+    }
+
+    void setState(final EState state) {
+        m_state = state;
+    }
+
+    EState getState() {
+        return m_state;
     }
 
     void replace(final int[] span, final String repl) {
@@ -203,7 +312,7 @@ public class SourceFile {
     }
 
     int[] getStartMark() {
-        return new int[]{m_is.getLineNum(), m_is.getColNum()};
+        return m_is.getLineColNum();
     }
 
     /**
@@ -291,11 +400,15 @@ public class SourceFile {
         m_os.print(NL);
     }
 
-    private static enum EState {
+    static enum EState {
 
         eStart,
         eTicDefineWaitForTextMacroName,
         eTicCondWaitForTextMacroIdent,
+        eTicUndefWaitForTextMacroIdent,
+        eTicTimescaleWaitForTimeUnit,
+        eTicTimescaleWaitForSlash,
+        eTicTimescaleWaitForTimePrecision,
         eDone
     };
 
@@ -334,5 +447,6 @@ public class SourceFile {
     Object m_cond;
     private EState m_state = EState.eStart;
     private Matcher m_matcher;
-    private String m_matched[] = new String[]{null, null};
+    private final Queue<Pair<FileLocation, String>> m_matched = new LinkedList<>();
+    private String m_str;
 }
