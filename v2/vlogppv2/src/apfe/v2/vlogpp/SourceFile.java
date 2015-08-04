@@ -31,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static apfe.v2.vlogpp.FileCharReader.NL;
 import gblib.Util.Pair;
+import static gblib.Util.escape;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.regex.Matcher;
@@ -84,6 +85,11 @@ public class SourceFile {
     void acceptMatch(final int group) {
         acceptMatch(group, false);
     }
+    
+    private void printAcceptMatch(final int group) {
+        print(m_matcher.group(group));
+        acceptMatch(group);
+    }
 
     void acceptMatchSave(final int group) {
         acceptMatch(group, true);
@@ -95,17 +101,17 @@ public class SourceFile {
 
     private static final Pattern stWordPatt = Pattern.compile("([a-zA-Z_]\\w*)\\W");
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
-    private static final Pattern stUndef = Pattern.compile("[ \t]*(`undef)\\W");
-    private static final Pattern stTimescale = Pattern.compile("[ \t]*(`timescale)\\W");
+    private static final Pattern stUndef = Pattern.compile("(`undef)\\W");
+    private static final Pattern stTimescale = Pattern.compile("(`timescale)\\W");
     private static final Pattern stTimeUnit = Pattern.compile("(10?0?\\s*[munpf]s)");
     private static final Pattern stTimePrecision = stTimeUnit;
-    private static final Pattern stSlash = Pattern.compile("[ \t]*/");
-    private static final Pattern stDefaultNetType = Pattern.compile("[ \t]*(`default_nettype)\\W");
+    private static final Pattern stSlash = Pattern.compile("/");
+    private static final Pattern stDefaultNetType = Pattern.compile("(`default_nettype)\\W");
     private static final Pattern stNetTypeValue
-            = Pattern.compile("[ \t]*(u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none)\\W");
+            = Pattern.compile("(u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none)\\W");
 
     private void syntaxError() throws ParseError {
-        throw new ParseError("VPP-SYNTAX-1", m_is, m_str.charAt(0));
+        throw new ParseError("VPP-SYNTAX-1", m_is, escape(m_str.charAt(0)));
     }
 
     public boolean parse() throws ParseError {
@@ -124,7 +130,7 @@ public class SourceFile {
                     } else {
                         m_str = remainder();
                         if (matches(stSpacePatt)) {
-                            acceptMatch(1);
+                            printAcceptMatch(1);
                         } else {
                             switch (getState()) {
                                 case eTicCondWaitForTextMacroIdent:

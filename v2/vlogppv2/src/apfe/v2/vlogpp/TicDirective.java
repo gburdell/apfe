@@ -35,11 +35,11 @@ import java.util.regex.Pattern;
  */
 public class TicDirective {
 
-    static final Pattern stFile = Pattern.compile("[ \t]*(`__FILE__)\\W");
-    static final Pattern stLine = Pattern.compile("[ \t]*(`__LINE__)\\W");
-    static final Pattern stProtect = Pattern.compile("[ \t]*(`protect(ed)?)\\W");
-    static final Pattern stEndProtect = Pattern.compile("[ \t]*(`endprotect(ed)?)\\W");
-    static final Pattern stCellDefine = Pattern.compile("[ \t]*(`(end)?celldefine?)\\W");
+    static final Pattern stFile = Pattern.compile("(`__FILE__)\\W");
+    static final Pattern stLine = Pattern.compile("(`__LINE__)\\W");
+    static final Pattern stProtect = Pattern.compile("(`protect(ed)?)\\W");
+    static final Pattern stEndProtect = Pattern.compile("(`endprotect(ed)?)\\W");
+    static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
 
     /**
      * Attempt to match line to a compiler directive.
@@ -113,7 +113,7 @@ public class TicDirective {
 
     private static Matcher match(final Pattern patt, final String str) {
         final Matcher matcher = patt.matcher(str);
-        return (matcher.matches()) ? matcher : null;
+        return (matcher.lookingAt()) ? matcher : null;
     }
 
     private static int[] getSpan(final Matcher matcher, final int grp) {
