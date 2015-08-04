@@ -63,27 +63,30 @@ public class SourceFile {
         push(fname, 0);
     }
 
-    private boolean matches(final Pattern patt) {
-        m_matcher = patt.matcher(m_str);
+    boolean matches(final Pattern patt) {
+        return matches(patt, m_str);
+    }
+
+    private boolean matches(final Pattern patt, final String str) {
+        m_matcher = patt.matcher(str);
         //match begin of pattern to being of line (not require entire region).
         return m_matcher.lookingAt();
     }
 
-    SourceFile acceptMatch(final int group, final boolean save) {
+    void acceptMatch(final int group, final boolean save) {
         if (save) {
-            m_matched.add(new Pair<>(getFileLocation(), m_matcher.group(1)));
+            getMatched().add(new Pair<>(getFileLocation(), m_matcher.group(1)));
         }
         int end = m_matcher.end(group);
         accept(end);
-        return this;
     }
 
-    SourceFile acceptMatch(final int group) {
-        return acceptMatch(group, false);
+    void acceptMatch(final int group) {
+        acceptMatch(group, false);
     }
 
-    SourceFile acceptMatchSave(final int group) {
-        return acceptMatch(group, true);
+    void acceptMatchSave(final int group) {
+        acceptMatch(group, true);
     }
 
     Queue<Pair<FileLocation, String>> getMatched() {
@@ -94,9 +97,12 @@ public class SourceFile {
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
     private static final Pattern stUndef = Pattern.compile("[ \t]*(`undef)\\W");
     private static final Pattern stTimescale = Pattern.compile("[ \t]*(`timescale)\\W");
-    private static final Pattern stTimeUnit = Pattern.compile("(10?0?)\\s*([munpf]s)");
-    private static final Pattern stTimePrecision = Pattern.compile("(10?0?)\\s*([munpf]s)");
+    private static final Pattern stTimeUnit = Pattern.compile("(10?0?\\s*[munpf]s)");
+    private static final Pattern stTimePrecision = stTimeUnit;
     private static final Pattern stSlash = Pattern.compile("[ \t]*/");
+    private static final Pattern stDefaultNetType = Pattern.compile("[ \t]*(`default_nettype)\\W");
+    private static final Pattern stNetTypeValue
+            = Pattern.compile("[ \t]*(u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none)\\W");
 
     private void syntaxError() throws ParseError {
         throw new ParseError("VPP-SYNTAX-1", m_is, m_str.charAt(0));
@@ -124,6 +130,7 @@ public class SourceFile {
                                 case eTicCondWaitForTextMacroIdent:
                                 case eTicDefineWaitForTextMacroName:
                                 case eTicUndefWaitForTextMacroIdent:
+                                case eTicDefaultNetTypeWaitForValue:
                                     if (matches(stWordPatt)) {
                                         acceptMatchSave(1);
                                         nextState();
@@ -133,7 +140,7 @@ public class SourceFile {
                                     break;
                                 case eTicTimescaleWaitForTimeUnit:
                                     if (matches(stTimeUnit)) {
-                                        acceptMatchSave(1).acceptMatchSave(2);
+                                        acceptMatchSave(1);
                                         setState(EState.eTicTimescaleWaitForSlash);
                                     } else {
                                         syntaxError();
@@ -141,8 +148,7 @@ public class SourceFile {
                                     break;
                                 case eTicTimescaleWaitForTimePrecision:
                                     if (matches(stTimeUnit)) {
-                                        acceptMatchSave(1).acceptMatchSave(2);
-                                        setState(EState.eTicTimescaleWaitForSlash);
+                                        acceptMatchSave(1);
                                         nextState();
                                     } else {
                                         syntaxError();
@@ -174,6 +180,9 @@ public class SourceFile {
                                     } else if (matches(stTimescale)) {
                                         acceptMatchSave(1);
                                         setState(EState.eTicTimescaleWaitForTimeUnit);
+                                    } else if (matches(stDefaultNetType)) {
+                                        acceptMatchSave(1);
+                                        setState(EState.eTicDefaultNetTypeWaitForValue);
                                     } else if (TicDirective.process(this, m_str)) {
                                         //TODO: process
                                     } else {
@@ -214,17 +223,27 @@ public class SourceFile {
                 }
                 break;
             case eTicUndefWaitForTextMacroIdent:
-                assert 2 == m_matched.size();
-                m_matched.remove(); //`undef
-                final String macNm = m_matched.remove().e2;
+                assert 2 == getMatched().size();
+                getMatched().remove(); //`undef
+                final String macNm = getMatched().remove().e2;
                 if (getEchoOn()) {
                     undef(macNm);
                 }
                 break;
             case eTicTimescaleWaitForTimePrecision:
-                assert 5 == m_matched.size();
+                assert 3 == getMatched().size();
                 //TODO: don't really need to do anything w/ this for vpp??
-                m_matched.clear();
+                getMatched().clear();
+                break;
+            case eTicDefaultNetTypeWaitForValue:
+                assert 2 == getMatched().size();
+                getMatched().remove(); //`default_nettype
+                final Pair<FileLocation, String> type = getMatched().remove();
+                if (matches(stNetTypeValue, type.e2)) {
+                    acceptMatch(1);
+                } else {
+                    throw new ParseError("VPP-NETTYPE-1", type.e1, type.e2);
+                }
                 break;
             default:
                 assert (false);
@@ -409,6 +428,7 @@ public class SourceFile {
         eTicTimescaleWaitForTimeUnit,
         eTicTimescaleWaitForSlash,
         eTicTimescaleWaitForTimePrecision,
+        eTicDefaultNetTypeWaitForValue,
         eDone
     };
 

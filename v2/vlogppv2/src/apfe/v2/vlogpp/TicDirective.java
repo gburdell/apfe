@@ -39,6 +39,7 @@ public class TicDirective {
     static final Pattern stLine = Pattern.compile("[ \t]*(`__LINE__)\\W");
     static final Pattern stProtect = Pattern.compile("[ \t]*(`protect(ed)?)\\W");
     static final Pattern stEndProtect = Pattern.compile("[ \t]*(`endprotect(ed)?)\\W");
+    static final Pattern stCellDefine = Pattern.compile("[ \t]*(`(end)?celldefine?)\\W");
 
     /**
      * Attempt to match line to a compiler directive.
@@ -81,6 +82,10 @@ public class TicDirective {
             }
             assert !loop && (null != matcher);
             update(src, getSpan(matcher, 1), stEmpty);
+        } else if (src.matches(stCellDefine)) {
+            //from LRM: It is advisable to pair each
+            //`celldefine with an `endcelldefine, but it is not required.
+            src.accept(1);
         } else {
             accepted = false;
         }

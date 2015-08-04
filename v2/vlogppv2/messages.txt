@@ -12,6 +12,7 @@ VPP-EOF-1 %s: unexpected end-of-file while processing '%s'
 VPP-EOF-2 %s: unexpected end-of-file while processing '%s' (started at %d:%d (line:col))
 VPP-EXIT Exiting due to previous error(s)
 VPP-FARG-1 %s: empty formal arg. while processing '`define' (started at %d:%d (line:col))
+VPP-NETTYPE-1 %s: '%s' invalid value for `default_nettype
 VPP-REDEFN-1 %s: macro '%s' redefined.\n       %s: previously defined
 VPP-REDEFN-2 %s: macro '%s' redefined with different value.\n       %s: previously defined
 VPP-REDEFN-3 %s: macro '%s' redefined at different location.\n       %s: previously defined
