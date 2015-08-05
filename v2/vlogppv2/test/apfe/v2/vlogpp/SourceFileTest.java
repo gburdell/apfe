@@ -53,10 +53,10 @@ public class SourceFileTest {
         add("f4.v", true);
         add("f5.v", false);
         //long runtime: add("sparc.v", true);
-        */
+        
         add("f6.v", false);
         add("f7.v", true);
-        /**/
+        
         add("f8.v", true);
         add("f9.v", true);
         add("f10.v", true);
@@ -64,6 +64,7 @@ public class SourceFileTest {
         add("f12.v", false);
         add("f13.v", true);
         add("f14.v", true);
+        */
         add("f15.v", true);
         /**/
     }

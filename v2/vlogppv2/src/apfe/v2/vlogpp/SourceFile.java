@@ -141,19 +141,19 @@ public class SourceFile {
         return m_matched;
     }
 
-    //reuse non-capturing whitespace
+    //reuse non-capturing whitespace w/ block-comment
     static final String stNCWS = "(?:[ \t]|/\\*.*?\\*/)+";
+    //reuse time unit
+    private static final String stTU = "(10?0?\\s*[munpf]s)";
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
-    private static final Pattern stUndef = 
-            Pattern.compile("(`undef)("+stNCWS+"([a-zA-Z_]\\w*))?");
-    private static final Pattern stTimescale = 
-            Pattern.compile("(`timescale)()?");
-    private static final Pattern stTimeUnit = Pattern.compile("(10?0?\\s*[munpf]s)");
-    private static final Pattern stTimePrecision = stTimeUnit;
-    private static final Pattern stSlash = Pattern.compile("/");
-    private static final Pattern stDefaultNetType = Pattern.compile("(`default_nettype)\\W");
-    private static final Pattern stNetTypeValue
-            = Pattern.compile("(u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none)\\W");
+    private static final Pattern stUndef
+            = Pattern.compile("(`undef)(" + stNCWS + "([a-zA-Z_]\\w*))?");
+    private static final Pattern stTimescale
+            = Pattern.compile("(`timescale)(" + stNCWS + stTU + "[ \t]*/[ \t]*" + stTU + "\\W)?");
+    private static final Pattern stDefaultNetType
+            = Pattern.compile("(`default_nettype)(" + stNCWS + "([a-z]\\w+)\\W)?");
+    private static final Pattern stNetType
+            = Pattern.compile("u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none");
 
     private void syntaxError() throws ParseError {
         throw new ParseError("VPP-SYNTAX-1", m_is, escape(m_str.charAt(0)));
@@ -196,18 +196,22 @@ public class SourceFile {
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
                         } else if (match(stUndef, 3)) {
-                            getMatched().remove();
-                            final String macNm = getMatched().remove().e2;
+                            final String macNm = removeMatched(2).e2;
                             getMatched().clear();
                             if (getEchoOn()) {
                                 undef(macNm);
                             }
-                        } else if (matches(stTimescale)) {
-                            acceptMatchSave(1);
-                            setState(EState.eTicTimescaleWaitForTimeUnit);
-                        } else if (matches(stDefaultNetType)) {
-                            acceptMatchSave(1);
-                            setState(EState.eTicDefaultNetTypeWaitForValue);
+                        } else if (match(stTimescale, 4)) {
+                            //don't really need to do anything w/ this for vpp??
+                            //if so, use 3rd and 4th (1-origin)
+                            getMatched().clear();
+                        } else if (match(stDefaultNetType, 3)) {
+                            final Pair<FileLocation, String> type = removeMatched(2);
+                            if (!matches(stNetType, type.e2)) {
+                                throw new ParseError("VPP-NETTYPE-1", type.e1, type.e2);
+                            }
+                            //do nothing
+                            getMatched().clear();
                         } else if (TicDirective.process(this, m_str)) {
                             //TODO: process
                         } else {
@@ -233,53 +237,13 @@ public class SourceFile {
         return ok;
     }
 
-    private void nextState() throws ParseError {
-        switch (getState()) {
-            case eTicCondWaitForTextMacroIdent:
-                final boolean echo = TicConditional.process(this);
-                setEchoOn(echo);
-                break;
-            case eTicDefineWaitForTextMacroName:
-                final TicDefine defn = TicDefine.process(this);
-                if (getEchoOn()) {
-                    addDefn(defn);
-                }
-                break;
-            case eTicUndefWaitForTextMacroIdent:
-                assert 2 == getMatched().size();
-                getMatched().remove(); //`undef
-                final String macNm = getMatched().remove().e2;
-                if (getEchoOn()) {
-                    undef(macNm);
-                }
-                break;
-            case eTicTimescaleWaitForTimePrecision:
-                assert 3 == getMatched().size();
-                //TODO: don't really need to do anything w/ this for vpp??
-                getMatched().clear();
-                break;
-            case eTicDefaultNetTypeWaitForValue:
-                assert 2 == getMatched().size();
-                getMatched().remove(); //`default_nettype
-                final Pair<FileLocation, String> type = getMatched().remove();
-                if (matches(stNetTypeValue, type.e2)) {
-                    acceptMatch(1);
-                } else {
-                    throw new ParseError("VPP-NETTYPE-1", type.e1, type.e2);
-                }
-                break;
-            default:
-                assert (false);
+    private Pair<FileLocation, String> removeMatched(int n) {
+        assert 0 < n;
+        Pair<FileLocation, String> r = null;
+        for (; n > 0; n--) {
+            r = getMatched().remove();
         }
-        setState(EState.eStart);
-    }
-
-    void setState(final EState state) {
-        m_state = state;
-    }
-
-    EState getState() {
-        return m_state;
+        return r;
     }
 
     void replace(final int[] span, final String repl) {
@@ -442,19 +406,6 @@ public class SourceFile {
         m_os.print(NL);
     }
 
-    static enum EState {
-
-        eStart,
-        eTicDefineWaitForTextMacroName,
-        eTicCondWaitForTextMacroIdent,
-        eTicUndefWaitForTextMacroIdent,
-        eTicTimescaleWaitForTimeUnit,
-        eTicTimescaleWaitForSlash,
-        eTicTimescaleWaitForTimePrecision,
-        eTicDefaultNetTypeWaitForValue,
-        eDone
-    };
-
     boolean setEchoOn(final boolean val) {
         final boolean was = m_echoOn;
         m_echoOn = val;
@@ -488,7 +439,6 @@ public class SourceFile {
     private MacroDefns m_macros;
     // We'll share conditional stack with TicConditional.
     Object m_cond;
-    private EState m_state = EState.eStart;
     private Matcher m_matcher;
     private final Queue<Pair<FileLocation, String>> m_matched = new LinkedList<>();
     private String m_str;

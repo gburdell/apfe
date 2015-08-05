@@ -2,8 +2,7 @@
 //comment
 `timescale 1ns / 100ps
 
-`ifdef //split line
-M1
+`ifdef M1
 FAIL1
 `else
 PASS1
@@ -11,10 +10,7 @@ PASS1
 
 `define    M1
 
-`ifdef        
-
-
-M1
+`ifdef M1
 PASS2
 
 `endif
