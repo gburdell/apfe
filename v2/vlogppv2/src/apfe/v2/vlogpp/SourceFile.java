@@ -64,6 +64,49 @@ public class SourceFile {
         push(fname, 0);
     }
 
+    /**
+     * Match line contents against pattern. If >0 group(s) matched, save them.
+     * If all groups matched, then return true.
+     *
+     * @param patt pattern to match.
+     * @param cnt number of groups expected.
+     * @return true if all groups matched; false if 0.
+     * @throws ParseError if less than cnt group(s) matched.
+     */
+    private boolean match(final Pattern patt, final int cnt) throws ParseError {
+        //test looking at
+        {
+            Pattern p = Pattern.compile("(ab)(c)");
+            Matcher m = p.matcher("ab");
+            boolean b = m.lookingAt();
+            m = p.matcher("abcd");
+            b = m.lookingAt();
+            int g = m.groupCount();
+            g += 0;
+        }
+        m_matcher = patt.matcher(m_str);
+        if (!m_matcher.lookingAt()) {
+            return false;
+        }
+        final int groupCnt = m_matcher.groupCount();
+        final FileLocation start = getFileLocation();
+        FileLocation loc;
+        for (int i = 1; i <= groupCnt; i++) {
+            loc = start.offset(m_matcher.start(i));
+            getMatched().add(new Pair<>(loc, m_matcher.group(i)));
+        }
+        assert getMatched().size() == groupCnt;
+        accept(m_matcher.end(groupCnt));
+        if (groupCnt != cnt) {
+            syntaxError("VPP-SYNTAX-2");
+        }
+        return true;
+    }
+
+    private int getMatchedGroupCnt() {
+        return m_matcher.groupCount();
+    }
+
     boolean matches(final Pattern patt) {
         return matches(patt, m_str);
     }
@@ -76,7 +119,7 @@ public class SourceFile {
 
     void acceptMatch(final int group, final boolean save) {
         if (save) {
-            getMatched().add(new Pair<>(getFileLocation(), m_matcher.group(1)));
+            getMatched().add(new Pair<>(getFileLocation(), m_matcher.group(group)));
         }
         int end = m_matcher.end(group);
         accept(end);
@@ -85,7 +128,7 @@ public class SourceFile {
     void acceptMatch(final int group) {
         acceptMatch(group, false);
     }
-    
+
     private void printAcceptMatch(final int group) {
         print(m_matcher.group(group));
         acceptMatch(group);
@@ -99,7 +142,6 @@ public class SourceFile {
         return m_matched;
     }
 
-    private static final Pattern stWordPatt = Pattern.compile("([a-zA-Z_]\\w*)\\W");
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
     private static final Pattern stUndef = Pattern.compile("(`undef)\\W");
     private static final Pattern stTimescale = Pattern.compile("(`timescale)\\W");
@@ -114,10 +156,17 @@ public class SourceFile {
         throw new ParseError("VPP-SYNTAX-1", m_is, escape(m_str.charAt(0)));
     }
 
+    private void syntaxError(final String code) throws ParseError {
+        final String tok = getMatched().peek().e2;
+        getMatched().clear();
+        throw new ParseError(code, getFileLocation(), tok, m_is.remainder());
+    }
+
     public boolean parse() throws ParseError {
         boolean ok = true;
         char c;
         ParseError error = null;
+        int ngrp;
         while (null != m_is) {
             while (!isEOF()) {
                 try {
@@ -131,70 +180,32 @@ public class SourceFile {
                         m_str = remainder();
                         if (matches(stSpacePatt)) {
                             printAcceptMatch(1);
-                        } else {
-                            switch (getState()) {
-                                case eTicCondWaitForTextMacroIdent:
-                                case eTicDefineWaitForTextMacroName:
-                                case eTicUndefWaitForTextMacroIdent:
-                                case eTicDefaultNetTypeWaitForValue:
-                                    if (matches(stWordPatt)) {
-                                        acceptMatchSave(1);
-                                        nextState();
-                                    } else {
-                                        syntaxError();
-                                    }
-                                    break;
-                                case eTicTimescaleWaitForTimeUnit:
-                                    if (matches(stTimeUnit)) {
-                                        acceptMatchSave(1);
-                                        setState(EState.eTicTimescaleWaitForSlash);
-                                    } else {
-                                        syntaxError();
-                                    }
-                                    break;
-                                case eTicTimescaleWaitForTimePrecision:
-                                    if (matches(stTimeUnit)) {
-                                        acceptMatchSave(1);
-                                        nextState();
-                                    } else {
-                                        syntaxError();
-                                    }
-                                    break;
-                                case eTicTimescaleWaitForSlash:
-                                    if (matches(stSlash)) {
-                                        accept(1);
-                                        setState(EState.eTicTimescaleWaitForTimePrecision);
-                                    } else {
-                                        syntaxError();
-                                    }
-                                    break;
-                                default:
-                                    assert EState.eStart == getState();
-                                    if (matches(TicDefine.stPatt1)) {
-                                        acceptMatchSave(1);
-                                        setState(EState.eTicDefineWaitForTextMacroName);
-                                    } else if (matches(TicConditional.stPatt1)) {
-                                        acceptMatchSave(1);
-                                        setState(EState.eTicCondWaitForTextMacroIdent);
-                                    } else if (matches(TicConditional.stPatt2)) {
-                                        acceptMatchSave(1);
-                                        final boolean echo = TicConditional.process(this);
-                                        setEchoOn(echo);
-                                    } else if (matches(stUndef)) {
-                                        acceptMatchSave(1);
-                                        setState(EState.eTicUndefWaitForTextMacroIdent);
-                                    } else if (matches(stTimescale)) {
-                                        acceptMatchSave(1);
-                                        setState(EState.eTicTimescaleWaitForTimeUnit);
-                                    } else if (matches(stDefaultNetType)) {
-                                        acceptMatchSave(1);
-                                        setState(EState.eTicDefaultNetTypeWaitForValue);
-                                    } else if (TicDirective.process(this, m_str)) {
-                                        //TODO: process
-                                    } else {
-                                        next();
-                                    }
+                        } else if (match(TicDefine.stPatt, 2)) {
+                            final TicDefine defn = TicDefine.process(this);
+                            if (getEchoOn()) {
+                                addDefn(defn);
                             }
+                        } else if (match(TicConditional.stPatt1, 2)) {
+                            final boolean echo = TicConditional.process(this);
+                            setEchoOn(echo);
+                        } else if (matches(TicConditional.stPatt2)) {
+                            //TODO
+                            acceptMatchSave(1);
+                            final boolean echo = TicConditional.process(this);
+                            setEchoOn(echo);
+                        } else if (matches(stUndef)) {
+                            acceptMatchSave(1);
+                            setState(EState.eTicUndefWaitForTextMacroIdent);
+                        } else if (matches(stTimescale)) {
+                            acceptMatchSave(1);
+                            setState(EState.eTicTimescaleWaitForTimeUnit);
+                        } else if (matches(stDefaultNetType)) {
+                            acceptMatchSave(1);
+                            setState(EState.eTicDefaultNetTypeWaitForValue);
+                        } else if (TicDirective.process(this, m_str)) {
+                            //TODO: process
+                        } else {
+                            next();
                         }
                     }
                 } catch (final ParseError pe) {

@@ -36,6 +36,15 @@ public class FileLocation {
         m_lnum = lnum;
         m_col = col;
     }
+    
+    /**
+     * Return new FileLocation which is copy of this one, with column offset.
+     * @param colOffset add column offset.
+     * @return new FileLocation with column offset.
+     */
+    public FileLocation offset(final int colOffset) {
+        return new FileLocation(m_file, m_lnum, m_col+colOffset);
+    }
 
     public static boolean equals(final FileLocation l1, final FileLocation l2) {
         if (null==l1 && null==l2) {

@@ -6,8 +6,6 @@ VPP-COND-2 %s: unexpected '%s' after '%s'
 VPP-COND-3 %s: depth of nested conditional directives > %d
 VPP-COND-4 %s: unexpected '%s' conditional directive.\n       %s: start of `if(n)def
 VPP-COND-5 %s: '`endif' without opening '`ifdef' or '`ifndef'
-VPP-DEFN-1 %s: malformed '`define' (started at %d:%d (line:col))
-VPP-DEFN-2 %s: malformed '`define'
 VPP-EOF-1 %s: unexpected end-of-file while processing '%s'
 VPP-EOF-2 %s: unexpected end-of-file while processing '%s' (started at %d:%d (line:col))
 VPP-EXIT Exiting due to previous error(s)
@@ -18,6 +16,7 @@ VPP-REDEFN-2 %s: macro '%s' redefined with different value.\n       %s: previous
 VPP-REDEFN-3 %s: macro '%s' redefined at different location.\n       %s: previously defined
 VPP-STRING %s: unterminated string (started at %d:%d (line:col))
 VPP-SYNTAX-1 %s: unexpected '%s'
+VPP-SYNTAX-2 %s: '%s' syntax error at '%s'
 VPP-UNDEF-1 %s: '`undef %s' has no effect since macro '%s' was never defined
 
 // VPP-ARGN   %s: macro instance '%s' has %d arguments, definition has %d

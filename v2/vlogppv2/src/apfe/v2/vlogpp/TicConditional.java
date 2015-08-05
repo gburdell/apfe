@@ -62,7 +62,7 @@ class TicConditional {
 
     //`ifdef, `else, `elsif, `endif, `ifndef
     static final Pattern stPatt1
-            = Pattern.compile("[ \t]*(`ifn?def|`elsif)\\W");
+            = Pattern.compile("[ \t]*(`ifn?def|`elsif)(?:[ \t]|/\\*.*?\\*/)+([a-zA-Z_]\\w*)");
     static final Pattern stPatt2
             = Pattern.compile("[ \t]*(`else|`endif)\\W");
 
