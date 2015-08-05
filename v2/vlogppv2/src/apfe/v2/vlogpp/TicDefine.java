@@ -41,7 +41,7 @@ public class TicDefine {
     
     //NOTE: 2nd group is non-capturing.
     //static final Pattern stPatt = Pattern.compile("(`define)(?:[ \t]|(/\\*.*?\\*/))+([a-zA-Z_]\\w*)");
-    static final Pattern stPatt = Pattern.compile("(`define)(?:[ \t])+([a-zA-Z_]\\w*)");
+    static final Pattern stPatt = Pattern.compile("(`define)((?:[ \t])+([a-zA-Z_]\\w*))?");
        
     private TicDefine(final SourceFile src) throws ParseError {
         m_src = src;

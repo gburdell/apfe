@@ -74,25 +74,21 @@ public class SourceFile {
      * @throws ParseError if less than cnt group(s) matched.
      */
     private boolean match(final Pattern patt, final int cnt) throws ParseError {
-        //test looking at
-        {
-            Pattern p = Pattern.compile("(ab)(c)");
-            Matcher m = p.matcher("ab");
-            boolean b = m.lookingAt();
-            m = p.matcher("abcd");
-            b = m.lookingAt();
-            int g = m.groupCount();
-            g += 0;
-        }
         m_matcher = patt.matcher(m_str);
         if (!m_matcher.lookingAt()) {
             return false;
         }
-        final int groupCnt = m_matcher.groupCount();
+        int groupCnt = m_matcher.groupCount();
         final FileLocation start = getFileLocation();
         FileLocation loc;
+        int n;
         for (int i = 1; i <= groupCnt; i++) {
-            loc = start.offset(m_matcher.start(i));
+            n = m_matcher.start(i);
+            if (0 > n) {
+                groupCnt = i-1;
+                break;
+            }
+            loc = start.offset(n);
             getMatched().add(new Pair<>(loc, m_matcher.group(i)));
         }
         assert getMatched().size() == groupCnt;
