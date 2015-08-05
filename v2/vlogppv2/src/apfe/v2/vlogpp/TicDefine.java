@@ -39,9 +39,7 @@ public class TicDefine {
         return new MacroDefns.Defn(m_loc, m_macroName, m_formalArgs, m_macroText);
     } 
     
-    //NOTE: 2nd group is non-capturing.
-    //static final Pattern stPatt = Pattern.compile("(`define)(?:[ \t]|(/\\*.*?\\*/))+([a-zA-Z_]\\w*)");
-    static final Pattern stPatt = Pattern.compile("(`define)((?:[ \t])+([a-zA-Z_]\\w*))?");
+    static final Pattern stPatt = Pattern.compile("(`define)((?:[ \t]|/\\*.*?\\*/)+([a-zA-Z_]\\w*))?");
        
     private TicDefine(final SourceFile src) throws ParseError {
         m_src = src;
@@ -80,6 +78,7 @@ public class TicDefine {
     static TicDefine process(final SourceFile src) throws ParseError {
         TicDefine ticDefn = new TicDefine(src);
         ticDefn.parse();
+        src.getMatched().clear();
         return ticDefn;
     }
 

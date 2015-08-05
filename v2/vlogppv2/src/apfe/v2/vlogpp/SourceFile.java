@@ -66,7 +66,10 @@ public class SourceFile {
 
     /**
      * Match line contents against pattern. If >0 group(s) matched, save them.
-     * If all groups matched, then return true.
+     * If all groups matched, then return true. In order to match pattern, it is
+     * assumed the patt is of form "(p)(q)?". In that example, cnt specified as
+     * 2: indicating q must be matched. Need this convention since doesn't
+     * appear to be method to match as much as possible w/o matching all.
      *
      * @param patt pattern to match.
      * @param cnt number of groups expected.
@@ -85,7 +88,7 @@ public class SourceFile {
         for (int i = 1; i <= groupCnt; i++) {
             n = m_matcher.start(i);
             if (0 > n) {
-                groupCnt = i-1;
+                groupCnt = i - 1;
                 break;
             }
             loc = start.offset(n);
@@ -138,9 +141,13 @@ public class SourceFile {
         return m_matched;
     }
 
+    //reuse non-capturing whitespace
+    static final String stNCWS = "(?:[ \t]|/\\*.*?\\*/)+";
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
-    private static final Pattern stUndef = Pattern.compile("(`undef)\\W");
-    private static final Pattern stTimescale = Pattern.compile("(`timescale)\\W");
+    private static final Pattern stUndef = 
+            Pattern.compile("(`undef)("+stNCWS+"([a-zA-Z_]\\w*))?");
+    private static final Pattern stTimescale = 
+            Pattern.compile("(`timescale)()?");
     private static final Pattern stTimeUnit = Pattern.compile("(10?0?\\s*[munpf]s)");
     private static final Pattern stTimePrecision = stTimeUnit;
     private static final Pattern stSlash = Pattern.compile("/");
@@ -176,22 +183,25 @@ public class SourceFile {
                         m_str = remainder();
                         if (matches(stSpacePatt)) {
                             printAcceptMatch(1);
-                        } else if (match(TicDefine.stPatt, 2)) {
+                        } else if (match(TicDefine.stPatt, 3)) {
                             final TicDefine defn = TicDefine.process(this);
                             if (getEchoOn()) {
                                 addDefn(defn);
                             }
-                        } else if (match(TicConditional.stPatt1, 2)) {
+                        } else if (match(TicConditional.stPatt1, 3)) {
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
                         } else if (matches(TicConditional.stPatt2)) {
-                            //TODO
                             acceptMatchSave(1);
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
-                        } else if (matches(stUndef)) {
-                            acceptMatchSave(1);
-                            setState(EState.eTicUndefWaitForTextMacroIdent);
+                        } else if (match(stUndef, 3)) {
+                            getMatched().remove();
+                            final String macNm = getMatched().remove().e2;
+                            getMatched().clear();
+                            if (getEchoOn()) {
+                                undef(macNm);
+                            }
                         } else if (matches(stTimescale)) {
                             acceptMatchSave(1);
                             setState(EState.eTicTimescaleWaitForTimeUnit);

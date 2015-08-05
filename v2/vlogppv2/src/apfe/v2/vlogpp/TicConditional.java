@@ -60,9 +60,10 @@ class TicConditional {
         private final FileLocation m_started;
     }
 
+    static final String stNCWS = SourceFile.stNCWS;
     //`ifdef, `else, `elsif, `endif, `ifndef
     static final Pattern stPatt1
-            = Pattern.compile("[ \t]*(`ifn?def|`elsif)(?:[ \t]|/\\*.*?\\*/)+([a-zA-Z_]\\w*)");
+            = Pattern.compile("[ \t]*(`ifn?def|`elsif)("+stNCWS+"([a-zA-Z_]\\w*))?");
     static final Pattern stPatt2
             = Pattern.compile("[ \t]*(`else|`endif)\\W");
 
@@ -78,6 +79,7 @@ class TicConditional {
     static boolean process(final SourceFile src) throws ParseError {
         TicConditional cond = new TicConditional(src);
         cond.parse();
+        src.getMatched().clear();
         return cond.update();
     }
 
