@@ -14,3 +14,7 @@ PASS1
 PASS2
 
 `endif
+
+`undefineall
+
+`resetall

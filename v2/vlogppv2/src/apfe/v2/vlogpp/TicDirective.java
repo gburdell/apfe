@@ -40,6 +40,8 @@ public class TicDirective {
     static final Pattern stProtect = Pattern.compile("(`protect(ed)?)\\W");
     static final Pattern stEndProtect = Pattern.compile("(`endprotect(ed)?)\\W");
     static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
+    static final Pattern stResetAll = Pattern.compile("(`resetall)\\W");
+    static final Pattern stUndefineAll = Pattern.compile("(`undefineall)\\W");
 
     /**
      * Attempt to match line to a compiler directive.
@@ -85,7 +87,11 @@ public class TicDirective {
         } else if (src.matches(stCellDefine)) {
             //from LRM: It is advisable to pair each
             //`celldefine with an `endcelldefine, but it is not required.
-            src.accept(1);
+            src.acceptMatch(1);
+        } else if (src.matches(stResetAll)) {
+            src.acceptMatch(1);
+        } else if (src.matches(stUndefineAll)) {
+            src.acceptMatch(1);
         } else {
             accepted = false;
         }

@@ -147,11 +147,11 @@ public class SourceFile {
     private static final String stTU = "(10?0?\\s*[munpf]s)";
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
     private static final Pattern stUndef
-            = Pattern.compile("(`undef)(" + stNCWS + "([a-zA-Z_]\\w*))?");
+            = Pattern.compile("(`undef(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*))?");
     private static final Pattern stTimescale
-            = Pattern.compile("(`timescale)(" + stNCWS + stTU + "[ \t]*/[ \t]*" + stTU + "\\W)?");
+            = Pattern.compile("(`timescale(?=\\W))(" + stNCWS + stTU + "[ \t]*/[ \t]*" + stTU + "\\W)?");
     private static final Pattern stDefaultNetType
-            = Pattern.compile("(`default_nettype)(" + stNCWS + "([a-z]\\w+)\\W)?");
+            = Pattern.compile("(`default_nettype(?=\\W))(" + stNCWS + "([a-z]\\w+)\\W)?");
     private static final Pattern stNetType
             = Pattern.compile("u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none");
 
