@@ -30,7 +30,8 @@ import java.util.regex.Pattern;
  * Other compiler directives. `__FILE__ `__LINE__ `begin_keywords `celldefine
  * `default_nettype `end_keywords `endcelldefine `nounconnected_drive `pragma
  * `resetall `timescale `unconnected_drive `undef `undefineall
- *
+ *  TODO: `include
+ * 
  * @author gburdell
  */
 public class TicDirective {
@@ -42,6 +43,8 @@ public class TicDirective {
     static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
     static final Pattern stResetAll = Pattern.compile("(`resetall)\\W");
     static final Pattern stUndefineAll = Pattern.compile("(`undefineall)\\W");
+    static final Pattern stMacroUsage = Pattern.compile("(`[a-zA-Z_]\\w*)\\W");
+    //
 
     /**
      * Attempt to match line to a compiler directive.

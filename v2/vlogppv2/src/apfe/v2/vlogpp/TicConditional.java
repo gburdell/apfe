@@ -62,9 +62,9 @@ class TicConditional {
 
     static final String stNCWS = SourceFile.stNCWS;
     //`ifdef, `else, `elsif, `endif, `ifndef
-    static final Pattern stPatt1
+    static final Pattern stIfxdefElsif
             = Pattern.compile("[ \t]*(`ifn?def|`elsif)("+stNCWS+"([a-zA-Z_]\\w*))?");
-    static final Pattern stPatt2
+    static final Pattern stElseEndif
             = Pattern.compile("[ \t]*(`else|`endif)\\W");
 
     private TicConditional(final SourceFile src) throws ParseError {

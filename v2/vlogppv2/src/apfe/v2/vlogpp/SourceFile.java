@@ -154,6 +154,10 @@ public class SourceFile {
             = Pattern.compile("(`default_nettype(?=\\W))(" + stNCWS + "([a-z]\\w+)\\W)?");
     private static final Pattern stNetType
             = Pattern.compile("u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none");
+    private static final Pattern stTicInclude 
+            = Pattern.compile("(`include(?=\\W))(" + stNCWS 
+                    + "(\\\"([^\\\"]+)(\\\"))|(<[^>]+(>)))?");
+
 
     private void syntaxError() throws ParseError {
         throw new ParseError("VPP-SYNTAX-1", m_is, escape(m_str.charAt(0)));
@@ -188,13 +192,17 @@ public class SourceFile {
                             if (getEchoOn()) {
                                 addDefn(defn);
                             }
-                        } else if (match(TicConditional.stPatt1, 3)) {
+                        } else if (match(TicConditional.stIfxdefElsif, 3)) {
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
-                        } else if (matches(TicConditional.stPatt2)) {
+                        } else if (matches(TicConditional.stElseEndif)) {
                             acceptMatchSave(1);
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
+                        } else if (match(stTicInclude, 5)) {
+                            final String fileNm = removeMatched(4).e2;
+                            getMatched().clear();
+                            //TODO
                         } else if (match(stUndef, 3)) {
                             final String macNm = removeMatched(2).e2;
                             getMatched().clear();
@@ -213,7 +221,7 @@ public class SourceFile {
                             //do nothing
                             getMatched().clear();
                         } else if (TicDirective.process(this, m_str)) {
-                            //TODO: process
+                            //do nothing
                         } else {
                             next();
                         }
