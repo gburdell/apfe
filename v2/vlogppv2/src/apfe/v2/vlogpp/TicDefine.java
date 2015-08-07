@@ -35,13 +35,14 @@ import gblib.Pair;
  * @author gburdell
  */
 public class TicDefine {
+
     MacroDefns.Defn getDefn() {
         return new MacroDefns.Defn(m_loc, m_macroName, m_formalArgs, m_macroText);
-    } 
-    
+    }
+
     private static final String stNCWS = SourceFile.stNCWS;
-    static final Pattern stPatt = Pattern.compile("(`define(?=\\W))("+stNCWS+"([a-zA-Z_]\\w*))?");
-       
+    static final Pattern stPatt = Pattern.compile("(`define(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*))?");
+
     private TicDefine(final SourceFile src) throws ParseError {
         m_src = src;
         m_echoOn = m_src.setEchoOn(false);
@@ -67,10 +68,13 @@ public class TicDefine {
         private final Pair<String, String> m_arg;
     }
 
+    static class FormalArgList extends LinkedList<FormalArg> {
+    }
+
     private int[] m_started;
     private String m_macroName;
     private final SourceFile m_src;
-    private List<FormalArg> m_formalArgs;
+    private FormalArgList m_formalArgs;
     private final boolean m_echoOn;
     private String m_macroText;
     // Where `define begins
@@ -144,12 +148,12 @@ public class TicDefine {
             if (arg.isEmpty()) {
                 throw new ParseError("VPP-FARG-1", getLocation(), m_started);
             }
-            args.add(m_arg.toString().trim());
+            args.add(arg);
             m_arg.setLength(0);
             loop = (')' != c);
             assert (!m_src.isEOF());
         }
-        m_formalArgs = new LinkedList<>();
+        FormalArgList m_formalArgs = new FormalArgList();
         for (final Pair<String, String> farg : Pair.factory(args)) {
             m_formalArgs.add(new FormalArg(farg));
         }
@@ -222,31 +226,31 @@ public class TicDefine {
         }
         return -1;
     }
-    
-    private static final String stParmMarks[] = new String[] {
-        "<'/~@", "@:/'>"    //gibberish characters
+
+    private static final String stParmMarks[] = new String[]{
+        "<'/~@", "@:/'>" //gibberish characters
     };
-    
+
     /**
-     * Replace each occurence of named paramter in macro text with its
-     * position (1-origin).
+     * Replace each occurence of named paramter in macro text with its position
+     * (1-origin).
      */
     private void addMarkers() {
         //Convert to pair of name by position
-        List<Pair<String,Integer>> nmPos = new LinkedList<>();
+        List<Pair<String, Integer>> nmPos = new LinkedList<>();
         int i = 1;
         for (final FormalArg farg : m_formalArgs) {
             nmPos.add(new Pair(farg.getIdent(), i++));
         }
         //Sort in descending order by arg name length
         nmPos.sort((Pair<String, Integer> o1, Pair<String, Integer> o2) -> {
-            final int len[] = new int []{o1.v1.length(), o2.v1.length()};
-            return (len[0]==len[1]) ? 0 : ((len[0] < len[1]) ? 1 : -1);
+            final int len[] = new int[]{o1.v1.length(), o2.v1.length()};
+            return (len[0] == len[1]) ? 0 : ((len[0] < len[1]) ? 1 : -1);
         });
         //Go through macroText by parms (longest to shortest).
         String replaced = m_macroText;
         String repl;
-        for (final Pair<String,Integer> ele : nmPos) {
+        for (final Pair<String, Integer> ele : nmPos) {
             repl = stParmMarks[0] + ele.v2.toString() + stParmMarks[1];
             replaced = replaced.replace(ele.v1, repl);
         }

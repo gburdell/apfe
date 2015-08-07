@@ -154,10 +154,9 @@ public class SourceFile {
             = Pattern.compile("(`default_nettype(?=\\W))(" + stNCWS + "([a-z]\\w+)\\W)?");
     private static final Pattern stNetType
             = Pattern.compile("u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none");
-    private static final Pattern stTicInclude 
-            = Pattern.compile("(`include(?=\\W))(" + stNCWS 
+    private static final Pattern stTicInclude
+            = Pattern.compile("(`include(?=\\W))(" + stNCWS
                     + "(\\\"([^\\\"]+)(\\\"))|(<[^>]+(>)))?");
-
 
     private void syntaxError() throws ParseError {
         throw new ParseError("VPP-SYNTAX-1", m_is, escape(m_str.charAt(0)));
@@ -184,7 +183,7 @@ public class SourceFile {
                     } else if (acceptOnMatch("//")) {
                         lineComment();
                     } else {
-                        m_str = remainder();
+                        setRemainder();
                         if (matches(stSpacePatt)) {
                             printAcceptMatch(1);
                         } else if (match(TicDefine.stPatt, 3)) {
@@ -220,7 +219,7 @@ public class SourceFile {
                             }
                             //do nothing
                             getMatched().clear();
-                        } else if (TicDirective.process(this, m_str)) {
+                        } else if (TicDirective.process(this)) {
                             //do nothing
                         } else {
                             next();
@@ -245,7 +244,7 @@ public class SourceFile {
         return ok;
     }
 
-    private Pair<FileLocation, String> removeMatched(int n) {
+    Pair<FileLocation, String> removeMatched(int n) {
         assert 0 < n;
         Pair<FileLocation, String> r = null;
         for (; n > 0; n--) {
@@ -258,8 +257,20 @@ public class SourceFile {
         m_is.replace(span, repl);
     }
 
-    String remainder() {
-        return m_is.remainder();
+    String getRemainder() {
+        return setRemainder(false);
+    }
+
+    String setRemainder(final boolean updateStr) {
+        final String rem = m_is.remainder();
+        if (updateStr) {
+            m_str = rem;
+        }
+        return rem;
+    }
+    
+    String setRemainder() {
+        return setRemainder(true);
     }
 
     private boolean isEnabled() {
@@ -320,13 +331,21 @@ public class SourceFile {
 
     private void lineComment() throws ParseError {
         //slurp entire line
-        final String rem = remainder();
+        final String rem = getRemainder();
         accept(rem.length());
         print(rem);
     }
 
     int[] getStartMark() {
         return m_is.getLineColNum();
+    }
+
+    int[] getSpan(final int grp) {
+        return new int[]{m_matcher.start(grp), m_matcher.end(grp)};
+    }
+
+    String getMatched(final int grp) {
+        return m_matcher.group(grp);
     }
 
     /**

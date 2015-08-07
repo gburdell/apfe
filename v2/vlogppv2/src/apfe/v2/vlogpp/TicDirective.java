@@ -23,27 +23,27 @@
  */
 package apfe.v2.vlogpp;
 
+import gblib.Util.Pair;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Other compiler directives. `__FILE__ `__LINE__ `begin_keywords `celldefine
  * `default_nettype `end_keywords `endcelldefine `nounconnected_drive `pragma
- * `resetall `timescale `unconnected_drive `undef `undefineall
- *  TODO: `include
- * 
+ * `resetall `timescale `unconnected_drive `undef `undefineall TODO: `include
+ *
  * @author gburdell
  */
 public class TicDirective {
 
-    static final Pattern stFile = Pattern.compile("(`__FILE__)\\W");
-    static final Pattern stLine = Pattern.compile("(`__LINE__)\\W");
-    static final Pattern stProtect = Pattern.compile("(`protect(ed)?)\\W");
-    static final Pattern stEndProtect = Pattern.compile("(`endprotect(ed)?)\\W");
-    static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
-    static final Pattern stResetAll = Pattern.compile("(`resetall)\\W");
-    static final Pattern stUndefineAll = Pattern.compile("(`undefineall)\\W");
-    static final Pattern stMacroUsage = Pattern.compile("(`[a-zA-Z_]\\w*)\\W");
+    private static final Pattern stFile = Pattern.compile("(`__FILE__)\\W");
+    private static final Pattern stLine = Pattern.compile("(`__LINE__)\\W");
+    private static final Pattern stProtect = Pattern.compile("(`protect(ed)?)\\W");
+    private static final Pattern stEndProtect = Pattern.compile("(`endprotect(ed)?)\\W");
+    private static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
+    private static final Pattern stResetAll = Pattern.compile("(`resetall)\\W");
+    private static final Pattern stUndefineAll = Pattern.compile("(`undefineall)\\W");
+    private static final Pattern stMacroUsage = Pattern.compile("(`[a-zA-Z_]\\w*)\\W");
     //
 
     /**
@@ -53,28 +53,28 @@ public class TicDirective {
      * @param line current line in source file.
      * @return true on match. If true, caller should rescan line.
      */
-    static boolean process(final SourceFile src, String line) throws ParseError {
+    static boolean process(final SourceFile src) throws ParseError {
         boolean accepted = true;
-        Matcher matcher;
-        if (null != (matcher = match(stFile, line))) {
+        if (src.matches(stFile)) {
             //`__FILE__ expands to the name of the current input file, 
             //in the form of a string literal. This is the path by
             //which a tool opened the file, not the short name specified 
             //in `include or as a tool’s input file name argument.
-            update(src, getSpan(matcher, 1),
+            update(src, src.getSpan(1),
                     "\"" + src.getFileLocation().getFile().getCanonicalPath() + "\"");
-        } else if (null != (matcher = match(stLine, line))) {
+        } else if (src.matches(stLine)) {
             //`__LINE__ expands to the current input line number, 
             //in the form of a simple decimal number.
-            update(src, getSpan(matcher, 1),
+            update(src, src.getSpan(1),
                     Integer.toString(src.getFileLocation().getLineNum()));
-        } else if (null != (matcher = match(stProtect, line))) {
+        } else if (src.matches(stProtect)) {
             /**
              * NOTE: We unconditionally process the `protect block.
              */
             final int[] started = src.getStartMark();
-            final String startTok = matcher.group(1);
+            final String startTok = src.getMatched(1);
             boolean loop = true;
+            String line = src.setRemainder();
             while (loop) {
                 src.printNL();
                 if (src.isEOF()) {
@@ -82,11 +82,10 @@ public class TicDirective {
                             startTok, started[0], started[1]);
                 }
                 src.accept(line.length());
-                line = src.remainder();
-                loop = (null == (matcher = match(stEndProtect, line)));
+                line = src.setRemainder();
+                loop = (!src.matches(stEndProtect));
             }
-            assert !loop && (null != matcher);
-            update(src, getSpan(matcher, 1), stEmpty);
+            update(src, src.getSpan(1), stEmpty);
         } else if (src.matches(stCellDefine)) {
             //from LRM: It is advisable to pair each
             //`celldefine with an `endcelldefine, but it is not required.
@@ -95,6 +94,11 @@ public class TicDirective {
             src.acceptMatch(1);
         } else if (src.matches(stUndefineAll)) {
             src.acceptMatch(1);
+        } //very last to check for macro usage 
+        else if (src.matches(stMacroUsage)) {
+            src.acceptMatchSave(1);
+            final Pair<FileLocation, String> inst = src.removeMatched(1);
+            //TODO
         } else {
             accepted = false;
         }
@@ -119,13 +123,4 @@ public class TicDirective {
     }
 
     private static final String stEmpty = " ";
-
-    private static Matcher match(final Pattern patt, final String str) {
-        final Matcher matcher = patt.matcher(str);
-        return (matcher.lookingAt()) ? matcher : null;
-    }
-
-    private static int[] getSpan(final Matcher matcher, final int grp) {
-        return new int[]{matcher.start(grp), matcher.end(grp)};
-    }
 }
