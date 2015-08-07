@@ -186,8 +186,8 @@ public class SourceFile {
                         setRemainder();
                         if (matches(stSpacePatt)) {
                             printAcceptMatch(1);
-                        } else if (match(TicDefine.stPatt, 3)) {
-                            final TicDefine defn = TicDefine.process(this);
+                        } else if (match(TicMacro.stPatt, 3)) {
+                            final TicMacro defn = TicMacro.processDefn(this);
                             if (getEchoOn()) {
                                 addDefn(defn);
                             }
@@ -221,6 +221,9 @@ public class SourceFile {
                             getMatched().clear();
                         } else if (TicDirective.process(this)) {
                             //do nothing
+                        } //very last to check for macro usage
+                        else if (match(TicMacro.stMacroUsage, 2)) {                            
+                            //TODO
                         } else {
                             next();
                         }
@@ -268,7 +271,7 @@ public class SourceFile {
         }
         return rem;
     }
-    
+
     String setRemainder() {
         return setRemainder(true);
     }
@@ -277,7 +280,7 @@ public class SourceFile {
         return true;
     }
 
-    private void addDefn(final TicDefine defn) throws ParseError {
+    private void addDefn(final TicMacro defn) throws ParseError {
         if (null == m_macros) {
             m_macros = new MacroDefns();
         }

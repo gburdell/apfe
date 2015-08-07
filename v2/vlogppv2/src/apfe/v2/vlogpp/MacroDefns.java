@@ -23,7 +23,7 @@
  */
 package apfe.v2.vlogpp;
 
-import apfe.v2.vlogpp.TicDefine.FormalArg;
+import apfe.v2.vlogpp.TicMacro.FormalArg;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -93,7 +93,7 @@ public class MacroDefns {
         private final String m_macroText;
     }
 
-    public void addDefn(final TicDefine defn) throws ParseError {
+    public void addDefn(final TicMacro defn) throws ParseError {
         addDefn(defn.getDefn());
     }
 

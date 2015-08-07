@@ -24,7 +24,6 @@
 package apfe.v2.vlogpp;
 
 import gblib.Util.Pair;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -43,7 +42,6 @@ public class TicDirective {
     private static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
     private static final Pattern stResetAll = Pattern.compile("(`resetall)\\W");
     private static final Pattern stUndefineAll = Pattern.compile("(`undefineall)\\W");
-    private static final Pattern stMacroUsage = Pattern.compile("(`[a-zA-Z_]\\w*)\\W");
     //
 
     /**
@@ -94,11 +92,6 @@ public class TicDirective {
             src.acceptMatch(1);
         } else if (src.matches(stUndefineAll)) {
             src.acceptMatch(1);
-        } //very last to check for macro usage 
-        else if (src.matches(stMacroUsage)) {
-            src.acceptMatchSave(1);
-            final Pair<FileLocation, String> inst = src.removeMatched(1);
-            //TODO
         } else {
             accepted = false;
         }
