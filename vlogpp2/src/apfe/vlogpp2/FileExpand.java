@@ -31,25 +31,22 @@ import apfe.runtime.CharSeq;
  * @author gburdell
  */
 public class FileExpand extends Acceptor {
-
+    
     @Override
     protected boolean accepti() {
         //FileExpand <- "`__FILE__"
         boolean match = (new CharSeq("`__FILE__")).acceptTrue();
         if (match) {
-            m_text = super.toString();
-            if (Helper.getTheOne().getConditionalAllow()) {
-				;//TODO
-			}
+            final Helper helper = Helper.getTheOne();
+            if (helper.getConditionalAllow()) {
+                helper.replaceNoRollBack(getStartMark(), '"'+helper.getFname()+'"');
+            } else {
+                helper.replace(getStartMark());
+            }
         }
         return match;
     }
-    private String m_text;
-
-    @Override
-    public String toString() {
-        return m_text;
-    }
+    
     @Override
     public Acceptor create() {
         return new FileExpand();

@@ -154,6 +154,17 @@ public class Helper {
     }
 
     /**
+     * Replace current CharBuffer [start,current) with s.
+     * Do not rollback buffer, so continue from current.
+     * @param start start position in buffer.
+     * @param s string to replace with.
+     */
+    public void replaceNoRollBack(final Marker start, String s) {
+        final CharBuffer buf = getBuf();
+        buf.replace(start, s, false);
+    }
+
+    /**
      * Replace current CharBuffer contents [start,current) with space, while
      * retaining any newline. Clear/invalidate any memoization too.
      *

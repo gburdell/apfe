@@ -23,6 +23,7 @@
  */
 package apfe.v2.vlogpp;
 
+import gblib.FileCharReader;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;

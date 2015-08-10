@@ -23,6 +23,8 @@
  */
 package apfe.v2.vlogpp;
 
+import gblib.FileLocation;
+import gblib.FileCharReader;
 import apfe.v2.vlogpp.Messages.Message;
 
 /**

@@ -23,13 +23,15 @@
  */
 package apfe.v2.vlogpp;
 
+import gblib.FileLocation;
+import gblib.FileCharReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import static apfe.v2.vlogpp.FileCharReader.NL;
+import static gblib.FileCharReader.NL;
 import gblib.Util.Pair;
 import static gblib.Util.escape;
 import java.util.LinkedList;
@@ -64,70 +66,6 @@ public class SourceFile {
         push(fname, 0);
     }
 
-    /**
-     * Match line contents against pattern. If >0 group(s) matched, save them.
-     * If all groups matched, then return true. In order to match pattern, it is
-     * assumed the patt is of form "(p)(q)?". In that example, cnt specified as
-     * 2: indicating q must be matched. Need this convention since doesn't
-     * appear to be method to match as much as possible w/o matching all.
-     *
-     * @param patt pattern to match.
-     * @param cnt number of groups expected.
-     * @return true if all groups matched; false if 0.
-     * @throws ParseError if less than cnt group(s) matched.
-     */
-    private boolean match(final Pattern patt, final int cnt) throws ParseError {
-        m_matcher = patt.matcher(m_str);
-        if (!m_matcher.lookingAt()) {
-            return false;
-        }
-        int groupCnt = m_matcher.groupCount();
-        final FileLocation start = getFileLocation();
-        FileLocation loc;
-        int n;
-        for (int i = 1; i <= groupCnt; i++) {
-            n = m_matcher.start(i);
-            if (0 > n) {
-                groupCnt = i - 1;
-                break;
-            }
-            loc = start.offset(n);
-            getMatched().add(new Pair<>(loc, m_matcher.group(i)));
-        }
-        assert getMatched().size() == groupCnt;
-        accept(m_matcher.end(groupCnt));
-        if (groupCnt != cnt) {
-            syntaxError("VPP-SYNTAX-2");
-        }
-        return true;
-    }
-
-    private int getMatchedGroupCnt() {
-        return m_matcher.groupCount();
-    }
-
-    boolean matches(final Pattern patt) {
-        return matches(patt, m_str);
-    }
-
-    private boolean matches(final Pattern patt, final String str) {
-        m_matcher = patt.matcher(str);
-        //match begin of pattern to being of line (not require entire region).
-        return m_matcher.lookingAt();
-    }
-
-    void acceptMatch(final int group, final boolean save) {
-        if (save) {
-            getMatched().add(new Pair<>(getFileLocation(), m_matcher.group(group)));
-        }
-        int end = m_matcher.end(group);
-        accept(end);
-    }
-
-    void acceptMatch(final int group) {
-        acceptMatch(group, false);
-    }
-
     private void printAcceptMatch(final int group) {
         print(m_matcher.group(group));
         acceptMatch(group);
@@ -135,10 +73,6 @@ public class SourceFile {
 
     void acceptMatchSave(final int group) {
         acceptMatch(group, true);
-    }
-
-    Queue<Pair<FileLocation, String>> getMatched() {
-        return m_matched;
     }
 
     //reuse non-capturing whitespace w/ block-comment
@@ -222,7 +156,7 @@ public class SourceFile {
                         } else if (TicDirective.process(this)) {
                             //do nothing
                         } //very last to check for macro usage
-                        else if (match(TicMacro.stMacroUsage, 2)) {                            
+                        else if (match(TicMacro.stMacroUsage, 2)) {
                             //TODO
                         } else {
                             next();
@@ -339,19 +273,7 @@ public class SourceFile {
         print(rem);
     }
 
-    int[] getStartMark() {
-        return m_is.getLineColNum();
-    }
-
-    int[] getSpan(final int grp) {
-        return new int[]{m_matcher.start(grp), m_matcher.end(grp)};
-    }
-
-    String getMatched(final int grp) {
-        return m_matcher.group(grp);
-    }
-
-    /**
+     /**
      * IEEE Std 1800-2012 5.9 String literals A string literal is a sequence of
      * characters enclosed by double quotes (""). Nonprinting and other special
      * characters are preceded with a backslash. A string literal shall be
@@ -381,15 +303,8 @@ public class SourceFile {
                         break;
                     default:
                         next();
-                }
-            }
-        }
-        if (isUnterminated || isEOF()) {
-            //VPP-STRING %s: unterminated string (started at %d:%d (line:col))
-            throw new ParseError("VPP-STRING", m_is, started[0], started[1]);
-        }
     }
-
+    
     private boolean acceptOnMatch(final String s) {
         final boolean match = m_is.acceptOnMatch(s);
         if (match) {
@@ -469,7 +384,5 @@ public class SourceFile {
     private MacroDefns m_macros;
     // We'll share conditional stack with TicConditional.
     Object m_cond;
-    private Matcher m_matcher;
-    private final Queue<Pair<FileLocation, String>> m_matched = new LinkedList<>();
     private String m_str;
 }

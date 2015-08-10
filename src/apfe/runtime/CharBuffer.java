@@ -35,8 +35,9 @@ import static gblib.Util.downCast;
 public class CharBuffer {
 
     /**
-     * Create buffer associated with 'fname'.  Buffer size is determined
-     * by (1+extra) * buf.size.
+     * Create buffer associated with 'fname'. Buffer size is determined by
+     * (1+extra) * buf.size.
+     *
      * @param fname filename associated with buffer.
      * @param buf initial size of buffer.
      * @param extra extra size scaling factor.
@@ -134,6 +135,10 @@ public class CharBuffer {
         return new MarkerImpl();
     }
 
+    public Marker mark(int offset) {
+        return new MarkerImpl(offset);
+    }
+
     /**
      * Reset to marker position.
      *
@@ -191,8 +196,9 @@ public class CharBuffer {
      *
      * @param start start marker.
      * @param s replace string.
+     * @param doReset if true reset to start mark; else, advance past s.
      */
-    public void replace(final Marker start, String s) {
+    public void replace(final Marker start, String s, boolean doReset) {
         MarkerImpl mark = downCast(start);
         final int begin = mark.getPos();
         if (null != s) {
@@ -201,6 +207,13 @@ public class CharBuffer {
             getBuf().delete(begin, m_pos);
         }
         reset(start);
+        if (!doReset) {
+            accept(s.length());
+        }
+    }
+
+    public void replace(final Marker start, String s) {
+        replace(start, s, true);
     }
 
     /**
@@ -242,6 +255,12 @@ public class CharBuffer {
             m_xpos = m_pos;
             m_xlnum = m_lnum;
             m_xcol = m_col;
+        }
+
+        public MarkerImpl(int offset) {
+            m_xpos = m_pos + offset;
+            m_xlnum = m_lnum;
+            m_xcol = m_col + offset;
         }
 
         @Override

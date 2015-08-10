@@ -23,6 +23,7 @@
  */
 package apfe.v2.vlogpp;
 
+import gblib.FileLocation;
 import apfe.v2.vlogpp.TicMacro.FormalArg;
 import java.util.BitSet;
 import java.util.HashMap;

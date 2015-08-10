@@ -23,34 +23,18 @@
  */
 package apfe.v2.vlogpp;
 
-import gblib.FileLocation;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
-import static gblib.FileCharReader.EOF;
-import static gblib.FileCharReader.NL;
+import static apfe.v2.vlogpp.FileCharReader.EOF;
+import static apfe.v2.vlogpp.FileCharReader.NL;
 import gblib.Pair;
 
 /**
- * Handle `define and `macroUsage.
  *
  * @author gburdell
  */
-public class TicMacro {
-
-    /**
-     * Process `define.
-     *
-     * @param src source file.
-     * @return macro definition.
-     * @throws ParseError
-     */
-    static TicMacro processDefn(final SourceFile src) throws ParseError {
-        TicMacro ticDefn = new TicMacro(src);
-        ticDefn.parse();
-        src.getMatched().clear();
-        return ticDefn;
-    }
+public class TicDefine {
 
     MacroDefns.Defn getDefn() {
         return new MacroDefns.Defn(m_loc, m_macroName, m_formalArgs, m_macroText);
@@ -58,10 +42,8 @@ public class TicMacro {
 
     private static final String stNCWS = SourceFile.stNCWS;
     static final Pattern stPatt = Pattern.compile("(`define(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*))?");
-    static final Pattern stMacroUsage = 
-            Pattern.compile("(`[a-zA-Z_]\\w*)(("+stNCWS+"\\()|(?=\\W))?");
 
-    private TicMacro(final SourceFile src) throws ParseError {
+    private TicDefine(final SourceFile src) throws ParseError {
         m_src = src;
         m_echoOn = m_src.setEchoOn(false);
     }
@@ -97,6 +79,13 @@ public class TicMacro {
     private String m_macroText;
     // Where `define begins
     private FileLocation m_loc;
+
+    static TicDefine process(final SourceFile src) throws ParseError {
+        TicDefine ticDefn = new TicDefine(src);
+        ticDefn.parse();
+        src.getMatched().clear();
+        return ticDefn;
+    }
 
     private void parse() throws ParseError {
         m_started = m_src.getMatched().remove().e1.getLineColNum();

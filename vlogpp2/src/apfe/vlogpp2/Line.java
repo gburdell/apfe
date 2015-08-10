@@ -64,12 +64,17 @@ public class Line extends Acceptor {
                     stInclNestCnt = (0 < stInclNestCnt) ? stInclNestCnt - 1 : 0;
                     break;
             }
-            m_text = super.toString();
-            Helper.getTheOne().reset(m_fname, m_lnum);
+            m_text = "//VPP: "+super.toString();
+            Helper.getTheOne().replaceNoRollBack(getStartMark(), m_text);
         }
         return match;
     }
 
+    @Override
+    public String toString() {
+        return m_text;
+    }
+    
     private String m_text, m_fname;
     private int m_lnum, m_type;
 

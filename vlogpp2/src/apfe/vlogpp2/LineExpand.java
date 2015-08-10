@@ -37,19 +37,16 @@ public class LineExpand extends Acceptor {
         //LineExpand <- "`__LINE__"
         boolean match = (new CharSeq("`__LINE__")).acceptTrue();
         if (match) {
-            m_text = super.toString();
-            if (Helper.getTheOne().getConditionalAllow()) {
-				;//TODO
-			}
+            final Helper helper = Helper.getTheOne();
+            if (helper.getConditionalAllow()) {
+                helper.replaceNoRollBack(getStartMark(), Integer.toString(helper.getBuf().getLine()));
+            } else {
+                helper.replace(getStartMark());
+            }
         }
         return match;
     }
-    private String m_text;
 
-    @Override
-    public String toString() {
-        return m_text;
-    }
     @Override
     public Acceptor create() {
         return new LineExpand();

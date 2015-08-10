@@ -23,6 +23,7 @@
  */
 package apfe.v2.vlogpp;
 
+import gblib.FileLocation;
 import gblib.Util;
 import static gblib.Util.invariant;
 import java.util.Stack;

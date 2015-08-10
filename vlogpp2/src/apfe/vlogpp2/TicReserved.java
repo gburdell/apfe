@@ -110,7 +110,7 @@ public class TicReserved extends AcceptorWithLocation {
         });
         boolean match = (null != (m_contents = match(m_contents)));
         if (match) {
-            m_text = super.toString();
+            m_text = m_contents.toString(); //super.toString();
         } else {
             setParseError();
         }
