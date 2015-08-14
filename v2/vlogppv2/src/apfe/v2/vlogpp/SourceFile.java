@@ -67,19 +67,18 @@ public class SourceFile {
     }
 
     private void printAcceptMatch(final int group) {
-        print(m_matcher.group(group));
-        acceptMatch(group);
+        print(m_is.acceptGetMatched(group));
     }
 
     void acceptMatchSave(final int group) {
-        acceptMatch(group, true);
+        m_is.acceptOnMatchSave(group);
     }
 
+    private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)(?=[^ \t])");
     //reuse non-capturing whitespace w/ block-comment
     static final String stNCWS = "(?:[ \t]|/\\*.*?\\*/)+";
     //reuse time unit
     private static final String stTU = "(10?0?\\s*[munpf]s)";
-    private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)[^ \t]");
     private static final Pattern stUndef
             = Pattern.compile("(`undef(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*))?");
     private static final Pattern stTimescale
@@ -102,6 +101,14 @@ public class SourceFile {
         throw new ParseError(code, getFileLocation(), tok, m_is.remainder());
     }
 
+    boolean matches(final Pattern patt) {
+        return m_is.matches(patt);
+    }
+
+    boolean matches(final Pattern patt, final int cnt) throws FileCharReader.ParseError {
+        return m_is.matches(patt, cnt);
+    }
+
     public boolean parse() throws ParseError {
         boolean ok = true;
         char c;
@@ -120,7 +127,7 @@ public class SourceFile {
                         setRemainder();
                         if (matches(stSpacePatt)) {
                             printAcceptMatch(1);
-                        } else if (match(TicMacro.stPatt, 3)) {
+                        } else if (matches(TicMacro.stPatt, 3)) {
                             final TicMacro defn = TicMacro.processDefn(this);
                             if (getEchoOn()) {
                                 addDefn(defn);
@@ -165,6 +172,9 @@ public class SourceFile {
                 } catch (final ParseError pe) {
                     error = pe;
                     break;
+                } catch (FileCharReader.ParseError ex) {
+                    //todo: error = ...
+                    assert false; //todo
                 }
             }
             try {
@@ -273,7 +283,7 @@ public class SourceFile {
         print(rem);
     }
 
-     /**
+    /**
      * IEEE Std 1800-2012 5.9 String literals A string literal is a sequence of
      * characters enclosed by double quotes (""). Nonprinting and other special
      * characters are preceded with a backslash. A string literal shall be
@@ -303,8 +313,10 @@ public class SourceFile {
                         break;
                     default:
                         next();
-    }
+                }
     
+    
+
     private boolean acceptOnMatch(final String s) {
         final boolean match = m_is.acceptOnMatch(s);
         if (match) {
