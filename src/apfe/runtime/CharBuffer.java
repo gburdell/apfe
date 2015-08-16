@@ -39,7 +39,7 @@ public class CharBuffer {
      * (1+extra) * buf.size.
      *
      * @param fname filename associated with buffer.
-     * @param buf initial size of buffer.
+     * @param buf initial buffer contents.
      * @param extra extra size scaling factor.
      */
     public CharBuffer(String fname, CharSequence buf, float extra) {
