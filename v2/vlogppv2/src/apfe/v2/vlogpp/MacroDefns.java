@@ -24,10 +24,10 @@
 package apfe.v2.vlogpp;
 
 import gblib.FileLocation;
-import apfe.v2.vlogpp.TicMacro.FormalArg;
+import gblib.Pair;
 import java.util.BitSet;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -68,9 +68,32 @@ public class MacroDefns {
         return m_defns.containsKey(macroNm);
     }
 
+    static class FormalArg {
+
+        public String getIdent() {
+            return m_arg.v1;
+        }
+
+        public boolean hasDefaultText() {
+            return (null != getDefaultText());
+        }
+
+        public String getDefaultText() {
+            return m_arg.v2;
+        }
+
+        public FormalArg(final Pair<String, String> ele) {
+            m_arg = ele;
+        }
+        private final Pair<String, String> m_arg;
+    }
+
+    static class FormalArgList extends LinkedList<FormalArg> {
+    }
+
     public static class Defn {
 
-        Defn(final FileLocation loc, final String macroNm, final List<FormalArg> formalArgs,
+        Defn(final FileLocation loc, final String macroNm, final FormalArgList formalArgs,
                 final String macroText) {
             m_loc = loc;
             m_macroNm = macroNm;
@@ -78,7 +101,7 @@ public class MacroDefns {
             m_macroText = macroText;
         }
 
-        Defn(final String macroNm, final List<FormalArg> formalArgs,
+        Defn(final String macroNm, final FormalArgList formalArgs,
                 final String macroText) {
             this(null, macroNm, formalArgs, macroText);
         }
@@ -90,7 +113,7 @@ public class MacroDefns {
         // Location where defined.  null if cmdline.
         private final FileLocation m_loc;
         private final String m_macroNm;
-        private final List<FormalArg> m_formalArgs;
+        private final FormalArgList m_formalArgs;
         private final String m_macroText;
     }
 

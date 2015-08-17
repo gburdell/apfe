@@ -23,11 +23,14 @@
  */
 package apfe.v2.vlogpp;
 
+import apfe.v2.vlogpp.MacroDefns.FormalArg;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
-import static apfe.v2.vlogpp.FileCharReader.EOF;
-import static apfe.v2.vlogpp.FileCharReader.NL;
+import static gblib.FileCharReader.EOF;
+import static gblib.FileCharReader.NL;
+import apfe.v2.vlogpp.MacroDefns.FormalArgList;
+import gblib.FileLocation;
 import gblib.Pair;
 
 /**
@@ -41,34 +44,11 @@ public class TicDefine {
     }
 
     private static final String stNCWS = SourceFile.stNCWS;
-    static final Pattern stPatt = Pattern.compile("(`define(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*))?");
+    static final Pattern stPatt = Pattern.compile("(`define(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*)(?=\\W))?");
 
     private TicDefine(final SourceFile src) throws ParseError {
         m_src = src;
         m_echoOn = m_src.setEchoOn(false);
-    }
-
-    static class FormalArg {
-
-        public String getIdent() {
-            return m_arg.v1;
-        }
-
-        public boolean hasDefaultText() {
-            return (null != getDefaultText());
-        }
-
-        public String getDefaultText() {
-            return m_arg.v2;
-        }
-
-        private FormalArg(final Pair<String, String> ele) {
-            m_arg = ele;
-        }
-        private final Pair<String, String> m_arg;
-    }
-
-    static class FormalArgList extends LinkedList<FormalArg> {
     }
 
     private int[] m_started;
@@ -153,7 +133,7 @@ public class TicDefine {
             loop = (')' != c);
             assert (!m_src.isEOF());
         }
-        FormalArgList m_formalArgs = new FormalArgList();
+        m_formalArgs = new FormalArgList();
         for (final Pair<String, String> farg : Pair.factory(args)) {
             m_formalArgs.add(new FormalArg(farg));
         }

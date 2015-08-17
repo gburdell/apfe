@@ -32,11 +32,9 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static gblib.FileCharReader.NL;
+import gblib.Util;
 import gblib.Util.Pair;
-import static gblib.Util.escape;
-import java.util.LinkedList;
 import java.util.Queue;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -46,13 +44,13 @@ import java.util.regex.Pattern;
  */
 public class SourceFile {
 
-    public static void main(final String argv[]) {
+    public static void main(final String argv[]) throws IOException {
         for (final String arg : argv) {
             process(arg);
         }
     }
 
-    private static void process(final String fname) {
+    private static void process(final String fname) throws IOException {
         try {
             final SourceFile src = new SourceFile(fname, System.out);
             src.parse();
@@ -61,17 +59,9 @@ public class SourceFile {
         }
     }
 
-    public SourceFile(final String fname, final PrintStream os) throws FileNotFoundException {
+    public SourceFile(final String fname, final PrintStream os) throws FileNotFoundException, IOException {
         m_os = os;
         push(fname, 0);
-    }
-
-    private void printAcceptMatch(final int group) {
-        print(m_is.acceptGetMatched(group));
-    }
-
-    void acceptMatchSave(final int group) {
-        m_is.acceptOnMatchSave(group);
     }
 
     private static final Pattern stSpacePatt = Pattern.compile("([ \t]+)(?=[^ \t])");
@@ -80,33 +70,51 @@ public class SourceFile {
     //reuse time unit
     private static final String stTU = "(10?0?\\s*[munpf]s)";
     private static final Pattern stUndef
-            = Pattern.compile("(`undef(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*))?");
+            = Pattern.compile("(`undef(?=\\W))(" + stNCWS + "([a-zA-Z_]\\w*)(?=\\W))?");
     private static final Pattern stTimescale
-            = Pattern.compile("(`timescale(?=\\W))(" + stNCWS + stTU + "[ \t]*/[ \t]*" + stTU + "\\W)?");
+            = Pattern.compile("(`timescale(?=\\W))(" + stNCWS + stTU + "[ \t]*/[ \t]*" + stTU + "(?=\\W))?");
     private static final Pattern stDefaultNetType
-            = Pattern.compile("(`default_nettype(?=\\W))(" + stNCWS + "([a-z]\\w+)\\W)?");
+            = Pattern.compile("(`default_nettype(?=\\W))(" + stNCWS + "([a-z]\\w+)(?=\\W))?");
     private static final Pattern stNetType
             = Pattern.compile("u?wire|tri[01]?|w(and|or)|tri(and|or|reg)|none");
     private static final Pattern stTicInclude
             = Pattern.compile("(`include(?=\\W))(" + stNCWS
                     + "(\\\"([^\\\"]+)(\\\"))|(<[^>]+(>)))?");
 
-    private void syntaxError() throws ParseError {
-        throw new ParseError("VPP-SYNTAX-1", m_is, escape(m_str.charAt(0)));
-    }
-
-    private void syntaxError(final String code) throws ParseError {
-        final String tok = getMatched().peek().e2;
-        getMatched().clear();
-        throw new ParseError(code, getFileLocation(), tok, m_is.remainder());
-    }
-
     boolean matches(final Pattern patt) {
         return m_is.matches(patt);
     }
 
-    boolean matches(final Pattern patt, final int cnt) throws FileCharReader.ParseError {
-        return m_is.matches(patt, cnt);
+    boolean matchSaveAccept(final Pattern patt, final int cnt) throws FileCharReader.ParseError {
+        return m_is.matchSaveAccept(patt, cnt);
+    }
+
+    boolean matchSaveAccept(final Pattern patt) {
+        return m_is.matchSaveAccept(patt);
+    }
+
+    private void printMatch(final int group) {
+        print(m_is.getMatched(group));
+    }
+
+    void saveMatch(final int group) {
+        m_is.saveMatch(group);
+    }
+
+    Queue<Util.Pair<FileLocation, String>> getMatched() {
+        return m_is.getMatched();
+    }
+
+    String getMatched(final int group) {
+        return m_is.getMatched(group);
+    }
+
+    boolean matches(final Pattern patt, final String str) {
+        return m_is.matches(patt, str);
+    }
+
+    int[] getSpan(final int grp) {
+        return m_is.getSpan(grp);
     }
 
     public boolean parse() throws ParseError {
@@ -125,35 +133,34 @@ public class SourceFile {
                         lineComment();
                     } else {
                         setRemainder();
-                        if (matches(stSpacePatt)) {
-                            printAcceptMatch(1);
-                        } else if (matches(TicMacro.stPatt, 3)) {
+                        if (matchSaveAccept(stSpacePatt)) {
+                            printMatch(1);
+                        } else if (matchSaveAccept(TicMacro.stPatt, 3)) {
                             final TicMacro defn = TicMacro.processDefn(this);
                             if (getEchoOn()) {
                                 addDefn(defn);
                             }
-                        } else if (match(TicConditional.stIfxdefElsif, 3)) {
+                        } else if (matchSaveAccept(TicConditional.stIfxdefElsif, 3)) {
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
-                        } else if (matches(TicConditional.stElseEndif)) {
-                            acceptMatchSave(1);
+                        } else if (matchSaveAccept(TicConditional.stElseEndif, 1)) {
                             final boolean echo = TicConditional.process(this);
                             setEchoOn(echo);
-                        } else if (match(stTicInclude, 5)) {
+                        } else if (matchSaveAccept(stTicInclude, 5)) {
                             final String fileNm = removeMatched(4).e2;
                             getMatched().clear();
                             //TODO
-                        } else if (match(stUndef, 3)) {
+                        } else if (matchSaveAccept(stUndef, 3)) {
                             final String macNm = removeMatched(2).e2;
                             getMatched().clear();
                             if (getEchoOn()) {
                                 undef(macNm);
                             }
-                        } else if (match(stTimescale, 4)) {
+                        } else if (matchSaveAccept(stTimescale, 4)) {
                             //don't really need to do anything w/ this for vpp??
                             //if so, use 3rd and 4th (1-origin)
                             getMatched().clear();
-                        } else if (match(stDefaultNetType, 3)) {
+                        } else if (matchSaveAccept(stDefaultNetType, 3)) {
                             final Pair<FileLocation, String> type = removeMatched(2);
                             if (!matches(stNetType, type.e2)) {
                                 throw new ParseError("VPP-NETTYPE-1", type.e1, type.e2);
@@ -163,7 +170,7 @@ public class SourceFile {
                         } else if (TicDirective.process(this)) {
                             //do nothing
                         } //very last to check for macro usage
-                        else if (match(TicMacro.stMacroUsage, 2)) {
+                        else if (matchSaveAccept(TicMacro.stMacroUsage, 2)) {
                             //TODO
                         } else {
                             next();
@@ -209,7 +216,7 @@ public class SourceFile {
     }
 
     String setRemainder(final boolean updateStr) {
-        final String rem = m_is.remainder();
+        final String rem = m_is.setRemainder();
         if (updateStr) {
             m_str = rem;
         }
@@ -218,6 +225,10 @@ public class SourceFile {
 
     String setRemainder() {
         return setRemainder(true);
+    }
+
+    int[] getStartMark() {
+        return m_is.getStartMark();
     }
 
     private boolean isEnabled() {
@@ -314,8 +325,13 @@ public class SourceFile {
                     default:
                         next();
                 }
-    
-    
+            }
+        }
+        if (isUnterminated || isEOF()) {
+            //VPP-STRING %s: unterminated string (started at %d:%d (line:col))
+            throw new ParseError("VPP-STRING", m_is, started[0], started[1]);
+        }
+    }
 
     private boolean acceptOnMatch(final String s) {
         final boolean match = m_is.acceptOnMatch(s);
@@ -331,7 +347,7 @@ public class SourceFile {
         return c;
     }
 
-    private void push(final String fname, final int lvl) throws FileNotFoundException {
+    private void push(final String fname, final int lvl) throws FileNotFoundException, IOException {
         m_is = new FileCharReader(fname);
         if (0 <= lvl) {
             assert 2 >= lvl;

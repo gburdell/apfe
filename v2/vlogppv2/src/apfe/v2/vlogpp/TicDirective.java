@@ -23,7 +23,6 @@
  */
 package apfe.v2.vlogpp;
 
-import gblib.Util.Pair;
 import java.util.regex.Pattern;
 
 /**
@@ -35,13 +34,13 @@ import java.util.regex.Pattern;
  */
 public class TicDirective {
 
-    private static final Pattern stFile = Pattern.compile("(`__FILE__)\\W");
-    private static final Pattern stLine = Pattern.compile("(`__LINE__)\\W");
-    private static final Pattern stProtect = Pattern.compile("(`protect(ed)?)\\W");
-    private static final Pattern stEndProtect = Pattern.compile("(`endprotect(ed)?)\\W");
-    private static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)\\W");
-    private static final Pattern stResetAll = Pattern.compile("(`resetall)\\W");
-    private static final Pattern stUndefineAll = Pattern.compile("(`undefineall)\\W");
+    private static final Pattern stFile = Pattern.compile("(`__FILE__)(?=\\W)");
+    private static final Pattern stLine = Pattern.compile("(`__LINE__)(?=\\W)");
+    private static final Pattern stProtect = Pattern.compile("(`protect(ed)?)(?=\\W)");
+    private static final Pattern stEndProtect = Pattern.compile("(`endprotect(ed)?)(?=\\W)");
+    private static final Pattern stCellDefine = Pattern.compile("(`(end)?celldefine?)(?=\\W)");
+    private static final Pattern stResetAll = Pattern.compile("(`resetall)(?=\\W)");
+    private static final Pattern stUndefineAll = Pattern.compile("(`undefineall)(?=\\W)");
     //
 
     /**
@@ -87,11 +86,11 @@ public class TicDirective {
         } else if (src.matches(stCellDefine)) {
             //from LRM: It is advisable to pair each
             //`celldefine with an `endcelldefine, but it is not required.
-            src.acceptMatch(1);
+            src.accept(1);
         } else if (src.matches(stResetAll)) {
-            src.acceptMatch(1);
+            src.accept(1);
         } else if (src.matches(stUndefineAll)) {
-            src.acceptMatch(1);
+            src.accept(1);
         } else {
             accepted = false;
         }
