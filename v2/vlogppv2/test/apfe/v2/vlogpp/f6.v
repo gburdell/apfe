@@ -1,3 +1,0 @@
-
-/*comment */
-`define (foo
