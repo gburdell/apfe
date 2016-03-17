@@ -1,35 +1,10 @@
 # PEG grammar (using apfe syntax) for laol
 
 #TODO: just cut-n-paste from slf as start
-Grammar <- Spacing Library* EOF
+Grammar <- Spacing Contents* EOF
 
 #By convention: K_xxx is keyword xxx
-Library <- Spacing K_LIBRARY LPAREN LibraryName RPAREN
-                LCURLY LibraryEle* RCURLY 
-
-LibraryName <- IDENT / STRING
-
-#Cell must be first to match 'cell' keyword
-LibraryEle <- Cell / NotCell
-
-NotCell <- Tokens / Balanced / (!RCURLY .)
-
-Cell <- K_CELL LPAREN CellName RPAREN BalancedCurly
-
-CellName <- IDENT / STRING
-
-BalancedCurly <- LCURLY (Tokens / Balanced / (!RCURLY .))* RCURLY
-BalancedParen <- LPAREN (Tokens / Balanced / (!RPAREN .))* RPAREN
-BalancedBrack <- LBRACK (Tokens / Balanced / (!RBRACK .))* RBRACK
-
-Balanced <- BalancedCurly / BalancedParen / BalancedBrack
-
-Tokens <- VIdent / Number / STRING 
-
-Number <- (Float / Integer) Spacing
-
-#NOTE: order of alts important since CELL matches an IDENT
-VIdent <- K_CELL / K_LIBRARY / IDENT
+Contents <- K_CLASS K_END
 
 #Lexical syntax
 
@@ -40,12 +15,14 @@ RPAREN      <- ')' Spacing
 LBRACK      <- '[' Spacing
 RBRACK      <- ']' Spacing
 
-K_CELL      <- "cell" !IdentCont Spacing
-K_LIBRARY   <- "library" !IdentCont Spacing
+K_CLASS      <- "class" K_tail
+K_END        <- "end"   K_tail
+
+K_tail <- !IdentCont Spacing
 
 IDENT      <- IdentStart IdentCont* Spacing
 IdentStart <- [a-zA-Z_] 
-IdentCont  <- IdentStart / [0-9.+/] / '-'
+IdentCont  <- IdentStart / [0-9]
 
 Integer <- [-+]? Digit+
 
@@ -53,12 +30,11 @@ Digit <- [0-9]
 
 Float <- Integer ('.' Digit+)? ([eE] Integer)?
 
-#Include \\. EOLN so string can span lines
 STRING <- '"' (!'"' .)* '"' Spacing
 
 Spacing <- (Space / Comment)*
 Comment <- SL_COMMENT / ML_COMMENT
-Space <- ' ' / "\t" / ('\\'? EOL)
+Space <- ' ' / "\t" / EOL
 
 SL_COMMENT  <- "//" (!EOL .)* EOL
 
