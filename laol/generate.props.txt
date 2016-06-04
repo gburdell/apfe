@@ -43,5 +43,4 @@ genClsAsCamelCase: true
 clsNmPrefix:
 
 # Specify toplevel class name for all-in-one generation; else leave blank.
-##topLevelClsNm: Sv2009
 topLevelClsNm:

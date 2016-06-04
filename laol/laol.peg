@@ -1,40 +1,204 @@
-# PEG grammar (using apfe syntax) for laol
+# PEG grammar for laol
+# Ruby: http://ruby-doc.org/docs/ruby-doc-bundle/Manual/man-1.4/syntax.html
 
-#TODO: just cut-n-paste from slf as start
 Grammar <- Spacing Contents* EOF
 
 #By convention: K_xxx is keyword xxx
-Contents <- K_CLASS K_END
+Contents <- assignment_expression
 
+constant_variable_name <- UC_IDENT
+local_variable_name    <- LC_IDENT
+instance_variable_name <- AT LC_IDENT
+static_variable_name   <- AT2 LC_IDENT
+	
+variable_name <-
+	instance_variable_name
+/	static_variable_name
+/	constant_variable_name
+/	local_variable_name
+
+primary_expression <-
+ 	variable_name
+/	STRING
+/	SYMBOL
+/	Number
+/	hash_primary
+/	array_primary
+
+hash_primary <-
+	LCURLY hash_key_value (COMMA hash_key_value)* RCURLY
+
+hash_key <-
+	STRING / IDENT
+
+hash_key_value <-
+	hash_key COLON expression
+
+array_primary <-
+	LBRACK expression (COMMA expression) RBRACK
+
+postfix_expression <-
+	postfix_expression LBRACK array_select_expression RBRACK
+/	postfix_expression LPAREN argument_expression_list? RPAREN
+/	postfix_expression DOT IDENT
+/	postfix_expression (PLUS2 / MINUS2)
+/	primary_expression
+
+# Dont allow assignments w/in expressions.  Require explicit 'lhs=...'
+argument_expression_list <- expression (COMMA expression)*
+
+unary_expression <-
+	(PLUS2 / MINUS2) unary_expression
+/	postfix_expression
+
+unary_operator <-
+	TILDE /	EXCL / PLUS / MINUS	
+
+binary_expression <-
+	binary_expression binop unary_expression
+/	unary_expression
+
+binop <-
+	STAR / DIV / PCNT / PLUS / MINUS / LT2 / GT2
+/	LT / LTEQ / GT / GTEQ
+/	NEQ / EQ2
+/	AND / CARET / OR
+/	AND2 / OR2
+
+conditional_expression <-
+	#TODO: COLON could be conflict w/ SYMBOL?
+	conditional_expression QMARK expression COLON conditional_expression
+/	binary_expression
+
+expression <- conditional_expression
+
+array_select_expression <-
+	# TODO: conflict w/ conditional on COLON?
+	expression (DOT2 / COLON) expression
+/	expression (COMMA expression)?
+
+assignment_expression <-
+	# we only allow a single assignment operator
+	assignment_lhs assignment_operator expression (COMMA expression)*
+/	expression
+
+assignment_lhs <-
+	lhs_ref (COMMA lhs_ref)*
+
+lhs_ref <-
+	lhs_ref LBRACK array_select_expression RBRACK
+/	lhs_ref DOT IDENT
+/	IDENT
+
+assignment_operator <-
+	EQ
+/	LT2_EQ
+/	GT2_EQ
+/	AND_EQ
+/	OR_EQ
+/	STAR_EQ
+/	MINUS_EQ
+/	PLUS_EQ
+/	DIV_EQ
+/	PCNT_EQ
+
+#
 #Lexical syntax
-
+COLON       <- ':' Spacing
+SEMICOLON   <- ';' Spacing
+DOT         <- '.' !'.' Spacing
+DOT2        <- ".." Spacing
+COMMA       <- ',' Spacing
+LT          <- '<' !('<' / '=') Spacing
+LTEQ        <- "<=" Spacing
+LT2         <- "<<" !'=' Spacing
+LT2_EQ      <- "<<=" Spacing
+GT          <- '>' !('>' / '=') Spacing
+GTEQ        <- ">=" Spacing
+GT2         <- ">>" !'=' Spacing
+GT2_EQ      <- ">>=" Spacing
+EQ          <- '=' !'=' Spacing
+EQ2         <- "==" Spacing
+NEQ         <- "!=" Spacing
+EXCL        <- '!' !'=' Spacing
+AT          <- '@' !'@' Spacing
+AT2         <- "@@" Spacing
+TILDE       <- '~' Spacing
+POUND       <- '#' Spacing
+DOLLAR      <- '$' Spacing
+CARET       <- '^' Spacing
+AND         <- '&' !('&' / '=') Spacing
+AND2        <- "&&" Spacing
+AND_EQ      <- "&=" Spacing
+OR          <- '|' !('|' / '=') Spacing
+OR2         <- "||" Spacing
+OR_EQ       <- "|=" Spacing
+STAR        <- '*' !'=' Spacing
+STAR_EQ     <- "*=" Spacing
+MINUS       <- '-' !('-' / '=') Spacing
+MINUS2      <- "--" Spacing
+MINUS_EQ    <- "-=" Spacing
+PLUS		<- '+' !('+' / '=') Spacing
+PLUS2		<- "++" Spacing
+PLUS_EQ     <- "+="
+QMARK       <- '?' Spacing
+DIV         <- '/' !'=' Spacing
+DIV_EQ		<- "/="
 LCURLY      <- '{' Spacing
 RCURLY      <- '}' Spacing
 LPAREN      <- '(' Spacing
 RPAREN      <- ')' Spacing
 LBRACK      <- '[' Spacing
 RBRACK      <- ']' Spacing
+PCNT		<- '%' !'=' Spacing
+PCNT_EQ  	<- "%="
 
-K_CLASS      <- "class" K_tail
-K_END        <- "end"   K_tail
+K_BEGIN		<- "begin" 		K_tail
+K_CASE      <- "case"  		K_tail
+K_CLASS     <- "class" 		K_tail
+K_DEF       <- "def"   		K_tail
+K_ELSE      <- "else"  		K_tail
+K_ELSIF     <- "elsif" 		K_tail
+K_END       <- "end"   		K_tail
+K_IF	    <- "if"    		K_tail
+K_MODULE    <- "module"		K_tail
+K_MUTABLE	<- "mutable"	K_tail
+K_REQUIRE   <- "require"	K_tail
+K_RETURN    <- "return"		K_tail
+K_THIS      <- "this"		K_tail
+K_UNLESS    <- "unless"		K_tail
+K_WHEN	    <- "when"  		K_tail
 
 K_tail <- !IdentCont Spacing
+IdentCont <- [a-zA-Z_0-9]
 
-IDENT      <- IdentStart IdentCont* Spacing
-IdentStart <- [a-zA-Z_] 
-IdentCont  <- IdentStart / [0-9]
+SYMBOL     <- COLON LC_IDENT Spacing
+IDENT	   <- LC_IDENT / UC_IDENT
+LC_IDENT   <- [a-z] [a-z0-9_]* QMARK? Spacing
+UC_IDENT   <- [A-Z] [A-Za-z0-9_]* QMARK? Spacing
 
+Number <-	(	BasedNumber
+			/	Float
+			/	Integer
+			) Spacing
+
+//{DO NOT USE THESE DIRECTLY: use Number above
 Integer <- [-+]? Digit+
+Digit <- [0-9] !'\''
+Float <- Integer ('.' Digit+ !'\'')? ([eE] Integer)?
+BasedNumber <- Digit* '\''
+               	( [bB] [01_]+
+			   	/ [dD] [0-9_]+
+			   	/ [hH] [a-fA-F0-9_]+
+			   	/ [oO] [0-7_]+
+			   	)
+//}
 
-Digit <- [0-9]
-
-Float <- Integer ('.' Digit+)? ([eE] Integer)?
-
-STRING <- '"' (!'"' .)* '"' Spacing
+STRING <- '"' ('\\' . / !'"' .)* '"' Spacing
 
 Spacing <- (Space / Comment)*
 Comment <- SL_COMMENT / ML_COMMENT
-Space <- ' ' / "\t" / EOL
+Space <- ' ' / '\t' / EOL
 
 SL_COMMENT  <- "//" (!EOL .)* EOL
 

@@ -47,12 +47,16 @@ public class ParseError {
         if (EType.eFoundExpecting == m_type) {
             m_args = new String[]{args[0]};
             m_expecting = new LinkedList<>();
-            m_expecting.add(args[1]);
+            m_expecting.add(clean(args[1]));
         } else {
             m_args = args;
         }
     }
 
+    private static String clean(String s) {
+        return s.replace("\t", "\\t").replace("\n","\\n");
+    }
+    
     private final EType m_type;
     private final String[] m_args;
     private final Marker m_loc;
