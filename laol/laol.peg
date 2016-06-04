@@ -21,6 +21,7 @@ primary_expression <-
  	variable_name
 /	STRING
 /	SYMBOL
+/	K_NIL
 /	Number
 /	hash_primary
 /	array_primary
@@ -70,7 +71,9 @@ conditional_expression <-
 	conditional_expression QMARK expression COLON conditional_expression
 /	binary_expression
 
-expression <- conditional_expression
+expression <- 
+	statement
+/	conditional_expression
 
 array_select_expression <-
 	# TODO: conflict w/ conditional on COLON?
@@ -102,10 +105,22 @@ assignment_operator <-
 /	DIV_EQ
 /	PCNT_EQ
 
+statements <-
+	(assignment_expression SEMI?)*
+
+statement <-
+	case_statement
+
+case_statement <-
+	K_CASE expression
+		(K_WHEN expression (COMMA expression)* COLON statements)*
+		(K_ELSE statements)?
+	K_END
+
 #
 #Lexical syntax
 COLON       <- ':' Spacing
-SEMICOLON   <- ';' Spacing
+SEMI	    <- ';' Spacing
 DOT         <- '.' !'.' Spacing
 DOT2        <- ".." Spacing
 COMMA       <- ',' Spacing
@@ -155,26 +170,47 @@ PCNT_EQ  	<- "%="
 
 K_BEGIN		<- "begin" 		K_tail
 K_CASE      <- "case"  		K_tail
+K_CATCH     <- "catch"		K_tail
 K_CLASS     <- "class" 		K_tail
 K_DEF       <- "def"   		K_tail
+K_DEFAULT   <- "default" 	K_tail
+K_DO		<- "do"			K_tail
+K_EACH		<- "each"		K_tail
 K_ELSE      <- "else"  		K_tail
 K_ELSIF     <- "elsif" 		K_tail
 K_END       <- "end"   		K_tail
+K_EXTENDS	<- "extends"    K_tail
+K_FINALLY	<- "finally"	K_tail
+K_FOR		<- "for"		K_tail
 K_IF	    <- "if"    		K_tail
+K_IMPLEMENTS <- "implements" K_tail
+K_IN		<-	"in"		K_tail
 K_MODULE    <- "module"		K_tail
 K_MUTABLE	<- "mutable"	K_tail
+K_NIL		<- "nil"        K_tail
+K_PRIVATE	<- "private"	K_tail
+K_PROTECTED <- "protected"  K_tail
+K_PUBLIC    <- "public"		K_tail
 K_REQUIRE   <- "require"	K_tail
 K_RETURN    <- "return"		K_tail
+K_SUPER     <- "super"		K_tail
 K_THIS      <- "this"		K_tail
+K_THROW		<- "throw"		K_tail
+K_TRY		<- "try"		K_tail
 K_UNLESS    <- "unless"		K_tail
 K_WHEN	    <- "when"  		K_tail
+K_WHILE     <- "while"		K_tail
 
 K_tail <- !IdentCont Spacing
 IdentCont <- [a-zA-Z_0-9]
 
 SYMBOL     <- COLON LC_IDENT Spacing
 IDENT	   <- LC_IDENT / UC_IDENT
-LC_IDENT   <- [a-z] [a-z0-9_]* QMARK? Spacing
+; //need this ';' before dot/external LC_IDENT
+
+//   <- [a-z] [a-z0-9_]* QMARK? Spacing
+LC_IDENT.
+
 UC_IDENT   <- [A-Z] [A-Za-z0-9_]* QMARK? Spacing
 
 Number <-	(	BasedNumber
@@ -183,10 +219,10 @@ Number <-	(	BasedNumber
 			) Spacing
 
 //{DO NOT USE THESE DIRECTLY: use Number above
-Integer <- [-+]? Digit+
-Digit <- [0-9] !'\''
-Float <- Integer ('.' Digit+ !'\'')? ([eE] Integer)?
-BasedNumber <- Digit* '\''
+Integer <- [-+]? Digits
+Digits <- [0-9] [0-9_]* !'\''
+Float <- Integer ('.' Digits)? ([eE] Integer)?
+BasedNumber <- Digits? '\''
                	( [bB] [01_]+
 			   	/ [dD] [0-9_]+
 			   	/ [hH] [a-fA-F0-9_]+
