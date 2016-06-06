@@ -3,8 +3,9 @@ package apfe.laol;
 import apfe.laol.generated.QMARK;
 import apfe.laol.generated.Spacing;
 import apfe.runtime.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,7 @@ public class LCIDENT extends Acceptor {
             Matcher m = KWRD_PATT.matcher(s);
             if (m.matches()) {
                 s = m.group(1);
-                match &= !KEYWORD_MAP.containsKey(s);
+                match &= !KEYWORD_MAP.contains(s);
             }
         }
         return match;
@@ -41,22 +42,19 @@ public class LCIDENT extends Acceptor {
     }
 
     private static final Pattern KWRD_PATT = Pattern.compile("([a-z]+)\\??\\s*");
-    private static final Map<String,Boolean> KEYWORD_MAP = new HashMap<>();
-    private static final String KEYWORDS[] = new String[] {
-      "begin", "case", "catch", "class", 
-        "def", "default", "do", 
-        "each", "else", "elsif", "end",
-        "extends",
-        "finally", "for", "if", "implements", "in", 
-        "module", "mutable", "nil", 
-        "private", "protected", "public",
-        "require", "return", 
-        "super", "this",
-        "throw", "try", "unless", "when", "while"
-    };
-    static {
-        for (String k : KEYWORDS) {
-            KEYWORD_MAP.put(k, true);
-        }
-    }
+    private static final Set<String> KEYWORD_MAP = new HashSet<>(
+            Arrays.asList(
+                    "case", "catch", "class",
+                    "def", "default", "do",
+                    "each", "else", "elsif",
+                    "extends",
+                    "finally", "for", "if", "implements", "in",
+                    "module", "nil",
+                    "private", "protected", "public",
+                    "require", "return",
+                    "super", "this",
+                    "throw", "try", "unless", "until", 
+                    "val", "var",
+                    "when", "while"
+            ));
 }

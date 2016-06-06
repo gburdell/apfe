@@ -19,11 +19,14 @@ public class AssignmentExpressionTest {
 
     }
 
+    static {
+        //dont clutter message with these
+        ParseError.setSkipErrorHints("' '", "'\\t'", "'//'", "'/*'");
+    }
     /**
      * Test of accepti method, of class AssignmentExpression.
      */
     @Test
-    @SuppressWarnings("CallToPrintStackTrace")
     public void testAccepti() {
         final String fn = "test/data/t1.txt";
         try {

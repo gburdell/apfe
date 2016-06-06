@@ -28,6 +28,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 import static apfe.runtime.CharBuffer.EOF;
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  * Parser error.
@@ -35,6 +37,12 @@ import static apfe.runtime.CharBuffer.EOF;
  * @author gburdell
  */
 public class ParseError {
+
+    public static void setSkipErrorHints(String... s) {
+        stSkipThese = new HashSet<>(Arrays.asList(s));
+    }
+    
+    private static HashSet<String> stSkipThese = new HashSet<>();
 
     private enum EType {
 
@@ -47,16 +55,21 @@ public class ParseError {
         if (EType.eFoundExpecting == m_type) {
             m_args = new String[]{args[0]};
             m_expecting = new LinkedList<>();
-            m_expecting.add(clean(args[1]));
+            {
+                final String cand = clean(args[1]);
+                if (!stSkipThese.contains(cand))  {
+                    m_expecting.add(cand);
+                }
+            }
         } else {
             m_args = args;
         }
     }
 
     private static String clean(String s) {
-        return s.replace("\t", "\\t").replace("\n","\\n");
+        return s.replace("\t", "\\t").replace("\n", "\\n");
     }
-    
+
     private final EType m_type;
     private final String[] m_args;
     private final Marker m_loc;
@@ -160,6 +173,6 @@ public class ParseError {
     public static boolean hasError() {
         return !m_fails.empty();
     }
-    
+
     public static final String stErrCode = "PARSE-5";
 }
