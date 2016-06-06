@@ -44,6 +44,7 @@ public class LCIDENT extends Acceptor {
     private static final Pattern KWRD_PATT = Pattern.compile("([a-z]+)\\??\\s*");
     private static final Set<String> KEYWORD_MAP = new HashSet<>(
             Arrays.asList(
+					"abstract",
                     "case", "catch", "class",
                     "def", "default", "do",
                     "each", "else", "elsif",

@@ -122,6 +122,8 @@ s_tail <-
 
 class_declaration <-
 	// Scala style
+	access_modifier?
+	K_ABSTRACT?
 	K_CLASS UC_IDENT 
 		class_constructor_param_decl?
 		class_extends?
@@ -140,8 +142,14 @@ base_class_initializer <-
 class_constructor_param_decl <-
 	LPAREN class_param_decl_list? RPAREN
 
+access_modifier <-
+	(K_PRIVATE / K_PROTECTED / K_PUBLIC)
+
+mutability <-
+	(K_VAL / K_VAR)
+
 class_param_decl_modifiers <-
-	(K_PRIVATE / K_PROTECTED / K_PUBLIC)? (K_VAL / K_VAR)?
+	access_modifier? mutability?
 
 class_param_decl_ele <-
 	//NOTE: only last in list can have STAR (marks as varargs)
@@ -218,6 +226,7 @@ RBRACK      <- ']' Spacing
 PCNT		<- '%' !'=' Spacing
 PCNT_EQ  	<- "%="
 
+K_ABSTRACT  <- "abstract"	K_tail
 K_CASE      <- "case"  		K_tail
 K_CATCH     <- "catch"		K_tail
 K_CLASS     <- "class" 		K_tail
