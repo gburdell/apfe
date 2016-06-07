@@ -44,17 +44,20 @@ public class LCIDENT extends Acceptor {
     private static final Pattern KWRD_PATT = Pattern.compile("([a-z]+)\\??\\s*");
     private static final Set<String> KEYWORD_MAP = new HashSet<>(
             Arrays.asList(
-					"abstract",
+                    "abstract",
+                    "break",
                     "case", "catch", "class",
                     "def", "default", "do",
                     "each", "else", "elsif",
                     "extends",
-                    "finally", "for", "if", "implements", "in",
-                    "module", "new", "nil",
+                    "false", "finally", "for", 
+                    "if", "implements", "in",
+                    "module", "next", "new", "nil",
                     "private", "protected", "public",
                     "require", "return",
-                    "super", "this",
-                    "throw", "try", "unless", "until", 
+                    "super", 
+                    "this", "throw", "true", "try", 
+                    "unless", "until",
                     "val", "var",
                     "when", "while"
             ));

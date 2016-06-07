@@ -8,6 +8,11 @@ local_variable_name    <- LC_IDENT
 instance_variable_name <- AT LC_IDENT
 static_variable_name   <- AT2 LC_IDENT
 	
+for_variable_name <-
+	instance_variable_name
+/	static_variable_name
+/	local_variable_name
+
 variable_name <-
 	instance_variable_name
 /	static_variable_name
@@ -65,16 +70,17 @@ param_expression_list <-
 
 unary_expression <-
 	(PLUS2 / MINUS2) unary_expression
+	unary_op unary_expression
 /	postfix_expression
 
-unary_operator <-
+unary_op <-
 	TILDE /	EXCL / PLUS / MINUS	
 
 binary_expression <-
-	binary_expression binop unary_expression
+	binary_expression binary_op unary_expression
 /	unary_expression
 
-binop <-
+binary_op <-
 	STAR / DIV / PCNT / PLUS / MINUS / LT2 / GT2
 /	LT / LTEQ / GT / GTEQ
 /	NEQ / EQ2
@@ -97,7 +103,7 @@ lhs_ref <-
 /	lhs_ref DOT IDENT
 /	IDENT
 
-assignment_operator <-
+assignment_op <-
 	EQ
 /	LT2_EQ
 /	GT2_EQ
@@ -112,15 +118,36 @@ assignment_operator <-
 statement <- 
 	SEMI	
 //TODO: add support for statement in assign? (need to drop ;)
-/	assignment_lhs assignment_operator expression (COMMA expression)* s_tail
+/	assignment_lhs assignment_op assignment_rhs
 /	expression s_tail
-/	case_statement statement_modifier
+/	case_statement statement_modifier?
 //NOTE: We dont allow statement modifier on an if-stmt.  Seems redundant...
 /	if_statement
 /	while_statement
 /	until_statement
-/	class_declaration
-/	LCURLY statement* RCURLY statement_modifier
+/	for_statement
+/	LCURLY statement* RCURLY statement_modifier?
+/	K_BREAK s_tail
+/	K_NEXT s_tail
+/	return_statement s_tail
+/	throw_statement s_tail
+/	catch_statement
+/	finally_statement
+/	class_declaration statement_modifier?
+/	method_declaration statement_modifier?
+
+// NOTE: while ruby allows most statements as rhs; e.g.: "foo = if xxx; 12", we will not.  Use method to do so.
+assignment_rhs <-
+	expression (COMMA expression)* s_tail	
+/	method_declaration statement_modifier?
+
+return_statement <- K_RETURN expression
+
+throw_statement <- K_THROW expression
+
+catch_statement <- K_CATCH expression statement
+
+finally_statement <- K_FINALLY statement
 
 statement_modifier <-
 	((K_IF / K_UNLESS / K_WHILE / K_UNTIL) expression)+ SEMI
@@ -134,7 +161,7 @@ class_declaration <-
 	access_modifier?
 	K_ABSTRACT?
 	K_CLASS UC_IDENT 
-		class_constructor_param_decl?
+		method_param_decl?
 		class_extends?
 		LCURLY
 			class_body?
@@ -148,8 +175,8 @@ base_class_initializer <-
 	K_SUPER
 		SEMI
 
-class_constructor_param_decl <-
-	LPAREN class_param_decl_list? RPAREN
+method_param_decl <-
+	LPAREN method_param_decl_list? RPAREN
 
 access_modifier <-
 	(K_PRIVATE / K_PROTECTED / K_PUBLIC)
@@ -157,22 +184,41 @@ access_modifier <-
 mutability <-
 	(K_VAL / K_VAR)
 
-class_param_decl_modifiers <-
+method_param_decl_modifier <-
 	access_modifier? mutability?
 
-class_param_decl_ele <-
+method_param_decl_ele <-
 	//NOTE: only last in list can have STAR (marks as varargs)
-	class_param_decl_modifiers STAR? LC_IDENT class_param_decl_default?
+	method_param_decl_modifier STAR? LC_IDENT method_param_decl_default?
 
-class_param_decl_default <-
+method_param_decl_default <-
 	EQ expression
 
-class_param_decl_list <-
-	class_param_decl_ele (COMMA class_param_decl_ele)*	
+method_param_decl_list <-
+	method_param_decl_ele (COMMA method_param_decl_ele)*	
 
 class_extends <-
 	(K_EXTENDS UC_IDENT)? (K_IMPLEMENTS UC_IDENT (COMMA UC_IDENT))?
 
+method_declaration <-
+	access_modifier?
+	K_ABSTRACT?
+	//NOTE: we allow anonymous/lamda/function (no method-name)
+	K_DEF method_name? method_param_decl
+		(	LCURLY method_body? RCURLY
+		/	SEMI //case of abstract
+		)
+	
+method_name <-
+	LC_IDENT
+/	unary_op
+/	binary_op
+/	assignment_op
+/	PLUS2 / MINUS2	//postix operator
+/	"++_" / "--_"	//prefix operator
+
+method_body <- statement+
+	
 case_statement <-
 	K_CASE expression LCURLY
 		(K_WHEN expression (COMMA expression)* COLON statement)*
@@ -186,6 +232,11 @@ if_statement <-
 
 while_statement <- K_WHILE expression statement
 until_statement <- K_UNTIL expression statement
+
+enumerable_expression <- expression
+
+for_statement <-
+	K_FOR for_variable_name K_IN enumerable_expression statement
 
 #
 #Lexical syntax
@@ -239,6 +290,7 @@ PCNT		<- '%' !'=' Spacing
 PCNT_EQ  	<- "%=" Spacing
 
 K_ABSTRACT  <- "abstract"	K_tail
+K_BREAK		<- "break"		K_tail
 K_CASE      <- "case"  		K_tail
 K_CATCH     <- "catch"		K_tail
 K_CLASS     <- "class" 		K_tail
@@ -249,12 +301,14 @@ K_EACH		<- "each"		K_tail
 K_ELSE      <- "else"  		K_tail
 K_ELSIF     <- "elsif" 		K_tail
 K_EXTENDS	<- "extends"    K_tail
+K_FALSE		<- "false"		K_tail
 K_FINALLY	<- "finally"	K_tail
 K_FOR		<- "for"		K_tail
 K_IF	    <- "if"    		K_tail
 K_IMPLEMENTS <- "implements" K_tail
 K_IN		<-	"in"		K_tail
 K_MODULE    <- "module"		K_tail
+K_NEXT		<- "next"		K_tail
 K_NEW		<- "new"		K_tail
 K_NIL		<- "nil"        K_tail
 K_PRIVATE	<- "private"	K_tail
@@ -265,6 +319,7 @@ K_RETURN    <- "return"		K_tail
 K_SUPER     <- "super"		K_tail
 K_THIS      <- "this"		K_tail
 K_THROW		<- "throw"		K_tail
+K_TRUE      <- "true"		K_tail
 K_TRY		<- "try"		K_tail
 K_UNLESS    <- "unless"		K_tail
 K_UNTIL		<- "until"		K_tail
@@ -272,6 +327,7 @@ K_VAL		<- "val"		K_tail
 K_VAR		<- "var"		K_tail
 K_WHEN	    <- "when"  		K_tail
 K_WHILE     <- "while"		K_tail
+K_FILE		<- "__FILE__"	K_tail
 
 K_tail <- !IdentCont Spacing
 IdentCont <- [a-zA-Z_0-9]
