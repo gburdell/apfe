@@ -50,7 +50,7 @@ public class LCIDENT extends Acceptor {
                     "each", "else", "elsif",
                     "extends",
                     "finally", "for", "if", "implements", "in",
-                    "module", "nil",
+                    "module", "new", "nil",
                     "private", "protected", "public",
                     "require", "return",
                     "super", "this",
