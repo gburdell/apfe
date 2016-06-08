@@ -20,15 +20,14 @@ variable_name <-
 /	local_variable_name
 
 primary_expression <-
- 	variable_name QMARK?
-/	STRING
-/	SYMBOL
-/	K_NIL QMARK?
+	K_NIL QMARK?
 /	K_NEW
-/	K_FILE
-/	K_TARGET
+/	K_FILE / K_TARGET
 /	K_TRUE / K_FALSE
 /	K_THIS
+/ 	variable_name QMARK?
+/	STRING
+/	SYMBOL
 /	Number
 /	hash_primary
 /	array_primary
@@ -192,7 +191,7 @@ method_param_decl_list <- method_param_decl_ele (COMMA method_param_decl_ele)*
 class_extends <- (K_EXTENDS UC_IDENT)? (K_IMPLEMENTS UC_IDENT (COMMA UC_IDENT))?
 
 //we use AND to be consistent w/ param convention
-anonymous_function <- AND method_param_decl LCURLY method_body RCURLY
+anonymous_function <- ARROW method_param_decl LCURLY method_body RCURLY
 
 method_declaration <-
 	access_modifier?
@@ -230,6 +229,12 @@ enumerable_expression <- expression
 
 for_statement <- K_FOR for_variable_name K_IN enumerable_expression statement
 
+here_doc <-
+	"<<" IDENT 
+		( WS+ IDENT	WS* SEMI	//degenerate case on same line
+		/
+		)
+
 #
 #Lexical syntax
 COLON       <- ':' Spacing
@@ -239,7 +244,7 @@ DOT2        <- ".." Spacing
 COMMA       <- ',' Spacing
 LT          <- '<' !('<' / '=') Spacing
 LTEQ        <- "<=" Spacing
-LT2         <- "<<" !'=' Spacing
+LT2         <- "<<" !('=' / [a-zA-Z_]) Spacing
 LT2_EQ      <- "<<=" Spacing
 GT          <- '>' !('>' / '=') Spacing
 GTEQ        <- ">=" Spacing
@@ -264,7 +269,7 @@ STAR_EQ     <- "*=" Spacing
 MINUS       <- '-' !('-' / '=' / '>') Spacing
 MINUS2      <- "--" Spacing
 MINUS_EQ    <- "-=" Spacing
-//TODO: not used? ARROW		<- "->" Spacing
+ARROW		<- "->" Spacing
 PLUS		<- '+' !('+' / '=') Spacing
 PLUS2		<- "++" Spacing
 PLUS_EQ     <- "+=" Spacing
@@ -354,6 +359,7 @@ STRING <-
 
 Spacing <- (Space / Comment)*
 Comment <- SL_COMMENT / ML_COMMENT
+WS    <- ' ' / '\t'
 Space <- ' ' / '\t' / EOL
 
 SL_COMMENT  <- "//" (!EOL .)* EOL
