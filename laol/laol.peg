@@ -48,11 +48,13 @@ array_primary <-
 /	'%' [wi] '{' ('\\' . / !'}')* '}'
 
 postfix_expression <-
-	postfix_expression LBRACK array_select_expression RBRACK
-/	postfix_expression LPAREN param_expression_list? RPAREN
-/	postfix_expression DOT (IDENT / "nil?" / "new" K_tail)
-/	postfix_expression (PLUS2 / MINUS2)
-/	primary_expression
+	postfix_expression LBRACK array_select_expression RBRACK block?
+/	postfix_expression LPAREN param_expression_list? RPAREN block?
+/	postfix_expression DOT (IDENT / "nil?" / "new" K_tail) block?
+/	postfix_expression (PLUS2 / MINUS2) 
+/	primary_expression block?
+
+block <- anonymous_function
 
 unnamed_param <-
 	expression (COMMA expression)*
@@ -117,7 +119,6 @@ assignment_op <-
 
 statement <- 
 	SEMI	
-//TODO: add support for statement in assign? (need to drop ;)
 /	assignment_lhs assignment_op assignment_rhs
 /	expression s_tail
 /	case_statement statement_modifier?
@@ -130,16 +131,20 @@ statement <-
 /	K_BREAK s_tail
 /	K_NEXT s_tail
 /	return_statement s_tail
+/	try_statement
 /	throw_statement s_tail
-/	catch_statement
-/	finally_statement
 /	class_declaration statement_modifier?
 /	method_declaration statement_modifier?
+
+try_statement <-
+	K_TRY statement
+		catch_statement*
+		finally_statement?
 
 // NOTE: while ruby allows most statements as rhs; e.g.: "foo = if xxx; 12", we will not.  Use method to do so.
 assignment_rhs <-
 	expression (COMMA expression)* s_tail	
-/	method_declaration statement_modifier?
+/	anonymous_function statement_modifier?
 
 return_statement <- K_RETURN expression
 
@@ -189,7 +194,8 @@ method_param_decl_modifier <-
 
 method_param_decl_ele <-
 	//NOTE: only last in list can have STAR (marks as varargs)
-	method_param_decl_modifier STAR? LC_IDENT method_param_decl_default?
+	// AND (&) marks as block parameter (only last in list)
+	method_param_decl_modifier (AND / STAR)? LC_IDENT method_param_decl_default?
 
 method_param_decl_default <-
 	EQ expression
@@ -200,12 +206,15 @@ method_param_decl_list <-
 class_extends <-
 	(K_EXTENDS UC_IDENT)? (K_IMPLEMENTS UC_IDENT (COMMA UC_IDENT))?
 
+//we use AND to be consistent w/ param convention
+anonymous_function <-
+	AND method_param_decl LCURLY method_body RCURLY
+
 method_declaration <-
 	access_modifier?
 	K_ABSTRACT?
-	//NOTE: we allow anonymous/lamda/function (no method-name)
-	K_DEF method_name? method_param_decl
-		(	LCURLY method_body? RCURLY
+	K_DEF method_name method_param_decl
+		(	LCURLY method_body RCURLY
 		/	SEMI //case of abstract
 		)
 	
@@ -217,7 +226,7 @@ method_name <-
 /	PLUS2 / MINUS2	//postix operator
 /	"++_" / "--_"	//prefix operator
 
-method_body <- statement+
+method_body <- statement*
 	
 case_statement <-
 	K_CASE expression LCURLY
@@ -271,9 +280,10 @@ OR2         <- "||" Spacing
 OR_EQ       <- "|=" Spacing
 STAR        <- '*' !'=' Spacing
 STAR_EQ     <- "*=" Spacing
-MINUS       <- '-' !('-' / '=') Spacing
+MINUS       <- '-' !('-' / '=' / '>') Spacing
 MINUS2      <- "--" Spacing
 MINUS_EQ    <- "-=" Spacing
+//TODO: not used? ARROW		<- "->" Spacing
 PLUS		<- '+' !('+' / '=') Spacing
 PLUS2		<- "++" Spacing
 PLUS_EQ     <- "+=" Spacing
