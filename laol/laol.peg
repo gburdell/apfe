@@ -326,8 +326,8 @@ K_TARGET	<- "__TARGET__"	K_tail
 K_tail <- !IdentCont Spacing
 IdentCont <- [a-zA-Z_0-9]
 
-SYMBOL     <- COLON LC_IDENT Spacing
-IDENT	   <- LC_IDENT / UC_IDENT
+SYMBOL  <- COLON LC_IDENT Spacing
+IDENT  	<- LC_IDENT / UC_IDENT
 ; //need this ';' for peg before dot/external LC_IDENT
 
 //   <- [a-z] [a-z0-9_]* Spacing

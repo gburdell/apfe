@@ -123,10 +123,6 @@ public abstract class Acceptor {
         return CharBufState.getTheOne().getCurrentMark();
     }
 
-    public final boolean isEOF() {
-        return CharBufState.getTheOne().isEOF();
-    }
-    
     /**
      * Determine if implementation accepts from current State. If not, rewind
      * token buffer.
