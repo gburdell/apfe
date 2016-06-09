@@ -21,7 +21,6 @@ public class LCIDENT extends Acceptor {
                 new Repetition(new CharClass(CharClass.matchRange('a', 'z'),
                         CharClass.matchRange('0', '9'),
                         CharClass.matchOneOf('_')), Repetition.ERepeat.eZeroOrMore),
-                new Repetition(new QMARK(), Repetition.ERepeat.eOptional),
                 new Spacing());
         m_baseAccepted = match(matcher);
         boolean match = (null != m_baseAccepted);
@@ -50,13 +49,13 @@ public class LCIDENT extends Acceptor {
                     "def",
                     "else", "elsif",
                     "extends",
-                    "false", "finally", "for", 
+                    "false", "finally", "for",
                     "if", "implements", "in",
                     "module", "next", "new", "nil",
                     "private", "protected", "public",
                     "require", "return",
-                    "super", 
-                    "this", "throw", "true", "try", 
+                    "super",
+                    "this", "throw", "true", "try",
                     "unless", "until",
                     "val", "var",
                     "when", "while"

@@ -25,6 +25,7 @@ primary_expression <-
 /	K_FILE / K_TARGET
 /	K_TRUE / K_FALSE
 /	K_THIS
+/	here_doc
 / 	variable_name QMARK?
 /	STRING
 /	SYMBOL
@@ -228,12 +229,10 @@ until_statement <- K_UNTIL expression statement
 enumerable_expression <- expression
 
 for_statement <- K_FOR for_variable_name K_IN enumerable_expression statement
+;
 
-here_doc <-
-	"<<" IDENT 
-		( WS+ IDENT	WS* SEMI	//degenerate case on same line
-		/
-		)
+// a bit more complicated, so customize
+here_doc. // <- "<<" IDENT (!EOL .)* EOL
 
 #
 #Lexical syntax
