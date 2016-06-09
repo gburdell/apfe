@@ -39,7 +39,16 @@ public class Sequence extends Acceptor {
         return m_eles;
     }
     
+    public String getText(int ix) {
+        return m_texts[ix];
+    }
+    
+    public String getTexts(int begin, int end) {
+        return Util.extractEleAsString(this, begin, end);
+    }
+    
     private Acceptor m_eles[];
+    private String   m_texts[];
     
     public Sequence(Acceptor ... eles) {
         m_eles = eles;
@@ -49,11 +58,17 @@ public class Sequence extends Acceptor {
     protected boolean accepti() {
         boolean match = true;
         Acceptor accepted[] = new Acceptor[m_eles.length];
+        String texts[] = new String[m_eles.length];
+        final CharBufState cbuf = CharBufState.asMe();
+        Marker start;
         int i = 0;
         for (Acceptor d : m_eles) {
+            start = cbuf.getCurrentMark();
             match &= (null != (d = match(d)));
             if (match) {
-                accepted[i++] = d;
+                accepted[i] = d;
+                texts[i] = cbuf.substring(d.getStartMark());
+                i++;
             } else {
                 //Dont need to do anything special on detectedILR()
                 break;
@@ -61,6 +76,7 @@ public class Sequence extends Acceptor {
         }
         if (match) {
             m_eles = accepted;
+            m_texts = texts;
         }
         ParseError.reduce();
         return match;

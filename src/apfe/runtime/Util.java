@@ -127,6 +127,14 @@ public class Util {
         return acc.toString();
     }
 
+    public static String extractEleAsString(final Sequence from, int begin, int end) {
+        StringBuilder buf = new StringBuilder();
+        for (int i = begin; i <= end; i++) {
+            buf.append(from.getText(i));
+        }
+        return buf.toString();
+    }
+
     private static <T extends Acceptor> StringBuilder toStringIterable(StringBuilder sb, final Iterable<T> eles, final boolean doSfx) {
         if (null != eles) {
             for (Acceptor a : eles) {

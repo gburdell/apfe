@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 package apfe.runtime;
+
 import static gblib.Util.downCast;
 
 /**
@@ -110,11 +111,11 @@ public abstract class Acceptor {
     private Marker m_startMark;
     private final long m_memoBar = Memoize.getTheBar();
     protected Acceptor m_baseAccepted;
-    
+
     public <T extends Acceptor> T getBaseAccepted() {
         return downCast(m_baseAccepted);
     }
-    
+
     public Marker getStartMark() {
         return m_startMark;
     }
@@ -188,8 +189,8 @@ public abstract class Acceptor {
     }
 
     /**
-     * If we are using Tokens, make sure to set this true to enable
-     * memoization with tokens,
+     * If we are using Tokens, make sure to set this true to enable memoization
+     * with tokens,
      */
     public static boolean stUsesTokens = false;
     public static boolean stDebug = System.getProperty("apfe.runtime.Acceptor.Debug", "false").equals("true");
@@ -265,4 +266,9 @@ public abstract class Acceptor {
     public String getNonTermID() {
         return null;
     }
+
+    public final boolean isEOF() {
+        return CharBufState.getTheOne().isEOF();
+    }
+
 }

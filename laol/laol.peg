@@ -94,7 +94,11 @@ array_select_expression <-
 	expression (DOT2 / COLON) expression
 /	expression (COMMA expression)?
 
-assignment_lhs <- lhs_ref (COMMA lhs_ref)*
+assignment_lhs <- lhs_decl (COMMA lhs_decl)*
+
+// We allow (first) assignment to specify mutability
+lhs_decl <-
+	mutability? lhs_ref
 
 lhs_ref <-
 	lhs_ref LBRACK array_select_expression RBRACK
@@ -232,7 +236,7 @@ for_statement <- K_FOR for_variable_name K_IN enumerable_expression statement
 ;
 
 // a bit more complicated, so customize
-here_doc. // <- "<<" IDENT (!EOL .)* EOL
+here_doc.
 
 #
 #Lexical syntax
@@ -327,13 +331,11 @@ K_tail <- !IdentCont Spacing
 IdentCont <- [a-zA-Z_0-9]
 
 SYMBOL  <- COLON LC_IDENT Spacing
-IDENT  	<- LC_IDENT / UC_IDENT
-; //need this ';' for peg before dot/external LC_IDENT
+;
 
-//   <- [a-z] [a-z0-9_]* Spacing
+IDENT.
 LC_IDENT.
-
-UC_IDENT   <- [A-Z] [A-Za-z0-9_]* Spacing
+UC_IDENT.
 
 Number <-	(	BasedNumber
 			/	Float

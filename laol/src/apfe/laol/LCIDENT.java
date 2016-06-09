@@ -1,23 +1,20 @@
 package apfe.laol;
 
-import apfe.laol.generated.QMARK;
 import apfe.laol.generated.Spacing;
 import apfe.runtime.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class LCIDENT extends Acceptor {
+public class LCIDENT extends Acceptor implements IDENT.Ident {
 
     public LCIDENT() {
     }
 
     @Override
-    // [a-z] [a-z0-9_]* QMARK? Spacing
+    // [a-z] [a-z0-9_]* Spacing
     protected boolean accepti() {
-        Acceptor matcher = new Sequence(new CharClass(CharClass.matchRange('a', 'z')),
+        Sequence matcher = new Sequence(new CharClass(CharClass.matchRange('a', 'z')),
                 new Repetition(new CharClass(CharClass.matchRange('a', 'z'),
                         CharClass.matchRange('0', '9'),
                         CharClass.matchOneOf('_')), Repetition.ERepeat.eZeroOrMore),
@@ -25,22 +22,24 @@ public class LCIDENT extends Acceptor {
         m_baseAccepted = match(matcher);
         boolean match = (null != m_baseAccepted);
         if (match) {
-            String s = super.toString();
-            Matcher m = KWRD_PATT.matcher(s);
-            if (m.matches()) {
-                s = m.group(1);
-                match &= !KEYWORD_MAP.contains(s);
-            }
+            m_ident = matcher.getTexts(0, 1);
+            match &= !KEYWORD_MAP.contains(m_ident);
         }
         return match;
     }
 
+    private String m_ident;
+    
+    @Override
+    public String getIdent() {
+        return m_ident;
+    }
+    
     @Override
     public LCIDENT create() {
         return new LCIDENT();
     }
 
-    private static final Pattern KWRD_PATT = Pattern.compile("([a-z]+)\\??\\s*");
     private static final Set<String> KEYWORD_MAP = new HashSet<>(
             Arrays.asList(
                     "abstract",

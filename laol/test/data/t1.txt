@@ -15,7 +15,9 @@ defx = 14'b0001;
 
 class Foo() {}
 
-abc =<<HERE we are HERE;
+abc =<<HERE 
+we are 
+HERE;
 
 <<THERE
 all
