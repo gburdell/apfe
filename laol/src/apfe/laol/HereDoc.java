@@ -1,6 +1,5 @@
 package apfe.laol;
 
-import apfe.laol.generated.WS;
 import apfe.runtime.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

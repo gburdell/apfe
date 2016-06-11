@@ -1,41 +1,41 @@
 package apfe.laol;
 
+import apfe.laol.generated.Spacing;
 import apfe.runtime.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class IDENT extends Acceptor {
 
-    static interface Ident {
-        public String getIdent();
-    }
-    
-    public String getIdent() {
-        return ((Ident)((PrioritizedChoice)m_baseAccepted).getAccepted()).getIdent();
-    }
-    
     public IDENT() {
     }
 
     @Override
+    // [a-zA-Z_] [a-zA-Z0-9_]* Spacing
     protected boolean accepti() {
-        Acceptor matcher = new PrioritizedChoice(new PrioritizedChoice.Choices() {
-            @Override
-            public Acceptor getChoice(int ix) {
-                Acceptor acc = null;
-                switch (ix) {
-                    case 0:
-                        acc = new LCIDENT();
-                        break;
-                    case 1:
-                        acc = new UCIDENT();
-                        break;
-                }
-                return acc;
-            }
-        });
+        Sequence matcher = new Sequence(
+                new CharClass(CharClass.matchRange('a', 'z'),
+                        CharClass.matchRange('A', 'Z'),
+                        CharClass.matchOneOf('_')),
+                new Repetition(new CharClass(CharClass.matchRange('a', 'z'),
+                        CharClass.matchRange('A', 'Z'),
+                        CharClass.matchOneOf('_'),
+                        CharClass.matchRange('0', '9')), Repetition.ERepeat.eZeroOrMore),
+                new Spacing());
         m_baseAccepted = match(matcher);
         boolean match = (null != m_baseAccepted);
-
+        if (match) {
+            m_ident = matcher.getTexts(0, 1);
+            match &= !KEYWORD_MAP.contains(m_ident);
+        }
         return match;
+    }
+
+    private String m_ident;
+
+    public String getIdent() {
+        return m_ident;
     }
 
     @Override
@@ -43,4 +43,23 @@ public class IDENT extends Acceptor {
         return new IDENT();
     }
 
+    private static final Set<String> KEYWORD_MAP = new HashSet<>(
+            Arrays.asList(
+                    "abstract",
+                    "break",
+                    "case", "catch", "class",
+                    "def",
+                    "else", "elsif",
+                    "extends",
+                    "false", "finally", "for",
+                    "if", "implements", "in",
+                    "mixin", "module", "next", "new", "nil",
+                    "private", "protected", "public",
+                    "require", "return",
+                    "static", "super",
+                    "this", "throw", "true", "try",
+                    "unless", "until",
+                    "val", "var",
+                    "when", "while"
+            ));
 }
