@@ -23,6 +23,7 @@
  */
 package apfe.runtime;
 
+import gblib.Pair;
 import static gblib.Util.downCast;
 import java.util.LinkedList;
 import java.util.List;
@@ -123,8 +124,12 @@ public class Util {
     }
 
     public static String extractEleAsString(Sequence from, int pos) {
+        return extractEleAsString((Acceptor)from, pos);
+    }
+
+    public static String extractEleAsString(Acceptor from, int pos) {
         Acceptor acc = extractEle(from, pos);
-        return acc.toString();
+        return (null == acc) ? null : acc.toString();
     }
 
     public static String extractEleAsString(final Sequence from, int begin, int end) {
@@ -133,6 +138,11 @@ public class Util {
             buf.append(from.getText(i));
         }
         return buf.toString();
+    }
+
+    public static Pair<Boolean,Integer> asInt(final Acceptor seq, int pos) {
+        String s = extractEleAsString(seq, pos);
+        return (null == s) ? new Pair(false,0) : new Pair(true, Integer.parseInt(s));
     }
 
     private static <T extends Acceptor> StringBuilder toStringIterable(StringBuilder sb, final Iterable<T> eles, final boolean doSfx) {

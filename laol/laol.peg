@@ -3,19 +3,10 @@
 
 Grammar <- Spacing contents? EOF
 
-for_variable_name <- simple_variable_name
-
-simple_variable_name <- IDENT
-
-module_scoped_name <- 
-	simple_variable_name (COLON2 simple_variable_name)+
-
-class_scoped_name <-
-	simple_variable_name (DOT simple_variable_name)+
+for_variable_name <- IDENT
 
 variable_name <-
-	module_scoped_name? class_scoped_name
-/	simple_variable_name
+	IDENT (COLON2 IDENT)*
 
 primary_expression <-
 	K_NIL QMARK?
@@ -50,8 +41,15 @@ array_primary <-
 postfix_expression <-
 	postfix_expression LBRACK array_select_expression RBRACK block?
 /	postfix_expression LPAREN param_expression_list? RPAREN block?
+/	postfix_expression dot_suffix block?
 /	postfix_expression (PLUS2 / MINUS2) 
 /	primary_expression block?
+
+dot_suffix <-
+	DOT (	K_NIL QMARK?
+		/	K_NEW
+		/	IDENT QMARK?
+		)
 
 block <- anonymous_function
 
