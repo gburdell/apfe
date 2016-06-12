@@ -27,57 +27,35 @@ import apfe.runtime.Acceptor;
 import apfe.runtime.CharBufState;
 import apfe.runtime.CharBuffer;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
  * @author gburdell
  */
-public class NumberTest {
+public class MyStringTest {
 
-    public NumberTest() {
+    public MyStringTest() {
     }
 
-    private static void runTest(final String s2) {
+    private static void runTest(final String s1) {
         //
-        Class cls;
-        switch (s2.charAt(0)) {
-            case 'B':
-                cls = Number.Based.class;
-                break;
-            case 'F':
-                cls = Number.Float.class;
-                break;
-            default:
-                cls = Number.Integer.class;
-        }
-        String s1 = s2.substring(3);
         CharBuffer cbuf = new CharBuffer("<none>", s1);
         CharBufState st = CharBufState.create(cbuf, true);
-        apfe.laol.generated.Number gram = new apfe.laol.generated.Number();
+        apfe.laol.generated.STRING gram = new apfe.laol.generated.STRING();
         Acceptor acc = gram.accept();
         assertNotNull(acc);
-        System.out.print(": parse OK");
-        Number dut = new Number(gram);
-        assertTrue(cls == dut.getVal().getClass());
-        System.out.print(": type OK");
-        String t1 = dut.toString();
-        assertTrue(s1.equals(t1));
-        System.out.println(": match OK");
+        System.out.println(": parse OK");
+        MyString dut = new MyString(gram);
+        //String t1 = dut.toString();
+        //assertTrue(s1.equals(t1));
+        //System.out.println(": match OK");
     }
 
     @Test
-    public void testNumberConstructor() {
+    public void testStringConstructor() {
         String dat[] = new String[]{
-            "B=>'b0001_1",
-            "B=>'habd_098",
-            "B=>8'habd_098",
-            "I=>123_456",
-            "B=>32'd123_456",
-            "F=>123.456e-09",
-            "F=>0.123",
-            "F=>1.234e+4",
-            "F=>1_23_.4e0_9"
+            "\"the quick brown fox jumps over the lazy dog\"",
+            "'x'"
         };
         for (String s : dat) {
             System.out.print("Test: " + s);

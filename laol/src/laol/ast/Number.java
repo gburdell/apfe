@@ -29,74 +29,83 @@ import apfe.runtime.Sequence;
 import apfe.runtime.Util;
 import static apfe.runtime.Util.extractEle;
 import gblib.Pair;
+import static apfe.runtime.Util.extractEle;
 
 /**
  *
  * @author gburdell
  */
 public class Number {
+
     public Number(final apfe.laol.generated.Number num) {
         final PrioritizedChoice pc = extractEle(num.getBaseAccepted(), 0);
-        final Acceptor tok =  pc.getAccepted();
+        final Acceptor tok = pc.getAccepted();
         switch (pc.whichAccepted()) {
-            case 0: 
+            case 0:
                 m_val = new Based(tok);
                 break;
             case 1:
-                m_val = new Float(tok);
+                m_val = new Integer(tok);
                 break;
             default:
-                m_val = new Integer(tok);
+                m_val = new Float(tok);
         }
     }
-    
+
     @Override
     public String toString() {
         return m_val.toString();
     }
-    
-    private final Val   m_val;
-    
+
+    public Val getVal() {
+        return m_val;
+    }
+
+    private final Val m_val;
+
     public static abstract class Val {
+
         protected Val(final Acceptor tok) {
             m_tok = tok;
         }
-        
+
         @Override
         public String toString() {
             return m_tok.toString();
         }
-        
+
         final Acceptor m_tok;
     }
-    
+
     public static class Based extends Val {
+
         private Based(final Acceptor tok) {
             super(tok);
-            final Sequence seq = tok.getBaseAccepted();
-            Pair<Boolean, java.lang.Integer> v = Util.asInt(seq, 0);
+            Pair<Boolean, java.lang.Integer> v = Util.asInt(tok, 0);
             m_size = (v.v1) ? v.v2 : -1;
-            String s = seq.getText(3);
+            String s = Util.asString(tok, 3);
             m_base = Character.toUpperCase(s.charAt(0));
             m_val = s.substring(1);
         }
-        
+
         private final int m_size;
         private final char m_base;
         private final String m_val;
     }
-    
+
     public static class Float extends Val {
+
         private Float(final Acceptor tok) {
             super(tok);
-            
+
         }
     }
-    
+
     public static class Integer extends Val {
+
         private Integer(final Acceptor tok) {
             super(tok);
-            
+
         }
     }
 }

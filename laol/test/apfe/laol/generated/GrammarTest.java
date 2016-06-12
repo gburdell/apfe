@@ -13,9 +13,9 @@ import static org.junit.Assert.*;
  *
  * @author gburdell
  */
-public class AssignmentExpressionTest {
+public class GrammarTest {
 
-    public AssignmentExpressionTest() {
+    public GrammarTest() {
 
     }
 
@@ -24,7 +24,7 @@ public class AssignmentExpressionTest {
         ParseError.setSkipErrorHints("' '", "'\\t'", "'//'", "'/*'");
     }
     /**
-     * Test of accepti method, of class AssignmentExpression.
+     * Test of accepti method, of class Grammar.
      */
     @Test
     public void testAccepti() {
