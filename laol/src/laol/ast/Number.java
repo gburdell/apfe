@@ -25,9 +25,7 @@ package laol.ast;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.PrioritizedChoice;
-import apfe.runtime.Sequence;
 import apfe.runtime.Util;
-import static apfe.runtime.Util.extractEle;
 import gblib.Pair;
 import static apfe.runtime.Util.extractEle;
 
@@ -35,7 +33,7 @@ import static apfe.runtime.Util.extractEle;
  *
  * @author gburdell
  */
-public class Number {
+public class Number extends Node {
 
     public Number(final apfe.laol.generated.Number num) {
         final PrioritizedChoice pc = extractEle(num.getBaseAccepted(), 0);
@@ -50,6 +48,7 @@ public class Number {
             default:
                 m_val = new Float(tok);
         }
+        setToken(m_val.m_tok);
     }
 
     @Override
@@ -63,18 +62,18 @@ public class Number {
 
     private final Val m_val;
 
+    @Override
+    public ENode getType() {
+        return ENode.eNumber;
+    }
+
     public static abstract class Val {
 
         protected Val(final Acceptor tok) {
             m_tok = tok;
         }
-
-        @Override
-        public String toString() {
-            return m_tok.toString();
-        }
-
-        final Acceptor m_tok;
+        
+        public final Acceptor m_tok;
     }
 
     public static class Based extends Val {
@@ -97,7 +96,6 @@ public class Number {
 
         private Float(final Acceptor tok) {
             super(tok);
-
         }
     }
 
@@ -105,7 +103,6 @@ public class Number {
 
         private Integer(final Acceptor tok) {
             super(tok);
-
         }
     }
 }

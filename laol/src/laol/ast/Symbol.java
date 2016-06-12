@@ -23,28 +23,28 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.STRING;
-import static apfe.runtime.Util.bpsString;
+import apfe.laol.generated.SYMBOL;
+import static apfe.runtime.Util.asString;
 
 /**
  *
  * @author gburdell
  */
-public class MyString extends Node {
+public class Symbol extends Node {
 
-    public MyString(final STRING id) {
+    public Symbol(final SYMBOL id) {
         super(id);
-        m_val = bpsString(id, 1);
+        m_val = asString(id, 1);
     }
 
     /**
-     * The string value without quotes.
+     * The string value of symbol (without colon).
      */
     final String m_val;
 
     @Override
     public ENode getType() {
-        return ENode.eString;
+        return ENode.eSymbol;
     }
 
 }

@@ -23,28 +23,19 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.STRING;
-import static apfe.runtime.Util.bpsString;
-
 /**
  *
  * @author gburdell
  */
-public class MyString extends Node {
+public interface INodeType {
 
-    public MyString(final STRING id) {
-        super(id);
-        m_val = bpsString(id, 1);
+    public static enum ENode {
+        eIdent,
+        eNumber,
+        ePrimaryExpression,
+        eString,
+        eSymbol
     }
 
-    /**
-     * The string value without quotes.
-     */
-    final String m_val;
-
-    @Override
-    public ENode getType() {
-        return ENode.eString;
-    }
-
+    public ENode getType();
 }

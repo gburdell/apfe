@@ -13,9 +13,9 @@ primary_expression <-
 /	K_NEW
 /	K_FILE / K_TARGET
 /	K_TRUE / K_FALSE
-/	K_THIS
+/	K_THIS / K_SUPER
 /	here_doc
-/ 	variable_name QMARK?
+/ 	variable_name (QMARK / EXCL)?
 /	STRING
 /	SYMBOL
 /	Number
@@ -48,7 +48,7 @@ postfix_expression <-
 dot_suffix <-
 	DOT (	K_NIL QMARK?
 		/	K_NEW
-		/	IDENT QMARK?
+		/	IDENT (EXCL / QMARK)?
 		)
 
 block <- anonymous_function

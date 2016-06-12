@@ -124,7 +124,7 @@ public class Util {
     }
 
     public static String extractEleAsString(Sequence from, int pos) {
-        return extractEleAsString((Acceptor)from, pos);
+        return extractEleAsString((Acceptor) from, pos);
     }
 
     public static String extractEleAsString(Acceptor from, int pos) {
@@ -140,24 +140,37 @@ public class Util {
         return buf.toString();
     }
 
-    public static Pair<Boolean,Integer> asInt(final Acceptor seq, int pos, boolean useBase) {
+    public static Pair<Boolean, Integer> asInt(final Acceptor seq, int pos, boolean useBase) {
         String s = asString(seq, pos, useBase);
-        return (null == s || s.isEmpty()) ? new Pair(false,0) : new Pair(true, Integer.parseInt(s));
+        return (null == s || s.isEmpty()) ? new Pair(false, 0) : new Pair(true, Integer.parseInt(s));
     }
 
-    public static Pair<Boolean,Integer> asInt(final Acceptor seq, int pos) {
+    public static Pair<Boolean, Integer> asInt(final Acceptor seq, int pos) {
         return asInt(seq, pos, true);
     }
-    
+
     public static String asString(final Acceptor seq, int pos, boolean useBase) {
         Acceptor acc = useBase ? seq.getBaseAccepted() : seq;
-        return ((Sequence)acc).getText(pos);
+        return ((Sequence) acc).getText(pos);
     }
 
     public static String asString(final Acceptor seq, int pos) {
         return asString(seq, pos, true);
     }
-    
+
+    /**
+     * Process acc as: acc->getBaseAcceptor->PrioritizedChoice.accepted->Sequence(pos)
+     * and return as string.
+     * 
+     * @param acc acceptor to process.
+     * @param pos position in referenced Sequence to get as string.
+     * @return String.
+     */
+    public static String bpsString(final Acceptor acc, int pos) {
+        final PrioritizedChoice pc = (PrioritizedChoice) acc.getBaseAccepted();
+        return Util.asString(pc.getAccepted(), pos, false);
+    }
+
     private static <T extends Acceptor> StringBuilder toStringIterable(StringBuilder sb, final Iterable<T> eles, final boolean doSfx) {
         if (null != eles) {
             for (Acceptor a : eles) {

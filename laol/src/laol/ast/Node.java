@@ -23,28 +23,30 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.STRING;
-import static apfe.runtime.Util.bpsString;
+import apfe.runtime.Acceptor;
 
 /**
  *
  * @author gburdell
  */
-public class MyString extends Node {
+public abstract class Node implements INodeType {
 
-    public MyString(final STRING id) {
-        super(id);
-        m_val = bpsString(id, 1);
+    protected Node(final Acceptor acc) {
+        m_tok = acc;
     }
 
-    /**
-     * The string value without quotes.
-     */
-    final String m_val;
+    protected Node() {
+    }
+
+    protected final void setToken(final Acceptor acc) {
+        assert (null == m_tok);
+        m_tok = acc;
+    }
 
     @Override
-    public ENode getType() {
-        return ENode.eString;
+    public String toString() {
+        return m_tok.toString();
     }
 
+    protected Acceptor m_tok;
 }

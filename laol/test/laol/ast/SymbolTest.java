@@ -23,28 +23,43 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.STRING;
-import static apfe.runtime.Util.bpsString;
+import apfe.runtime.Acceptor;
+import apfe.runtime.CharBufState;
+import apfe.runtime.CharBuffer;
+import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
 
 /**
- *
  * @author gburdell
  */
-public class MyString extends Node {
+public class SymbolTest {
 
-    public MyString(final STRING id) {
-        super(id);
-        m_val = bpsString(id, 1);
+    public SymbolTest() {
     }
 
-    /**
-     * The string value without quotes.
-     */
-    final String m_val;
-
-    @Override
-    public ENode getType() {
-        return ENode.eString;
+    private static void runTest(final String s1) {
+        //
+        CharBuffer cbuf = new CharBuffer("<none>", s1);
+        CharBufState st = CharBufState.create(cbuf, true);
+        apfe.laol.generated.SYMBOL gram = new apfe.laol.generated.SYMBOL();
+        Acceptor acc = gram.accept();
+        assertNotNull(acc);
+        System.out.println(": parse OK");
+        Symbol dut = new Symbol(gram);
+        //String t1 = dut.toString();
+        //assertTrue(s1.equals(t1));
+        //System.out.println(": match OK");
     }
 
+    @Test
+    public void testStringConstructor() {
+        String dat[] = new String[]{
+            ":symbol",
+            ":anotherSYmbol__"
+        };
+        for (String s : dat) {
+            System.out.print("Test: " + s);
+            runTest(s);
+        }
+    }
 }
