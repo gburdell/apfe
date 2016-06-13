@@ -23,7 +23,7 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.STRING;
+import laol.apfe.generated.STRING;
 import static apfe.runtime.Util.bpsString;
 
 /**

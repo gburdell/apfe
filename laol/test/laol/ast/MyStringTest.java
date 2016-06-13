@@ -41,7 +41,7 @@ public class MyStringTest {
         //
         CharBuffer cbuf = new CharBuffer("<none>", s1);
         CharBufState st = CharBufState.create(cbuf, true);
-        apfe.laol.generated.STRING gram = new apfe.laol.generated.STRING();
+        laol.apfe.generated.STRING gram = new laol.apfe.generated.STRING();
         Acceptor acc = gram.accept();
         assertNotNull(acc);
         System.out.println(": parse OK");

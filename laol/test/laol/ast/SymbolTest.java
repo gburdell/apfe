@@ -41,7 +41,7 @@ public class SymbolTest {
         //
         CharBuffer cbuf = new CharBuffer("<none>", s1);
         CharBufState st = CharBufState.create(cbuf, true);
-        apfe.laol.generated.SYMBOL gram = new apfe.laol.generated.SYMBOL();
+        laol.apfe.generated.SYMBOL gram = new laol.apfe.generated.SYMBOL();
         Acceptor acc = gram.accept();
         assertNotNull(acc);
         System.out.println(": parse OK");

@@ -54,7 +54,7 @@ public class NumberTest {
         String s1 = s2.substring(3);
         CharBuffer cbuf = new CharBuffer("<none>", s1);
         CharBufState st = CharBufState.create(cbuf, true);
-        apfe.laol.generated.Number gram = new apfe.laol.generated.Number();
+        laol.apfe.generated.Number gram = new laol.apfe.generated.Number();
         Acceptor acc = gram.accept();
         assertNotNull(acc);
         System.out.print(": parse OK");

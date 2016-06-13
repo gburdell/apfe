@@ -1,4 +1,4 @@
-package apfe.laol;
+package laol.apfe;
 
 import apfe.runtime.*;
 import java.util.regex.Matcher;

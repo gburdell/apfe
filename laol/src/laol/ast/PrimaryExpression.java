@@ -23,17 +23,17 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.KFALSE;
-import apfe.laol.generated.KFILE;
-import apfe.laol.generated.KNEW;
+import laol.apfe.generated.KFALSE;
+import laol.apfe.generated.KFILE;
+import laol.apfe.generated.KNEW;
 import apfe.runtime.Acceptor;
-import apfe.laol.generated.KNIL;
-import apfe.laol.generated.KSUPER;
-import apfe.laol.generated.KTARGET;
-import apfe.laol.generated.KTHIS;
-import apfe.laol.generated.KTRUE;
-import apfe.laol.generated.STRING;
-import apfe.laol.generated.SYMBOL;
+import laol.apfe.generated.KNIL;
+import laol.apfe.generated.KSUPER;
+import laol.apfe.generated.KTARGET;
+import laol.apfe.generated.KTHIS;
+import laol.apfe.generated.KTRUE;
+import laol.apfe.generated.STRING;
+import laol.apfe.generated.SYMBOL;
 import apfe.runtime.PrioritizedChoice;
 import com.sun.jmx.mbeanserver.Util;
 import java.util.HashMap;
@@ -68,7 +68,7 @@ public class PrimaryExpression extends Node {
         eNumber
     }
 
-    public PrimaryExpression(final apfe.laol.generated.PrimaryExpression acc) {
+    public PrimaryExpression(final laol.apfe.generated.PrimaryExpression acc) {
         final PrioritizedChoice pc = Util.cast(acc.getBaseAccepted());
         final Acceptor alt = pc.getAccepted();
         m_type = TYPE_BY_CLS.get(alt.getClass());
@@ -88,11 +88,12 @@ public class PrimaryExpression extends Node {
         TYPE_BY_CLS.put(KFILE.class, PrimaryExpression.EType.eFile);
         TYPE_BY_CLS.put(KTARGET.class, PrimaryExpression.EType.eTarget);
         TYPE_BY_CLS.put(KFALSE.class, PrimaryExpression.EType.eFalse);
+        TYPE_BY_CLS.put(KTRUE.class, PrimaryExpression.EType.eTrue);
         TYPE_BY_CLS.put(KTHIS.class, PrimaryExpression.EType.eThis);
         TYPE_BY_CLS.put(KSUPER.class, PrimaryExpression.EType.eSuper);
         TYPE_BY_CLS.put(STRING.class, PrimaryExpression.EType.eString);
         TYPE_BY_CLS.put(SYMBOL.class, PrimaryExpression.EType.eSymbol);
-        TYPE_BY_CLS.put(apfe.laol.generated.Number.class, PrimaryExpression.EType.eNumber);
+        TYPE_BY_CLS.put(laol.apfe.generated.Number.class, PrimaryExpression.EType.eNumber);
     }
 
 }

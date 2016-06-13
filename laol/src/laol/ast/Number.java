@@ -35,25 +35,21 @@ import static apfe.runtime.Util.extractEle;
  */
 public class Number extends Node {
 
-    public Number(final apfe.laol.generated.Number num) {
-        final PrioritizedChoice pc = extractEle(num.getBaseAccepted(), 0);
-        final Acceptor tok = pc.getAccepted();
-        switch (pc.whichAccepted()) {
-            case 0:
-                m_val = new Based(tok);
-                break;
-            case 1:
-                m_val = new Integer(tok);
-                break;
-            default:
-                m_val = new Float(tok);
+    public Number(final laol.apfe.generated.Number num) {
+        final Acceptor tok = extractEle(PrioritizedChoice.class, num.getBaseAccepted(), 0).getAccepted();
+        if (tok instanceof laol.apfe.generated.BasedNumber) {
+            m_val = new Based(tok);
+        } else if (tok instanceof laol.apfe.generated.Integer) {
+            m_val = new Integer(tok);
+        } else {
+            m_val = new Float(tok);
         }
         setToken(m_val.m_tok);
     }
 
     @Override
     public String toString() {
-        return m_val.toString();
+        return getVal().toString();
     }
 
     public Val getVal() {
@@ -72,7 +68,12 @@ public class Number extends Node {
         protected Val(final Acceptor tok) {
             m_tok = tok;
         }
-        
+
+        @Override
+        public String toString() {
+            return m_tok.toString();
+        }
+
         public final Acceptor m_tok;
     }
 

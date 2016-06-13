@@ -7,11 +7,10 @@ DEPS ?= base.java.tmpl dlrbase.java.tmpl generate.props.txt ${PEG}
 goal: generate.log
 
 generate.log: ${PEG}
-	-rm -rf src/apfe/${GRAMMAR}/generated
-	-rm -f generate.log
+	${MAKE} clean
 	${TOOL} ${PEG} generate.props.txt > generate.log
 	tail generate.log
 
 clean:
-	-rm -rf src/apfe/${GRAMMAR}/generated
+	-rm -rf src/${GRAMMAR}/apfe/generated
 	-rm -f generate.log

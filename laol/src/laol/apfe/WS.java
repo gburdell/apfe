@@ -1,9 +1,8 @@
 
-package apfe.laol ;
+package laol.apfe ;
 
 
 import apfe.runtime.*;
-import apfe.laol.*;
 
 
 

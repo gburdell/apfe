@@ -1,4 +1,4 @@
-package apfe.laol.generated;
+package laol.apfe.generated;
 
 import apfe.runtime.Acceptor;
 import apfe.runtime.CharBufState;

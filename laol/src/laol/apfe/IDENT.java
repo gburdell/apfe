@@ -1,6 +1,6 @@
-package apfe.laol;
+package laol.apfe;
 
-import apfe.laol.generated.Spacing;
+import laol.apfe.generated.Spacing;
 import apfe.runtime.*;
 import java.util.Arrays;
 import java.util.HashSet;

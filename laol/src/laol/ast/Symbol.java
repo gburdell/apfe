@@ -23,7 +23,7 @@
  */
 package laol.ast;
 
-import apfe.laol.generated.SYMBOL;
+import laol.apfe.generated.SYMBOL;
 import static apfe.runtime.Util.asString;
 
 /**

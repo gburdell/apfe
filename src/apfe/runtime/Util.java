@@ -123,6 +123,10 @@ public class Util {
         return downCast(from.getAccepted()[pos]);
     }
 
+    public static <T> T extractEle(Class<T> type, Acceptor acc, int pos) {
+        return type.cast(extractEle(acc, pos));
+    }
+
     public static String extractEleAsString(Sequence from, int pos) {
         return extractEleAsString((Acceptor) from, pos);
     }
@@ -159,9 +163,10 @@ public class Util {
     }
 
     /**
-     * Process acc as: acc->getBaseAcceptor->PrioritizedChoice.accepted->Sequence(pos)
-     * and return as string.
-     * 
+     * Process acc as:
+     * acc->getBaseAcceptor->PrioritizedChoice.accepted->Sequence(pos) and
+     * return as string.
+     *
      * @param acc acceptor to process.
      * @param pos position in referenced Sequence to get as string.
      * @return String.

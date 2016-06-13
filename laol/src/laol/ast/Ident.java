@@ -23,7 +23,7 @@
  */
 package laol.ast;
 
-import apfe.laol.IDENT;
+import laol.apfe.IDENT;
 import apfe.runtime.Acceptor;
 
 /**
