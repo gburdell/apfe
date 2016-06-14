@@ -35,6 +35,8 @@ import laol.apfe.generated.KTRUE;
 import laol.apfe.generated.STRING;
 import laol.apfe.generated.SYMBOL;
 import apfe.runtime.PrioritizedChoice;
+import apfe.runtime.Sequence;
+import static apfe.runtime.Util.extractEle;
 import com.sun.jmx.mbeanserver.Util;
 import java.util.HashMap;
 import java.util.Map;
@@ -70,10 +72,15 @@ public class PrimaryExpression extends Node {
 
     public PrimaryExpression(final laol.apfe.generated.PrimaryExpression acc) {
         final PrioritizedChoice pc = Util.cast(acc.getBaseAccepted());
-        final Acceptor alt = pc.getAccepted();
+        // take it, else 1st of sequence
+        Acceptor alt = pc.getAccepted();
+        if (alt instanceof Sequence) {
+            alt = extractEle(alt, 0);
+        }
         m_type = TYPE_BY_CLS.get(alt.getClass());
         switch (m_type) {
             //TODO
+            //set qmark and excl
         }
     }
 
@@ -94,6 +101,7 @@ public class PrimaryExpression extends Node {
         TYPE_BY_CLS.put(STRING.class, PrimaryExpression.EType.eString);
         TYPE_BY_CLS.put(SYMBOL.class, PrimaryExpression.EType.eSymbol);
         TYPE_BY_CLS.put(laol.apfe.generated.Number.class, PrimaryExpression.EType.eNumber);
+        TYPE_BY_CLS.put(laol.apfe.generated.VariableName.class, PrimaryExpression.EType.eVarName);
     }
 
 }
