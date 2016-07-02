@@ -36,8 +36,8 @@ import laol.apfe.generated.STRING;
 import laol.apfe.generated.SYMBOL;
 import apfe.runtime.PrioritizedChoice;
 import apfe.runtime.Sequence;
+import gblib.Util;
 import static apfe.runtime.Util.extractEle;
-import com.sun.jmx.mbeanserver.Util;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +71,7 @@ public class PrimaryExpression extends Node {
     }
 
     public PrimaryExpression(final laol.apfe.generated.PrimaryExpression acc) {
-        final PrioritizedChoice pc = Util.cast(acc.getBaseAccepted());
+        final PrioritizedChoice pc = Util.downCast(acc.getBaseAccepted());
         // take it, else 1st of sequence
         Acceptor alt = pc.getAccepted();
         if (alt instanceof Sequence) {

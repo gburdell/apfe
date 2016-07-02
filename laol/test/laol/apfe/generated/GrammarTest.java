@@ -23,27 +23,34 @@ public class GrammarTest {
         //dont clutter message with these
         ParseError.setSkipErrorHints("' '", "'\\t'", "'//'", "'/*'");
     }
+
     /**
      * Test of accepti method, of class Grammar.
      */
     @Test
     public void testAccepti() {
-        final String fn = "test/data/t1.txt";
+        final String fns[] = {
+            "test/data/t1.txt",
+            "test/data/t2.txt"
+        };
         try {
-            InputStream fis = new InputStream(fn);
-            CharBuffer cbuf = fis.newCharBuffer();
-            CharBufState st = CharBufState.create(cbuf);
-            Grammar gram = new Grammar();
-            Acceptor acc = gram.accept();
-            if (null != acc) {
-                String ss = acc.toString();
-                System.out.println("returns:\n========\n" + ss);
+            for (String fn : fns) {
+                InputStream fis = new InputStream(fn);
+                System.out.println("Info: " + fn);
+                CharBuffer cbuf = fis.newCharBuffer();
+                CharBufState.create(cbuf, true);
+                Grammar gram = new Grammar();
+                Acceptor acc = gram.accept();
+                if (null != acc) {
+                    String ss = acc.toString();
+                    System.out.println("returns:\n========\n" + ss);
+                }
+                boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
+                if (!result) {
+                    ParseError.printTopMessage();
+                }
+                assertTrue(result);
             }
-            boolean result = (null != acc) && CharBufState.getTheOne().isEOF();
-            if (!result) {
-                ParseError.printTopMessage();
-            }
-            assertTrue(result);
         } catch (Exception ex) {
             Util.abnormalExit(ex);
         }

@@ -152,7 +152,8 @@ try_statement <-
 		catch_statement*
 		finally_statement?
 
-// NOTE: while ruby allows most statements as rhs; e.g.: "foo = if xxx; 12", we will not.  Use method to do so.
+// NOTE: while ruby allows most statements as rhs; e.g.: "foo = if xxx; 12", 
+// we will not.  Use method to do so.
 assignment_rhs <-
 	expression (COMMA expression)* s_tail	
 /	anonymous_function statement_modifier?
@@ -189,11 +190,11 @@ class_declaration <-
 		method_param_decl?
 		class_extends?
 		LCURLY
-			class_body?
+			class_body
 		RCURLY
 
 //1st statement is initializer
-class_body <- base_class_initializer? statement
+class_body <- base_class_initializer? statement*
 
 base_class_initializer <- K_SUPER method_param_decl?  SEMI
 
@@ -228,8 +229,11 @@ method_declaration <-
 		)
 	
 method_name <-
-	IDENT
-/	unary_op
+	IDENT? method_name_op
+/	IDENT
+
+method_name_op <-
+	unary_op
 /	binary_op
 /	assignment_op
 /	PLUS2 / MINUS2	//postix operator

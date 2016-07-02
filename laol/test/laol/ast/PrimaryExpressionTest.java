@@ -37,7 +37,7 @@ public class PrimaryExpressionTest {
 
     private static void runTest(final String s1) {
         CharBuffer cbuf = new CharBuffer("<none>", s1);
-        CharBufState st = CharBufState.create(cbuf, true);
+        CharBufState.create(cbuf, true);
         laol.apfe.generated.PrimaryExpression gram = new laol.apfe.generated.PrimaryExpression();
         Acceptor acc = gram.accept();
         assertNotNull(acc);

@@ -1,0 +1,18 @@
+// All objects are immutable (val) by default
+
+class List {
+    def add(data) {
+        ele = Ele.new(data);
+        if m_head.nil?
+            m_head, m_tail = ele, ele;
+    }
+
+    private var m_head, m_tail = nil, nil;
+
+    // The constructor initializers are instance variables: data and pnext
+    private class Ele(m_data, private var m_next=nil) {
+        def snext=(n) {
+            m_next = n;
+        }
+    }
+}
