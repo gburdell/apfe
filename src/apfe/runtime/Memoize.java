@@ -119,7 +119,7 @@ public class Memoize {
     }
 
     static {
-        stEnableMemoize = "true".equals(System.getProperty("apfe.runtime.EnableMemoize", "true"));
+        stEnableMemoize = "true".equals(System.getProperty("apfe.runtime.EnableMemoize", "false"));
         stMemoizeSize = Integer.parseInt(System.getProperty("apfe.runtime.MemoizeSize", "10"));
     }
     
