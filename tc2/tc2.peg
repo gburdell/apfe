@@ -1,0 +1,5 @@
+Grammar <- a* a* b* b* c* EOF
+
+a <- 'a'
+b <- 'b'
+c <- 'c'
