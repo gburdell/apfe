@@ -31,6 +31,18 @@ import java.util.Arrays;
 
 public class Util {
 
+    public static <T extends Acceptor> T downcast(Acceptor acc) {
+        return (T) acc;
+    }
+
+    public static Sequence asSequence(Acceptor acc) {
+        return Util.<Sequence>downcast(acc.getBaseAccepted());
+    }
+
+    public static PrioritizedChoice asPrioritizedChoice(Acceptor acc) {
+        return Util.<PrioritizedChoice>downcast(acc.getBaseAccepted());
+    }
+
     /**
      * Convert list of Acceptors to list of T
      *
