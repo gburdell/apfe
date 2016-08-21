@@ -77,6 +77,9 @@ public class Sequence extends Acceptor {
         if (match) {
             m_eles = accepted;
             m_texts = texts;
+        } else {
+            m_eles = new Acceptor[0];
+            m_texts = new String[0];
         }
         ParseError.reduce();
         return match;

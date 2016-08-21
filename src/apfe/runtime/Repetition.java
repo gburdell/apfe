@@ -23,6 +23,7 @@
  */
 package apfe.runtime;
 import static gblib.Util.downCast;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class Repetition extends Acceptor {
      * @return accepted sequence.
      */
     public List<Acceptor> getAccepted() {
-        return m_accepted;
+        return (null != m_accepted) ? m_accepted : Collections.<Acceptor>emptyList();
     }
 
     /**
@@ -58,7 +59,7 @@ public class Repetition extends Acceptor {
     }
     
     public int sizeofAccepted() {
-        return (null == getAccepted()) ? 0 : getAccepted().size();
+        return getAccepted().size();
     }
     private final ERepeat m_rep;
     private final Acceptor m_defn;
@@ -130,4 +131,5 @@ public class Repetition extends Acceptor {
         return m_str.toString();
     }
     private StringBuilder m_str;
+    
 }
