@@ -28,6 +28,7 @@ import static gblib.Util.downCast;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Util {
 
@@ -111,7 +112,7 @@ public class Util {
                 to.add(ele);
             }
         }
-        return to;
+        return (null != to) ? to : Collections.EMPTY_LIST;
     }
 
     public static <T extends Acceptor> List<T> extractList(Repetition from, int pos) {
