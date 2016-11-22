@@ -37,11 +37,11 @@ public class Util {
     }
 
     public static Sequence asSequence(Acceptor acc) {
-        return Util.<Sequence>downcast(acc.getBaseAccepted());
+        return (acc instanceof Sequence) ? (Sequence)acc : Util.<Sequence>downcast(acc.getBaseAccepted());
     }
 
     public static PrioritizedChoice asPrioritizedChoice(Acceptor acc) {
-        return Util.<PrioritizedChoice>downcast(acc.getBaseAccepted());
+        return (acc instanceof PrioritizedChoice) ? (PrioritizedChoice)acc : Util.<PrioritizedChoice>downcast(acc.getBaseAccepted());
     }
 
     /**
