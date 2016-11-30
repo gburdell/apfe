@@ -143,7 +143,7 @@ public abstract class LeftRecursiveAcceptor extends Acceptor {
     
     @Override
     public String toString() {
-        String s = (null != m_items) ? m_items.toString() : "";
+        String s = (null != m_items && !m_items.isEmpty()) ? m_items.get(0).toString() : "";
         return s;
     }
 
