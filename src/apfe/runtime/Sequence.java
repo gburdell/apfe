@@ -39,6 +39,10 @@ public class Sequence extends Acceptor {
         return m_eles;
     }
     
+    public Acceptor itemAt(int ix) {
+        return getAccepted()[ix];
+    }
+    
     public String getText(int ix) {
         return m_texts[ix];
     }
@@ -52,6 +56,18 @@ public class Sequence extends Acceptor {
     
     public Sequence(Acceptor ... eles) {
         m_eles = eles;
+    }
+    
+    /**
+     * Constructor used for subclass to massage existing Sequence, possibly
+     * drop some elements (like spaces) and then reconstruct.
+     * @param accs  create Sequence with these (presumably already accepted) acceptors.
+     * @param texts  matching text items (to acceptors).
+     */
+    protected Sequence(final Acceptor accs[], final String texts[]) {
+        assert(accs.length == texts.length);
+        m_eles = accs;
+        m_texts = texts;
     }
     
     @Override
