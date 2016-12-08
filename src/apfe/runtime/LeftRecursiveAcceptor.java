@@ -79,6 +79,9 @@ public abstract class LeftRecursiveAcceptor extends Acceptor {
             for (int i = startNonLrIx; !ok && (null != (cand = getChoice(i))); i++) {
                 cand = Acceptor.match(cand);
                 ok = (null != cand);
+                if (ok) {
+                    m_lastChoice = cand;
+                }
                 /**
                  * If ok, then cand is one of the subclass getChoice(). And the
                  * subclass has already tracked that.
