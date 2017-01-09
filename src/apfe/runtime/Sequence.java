@@ -38,26 +38,30 @@ public class Sequence extends Acceptor {
     public Acceptor[] getAccepted() {
         return m_eles;
     }
-    
+
     public Acceptor itemAt(int ix) {
         return getAccepted()[ix];
     }
-    
+
     public String getText(int ix) {
         return m_texts[ix];
     }
-    
+
     public String getTexts(int begin, int end) {
         return Util.extractEleAsString(this, begin, end);
     }
     
+    public int length() {
+        return m_eles.length;
+    }
+
     private Acceptor m_eles[];
-    private String   m_texts[];
-    
-    public Sequence(Acceptor ... eles) {
+    private String m_texts[];
+
+    public Sequence(Acceptor... eles) {
         m_eles = eles;
     }
-    
+
     @Override
     protected boolean accepti() {
         boolean match = true;
@@ -88,12 +92,12 @@ public class Sequence extends Acceptor {
         ParseError.reduce();
         return match;
     }
-    
+
     @Override
     public Acceptor create() {
         return new Sequence(Acceptor.create(m_eles));
     }
-    
+
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
