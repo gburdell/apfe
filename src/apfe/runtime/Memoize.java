@@ -23,6 +23,7 @@
  */
 package apfe.runtime;
 
+import gblib.Pair;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -91,18 +92,18 @@ public class Memoize {
         }
     }
 
-    public static class Data extends gblib.Util.Pair<Acceptor, Marker> {
+    public static class Data extends Pair<Acceptor, Marker> {
 
         public Data(Acceptor accepted, Marker endMark) {
             super(accepted, endMark);
         }
 
         public Acceptor getAcceptor() {
-            return this.e1;
+            return this.v1;
         }
 
         public Marker getMark() {
-            return this.e2;
+            return this.v2;
         }
     }
     
