@@ -84,9 +84,7 @@ public class ParseError {
         String s = (EOF != c) ? String.valueOf(c) : "<EOF>";
         String nargs[] = new String[1 + args.length];
         nargs[0] = s;
-        for (int i = 0; i < args.length; i++) {
-            nargs[i + 1] = args[i];
-        }
+        System.arraycopy(args, 0, nargs, 1, args.length);
         ParseError p = new ParseError(EType.eFoundExpecting, nargs);
         push(p);
     }
