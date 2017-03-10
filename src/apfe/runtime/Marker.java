@@ -33,6 +33,10 @@ public abstract class Marker {
     
     public abstract int getCol();
     
+    public int getLnum() {
+        return  -1;
+    }
+    
     public abstract String getFileName();
     
     public int length(Marker to) {

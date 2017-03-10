@@ -137,7 +137,8 @@ public class ScannerState extends State {
             return m_tokens.get(getPos());
         }
 
-        private int getLnum() {
+        @Override
+        public int getLnum() {
             return getToken().getLineNum();
         }
 

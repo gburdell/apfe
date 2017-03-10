@@ -273,6 +273,7 @@ public class CharBuffer {
             return getLnum() + ":" + getCol();
         }
 
+        @Override
         public int getLnum() {
             return m_xlnum;
         }

@@ -101,8 +101,8 @@ public class Sequence extends Acceptor {
     @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
-        for (Acceptor a : getAccepted()) {
-            s.append(a.toString());
+        for (String i : m_texts) {
+            s.append(i);
         }
         return s.toString();
     }
