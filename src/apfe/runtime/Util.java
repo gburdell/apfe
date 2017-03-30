@@ -112,7 +112,7 @@ public class Util {
                 to.add(ele);
             }
         }
-        return (null != to) ? to : Collections.EMPTY_LIST;
+        return (null != to) ? to : gblib.Util.<T>emptyUnmodifiableList();
     }
 
     public static <T extends Acceptor> List<T> extractList(Repetition from, int pos) {
